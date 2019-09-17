@@ -107,7 +107,7 @@ player
 instrument
   = "triangle" { return new Tone.Synth({volume: defaultVolume}); }
   / "soft" { return new Tone.Synth({oscillator: {type: "sine2", partials: [1, .5], volume: defaultVolume}}); }
-
+  / "saw" { return new Tone.Synth({oscillator: {type: "fatsawtooth", volume: defaultVolume, spread: 40}}); }
 // A sequence of instrument attributes
 // Returns a list of dictionaries which can be set on an instrument
 attributeseq
