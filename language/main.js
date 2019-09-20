@@ -1,5 +1,9 @@
 const peg = require('./language.js');
 
+/* eslint-disable*/
+let runningParts = {};
+/* eslint-enable */
+
 document.documentElement.addEventListener(
   'mousedown', () => {
     if (Tone.context.state !== 'running') {
@@ -9,20 +13,32 @@ document.documentElement.addEventListener(
   },
 );
 
-function stop() {
-  runningParts.forEach((part) => {
-    part.stop();
-  });
-  runningParts = [];
+function stop(button) {
+  if (button.parentElement in runningParts) {
+    runningParts[button.parentElement].forEach((part) => {
+      part.stop();
+    });
+  }
+
+  delete runningParts[button.parentElement];
 }
 
-function start() {
-  stop();
-  peg.parse(document.getElementById('input').value);
+function start(button) {
+  stop(button);
+  const parts = peg.parse(button.parentElement.querySelector('textarea').value);
+  runningParts[button.parentElement] = parts;
 }
 
-document.getElementById('Start').addEventListener('click', () => { start(); });
-document.getElementById('Stop').addEventListener('click', () => { stop(); });
+document.querySelectorAll('[id=Start]').forEach((element) => {
+  element.addEventListener('click', () => { start(element); });
+});
+document.querySelectorAll('[id=Stop]').forEach((element) => {
+  element.addEventListener('click', () => { stop(element); });
+});
+
+// document.getElementById('Start').addEventListener('click', () => { start(); });
+// document.getElementById('Stop').addEventListener('click', () => { stop(); });
+
 // To do:
 // add additional modifiers, instrments, filters, and attributes
 // add syntax for changing defaults

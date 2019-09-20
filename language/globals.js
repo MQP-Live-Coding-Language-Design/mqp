@@ -9,5 +9,3 @@ hat = new Tone.Buffer('./samples/hat.wav');
 kick = new Tone.Buffer('./samples/kick.wav');
 snare = new Tone.Buffer('./samples/snare.wav');
 ophat = new Tone.Buffer('./samples/ophat.wav');
-
-runningParts = [];

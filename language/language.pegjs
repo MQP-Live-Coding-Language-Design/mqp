@@ -4,10 +4,12 @@
   const Rest = require('./classes/Rest.js');
   const Phrase = require('./classes/Phrase.js');
   const Part = require('./classes/Part.js');
+
+  let returnParts = [];
 }
 
 start
-  = _ multiLines _
+  = _ multiLines _ { return returnParts; }
 
 // Multiple sequences
 multiLines
@@ -21,7 +23,6 @@ line
 	  for (var i = 0; i < mods.length; i++) {
 		  mods[i](notes);
 	  }
-	  return notes;
   }
 
 // Written sequence of notes, contained within quotes
@@ -77,11 +78,8 @@ modifier
   = '>>' _ "octave" _ mod:nummod { return function(phrase) {phrase.octChange(mod);}; }
   / '>>' _ "pitch" _ mod:nummod { return function(phrase) {phrase.pitchChange(mod);}; }
   / '>>' _ "tempo" _ mod:fltOrFrac { return function(phrase) {phrase.tempoChange(mod);}; }
-  // '>>' _ "triangle" { return function(phrase) { let np = new Part(new Tone.Synth({volume: -10}).toMaster(), phrase); runningParts.push(np); np.start(); }; }
-  // '>>' _ "soft" { return function(phrase) { let np = new Part(new Tone.Synth({oscillator:{type:"sine2", partials:[1, .5], volume:-15}}).toMaster(), phrase); runningParts.push(np); np.start(); };}
-  // '>>' _ "saw" { return function(phrase) { let np = new Part(new Tone.FatOscillator("Ab3", "sine", 40).toMaster(), phrase); runningParts.push(np); np.start(); }; }
   / '>>' _ plr:player { return plr; }
-  / '>>' _ "play" { return function(phrase) { let np = new Part(null, phrase); runningParts.push(np); np.start(); }; }
+  / '>>' _ "play" { return function(phrase) { let np = new Part(null, phrase); returnParts.push(np); np.start(); }; }
 
 // Instrument plus its attributes and filters
 // Returns a function that plays a phrase
@@ -99,7 +97,7 @@ player
   }
   last.toMaster();
 
-  return function(phrase) { let np = new Part(inst, phrase); runningParts.push(np); np.start(); };
+  return function(phrase) { let np = new Part(inst, phrase); returnParts.push(np); np.start(); };
 }
 
 // A default instrument
