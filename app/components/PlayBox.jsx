@@ -1,7 +1,7 @@
 import React from 'react';
 
-const PlayBox = () => (
-  <div>
+const PlayBox = (id) => (
+  <div className="playBox" id={id}>
     <textarea
       rows="10"
       cols="90"

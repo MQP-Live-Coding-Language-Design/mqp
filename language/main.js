@@ -37,6 +37,15 @@ document.querySelectorAll('[id=Stop]').forEach((element) => {
   element.addEventListener('click', () => { stop(element); });
 });
 
+document.querySelectorAll('.playBox').forEach((playBox) => {
+  let toParse;
+  console.log(playBox.getElementById('Start'));
+  playBox.forEach((element) => {
+    if (element.getAttribute('id') === 'input') {
+      console.log(element.value);
+    }
+  });
+});
 // document.getElementById('Start').addEventListener('click', () => { start(); });
 // document.getElementById('Stop').addEventListener('click', () => { stop(); });
 

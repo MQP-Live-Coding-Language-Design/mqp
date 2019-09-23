@@ -5,8 +5,8 @@ import PlayBox from '~components/PlayBox';
 const App = () => (
   <div>
     <Homepage />
-    <PlayBox />
-    <PlayBox />
+    <PlayBox id="firstBox" />
+    <PlayBox id="secondBox" />
   </div>
 );
 
