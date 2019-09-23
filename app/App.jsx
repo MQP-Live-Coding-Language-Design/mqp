@@ -1,12 +1,12 @@
 import React from 'react';
 import Homepage from '~components/Homepage';
-import Tutorial from '~components/Tutorial';
+import PlayBox from '~components/PlayBox';
 
 const App = () => (
   <div>
     <Homepage />
-    <Tutorial />
-    <Tutorial />
+    <PlayBox />
+    <PlayBox />
   </div>
 );
 

@@ -1,6 +1,6 @@
 import React from 'react';
 
-const Tutorial = () => (
+const PlayBox = () => (
   <div>
     <textarea
       rows="10"
@@ -20,4 +20,4 @@ const Tutorial = () => (
   </div>
 );
 
-export default Tutorial;
+export default PlayBox;
