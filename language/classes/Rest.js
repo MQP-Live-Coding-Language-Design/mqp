@@ -1,10 +1,13 @@
+const Tone = require('tone');
+const defaults = require('../defaults');
+
 /**
  * A Rest is a Group representing a Rest
  */
 
 class Rest {
   constructor() {
-    this.gap = defaultGap; // {float} representing gap between this note and next
+    this.gap = defaults.defaultGap; // {float} representing gap between this note and next
   }
 
   octChange() { return this; }
@@ -21,7 +24,7 @@ class Rest {
 
   get copy() {
     const ret = new Rest();
-    ret.tempoChange(this.gap / defaultGap);
+    ret.tempoChange(this.gap / defaults.defaultGap);
     return ret;
   }
 

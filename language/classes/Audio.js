@@ -1,3 +1,8 @@
+// import defaultGap from '../defaults';
+
+const Tone = require('tone');
+const defaults = require('../defaults');
+
 /**
  * An Audio is a Group representing an audio file
  */
@@ -7,7 +12,7 @@ class Audio {
     this.buffer = buffer;
     this.player = new Tone.Player(buffer).toMaster(); // Tone.Player which contains the sound
     this.player.volume.value = -5;
-    this.gap = defaultGap; // {float} gap between a note and the next
+    this.gap = defaults.defaultGap; // {float} gap between a note and the next
   }
 
   tempoChange(n) {
@@ -20,7 +25,7 @@ class Audio {
 
   get copy() {
     const ret = new Audio(this.buffer);
-    ret.tempoChange(this.gap / defaultGap);
+    ret.tempoChange(this.gap / defaults.defaultGap);
     return ret;
   }
 

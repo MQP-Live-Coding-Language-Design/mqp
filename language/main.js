@@ -1,3 +1,4 @@
+const Tone = require('tone');
 const peg = require('./language.js');
 
 /* eslint-disable*/

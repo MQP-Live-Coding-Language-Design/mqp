@@ -151,7 +151,7 @@ function peg$parse(input, options) {
       	  }
         },
       peg$c5 = function(note, seq) { seq.add(note); return seq; },
-      peg$c6 = function(note) { return new Phrase([note]); },
+      peg$c6 = function(note) { return new classes.Phrase([note]); },
       peg$c7 = "~",
       peg$c8 = peg$literalExpectation("~", false),
       peg$c9 = function(note, ext) { note.tempoChange(ext.length + 1); return note; },
@@ -159,26 +159,26 @@ function peg$parse(input, options) {
       peg$c11 = peg$classExpectation([["A", "G"]], false, true),
       peg$c12 = /^[#b]/,
       peg$c13 = peg$classExpectation(["#", "b"], false, false),
-      peg$c14 = function(note, oct) { return new Note(Tone.Frequency(note+oct)); },
+      peg$c14 = function(note, oct) { return new classes.Note(Tone.Frequency(note+oct)); },
       peg$c15 = "o",
       peg$c16 = peg$literalExpectation("o", false),
-      peg$c17 = function() { return new Audio(kick); },
+      peg$c17 = function() { return new classes.Audio(samples.kick); },
       peg$c18 = "x",
       peg$c19 = peg$literalExpectation("x", false),
-      peg$c20 = function() { return new Audio(snare); },
+      peg$c20 = function() { return new classes.Audio(samples.snare); },
       peg$c21 = "--",
       peg$c22 = peg$literalExpectation("--", false),
-      peg$c23 = function() { return new Audio(ophat); },
+      peg$c23 = function() { return new classes.Audio(samples.ophat); },
       peg$c24 = "-",
       peg$c25 = peg$literalExpectation("-", false),
-      peg$c26 = function() { return new Audio(hat); },
+      peg$c26 = function() { return new classes.Audio(samples.hat); },
       peg$c27 = "_",
       peg$c28 = peg$literalExpectation("_", false),
-      peg$c29 = function() { return new Rest(); },
+      peg$c29 = function() { return new classes.Rest(); },
       peg$c30 = /^[0-9]/,
       peg$c31 = peg$classExpectation([["0", "9"]], false, false),
       peg$c32 = function(num) { return parseInt(num); },
-      peg$c33 = function(mod) { return defaultoctave + mod; },
+      peg$c33 = function(mod) { return defaults.defaultOctave + mod; },
       peg$c34 = /^[+\-]/,
       peg$c35 = peg$classExpectation(["+", "-"], false, false),
       peg$c36 = function(signs) {
@@ -205,7 +205,7 @@ function peg$parse(input, options) {
       peg$c50 = function(plr) { return plr; },
       peg$c51 = "play",
       peg$c52 = peg$literalExpectation("play", false),
-      peg$c53 = function() { return function(phrase) { let np = new Part(null, phrase); returnParts.push(np); np.start(); }; },
+      peg$c53 = function() { return function(phrase) { let np = new classes.Part(null, phrase); returnParts.push(np); np.start(); }; },
       peg$c54 = function(inst, attr, fltr) {
         for (var a of attr) {
           inst.set(a);
@@ -218,17 +218,17 @@ function peg$parse(input, options) {
         }
         last.toMaster();
 
-        return function(phrase) { let np = new Part(inst, phrase); returnParts.push(np); np.start(); };
+        return function(phrase) { let np = new classes.Part(inst, phrase); returnParts.push(np); np.start(); };
       },
       peg$c55 = "triangle",
       peg$c56 = peg$literalExpectation("triangle", false),
-      peg$c57 = function() { return new Tone.Synth({volume: defaultVolume}); },
+      peg$c57 = function() { return new Tone.Synth({volume: defaults.defaultVolume}); },
       peg$c58 = "soft",
       peg$c59 = peg$literalExpectation("soft", false),
-      peg$c60 = function() { return new Tone.Synth({oscillator: {type: "sine2", partials: [1, .5], volume: defaultVolume}}); },
+      peg$c60 = function() { return new Tone.Synth({oscillator: {type: "sine2", partials: [1, .5], volume: defaults.defaultVolume}}); },
       peg$c61 = "saw",
       peg$c62 = peg$literalExpectation("saw", false),
-      peg$c63 = function() { return new Tone.Synth({oscillator: {type: "fatsawtooth", volume: defaultVolume, spread: 40}}); },
+      peg$c63 = function() { return new Tone.Synth({oscillator: {type: "fatsawtooth", volume: defaults.defaultVolume, spread: 40}}); },
       peg$c64 = function(attr, seq) { return seq.concat([attr]); },
       peg$c65 = "wave",
       peg$c66 = peg$literalExpectation("wave", false),
@@ -241,7 +241,7 @@ function peg$parse(input, options) {
       peg$c73 = function(wave) { return {oscillator: {type: wave}}; },
       peg$c74 = "volume",
       peg$c75 = peg$literalExpectation("volume", false),
-      peg$c76 = function(sign, num) { if (sign !== null) num *= -1; return {volume: num+defaultVolume}; },
+      peg$c76 = function(sign, num) { if (sign !== null) num *= -1; return {volume: num+defaults.defaultVolume}; },
       peg$c77 = ">",
       peg$c78 = peg$literalExpectation(">", false),
       peg$c79 = function(fltr, seq) { return [fltr].concat(seq); },
@@ -1684,11 +1684,10 @@ function peg$parse(input, options) {
   }
 
 
-    const Note = require('./classes/Note.js');
-    const Audio = require('./classes/Audio.js');
-    const Rest = require('./classes/Rest.js');
-    const Phrase = require('./classes/Phrase.js');
-    const Part = require('./classes/Part.js');
+    const Tone = require('tone');
+    const defaults = require('./defaults');
+    const samples = require('./samples')
+    const classes = require('./classes/classes');
 
     let returnParts = [];
 

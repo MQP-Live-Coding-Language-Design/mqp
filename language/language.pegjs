@@ -1,9 +1,8 @@
 {
-  const Note = require('./classes/Note.js');
-  const Audio = require('./classes/Audio.js');
-  const Rest = require('./classes/Rest.js');
-  const Phrase = require('./classes/Phrase.js');
-  const Part = require('./classes/Part.js');
+  const Tone = require('tone');
+  const defaults = require('./defaults');
+  const samples = require('./samples')
+  const classes = require('./classes/classes');
 
   let returnParts = [];
 }
@@ -29,7 +28,7 @@ line
 // Returns a Phrase containing the notes
 noteseq
   = note:note __ seq:noteseq { seq.add(note); return seq; }
-  / note:note { return new Phrase([note]); }
+  / note:note { return new classes.Phrase([note]); }
 
 // A single note
 // Returns a Note
@@ -39,18 +38,18 @@ note
 // The base of a note
 // Returns a Note
 notestart
-  = note:$([A-G]i [#b]?) oct:octmod { return new Note(Tone.Frequency(note+oct)); }
-  / "o" { return new Audio(kick); }
-  / "x" { return new Audio(snare); }
-  / "--" { return new Audio(ophat); }
-  / "-" { return new Audio(hat); }
-  / "_" { return new Rest(); }
+  = note:$([A-G]i [#b]?) oct:octmod { return new classes.Note(Tone.Frequency(note+oct)); }
+  / "o" { return new classes.Audio(samples.kick); }
+  / "x" { return new classes.Audio(samples.snare); }
+  / "--" { return new classes.Audio(samples.ophat); }
+  / "-" { return new classes.Audio(samples.hat); }
+  / "_" { return new classes.Rest(); }
 
 // Optional octave modifier for after a note
 // Returns an int representing the octave of the note
 octmod
   = num:$([0-9]+) { return parseInt(num); }
-  / mod:nummod { return defaultoctave + mod; }
+  / mod:nummod { return defaults.defaultOctave + mod; }
 
 // Either a sequence of +'s and -'s or a single + or - followed by a number
 // Multiple uses
@@ -79,7 +78,7 @@ modifier
   / '>>' _ "pitch" _ mod:nummod { return function(phrase) {phrase.pitchChange(mod);}; }
   / '>>' _ "tempo" _ mod:fltOrFrac { return function(phrase) {phrase.tempoChange(mod);}; }
   / '>>' _ plr:player { return plr; }
-  / '>>' _ "play" { return function(phrase) { let np = new Part(null, phrase); returnParts.push(np); np.start(); }; }
+  / '>>' _ "play" { return function(phrase) { let np = new classes.Part(null, phrase); returnParts.push(np); np.start(); }; }
 
 // Instrument plus its attributes and filters
 // Returns a function that plays a phrase
@@ -97,15 +96,15 @@ player
   }
   last.toMaster();
 
-  return function(phrase) { let np = new Part(inst, phrase); returnParts.push(np); np.start(); };
+  return function(phrase) { let np = new classes.Part(inst, phrase); returnParts.push(np); np.start(); };
 }
 
 // A default instrument
 // Returns a new Tone.Synth
 instrument
-  = "triangle" { return new Tone.Synth({volume: defaultVolume}); }
-  / "soft" { return new Tone.Synth({oscillator: {type: "sine2", partials: [1, .5], volume: defaultVolume}}); }
-  / "saw" { return new Tone.Synth({oscillator: {type: "fatsawtooth", volume: defaultVolume, spread: 40}}); }
+  = "triangle" { return new Tone.Synth({volume: defaults.defaultVolume}); }
+  / "soft" { return new Tone.Synth({oscillator: {type: "sine2", partials: [1, .5], volume: defaults.defaultVolume}}); }
+  / "saw" { return new Tone.Synth({oscillator: {type: "fatsawtooth", volume: defaults.defaultVolume, spread: 40}}); }
 // A sequence of instrument attributes
 // Returns a list of dictionaries which can be set on an instrument
 attributeseq
@@ -116,7 +115,7 @@ attributeseq
 // Returns a dictionary which can be set on an instrument
 attribute
   = "wave" __ wave:("sine"/"triangle"/"square"/"sawtooth") { return {oscillator: {type: wave}}; }
-  / "volume" __ sign:"-"? num:fltOrFrac { if (sign !== null) num *= -1; return {volume: num+defaultVolume}; }
+  / "volume" __ sign:"-"? num:fltOrFrac { if (sign !== null) num *= -1; return {volume: num+defaults.defaultVolume}; }
 
 // A sequence of filters for an Instrument
 // Returns a list of Tone effects

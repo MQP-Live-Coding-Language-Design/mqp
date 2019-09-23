@@ -1,11 +1,14 @@
+const Tone = require('tone');
+const defaults = require('../defaults');
+
 /**
  * A Note is a Group representing a note
  */
 class Note {
   constructor(frequency) {
     this.frequency = frequency; // {Tone.Frequency} pitch of the note
-    this.sustain = defaultSustain; // {float} proportion of gap time (0-1) to sustain a note
-    this.gap = defaultGap; // {float} gap between a note and the next
+    this.sustain = defaults.defaultSustain; // {float} proportion of gap time (0-1) to sustain note
+    this.gap = defaults.defaultGap; // {float} gap between a note and the next
   }
 
   octChange(n) {
@@ -26,7 +29,7 @@ class Note {
 
   get copy() {
     const newNote = new Note(this.frequency);
-    newNote.tempoChange(this.gap / defaultGap);
+    newNote.tempoChange(this.gap / defaults.defaultGap);
     // TODO: Copy sustain
     return newNote;
   }

@@ -1,3 +1,5 @@
+const Tone = require('tone');
+
 /**
  * A Part represents the combination of a Phrase and instrument
  */
