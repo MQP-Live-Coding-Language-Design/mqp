@@ -1,5 +1,6 @@
 const Tone = require('tone');
 const peg = require('./language.js');
+const samples = require('./samples.js');
 
 /* eslint-disable*/
 let runningParts = {};
