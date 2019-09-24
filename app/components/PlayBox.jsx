@@ -1,6 +1,6 @@
 import React from 'react';
 
-const PlayBox = (id) => (
+const PlayBox = ({ id }) => (
   <div className="playBox" id={id}>
     <textarea
       rows="10"
