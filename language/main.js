@@ -14,40 +14,65 @@ document.documentElement.addEventListener(
   },
 );
 
-function stop(button) {
-  if (button.parentElement in runningParts) {
-    runningParts[button.parentElement].forEach((part) => {
+// function stop(button) {
+//   if (button.parentElement in runningParts) {
+//     runningParts[button.parentElement].forEach((part) => {
+//       part.stop();
+//     });
+//   }
+//
+//   delete runningParts[button.parentElement];
+// }
+
+// function start(button) {
+//   stop(button);
+//   const parts = peg.parse(button.parentElement.querySelector('textarea').value);
+//   runningParts[button.parentElement] = parts;
+// }
+
+// document.querySelectorAll('[id=Start]').forEach((element) => {
+//   element.addEventListener('click', () => { start(element); });
+// });
+// document.querySelectorAll('[id=Stop]').forEach((element) => {
+//   element.addEventListener('click', () => { stop(element); });
+// });
+//
+const stop = (id) => {
+  if (id in runningParts) {
+    runningParts[id].forEach((part) => {
       part.stop();
     });
   }
 
-  delete runningParts[button.parentElement];
-}
+  delete runningParts[id];
+};
 
-function start(button) {
-  stop(button);
-  const parts = peg.parse(button.parentElement.querySelector('textarea').value);
-  runningParts[button.parentElement] = parts;
-}
-
-document.querySelectorAll('[id=Start]').forEach((element) => {
-  element.addEventListener('click', () => { start(element); });
-});
-document.querySelectorAll('[id=Stop]').forEach((element) => {
-  element.addEventListener('click', () => { stop(element); });
-});
+const start = (id, content) => {
+  console.log(runningParts);
+  stop(id);
+  const parts = peg.parse(content);
+  runningParts[id] = parts;
+  console.log(runningParts);
+};
 
 document.querySelectorAll('.playBox').forEach((playBox) => {
   let toParse;
-  console.log(playBox.getElementById('Start'));
-  playBox.forEach((element) => {
-    if (element.getAttribute('id') === 'input') {
-      console.log(element.value);
+
+  playBox.childNodes.forEach((child) => {
+    if (child.id === 'input') {
+      toParse = child.value;
+    }
+  });
+
+  playBox.childNodes.forEach((child) => {
+    if (child.id === 'Start') {
+      child.addEventListener('click', () => { start(playBox.id, toParse); });
+    }
+    if (child.id === 'Stop') {
+      child.addEventListener('click', () => { stop(playBox.id); });
     }
   });
 });
-// document.getElementById('Start').addEventListener('click', () => { start(); });
-// document.getElementById('Stop').addEventListener('click', () => { stop(); });
 
 // To do:
 // add additional modifiers, instrments, filters, and attributes
