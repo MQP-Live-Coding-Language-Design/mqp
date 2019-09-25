@@ -30,7 +30,6 @@ class Part {
    */
   stop() {
     this.running = false;
-    if (this.inst !== null) this.inst.triggerRelease();
   }
 
   /**
