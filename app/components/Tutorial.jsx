@@ -104,12 +104,19 @@ const Tutorial = () => (
         <br />
         <br />
 
+        Additionally, you have the ability to make drum beats! Using x and o you can create simple rhythms and the play keyword to play it.
+        <br />
+        <PlayBox id="drumTutBox" value='"x o x o" >> play' />
+
+
         Feel free to combine anything you've used!
         <br />
         <PlayBox id="sixthTutBox" value='"c# e g5" >> octave++ >> triangle' />
         <br />
         <br />
         <br />
+
+
       </Box>
     </Typography>
   </ThemeProvider>
