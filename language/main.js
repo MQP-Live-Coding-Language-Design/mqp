@@ -15,29 +15,6 @@ document.documentElement.addEventListener(
   },
 );
 
-// function stop(button) {
-//   if (button.parentElement in runningParts) {
-//     runningParts[button.parentElement].forEach((part) => {
-//       part.stop();
-//     });
-//   }
-//
-//   delete runningParts[button.parentElement];
-// }
-
-// function start(button) {
-//   stop(button);
-//   const parts = peg.parse(button.parentElement.querySelector('textarea').value);
-//   runningParts[button.parentElement] = parts;
-// }
-
-// document.querySelectorAll('[id=Start]').forEach((element) => {
-//   element.addEventListener('click', () => { start(element); });
-// });
-// document.querySelectorAll('[id=Stop]').forEach((element) => {
-//   element.addEventListener('click', () => { stop(element); });
-// });
-//
 const stop = (playBox) => {
   if (playBox.id in runningParts) {
     runningParts[playBox.id].forEach((part) => {
@@ -49,11 +26,9 @@ const stop = (playBox) => {
 };
 
 const start = (playBox) => {
-  console.log(runningParts);
   stop(playBox);
   const parts = peg.parse(playBox.querySelector('[id=input]').value);
   runningParts[playBox.id] = parts;
-  console.log(runningParts);
 };
 
 document.querySelectorAll('.playBox').forEach((playBox) => {
