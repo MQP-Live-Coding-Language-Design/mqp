@@ -19,6 +19,7 @@ multiLines
 line
   = '"' _ notes:noteseq _ '"' _ mods:modifierseq
   {
+    notes = new classes.Phrase(notes);
 	  for (var i = 0; i < mods.length; i++) {
 		  mods[i](notes);
 	  }
@@ -27,8 +28,8 @@ line
 // Written sequence of notes, contained within quotes
 // Returns a Phrase containing the notes
 noteseq
-  = note:note __ seq:noteseq { seq.add(note); return seq; }
-  / note:note { return new classes.Phrase([note]); }
+  = note:note __ seq:noteseq { return [note].concat(seq); }
+  / note:note { return [note]; }
 
 // A single note
 // Returns a Note

@@ -146,12 +146,13 @@ function peg$parse(input, options) {
       peg$c2 = "\"",
       peg$c3 = peg$literalExpectation("\"", false),
       peg$c4 = function(notes, mods) {
+          notes = new classes.Phrase(notes);
       	  for (var i = 0; i < mods.length; i++) {
       		  mods[i](notes);
       	  }
         },
-      peg$c5 = function(note, seq) { seq.add(note); return seq; },
-      peg$c6 = function(note) { return new classes.Phrase([note]); },
+      peg$c5 = function(note, seq) { return [note].concat(seq); },
+      peg$c6 = function(note) { return [note]; },
       peg$c7 = "~",
       peg$c8 = peg$literalExpectation("~", false),
       peg$c9 = function(note, ext) { note.tempoChange(ext.length + 1); return note; },
