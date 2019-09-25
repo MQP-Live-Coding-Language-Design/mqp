@@ -57,15 +57,8 @@ const start = (playBox) => {
 };
 
 document.querySelectorAll('.playBox').forEach((playBox) => {
-  // querySelector?
-  playBox.childNodes.forEach((child) => {
-    if (child.id === 'Start') {
-      child.addEventListener('click', () => { start(playBox); });
-    }
-    if (child.id === 'Stop') {
-      child.addEventListener('click', () => { stop(playBox); });
-    }
-  });
+  playBox.querySelector('[id=Start]').addEventListener('click', () => { start(playBox); });
+  playBox.querySelector('[id=Stop]').addEventListener('click', () => { stop(playBox); });
 });
 
 // To do:
