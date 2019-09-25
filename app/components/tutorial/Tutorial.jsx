@@ -45,7 +45,7 @@ const Tutorial = () => (
             bgcolor="primary.dark"
             css={{ width: 500, height: 10 }}
           />
-          Tutorial
+          Tutorial for SICKO MODE
         </Box>
       To start playing, simply create a sequence of notes and send it to an instrument.
       A note is any letter between 'a' and 'g'. This sequence can then be played on an instrument
@@ -100,7 +100,11 @@ const Tutorial = () => (
 
         Make multiple patterns!
         <br />
-        <PlayBox id="fifthTutBox" value='"c e g" >> triangle >> saw "g b d+" >> soft' />
+        <PlayBox
+          id="fifthTutBox"
+          value={`"c e g" >> triangle >> saw
+"g b d+" >> soft`}
+        />
         <br />
         <br />
         <br />
