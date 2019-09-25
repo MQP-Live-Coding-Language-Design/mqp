@@ -1,47 +1,69 @@
 import React from 'react';
-// import styled, { ThemeProvider } from 'styled-components';
+import { createMuiTheme } from '@material-ui/core/styles';
+import blueGrey from '@material-ui/core/colors/blueGrey';
+import { ThemeProvider } from '@material-ui/styles';
 import Box from '@material-ui/core/Box';
+import Typography from '@material-ui/core/Typography';
 import TutorialEditor from './TutorialEditor';
 
+const theme = createMuiTheme({
+  palette: {
+    primary: {
+      main: '#b3e5fc',
+      light: '#e6ffff',
+      dark: '#82b3c9',
+    },
+    secondary: { main: blueGrey[50] },
+  },
+});
 const Tutorial = () => (
-  <div style={{ width: '100%' }}>
-    <Box
-      display="flex"
-      flexWrap="wrap"
-      justifyContent="flex-start"
-      alignContent="flex-start"
-      p={1}
-      m={1}
-      bgcolor="background.gray"
-      css={{ maxWidth: 500, height: 200 }}
-    >
-
-      To start playing, simply create a sequence of notes surrounded by a " on either side and send it to an instrument.
-      A note can be any letter between 'a' and 'g'. This sequence can then be played on an instrument
-      by writing '>>' followed by the instrument name. As seen below, we create a sequence of notes a b c, and play it on a triangle:
-      <br />
-      <TutorialEditor
-        width="500"
-        height="100"
-        text='"a b c" >> triangle'
-      />
-      <br />
-      <br />
-      <br />
-        Both the notes and the entire sequence of notes can be edited. You can make a note sharp or flat
-      by adding a '#' or 'b' (e.g. 'a#', 'cb') respectively in front of the note. The octave of a note defaults to
+  <ThemeProvider theme={theme}>
+    <Typography component="div">
+      <Box
+        display="flex"
+        flexWrap="wrap"
+        justifyContent="flex-start"
+        alignContent="flex-start"
+        fontFamily="Helvetica"
+        bgcolor="#ffffff"
+        p={1}
+        m={1}
+        css={{ maxWidth: 500 }}
+      >
+        <Box
+          display="flex"
+          flexWrap="wrap"
+          justifyContent="flex-start"
+          alignContent="flex-start"
+          fontFamily="Helvetica"
+          bgcolor="primary.main"
+          fontSize="48px"
+          css={{ width: 500 }}
+        >
+          <Box
+            p={1}
+            bgcolor="primary.dark"
+            css={{ width: 500, height: 10 }}
+          />
+          Tutorial
+        </Box>
+      To start playing, simply create a sequence of notes and send it to an instrument.
+      A note is any letter between 'a' and 'g'. This sequence can then be played on an instrument
+      by writing '>>' followed by the instrument name as seen below:
+        <br />
+        <TutorialEditor
+          width="500"
+          height="100"
+          text='"a b c" >> soft'
+        />
+        <br />
+        <br />
+        <br />
+        Both the notes and the entire sequence of notes can be edited. You make a note sharp or flat
+      by adding a '#' or 'b' respectively to the end of the note. The octave of a note defaults to
       4, but can be changed either by specifying an octave (e.g. 'a5' sets the octave to 5) or by
       using +/- to raise and lower this value (e.g. 'a+' sets the octave to 5).
-      <br />
-      <TutorialEditor
-        width="500"
-        height="100"
-        text='"a+ b3 c#" >> triangle'
-      />
-      <br />
-      <br />
-      <br />
-
+        <br />
         Entire sequences can be modified using the '>>' followed by the modification. The modifiers
       are currently "octave," "pitch," and "duration". Octave takes either an integer or a series of +/- symbols.
       The +/- move the value from the default of 4 (e.g. ">> octave 6" and ">> octave ++"
