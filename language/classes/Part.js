@@ -8,7 +8,6 @@ class Part {
     this.inst = inst;
     this.phrase = phrase.copy; // {Phrase} being played by this Part
     this.running = false;
-    this.stopped = true;
   }
 
   /**
@@ -16,18 +15,13 @@ class Part {
    */
   start() {
     if (!this.running) {
-      if (this.stopped) {
-        const now = Tone.Time(Tone.Transport.position);
-        const { length } = this.phrase;
-        let startTime = now.quantize(length); // round startTime to length of phrase
-        if (startTime <= now) startTime += length; // ensure startTime is now or later
+      const now = Tone.Time(Tone.Transport.position);
+      const { length } = this.phrase;
+      let startTime = now.quantize(length); // round startTime to length of phrase
+      if (startTime <= now) startTime += length; // ensure startTime is now or later
 
-        this.phrase.trigger(this, this.inst, startTime);
-        this.running = true;
-        this.stopped = false;
-      } else { // phrase wasn't stopped so it may continue uninterrupted
-        this.running = true;
-      }
+      this.phrase.trigger(this, this.inst, startTime);
+      this.running = true;
     }
   }
 
@@ -36,6 +30,7 @@ class Part {
    */
   stop() {
     this.running = false;
+    if (this.inst !== null) this.inst.triggerRelease();
   }
 
   /**
@@ -46,7 +41,6 @@ class Part {
    */
   retrigger(time) {
     if (this.running) this.phrase.trigger(this, this.inst, time);
-    else this.stopped = true;
   }
 }
 

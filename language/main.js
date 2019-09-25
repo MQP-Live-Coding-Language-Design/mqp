@@ -38,39 +38,32 @@ document.documentElement.addEventListener(
 //   element.addEventListener('click', () => { stop(element); });
 // });
 //
-const stop = (id) => {
-  if (id in runningParts) {
-    runningParts[id].forEach((part) => {
+const stop = (playBox) => {
+  if (playBox.id in runningParts) {
+    runningParts[playBox.id].forEach((part) => {
       part.stop();
     });
   }
 
-  delete runningParts[id];
+  delete runningParts[playBox.id];
 };
 
-const start = (id, content) => {
+const start = (playBox) => {
   console.log(runningParts);
-  stop(id);
-  const parts = peg.parse(content);
-  runningParts[id] = parts;
+  stop(playBox);
+  const parts = peg.parse(playBox.querySelector('[id=input]').value);
+  runningParts[playBox.id] = parts;
   console.log(runningParts);
 };
 
 document.querySelectorAll('.playBox').forEach((playBox) => {
-  let toParse;
-
-  playBox.childNodes.forEach((child) => {
-    if (child.id === 'input') {
-      toParse = child.value;
-    }
-  });
-
+  // querySelector?
   playBox.childNodes.forEach((child) => {
     if (child.id === 'Start') {
-      child.addEventListener('click', () => { start(playBox.id, toParse); });
+      child.addEventListener('click', () => { start(playBox); });
     }
     if (child.id === 'Stop') {
-      child.addEventListener('click', () => { stop(playBox.id); });
+      child.addEventListener('click', () => { stop(playBox); });
     }
   });
 });
