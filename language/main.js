@@ -1,4 +1,6 @@
+const Tone = require('tone');
 const peg = require('./language.js');
+const samples = require('./samples.js');
 
 /* eslint-disable*/
 let runningParts = {};
@@ -13,31 +15,26 @@ document.documentElement.addEventListener(
   },
 );
 
-function stop(button) {
-  if (button.parentElement in runningParts) {
-    runningParts[button.parentElement].forEach((part) => {
+const stop = (playBox) => {
+  if (playBox.id in runningParts) {
+    runningParts[playBox.id].forEach((part) => {
       part.stop();
     });
   }
 
-  delete runningParts[button.parentElement];
-}
+  delete runningParts[playBox.id];
+};
 
-function start(button) {
-  stop(button);
-  const parts = peg.parse(button.parentElement.querySelector('textarea').value);
-  runningParts[button.parentElement] = parts;
-}
+const start = (playBox) => {
+  stop(playBox);
+  const parts = peg.parse(playBox.querySelector('[id=input]').value);
+  runningParts[playBox.id] = parts;
+};
 
-document.querySelectorAll('[id=Start]').forEach((element) => {
-  element.addEventListener('click', () => { start(element); });
+document.querySelectorAll('.playBox').forEach((playBox) => {
+  playBox.querySelector('[id=Start]').addEventListener('click', () => { start(playBox); });
+  playBox.querySelector('[id=Stop]').addEventListener('click', () => { stop(playBox); });
 });
-document.querySelectorAll('[id=Stop]').forEach((element) => {
-  element.addEventListener('click', () => { stop(element); });
-});
-
-// document.getElementById('Start').addEventListener('click', () => { start(); });
-// document.getElementById('Stop').addEventListener('click', () => { stop(); });
 
 // To do:
 // add additional modifiers, instrments, filters, and attributes
