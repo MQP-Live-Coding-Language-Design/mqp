@@ -79,7 +79,7 @@ modifier
   / '>>' _ "pitch" _ mod:nummod { return function(phrase) {phrase.pitchChange(mod);}; }
   / '>>' _ "tempo" _ mod:fltOrFrac { return function(phrase) {phrase.tempoChange(mod);}; }
   / '>>' _ plr:player { return plr; }
-  / '>>' _ "play" { return function(phrase) { let np = new classes.Part(null, phrase); returnParts.push(np); np.start(); }; }
+  / '>>' _ "play" { return function(phrase) { let np = new classes.Part(null, phrase); returnParts.push(np); }; }
 
 // Instrument plus its attributes and filters
 // Returns a function that plays a phrase
@@ -97,7 +97,7 @@ player
   }
   last.toMaster();
 
-  return function(phrase) { let np = new classes.Part(inst, phrase); returnParts.push(np); np.start(); };
+  return function(phrase) { let np = new classes.Part(inst, phrase); returnParts.push(np); };
 }
 
 // A default instrument

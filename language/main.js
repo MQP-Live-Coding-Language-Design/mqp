@@ -29,6 +29,8 @@ const start = (playBox) => {
   stop(playBox);
   const parts = peg.parse(playBox.querySelector('[id=input]').value);
   runningParts[playBox.id] = parts;
+
+  parts.forEach((part) => { part.start(); });
 };
 
 document.querySelectorAll('.playBox').forEach((playBox) => {

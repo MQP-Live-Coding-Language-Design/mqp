@@ -206,7 +206,7 @@ function peg$parse(input, options) {
       peg$c50 = function(plr) { return plr; },
       peg$c51 = "play",
       peg$c52 = peg$literalExpectation("play", false),
-      peg$c53 = function() { return function(phrase) { let np = new classes.Part(null, phrase); returnParts.push(np); np.start(); }; },
+      peg$c53 = function() { return function(phrase) { let np = new classes.Part(null, phrase); returnParts.push(np); }; },
       peg$c54 = function(inst, attr, fltr) {
         for (var a of attr) {
           inst.set(a);
@@ -219,7 +219,7 @@ function peg$parse(input, options) {
         }
         last.toMaster();
 
-        return function(phrase) { let np = new classes.Part(inst, phrase); returnParts.push(np); np.start(); };
+        return function(phrase) { let np = new classes.Part(inst, phrase); returnParts.push(np); };
       },
       peg$c55 = "triangle",
       peg$c56 = peg$literalExpectation("triangle", false),
