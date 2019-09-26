@@ -1,10 +1,6 @@
 import React from 'react';
 import Homepage from './components/Homepage';
 
-const App = () => (
-  <div>
-    <Homepage />
-  </div>
-);
+const App = () => <Homepage />;
 
 export default App;
