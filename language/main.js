@@ -15,6 +15,9 @@ document.documentElement.addEventListener(
   },
 );
 
+let loaded = false;
+Tone.Buffer.on('load', () => { loaded = true; });
+
 const stop = (playBox) => {
   if (playBox.id in runningParts) {
     runningParts[playBox.id].forEach((part) => {
@@ -30,7 +33,11 @@ const start = (playBox) => {
   const parts = peg.parse(playBox.querySelector('[id=input]').value);
   runningParts[playBox.id] = parts;
 
-  parts.forEach((part) => { part.start(); });
+  if (loaded) {
+    parts.forEach((part) => { part.start(); });
+  } else {
+    console.log('unloaded');
+  }
 };
 
 document.querySelectorAll('.playBox').forEach((playBox) => {
