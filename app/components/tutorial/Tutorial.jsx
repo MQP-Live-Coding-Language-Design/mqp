@@ -4,8 +4,7 @@ import blueGrey from '@material-ui/core/colors/blueGrey';
 import { ThemeProvider } from '@material-ui/styles';
 import Box from '@material-ui/core/Box';
 import Typography from '@material-ui/core/Typography';
-// import TutorialEditor from './TutorialEditor';
-import PlayBox from './PlayBox';
+import PlayBox from '../PlayBox';
 
 const theme = createMuiTheme({
   palette: {
@@ -85,12 +84,14 @@ const Tutorial = () => (
       This is done by following the instrument with "^" and then the part modifier and value.
       The part modifiers are as follows: distort, lo, hi, and bandpass. There is an example below:
         <br />
-        <PlayBox id="thirdTutBox" value='"c e g" >> octave 2 >> pitch -- >> duration .25 >> triangle' />
+        <PlayBox
+          id="thirdTutBox" value='"c e g" >> octave 2 >> pitch -- >> duration .25 >> triangle' />
         <br />
         <br />
         <br />
 */}
-        You can play the same notes with multiple instruments as well. See below we play 'c e g' on both a triangle and a soft synth
+        You can play the same notes with multiple instruments as well.
+        See below we play 'c e g' on both a triangle and a soft synth
         <br />
         <PlayBox id="fourthTutBox" value='"c e g" >> triangle >> soft' />
         <br />
