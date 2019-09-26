@@ -19,11 +19,17 @@
   },
   "homepage": "https://github.com/MQP-Live-Coding-Language-Design/mqp#readme",
   "dependencies": {
+    "@material-ui/core": "^4.4.2",
+    "@material-ui/styles": "^4.4.3",
+    "@material-ui/system": "^4.4.3",
     "eslint-config-import": "^0.13.0",
+    "monaco-editor": "^0.18.1",
     "parcel": "^1.12.3",
     "prop-types": "^15.7.2",
     "react": "^16.9.0",
     "react-dom": "^16.9.0",
+    "react-monaco-editor": "^0.31.0",
+    "styled-components": "^4.4.0",
     "tone": "^13.8.25"
   },
   "devDependencies": {

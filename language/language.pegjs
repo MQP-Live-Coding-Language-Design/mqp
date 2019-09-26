@@ -77,7 +77,7 @@ modifierseq
 modifier
   = '>>' _ "octave" _ mod:nummod { return function(phrase) {phrase.octChange(mod);}; }
   / '>>' _ "pitch" _ mod:nummod { return function(phrase) {phrase.pitchChange(mod);}; }
-  / '>>' _ "tempo" _ mod:fltOrFrac { return function(phrase) {phrase.tempoChange(mod);}; }
+  / '>>' _ "duration" _ mod:fltOrFrac { return function(phrase) {phrase.tempoChange(mod);}; }
   / '>>' _ plr:player { return plr; }
   / '>>' _ "play" { return function(phrase) { let np = new classes.Part(null, phrase); returnParts.push(np); np.start(); }; }
 
