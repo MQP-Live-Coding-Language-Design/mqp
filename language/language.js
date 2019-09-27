@@ -200,8 +200,8 @@ function peg$parse(input, options) {
       peg$c44 = "pitch",
       peg$c45 = peg$literalExpectation("pitch", false),
       peg$c46 = function(mod) { return function(phrase) {phrase.pitchChange(mod);}; },
-      peg$c47 = "tempo",
-      peg$c48 = peg$literalExpectation("tempo", false),
+      peg$c47 = "duration",
+      peg$c48 = peg$literalExpectation("duration", false),
       peg$c49 = function(mod) { return function(phrase) {phrase.tempoChange(mod);}; },
       peg$c50 = function(plr) { return plr; },
       peg$c51 = "play",
@@ -1061,9 +1061,9 @@ function peg$parse(input, options) {
         if (s1 !== peg$FAILED) {
           s2 = peg$parse_();
           if (s2 !== peg$FAILED) {
-            if (input.substr(peg$currPos, 5) === peg$c47) {
+            if (input.substr(peg$currPos, 8) === peg$c47) {
               s3 = peg$c47;
-              peg$currPos += 5;
+              peg$currPos += 8;
             } else {
               s3 = peg$FAILED;
               if (peg$silentFails === 0) { peg$fail(peg$c48); }
