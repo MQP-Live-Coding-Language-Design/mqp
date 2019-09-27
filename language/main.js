@@ -9,8 +9,9 @@ let runningParts = {};
 document.documentElement.addEventListener(
   'mousedown', () => {
     if (Tone.context.state !== 'running') {
-      Tone.context.resume();
       Tone.Transport.start();
+      Tone.context.resume();
+      Tone.Transport.seconds = Tone.context.now();
     }
   },
 );
@@ -33,7 +34,7 @@ const start = (playBox) => {
   const parts = peg.parse(playBox.querySelector('[id=input]').value);
   runningParts[playBox.id] = parts;
 
-  if (loaded) {
+  if (loaded && Tone.context.state === 'running') {
     parts.forEach((part) => { part.start(); });
   } else {
     console.log('unloaded');

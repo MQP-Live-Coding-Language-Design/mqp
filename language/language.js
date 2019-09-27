@@ -208,6 +208,7 @@ function peg$parse(input, options) {
       peg$c52 = peg$literalExpectation("play", false),
       peg$c53 = function() { return function(phrase) { let np = new classes.Part(null, phrase); returnParts.push(np); }; },
       peg$c54 = function(inst, attr, fltr) {
+        inst.sync();
         for (var a of attr) {
           inst.set(a);
         }

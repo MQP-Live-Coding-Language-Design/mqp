@@ -86,6 +86,7 @@ modifier
 player
   = inst:instrument attr:attributeseq _ fltr:filterseq
 {
+  inst.sync();
   for (var a of attr) {
     inst.set(a);
   }

@@ -15,11 +15,13 @@ class Part {
    */
   start() {
     if (!this.running) {
-      const now = Tone.Time(Tone.Transport.position);
+      const now = Tone.TransportTime(Tone.Transport.seconds);
       const { length } = this.phrase;
       let startTime = now.quantize(length); // round startTime to length of phrase
       if (startTime <= now) startTime += length; // ensure startTime is now or later
+      startTime = Tone.TransportTime(startTime);
 
+      console.log(startTime);
       this.phrase.trigger(this, this.inst, startTime);
       this.running = true;
     }

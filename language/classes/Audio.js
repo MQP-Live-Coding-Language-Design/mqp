@@ -30,9 +30,11 @@ class Audio {
   }
 
   trigger(par, inst, time) {
+    const nxtTime = Tone.TransportTime(time + this.gap);
+
     this.player.start(time); // tell tone.js to play the sound at the given time
 
-    const nxtTime = Tone.Time(time + this.gap); // schedules a retrigger of parent for when it plays
+    // schedules a retrigger of parent for when it plays
     Tone.Transport.scheduleOnce(() => { par.retrigger(nxtTime); }, time);
   }
 }
