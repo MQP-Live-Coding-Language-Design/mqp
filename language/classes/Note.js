@@ -38,7 +38,7 @@ class Note {
     // tell Tone.js to trigger the note at parameter time
     inst.triggerAttackRelease(this.frequency, this.gap * this.sustain, time);
 
-    const nxtTime = Tone.Time(time + this.gap); // schedules retrigger of parent
+    const nxtTime = Tone.TransportTime(time + this.gap); // schedules retrigger of parent
     Tone.Transport.scheduleOnce(() => { par.retrigger(nxtTime); }, time);
   }
 }
