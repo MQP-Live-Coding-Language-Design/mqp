@@ -21,7 +21,6 @@ class Part {
       if (startTime <= now) startTime += length; // ensure startTime is now or later
       startTime = Tone.TransportTime(startTime);
 
-      console.log(startTime);
       this.phrase.trigger(this, this.inst, startTime);
       this.running = true;
     }
