@@ -6,7 +6,8 @@
   "scripts": {
     "buildPeg": "pegjs language/language.pegjs",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "npm run buildPeg && parcel app/index.html"
+    "start": "npm run buildPeg && parcel app/index.html",
+    "build": "parcel build app/index.html"
   },
   "repository": {
     "type": "git",
