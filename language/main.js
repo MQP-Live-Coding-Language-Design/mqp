@@ -10,7 +10,10 @@ document.documentElement.addEventListener(
   'mousedown', () => {
     if (Tone.context.state !== 'running') {
       Tone.context.resume();
+    }
+    if (Tone.Transport.state !== 'started') {
       Tone.Transport.start();
+      Tone.Transport.seconds = Tone.context.now();
     }
   },
 );
