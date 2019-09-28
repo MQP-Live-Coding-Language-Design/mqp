@@ -22,4 +22,4 @@ var e=require("./Note"),r=require("./Audio"),u=require("./Rest"),i=require("./Ph
 },{"tone":"DNic","./defaults":"i8oG","./samples":"RmxG","./classes/classes":"8+cA"}],"T8KE":[function(require,module,exports) {
 var e=require("tone"),t=require("./language.js"),n=require("./samples.js"),o={};document.documentElement.addEventListener("mousedown",function(){"running"!==e.context.state&&e.context.resume(),"started"!==e.Transport.state&&(e.Transport.start(),e.Transport.seconds=e.context.now())});var r=!1;e.Buffer.on("load",function(){r=!0});var c=function(e){e.id in o&&o[e.id].forEach(function(e){e.stop()}),delete o[e.id]},a=function(n){c(n);var a=t.parse(n.querySelector("[id=input]").value);o[n.id]=a,r&&"running"===e.context.state?a.forEach(function(e){e.start()}):console.log("unloaded")};document.querySelectorAll(".playBox").forEach(function(e){e.querySelector("[id=Start]").addEventListener("click",function(){a(e)}),e.querySelector("[id=Stop]").addEventListener("click",function(){c(e)})});
 },{"tone":"DNic","./language.js":"yyxw","./samples.js":"RmxG"}]},{},["T8KE"], null)
-//# sourceMappingURL=dist/main.e3aa54d8.js.map
+//# sourceMappingURL=/mqp/main.e3aa54d8.js.map
