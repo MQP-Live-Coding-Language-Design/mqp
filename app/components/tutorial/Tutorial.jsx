@@ -65,6 +65,15 @@ const Tutorial = () => (
         <br />
         <br />
 
+        In addition to notes, you can also put rests in a sequence by using the '_' character.
+        You can also make notes longer by putting any number of '~'s after them. Each '~' will
+        take the length of a normal note.
+        <br />
+        <PlayBox id="eighthTutBox" value='"f# ~ Bb c#+ _" >> triangle' />
+        <br />
+        <br />
+        <br />
+
         Entire sequences can also be modified using the '>>' followed by the modification. The
       modifiers are currently "octave," "pitch," and "duration". Octave and Pitch can be followed
       by either a series of +/- symbols or a sign and an integer. Using a series of +/- symbols
