@@ -66,6 +66,14 @@ const Tutorial = () => (
         <br />
         <br />
 
+        Underscores can be used as rests
+        <br />
+        <PlayBox id="underscoreTut" value='"c _ e g" >> triangle' />
+        <br />
+        <br />
+        <br />
+
+
         Entire sequences can be modified using the '>>' followed by the modification. The modifiers
       are currently "octave," "pitch," and "duration". Octave takes either an integer or a series of +/- symbols.
       The +/- move the value from the default of 4 (e.g. ">> octave +6" and ">> octave ++"
