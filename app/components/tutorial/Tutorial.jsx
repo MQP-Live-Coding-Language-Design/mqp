@@ -4,8 +4,7 @@ import blueGrey from '@material-ui/core/colors/blueGrey';
 import { ThemeProvider } from '@material-ui/styles';
 import Box from '@material-ui/core/Box';
 import Typography from '@material-ui/core/Typography';
-// import TutorialEditor from './TutorialEditor';
-import PlayBox from './PlayBox';
+import PlayBox from '../PlayBox';
 
 const theme = createMuiTheme({
   palette: {
@@ -46,7 +45,7 @@ const Tutorial = () => (
             bgcolor="primary.dark"
             css={{ width: 500, height: 10 }}
           />
-          Tutorial
+          Tutorial for SICKO MODE
         </Box>
       To start playing, simply create a sequence of notes and send it to an instrument.
       A note is any letter between 'a' and 'g'. This sequence can then be played on an instrument
@@ -85,12 +84,14 @@ const Tutorial = () => (
       This is done by following the instrument with "^" and then the part modifier and value.
       The part modifiers are as follows: distort, lo, hi, and bandpass. There is an example below:
         <br />
-        <PlayBox id="thirdTutBox" value='"c e g" >> octave 2 >> pitch -- >> duration .25 >> triangle' />
+        <PlayBox
+          id="thirdTutBox" value='"c e g" >> octave 2 >> pitch -- >> duration .25 >> triangle' />
         <br />
         <br />
         <br />
 */}
-        You can play the same notes with multiple instruments as well. See below we play 'c e g' on both a triangle and a soft synth
+        You can play the same notes with multiple instruments as well.
+        See below we play 'c e g' on both a triangle and a soft synth
         <br />
         <PlayBox id="fourthTutBox" value='"c e g" >> triangle >> soft' />
         <br />
@@ -99,25 +100,14 @@ const Tutorial = () => (
 
         Make multiple patterns!
         <br />
-        <PlayBox id="fifthTutBox" value='"c e g" >> triangle >> saw "g b d+" >> soft' />
+        <PlayBox
+          id="fifthTutBox"
+          value={`"c e g" >> triangle >> saw
+"g b d+" >> soft`}
+        />
         <br />
         <br />
         <br />
-
-        Modifications are evaluated from left to right. This means if I pass the notes
-        "c e g" through a triangle instrument, an octave modification, then a soft instrument,
-        the octave modification will only apply to everything to its right (i.e. only the soft instrument)
-        <br />
-        <PlayBox id="modTutBox" value={'"c e g" >> triangle >> octave +2 >> soft'} />
-        <br />
-        <br />
-        <br />
-
-
-        Additionally, you have the ability to make drum beats! Using x and o you can create simple rhythms and the play keyword to play it.
-        <br />
-        <PlayBox id="drumTutBox" value='"x o x o" >> play' />
-
 
         Feel free to combine anything you've used!
         <br />
@@ -125,8 +115,6 @@ const Tutorial = () => (
         <br />
         <br />
         <br />
-
-
       </Box>
     </Typography>
   </ThemeProvider>
