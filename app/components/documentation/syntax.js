@@ -5,12 +5,12 @@ User Documentation: Language Syntax
 # Sequences
 ## Groups
 ### Notes
-A note is any letter between \`a\` and \`g\` corresponding to the musical notes. A note has multiple optional specifiers and modifiers that determine the pitch and octave of the note. The order in which these are applied matters, and is the following:
+A note is any letter between \`a\` and \`g\`, uppercase or lowercase, corresponding to the musical notes. A note has multiple optional specifiers and modifiers that determine the pitch and octave of the note. The order in which these are applied matters, and is the following:
   - **Accidentals**: the \`#\` or \`b\` characters can be added to the right of a note to **sharp** or **flat** it. For example, \`b#\` would be a \`b\` sharp and \`bb\` would be an \`b\` flat.
   - **Octave number**: any positive integer can be added to the right of a note (or to the right of its accidental if it has one) to specify the octave. For example \`b5\` is a \`b\` note in the 5th octave. If no octave number is specified, the default value is 4.
-  - **Octave modifier**: any number of \`-\` or \`+\` can be added to the right of a note (plus any of its previous optional characters) to increase or decrease the octave of the note. For example \`b5+++\` is a \`b\` note in the 8th octave. \`b5+++\` is equivalent to writing \`b5+3\` or \`b8\`.
+  - **Octave modifier**: any number of \`-\` or \`+\` can be added to the right of a note and its accidental to increase or decrease the octave of the note. For example \`b+++\` is a \`b\` note in the 7th octave. \`b+++\` is equivalent to writing \`b+3\` or \`b7\`.
 
-### Numbers
+### Numbers (NOT YET IMPLEMENTED)
 A number can be any integer, and will correspond to a note in a scale. The scale is specified with the \`scale\` sequence modifier.
 \`\`\`
 "1 3 5"
@@ -20,16 +20,19 @@ The above example is equivalent to \`"c e f"\`.
 
 ### Percussion
 Percussion symbols correspond to the following predetermined sounds:
-- \`sn\`: snare
-- \`kk\`: kick
-- \`kh\`: kick hi
-- \`kl\`: kick lo
-- \`th\`: tom hi
-- \`tl\`: tom lo
-- \`hh\`: hi-hat
-- \`cp\`: clap
+- \`x\`: snare
+- \`o\`: kick
+- \`-\`: hi-hat
+- \`--\`: open hi-hat
 
-### Group behaviors
+### Extensions
+Notes, numbers, and percussion can be followed by any number of \`~\`s. This will cause it to be extended by the number of \`~\`s used.
+\`\`\`
+"a ~ ~ b ~ c"
+\`\`\`
+In the example above, the \`a\` will be three times as long as the \`c\` and the \`b\` will be twice as long as the \`c\`.
+
+### Group behaviors (NOT YET IMPLEMENTED)
 - **chord**: plays groups at the same time when written as \`chord(e g)\`
 - **step**: plays one group per loop when written as \`step(c e g)\`. This plays \`c e g\` in the time of 3 loops.
 - **random**: randomizes groups when written as \`rand()\`. This will play any random note. A range can also be specified as \`rand(c e g)\`. This will play one of the 3 notes randomly.
@@ -41,27 +44,25 @@ A sequence modifier is added after the phrase is defined as:
 "phrase"
   >> sequence modifier
 \`\`\`
+Sequence modifiers are executed in order, and each sequence modifier acts without knowledge of future sequence modifiers. For example, consider the following code.
+\`\`\`
+"a b c"
+  >> octave 3
+  >> octave ++
+\`\`\`
+When \`"a b c" >> octave 3\` has been executed, the result is equivalent to \`"a3 b3 c3"\`. This result is then passed into the \`>> octave ++\` modifier, and the resulting output is equivalent to \`"a5 b5 c5"\`.
 
 ### Octave
 The \`octave\` modifier accepts 3 types of input:
-  - Numbers: \`3\`
+  - Numbers: \`3\` (NOT YET IMPLEMENTED)
   - A sign and a number: \`+3\` or \`-3\`
   - A number of signs: \`+++\` or \`---\`
 
 The number input will set the octave corresponding to that number.
 
 The input with signs will increase or decrease the octave relative to a previous \`octave\` modifier if a number was specified, or from the default value if nothing was specified before.
-\`\`\`
-"a b c"
-  >> octave 3
-  >> octave ++
-\`\`\`
-In the example above, the sequence is in the 5th octave. But in the example below, it is in the 6th octave since the default octave is the 4th and nothing is specified before the \`octave\` modifier.
-\`\`\`
-"a b c"
-  >> octave ++
-\`\`\`
-Below, the entire sequence will be changed to octave 3, since the default octave is the 4th.
+
+For example, below the entire sequence will be changed to octave 3, since the default octave is the 4th.
 \`\`\`
 "a b c"
   >> octave -
@@ -72,12 +73,10 @@ The \`pitch\` modifier changes a sequence by a number of half-steps. It accepts 
   - A sign and a number: \`-3\`
   - A number of signs: \`---\`
 
-The top-to-bottom logic is the same as for the \`octave\` modifier, except that the "default" value corresponds to the letters and their optional accidentals in the phrase.
-
 ### Duration
-The \`duration\` modifier defines the duration of each individual group in the phrase. This will take a fraction input, corresponding to the fraction of time of a loop for one individual group.
+The \`duration\` modifier changes the duration of each individual group in the phrase. It accepts a fraction or decimal as input, and the duration of each group in a sequence will be multiplied by this value.
 
-## Sequence storage
+## Sequence storage (NOT YET IMPLEMENTED)
 The \`save\` command allows to save any sequence as it is when the command is reached. The \`save\` command will only save **sequences**, which does not include any parts or part modifiers (i.e. instruments and its modifiers).
 \`\`\`
 "a b c"
@@ -95,10 +94,10 @@ abc_2
   >> <any sequence modifier or part definition>
 \`\`\`
 
-## Sequence combination
+## Sequence combination (NOT YET IMPLEMENTED)
 **Saved sequences** can be combined to create new sequences, where different sections of the sequence have different modifiers defined earlier. The modifiers applied after a combination affect the entire combination.
 
-## Concatenation
+## Concatenation (NOT YET IMPLEMENTED)
 Concatenating sequences places sequences one after the next: \`concat(seq1 seq2 seq3)\` will create a sequence formed by \`seq1\`, followed by \`seq2\` followed by \`seq3\`.
 For example, let's say we have these three sequences:
 \`\`\`
@@ -131,27 +130,58 @@ A part is defined once the **instrument** of a phrase has been defined in the ca
 \`\`\`
 "a b c"
   >> octave +
-  >> piano      // this is the beginning of a part
+  >> saw      // this is the beginning of a part
 \`\`\`
-or once the \`play\` command is reached in the case of a **percussion** phrase:
+The available instruments are available:
+- \`triangle\`: Simple synth with a triangle wave
+- \`soft\`: Sine wave synth with a rich tone quality
+- \`saw\`: Fat synth with a saw wave, bright tone quality
+- \`play\`: No sound
+
+The \`play\` instrument cannot be used to play notes, but it can be used to play percussion sounds and rests.
+Since most percussion parts do not have any notes in them it is often easiest to use this instrument to play them instead of choosing an arbitrary different instrument.
+
+## Instrument attributes
+Instruments may be followed by one or more attributes which will change the sound of the instrument:
 \`\`\`
-"x o x o"
-  >> play // this is the beginning of a part
+"a b c"
+  >> triangle volume 10
 \`\`\`
+Attributes can only be applied once each. Specifying the same attribute multiple times will override previous changes to that attribute.
+
+The available attributes are:
+- \`volume\`: Takes a fraction or decimal, positive or negative, and changes the volume of the instrument by that number of decibals
+- \`wave\`: Takes one of \`sine\`, \`triangle\`, \`sawtooth\`, or \`square\`, and sets the wave of the instrument to that type.
 
 ## Part modifiers
 Part modifiers change the way an instrument or percussion element sounds. To add a part modifier:
 \`\`\`
 "a b c"
   >> piano
-    ^ <any part modifier>
-    ^ <any part modifier>
+    > <part modifier>
+    > <part modifier>
   >> <any sequence modifier>
 \`\`\`
-Some part modifiers take more than 1 value as input. In this case, the list of values is matched to the length of phrase of the sequence this part belongs to, and is divided equally across the phrase.
+Part modifiers act similarly to sequence modifiers in that they are processed sequentially, and any part modifier acts without knowledge of modifiers which follow it.
+
+The \`&\` symbol may also be inserted between part modifiers. This will cause the sound to be played at the point at which the \`&\` symbol is inserted, as well as after the last part modifier.
+\`\`\`
+"a b c"
+  >> piano
+    > pingpong 0.5
+\`\`\`
+As an example, the example above will only play the pingpong echo, not the original note. However, the example below will play both the unmodified notes as well as the echo.
+\`\`\`
+"a b c"
+  >> piano &
+    > pingpong 0.5
+\`\`\`
 
 ### Filters
 Filters modify sound **frequencies**. Filters can be any of:
+- \`pingpong\`: Makes the sound echo between speakers. Takes a delay between echos.
+
+(NOT YET IMPLEMENTED)
 - \`distort\`: adds distortion to the sound. Takes any number of values between 0 and 1.
 - \`lo\`: low pass filter attenuates frequencies above the cutoff. This takes as input any number of values between 0 and 1.
 - \`hi\`: high pass filter attenuates frequencies below the cutoff. This takes as input any number of values between 0 and 1.
@@ -161,22 +191,22 @@ Any of the filters follow the following syntax (with the appropriate number of i
 \`\`\`
 "a b c"
   >> piano
-    ^ lo 0.5
+    > lo 0.5
 \`\`\`
 
-### Effects
+### Effects (NOT YET IMPLEMENTED)
 Effects modify the sound with no frequency modification. Effects can be any of:
-- **pan**: moves sounds from left to right. This takes any number of values from 0 to 1 as input. 0 corresponds to left, and 1 corresponds to right.
+- **pan**: moves sounds from left to right. This takes any number of values from -1 to 1 as input. -1 corresponds to left, and 1 corresponds to right.
 - **vol**: changes volume. This takes any number of values from 0 to 1.
 
 Any of the filters follow the following syntax (with the appropriate number of inputs):
 \`\`\`
 "a b c"
   >> piano
-    ^ vol 0.5
+    > vol 0.5
 \`\`\`
 
-## Part storage
+## Part storage (NOT YET IMPLEMENTED)
 A part and can be saved to be referenced in the sound visualization UI, to stop sound without affecting any sequences (in-sequence storage), or to use the same part in another phrase (global storage);
 
 ### In-sequence storage
