@@ -324,7 +324,7 @@ checkPropTypes.resetWarningCache = function () {
 
 module.exports = checkPropTypes;
 },{"./lib/ReactPropTypesSecret":"../node_modules/prop-types/lib/ReactPropTypesSecret.js"}],"../node_modules/react/cjs/react.development.js":[function(require,module,exports) {
-/** @license React v16.9.0
+/** @license React v16.10.1
  * react.development.js
  *
  * Copyright (c) Facebook, Inc. and its affiliates.
@@ -343,7 +343,7 @@ if ("development" !== "production") {
     var checkPropTypes = require('prop-types/checkPropTypes'); // TODO: this is special because it gets imported during build.
 
 
-    var ReactVersion = '16.9.0'; // The Symbol used to tag the ReactElement-like types. If there is no native Symbol
+    var ReactVersion = '16.10.1'; // The Symbol used to tag the ReactElement-like types. If there is no native Symbol
     // nor polyfill, then a plain number is used for performance.
 
     var hasSymbol = typeof Symbol === 'function' && Symbol.for;
@@ -364,6 +364,7 @@ if ("development" !== "production") {
     var REACT_LAZY_TYPE = hasSymbol ? Symbol.for('react.lazy') : 0xead4;
     var REACT_FUNDAMENTAL_TYPE = hasSymbol ? Symbol.for('react.fundamental') : 0xead5;
     var REACT_RESPONDER_TYPE = hasSymbol ? Symbol.for('react.responder') : 0xead6;
+    var REACT_SCOPE_TYPE = hasSymbol ? Symbol.for('react.scope') : 0xead7;
     var MAYBE_ITERATOR_SYMBOL = typeof Symbol === 'function' && Symbol.iterator;
     var FAUX_ITERATOR_SYMBOL = '@@iterator';
 
@@ -417,11 +418,11 @@ if ("development" !== "production") {
      */
 
 
-    var lowPriorityWarning = function () {};
+    var lowPriorityWarningWithoutStack = function () {};
 
     {
       var printWarning = function (format) {
-        for (var _len = arguments.length, args = Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
+        for (var _len = arguments.length, args = new Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
           args[_key - 1] = arguments[_key];
         }
 
@@ -442,21 +443,21 @@ if ("development" !== "production") {
         } catch (x) {}
       };
 
-      lowPriorityWarning = function (condition, format) {
+      lowPriorityWarningWithoutStack = function (condition, format) {
         if (format === undefined) {
-          throw new Error('`lowPriorityWarning(condition, format, ...args)` requires a warning ' + 'message argument');
+          throw new Error('`lowPriorityWarningWithoutStack(condition, format, ...args)` requires a warning ' + 'message argument');
         }
 
         if (!condition) {
-          for (var _len2 = arguments.length, args = Array(_len2 > 2 ? _len2 - 2 : 0), _key2 = 2; _key2 < _len2; _key2++) {
+          for (var _len2 = arguments.length, args = new Array(_len2 > 2 ? _len2 - 2 : 0), _key2 = 2; _key2 < _len2; _key2++) {
             args[_key2 - 2] = arguments[_key2];
           }
 
-          printWarning.apply(undefined, [format].concat(args));
+          printWarning.apply(void 0, [format].concat(args));
         }
       };
     }
-    var lowPriorityWarning$1 = lowPriorityWarning;
+    var lowPriorityWarningWithoutStack$1 = lowPriorityWarningWithoutStack;
     /**
      * Similar to invariant but only logs a warning if the condition is not met.
      * This can be used to log issues in development environments in critical
@@ -468,7 +469,7 @@ if ("development" !== "production") {
 
     {
       warningWithoutStack = function (condition, format) {
-        for (var _len = arguments.length, args = Array(_len > 2 ? _len - 2 : 0), _key = 2; _key < _len; _key++) {
+        for (var _len = arguments.length, args = new Array(_len > 2 ? _len - 2 : 0), _key = 2; _key < _len; _key++) {
           args[_key - 2] = arguments[_key];
         }
 
@@ -514,7 +515,7 @@ if ("development" !== "production") {
       {
         var _constructor = publicInstance.constructor;
         var componentName = _constructor && (_constructor.displayName || _constructor.name) || 'ReactClass';
-        var warningKey = componentName + '.' + callerName;
+        var warningKey = componentName + "." + callerName;
 
         if (didWarnStateUpdateForUnmountedComponent[warningKey]) {
           return;
@@ -642,7 +643,7 @@ if ("development" !== "production") {
       (function () {
         if (!(typeof partialState === 'object' || typeof partialState === 'function' || partialState == null)) {
           {
-            throw ReactError(Error('setState(...): takes an object of state variables to update or a function which returns an object of state variables.'));
+            throw ReactError(Error("setState(...): takes an object of state variables to update or a function which returns an object of state variables."));
           }
         }
       })();
@@ -684,7 +685,7 @@ if ("development" !== "production") {
       var defineDeprecationWarning = function (methodName, info) {
         Object.defineProperty(Component.prototype, methodName, {
           get: function () {
-            lowPriorityWarning$1(false, '%s(...) is deprecated in plain JavaScript React classes. %s', info[0], info[1]);
+            lowPriorityWarningWithoutStack$1(false, '%s(...) is deprecated in plain JavaScript React classes. %s', info[0], info[1]);
             return undefined;
           }
         });
@@ -802,7 +803,7 @@ if ("development" !== "production") {
 
     function getWrappedName(outerType, innerType, wrapperName) {
       var functionName = innerType.displayName || innerType.name || '';
-      return outerType.displayName || (functionName !== '' ? wrapperName + '(' + functionName + ')' : wrapperName);
+      return outerType.displayName || (functionName !== '' ? wrapperName + "(" + functionName + ")" : wrapperName);
     }
 
     function getComponentName(type) {
@@ -833,7 +834,7 @@ if ("development" !== "production") {
           return 'Portal';
 
         case REACT_PROFILER_TYPE:
-          return 'Profiler';
+          return "Profiler";
 
         case REACT_STRICT_MODE_TYPE:
           return 'StrictMode';
@@ -949,11 +950,11 @@ if ("development" !== "production") {
         var ReactDebugCurrentFrame = ReactSharedInternals.ReactDebugCurrentFrame;
         var stack = ReactDebugCurrentFrame.getStackAddendum(); // eslint-disable-next-line react-internal/warning-and-invariant-args
 
-        for (var _len = arguments.length, args = Array(_len > 2 ? _len - 2 : 0), _key = 2; _key < _len; _key++) {
+        for (var _len = arguments.length, args = new Array(_len > 2 ? _len - 2 : 0), _key = 2; _key < _len; _key++) {
           args[_key - 2] = arguments[_key];
         }
 
-        warningWithoutStack$1.apply(undefined, [false, format + '%s'].concat(args, [stack]));
+        warningWithoutStack$1.apply(void 0, [false, format + '%s'].concat(args, [stack]));
       };
     }
     var warning$1 = warning;
@@ -964,8 +965,8 @@ if ("development" !== "production") {
       __self: true,
       __source: true
     };
-    var specialPropKeyWarningShown = void 0;
-    var specialPropRefWarningShown = void 0;
+    var specialPropKeyWarningShown;
+    var specialPropRefWarningShown;
 
     function hasValidRef(config) {
       {
@@ -1111,18 +1112,27 @@ if ("development" !== "production") {
 
 
     function jsxDEV(type, config, maybeKey, source, self) {
-      var propName = void 0; // Reserved names are extracted
+      var propName; // Reserved names are extracted
 
       var props = {};
       var key = null;
-      var ref = null;
+      var ref = null; // Currently, key can be spread in as a prop. This causes a potential
+      // issue if key is also explicitly declared (ie. <div {...props} key="Hi" />
+      // or <div key="Hi" {...props} /> ). We want to deprecate key spread,
+      // but as an intermediary step, we will use jsxDEV for everything except
+      // <div {...props} key="Hi" />, because we aren't currently able to tell if
+      // key is explicitly declared to be undefined or not.
 
-      if (hasValidRef(config)) {
-        ref = config.ref;
+      if (maybeKey !== undefined) {
+        key = '' + maybeKey;
       }
 
       if (hasValidKey(config)) {
         key = '' + config.key;
+      }
+
+      if (hasValidRef(config)) {
+        ref = config.ref;
       } // Remaining properties are added to a new props object
 
 
@@ -1130,12 +1140,6 @@ if ("development" !== "production") {
         if (hasOwnProperty.call(config, propName) && !RESERVED_PROPS.hasOwnProperty(propName)) {
           props[propName] = config[propName];
         }
-      } // intentionally not checking if key was set above
-      // this key is higher priority as it's static
-
-
-      if (maybeKey !== undefined) {
-        key = '' + maybeKey;
       } // Resolve default props
 
 
@@ -1170,7 +1174,7 @@ if ("development" !== "production") {
 
 
     function createElement(type, config, children) {
-      var propName = void 0; // Reserved names are extracted
+      var propName; // Reserved names are extracted
 
       var props = {};
       var key = null;
@@ -1264,12 +1268,12 @@ if ("development" !== "production") {
       (function () {
         if (!!(element === null || element === undefined)) {
           {
-            throw ReactError(Error('React.cloneElement(...): The argument must be a React element, but you passed ' + element + '.'));
+            throw ReactError(Error("React.cloneElement(...): The argument must be a React element, but you passed " + element + "."));
           }
         }
       })();
 
-      var propName = void 0; // Original props are copied
+      var propName; // Original props are copied
 
       var props = _assign({}, element.props); // Reserved names are extracted
 
@@ -1297,7 +1301,7 @@ if ("development" !== "production") {
         } // Remaining properties override existing props
 
 
-        var defaultProps = void 0;
+        var defaultProps;
 
         if (element.type && element.type.defaultProps) {
           defaultProps = element.type.defaultProps;
@@ -1459,8 +1463,8 @@ if ("development" !== "production") {
         return 1;
       }
 
-      var child = void 0;
-      var nextName = void 0;
+      var child;
+      var nextName;
       var subtreeCount = 0; // Count of children found in the current subtree.
 
       var nextNamePrefix = nameSoFar === '' ? SEPARATOR : nameSoFar + SUBSEPARATOR;
@@ -1483,7 +1487,7 @@ if ("development" !== "production") {
             }
           }
           var iterator = iteratorFn.call(children);
-          var step = void 0;
+          var step;
           var ii = 0;
 
           while (!(step = iterator.next()).done) {
@@ -1501,7 +1505,7 @@ if ("development" !== "production") {
           (function () {
             {
               {
-                throw ReactError(Error('Objects are not valid as a React child (found: ' + (childrenString === '[object Object]' ? 'object with keys {' + Object.keys(children).join(', ') + '}' : childrenString) + ').' + addendum));
+                throw ReactError(Error("Objects are not valid as a React child (found: " + (childrenString === '[object Object]' ? 'object with keys {' + Object.keys(children).join(', ') + '}' : childrenString) + ")." + addendum));
               }
             }
           })();
@@ -1693,7 +1697,7 @@ if ("development" !== "production") {
       (function () {
         if (!isValidElement(children)) {
           {
-            throw ReactError(Error('React.Children.only expected to receive a single React element child.'));
+            throw ReactError(Error("React.Children.only expected to receive a single React element child."));
           }
         }
       })();
@@ -1812,8 +1816,8 @@ if ("development" !== "production") {
       };
       {
         // In production, this would just set it on the object.
-        var defaultProps = void 0;
-        var propTypes = void 0;
+        var defaultProps;
+        var propTypes;
         Object.defineProperties(lazyType, {
           defaultProps: {
             configurable: true,
@@ -1871,7 +1875,7 @@ if ("development" !== "production") {
 
     function isValidElementType(type) {
       return typeof type === 'string' || typeof type === 'function' || // Note: its typeof might be other than 'symbol' or 'number' if it's a polyfill.
-      type === REACT_FRAGMENT_TYPE || type === REACT_CONCURRENT_MODE_TYPE || type === REACT_PROFILER_TYPE || type === REACT_STRICT_MODE_TYPE || type === REACT_SUSPENSE_TYPE || type === REACT_SUSPENSE_LIST_TYPE || typeof type === 'object' && type !== null && (type.$$typeof === REACT_LAZY_TYPE || type.$$typeof === REACT_MEMO_TYPE || type.$$typeof === REACT_PROVIDER_TYPE || type.$$typeof === REACT_CONTEXT_TYPE || type.$$typeof === REACT_FORWARD_REF_TYPE || type.$$typeof === REACT_FUNDAMENTAL_TYPE || type.$$typeof === REACT_RESPONDER_TYPE);
+      type === REACT_FRAGMENT_TYPE || type === REACT_CONCURRENT_MODE_TYPE || type === REACT_PROFILER_TYPE || type === REACT_STRICT_MODE_TYPE || type === REACT_SUSPENSE_TYPE || type === REACT_SUSPENSE_LIST_TYPE || typeof type === 'object' && type !== null && (type.$$typeof === REACT_LAZY_TYPE || type.$$typeof === REACT_MEMO_TYPE || type.$$typeof === REACT_PROVIDER_TYPE || type.$$typeof === REACT_CONTEXT_TYPE || type.$$typeof === REACT_FORWARD_REF_TYPE || type.$$typeof === REACT_FUNDAMENTAL_TYPE || type.$$typeof === REACT_RESPONDER_TYPE || type.$$typeof === REACT_SCOPE_TYPE);
     }
 
     function memo(type, compare) {
@@ -1893,7 +1897,7 @@ if ("development" !== "production") {
       (function () {
         if (!(dispatcher !== null)) {
           {
-            throw ReactError(Error('Invalid hook call. Hooks can only be called inside of the body of a function component. This could happen for one of the following reasons:\n1. You might have mismatching versions of React and the renderer (such as React DOM)\n2. You might be breaking the Rules of Hooks\n3. You might have more than one copy of React in the same app\nSee https://fb.me/react-invalid-hook-call for tips about how to debug and fix this problem.'));
+            throw ReactError(Error("Invalid hook call. Hooks can only be called inside of the body of a function component. This could happen for one of the following reasons:\n1. You might have mismatching versions of React and the renderer (such as React DOM)\n2. You might be breaking the Rules of Hooks\n3. You might have more than one copy of React in the same app\nSee https://fb.me/react-invalid-hook-call for tips about how to debug and fix this problem."));
           }
         }
       })();
@@ -1978,8 +1982,7 @@ if ("development" !== "production") {
         }
       }
       return dispatcher.useResponder(responder, listenerProps || emptyObject$1);
-    } // Within the scope of the callback, mark all updates as being allowed to suspend.
-
+    }
 
     function withSuspenseConfig(scope, config) {
       var previousConfig = ReactCurrentBatchConfig.suspense;
@@ -1999,10 +2002,11 @@ if ("development" !== "production") {
      */
 
 
-    var propTypesMisspellWarningShown = void 0;
+    var propTypesMisspellWarningShown;
     {
       propTypesMisspellWarningShown = false;
     }
+    var hasOwnProperty$1 = Object.prototype.hasOwnProperty;
 
     function getDeclarationErrorAddendum() {
       if (ReactCurrentOwner.current) {
@@ -2049,7 +2053,7 @@ if ("development" !== "production") {
         var parentName = typeof parentType === 'string' ? parentType : parentType.displayName || parentType.name;
 
         if (parentName) {
-          info = '\n\nCheck the top-level render call using <' + parentName + '>.';
+          info = "\n\nCheck the top-level render call using <" + parentName + ">.";
         }
       }
 
@@ -2088,7 +2092,7 @@ if ("development" !== "production") {
 
       if (element && element._owner && element._owner !== ReactCurrentOwner.current) {
         // Give the component that originally created this child.
-        childOwner = ' It was passed a child from ' + getComponentName(element._owner.type) + '.';
+        childOwner = " It was passed a child from " + getComponentName(element._owner.type) + ".";
       }
 
       setCurrentlyValidatingElement(element);
@@ -2134,7 +2138,7 @@ if ("development" !== "production") {
           // but now we print a separate warning for them later.
           if (iteratorFn !== node.entries) {
             var iterator = iteratorFn.call(node);
-            var step = void 0;
+            var step;
 
             while (!(step = iterator.next()).done) {
               if (isValidElement(step.value)) {
@@ -2161,7 +2165,7 @@ if ("development" !== "production") {
       }
 
       var name = getComponentName(type);
-      var propTypes = void 0;
+      var propTypes;
 
       if (typeof type === 'function') {
         propTypes = type.propTypes;
@@ -2231,14 +2235,14 @@ if ("development" !== "production") {
           info += getDeclarationErrorAddendum();
         }
 
-        var typeString = void 0;
+        var typeString;
 
         if (type === null) {
           typeString = 'null';
         } else if (Array.isArray(type)) {
           typeString = 'array';
         } else if (type !== undefined && type.$$typeof === REACT_ELEMENT_TYPE) {
-          typeString = '<' + (getComponentName(type.type) || 'Unknown') + ' />';
+          typeString = "<" + (getComponentName(type.type) || 'Unknown') + " />";
           info = ' Did you accidentally export a JSX literal instead of a component?';
         } else {
           typeString = typeof type;
@@ -2264,8 +2268,16 @@ if ("development" !== "production") {
 
         if (children !== undefined) {
           if (isStaticChildren) {
-            for (var i = 0; i < children.length; i++) {
-              validateChildKeys(children[i], type);
+            if (Array.isArray(children)) {
+              for (var i = 0; i < children.length; i++) {
+                validateChildKeys(children[i], type);
+              }
+
+              if (Object.freeze) {
+                Object.freeze(children);
+              }
+            } else {
+              warning$1(false, 'React.jsx: Static children should always be an array. ' + 'You are likely explicitly calling React.jsxs or React.jsxDEV. ' + 'Use the Babel transform instead.');
             }
           } else {
             validateChildKeys(children, type);
@@ -2273,7 +2285,7 @@ if ("development" !== "production") {
         }
       }
 
-      if (props.key !== undefined) {
+      if (hasOwnProperty$1.call(props, 'key')) {
         warning$1(false, 'React.jsx: Spreading a key to JSX is a deprecated pattern. ' + 'Explicitly pass a key after spreading props in your JSX call. ' + 'E.g. <ComponentName {...props} key={key} />');
       }
 
@@ -2317,14 +2329,14 @@ if ("development" !== "production") {
           info += getDeclarationErrorAddendum();
         }
 
-        var typeString = void 0;
+        var typeString;
 
         if (type === null) {
           typeString = 'null';
         } else if (Array.isArray(type)) {
           typeString = 'array';
         } else if (type !== undefined && type.$$typeof === REACT_ELEMENT_TYPE) {
-          typeString = '<' + (getComponentName(type.type) || 'Unknown') + ' />';
+          typeString = "<" + (getComponentName(type.type) || 'Unknown') + " />";
           info = ' Did you accidentally export a JSX literal instead of a component?';
         } else {
           typeString = typeof type;
@@ -2368,7 +2380,7 @@ if ("development" !== "production") {
         Object.defineProperty(validatedFactory, 'type', {
           enumerable: false,
           get: function () {
-            lowPriorityWarning$1(false, 'Factory.type is deprecated. Access the class directly ' + 'before passing it to createFactory.');
+            lowPriorityWarningWithoutStack$1(false, 'Factory.type is deprecated. Access the class directly ' + 'before passing it to createFactory.');
             Object.defineProperty(this, 'type', {
               value: type
             });
@@ -2390,7 +2402,7 @@ if ("development" !== "production") {
       return newElement;
     }
 
-    var hasBadMapPolyfill = void 0;
+    var hasBadMapPolyfill;
     {
       hasBadMapPolyfill = false;
 
@@ -2432,21 +2444,21 @@ if ("development" !== "production") {
           onEvent = responderConfig.onEvent,
           onMount = responderConfig.onMount,
           onUnmount = responderConfig.onUnmount,
-          onOwnershipChange = responderConfig.onOwnershipChange,
           onRootEvent = responderConfig.onRootEvent,
           rootEventTypes = responderConfig.rootEventTypes,
-          targetEventTypes = responderConfig.targetEventTypes;
+          targetEventTypes = responderConfig.targetEventTypes,
+          targetPortalPropagation = responderConfig.targetPortalPropagation;
       var eventResponder = {
         $$typeof: REACT_RESPONDER_TYPE,
         displayName: displayName,
         getInitialState: getInitialState || null,
         onEvent: onEvent || null,
         onMount: onMount || null,
-        onOwnershipChange: onOwnershipChange || null,
         onRootEvent: onRootEvent || null,
         onUnmount: onUnmount || null,
         rootEventTypes: rootEventTypes || null,
-        targetEventTypes: targetEventTypes || null
+        targetEventTypes: targetEventTypes || null,
+        targetPortalPropagation: targetPortalPropagation || false
       }; // We use responder as a Map key later on. When we have a bad
       // polyfill, then we can't use it as a key as the polyfill tries
       // to add a property to the object.
@@ -2456,6 +2468,17 @@ if ("development" !== "production") {
       }
 
       return eventResponder;
+    }
+
+    function createScope(fn) {
+      var scopeComponent = {
+        $$typeof: REACT_SCOPE_TYPE,
+        fn: fn
+      };
+      {
+        Object.freeze(scopeComponent);
+      }
+      return scopeComponent;
     } // Helps identify side effects in begin-phase lifecycle hooks and setState reducers:
     // In some cases, StrictMode should also double-render lifecycles.
     // This can be confusing for tests though,
@@ -2482,11 +2505,12 @@ if ("development" !== "production") {
 
     var enableFlareAPI = false; // Experimental Host Component support.
 
-    var enableFundamentalAPI = false; // New API for JSX transforms to target - https://github.com/reactjs/rfcs/pull/107
+    var enableFundamentalAPI = false; // Experimental Scope support.
+
+    var enableScopeAPI = false; // New API for JSX transforms to target - https://github.com/reactjs/rfcs/pull/107
 
     var enableJSXTransformAPI = false; // We will enforce mocking scheduler with scheduler/unstable_mock at some point. (v17?)
     // Till then, we warn about the missing mock, but still fallback to a sync mode compatible version
-    // Temporary flag to revert the fix in #15650
     // For tests, we flush suspense fallbacks in an act scope;
     // *except* in some of our own tests, where we test incremental loading states.
     // Changes priority of some events like mousemove to user-blocking priority,
@@ -2495,6 +2519,8 @@ if ("development" !== "production") {
     // Add a callback property to suspense to notify which promises are currently
     // in the update queue. This allows reporting and tracing of what is causing
     // the user to see a loading state.
+    // Also allows hydration callbacks to fire when a dehydrated boundary gets
+    // hydrated or deleted.
     // Part of the simplification of React.createElement so we can eventually move
     // from React.createElement to React.jsx
     // https://github.com/reactjs/rfcs/blob/createlement-rfc/text/0000-create-element-changes.md
@@ -2545,6 +2571,10 @@ if ("development" !== "production") {
 
     if (enableFundamentalAPI) {
       React.unstable_createFundamental = createFundamentalComponent;
+    }
+
+    if (enableScopeAPI) {
+      React.unstable_createScope = createScope;
     } // Note: some APIs are added with feature flags.
     // Make sure that stable builds for open source
     // don't modify the React object to avoid deopts.
@@ -30609,1549 +30639,7 @@ if ("development" === 'production') {
 } else {
   module.exports = require('./cjs/react-dom.development.js');
 }
-},{"./cjs/react-dom.development.js":"../node_modules/react-dom/cjs/react-dom.development.js"}],"../node_modules/@material-ui/core/esm/styles/colorManipulator.js":[function(require,module,exports) {
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.hexToRgb = hexToRgb;
-exports.rgbToHex = rgbToHex;
-exports.hslToRgb = hslToRgb;
-exports.decomposeColor = decomposeColor;
-exports.recomposeColor = recomposeColor;
-exports.getContrastRatio = getContrastRatio;
-exports.getLuminance = getLuminance;
-exports.emphasize = emphasize;
-exports.fade = fade;
-exports.darken = darken;
-exports.lighten = lighten;
-
-/* eslint-disable no-use-before-define */
-
-/**
- * Returns a number whose value is limited to the given range.
- *
- * @param {number} value The value to be clamped
- * @param {number} min The lower boundary of the output range
- * @param {number} max The upper boundary of the output range
- * @returns {number} A number in the range [min, max]
- */
-function clamp(value) {
-  var min = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 0;
-  var max = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 1;
-
-  if ("development" !== 'production') {
-    if (value < min || value > max) {
-      console.error("Material-UI: the value provided ".concat(value, " is out of range [").concat(min, ", ").concat(max, "]."));
-    }
-  }
-
-  if (value < min) {
-    return min;
-  }
-
-  if (value > max) {
-    return max;
-  }
-
-  return value;
-}
-/**
- * Converts a color from CSS hex format to CSS rgb format.
- *
- * @param {string} color - Hex color, i.e. #nnn or #nnnnnn
- * @returns {string} A CSS rgb color string
- */
-
-
-function hexToRgb(color) {
-  color = color.substr(1);
-  var re = new RegExp(".{1,".concat(color.length / 3, "}"), 'g');
-  var colors = color.match(re);
-
-  if (colors && colors[0].length === 1) {
-    colors = colors.map(function (n) {
-      return n + n;
-    });
-  }
-
-  return colors ? "rgb(".concat(colors.map(function (n) {
-    return parseInt(n, 16);
-  }).join(', '), ")") : '';
-}
-
-function intToHex(int) {
-  var hex = int.toString(16);
-  return hex.length === 1 ? "0".concat(hex) : hex;
-}
-/**
- * Converts a color from CSS rgb format to CSS hex format.
- *
- * @param {string} color - RGB color, i.e. rgb(n, n, n)
- * @returns {string} A CSS rgb color string, i.e. #nnnnnn
- */
-
-
-function rgbToHex(color) {
-  // Idempotent
-  if (color.indexOf('#') === 0) {
-    return color;
-  }
-
-  var _decomposeColor = decomposeColor(color),
-      values = _decomposeColor.values;
-
-  return "#".concat(values.map(function (n) {
-    return intToHex(n);
-  }).join(''));
-}
-/**
- * Converts a color from hsl format to rgb format.
- *
- * @param {string} color - HSL color values
- * @returns {string} rgb color values
- */
-
-
-function hslToRgb(color) {
-  color = decomposeColor(color);
-  var _color = color,
-      values = _color.values;
-  var h = values[0];
-  var s = values[1] / 100;
-  var l = values[2] / 100;
-  var a = s * Math.min(l, 1 - l);
-
-  var f = function f(n) {
-    var k = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : (n + h / 30) % 12;
-    return l - a * Math.max(Math.min(k - 3, 9 - k, 1), -1);
-  };
-
-  var type = 'rgb';
-  var rgb = [Math.round(f(0) * 255), Math.round(f(8) * 255), Math.round(f(4) * 255)];
-
-  if (color.type === 'hsla') {
-    type += 'a';
-    rgb.push(values[3]);
-  }
-
-  return recomposeColor({
-    type: type,
-    values: rgb
-  });
-}
-/**
- * Returns an object with the type and values of a color.
- *
- * Note: Does not support rgb % values.
- *
- * @param {string} color - CSS color, i.e. one of: #nnn, #nnnnnn, rgb(), rgba(), hsl(), hsla()
- * @returns {object} - A MUI color object: {type: string, values: number[]}
- */
-
-
-function decomposeColor(color) {
-  // Idempotent
-  if (color.type) {
-    return color;
-  }
-
-  if (color.charAt(0) === '#') {
-    return decomposeColor(hexToRgb(color));
-  }
-
-  var marker = color.indexOf('(');
-  var type = color.substring(0, marker);
-
-  if (['rgb', 'rgba', 'hsl', 'hsla'].indexOf(type) === -1) {
-    throw new Error(["Material-UI: unsupported `".concat(color, "` color."), 'We support the following formats: #nnn, #nnnnnn, rgb(), rgba(), hsl(), hsla().'].join('\n'));
-  }
-
-  var values = color.substring(marker + 1, color.length - 1).split(',');
-  values = values.map(function (value) {
-    return parseFloat(value);
-  });
-  return {
-    type: type,
-    values: values
-  };
-}
-/**
- * Converts a color object with type and values to a string.
- *
- * @param {object} color - Decomposed color
- * @param {string} color.type - One of: 'rgb', 'rgba', 'hsl', 'hsla'
- * @param {array} color.values - [n,n,n] or [n,n,n,n]
- * @returns {string} A CSS color string
- */
-
-
-function recomposeColor(color) {
-  var type = color.type;
-  var values = color.values;
-
-  if (type.indexOf('rgb') !== -1) {
-    // Only convert the first 3 values to int (i.e. not alpha)
-    values = values.map(function (n, i) {
-      return i < 3 ? parseInt(n, 10) : n;
-    });
-  } else if (type.indexOf('hsl') !== -1) {
-    values[1] = "".concat(values[1], "%");
-    values[2] = "".concat(values[2], "%");
-  }
-
-  return "".concat(type, "(").concat(values.join(', '), ")");
-}
-/**
- * Calculates the contrast ratio between two colors.
- *
- * Formula: https://www.w3.org/TR/WCAG20-TECHS/G17.html#G17-tests
- *
- * @param {string} foreground - CSS color, i.e. one of: #nnn, #nnnnnn, rgb(), rgba(), hsl(), hsla()
- * @param {string} background - CSS color, i.e. one of: #nnn, #nnnnnn, rgb(), rgba(), hsl(), hsla()
- * @returns {number} A contrast ratio value in the range 0 - 21.
- */
-
-
-function getContrastRatio(foreground, background) {
-  var lumA = getLuminance(foreground);
-  var lumB = getLuminance(background);
-  return (Math.max(lumA, lumB) + 0.05) / (Math.min(lumA, lumB) + 0.05);
-}
-/**
- * The relative brightness of any point in a color space,
- * normalized to 0 for darkest black and 1 for lightest white.
- *
- * Formula: https://www.w3.org/TR/WCAG20-TECHS/G17.html#G17-tests
- *
- * @param {string} color - CSS color, i.e. one of: #nnn, #nnnnnn, rgb(), rgba(), hsl(), hsla()
- * @returns {number} The relative brightness of the color in the range 0 - 1
- */
-
-
-function getLuminance(color) {
-  color = decomposeColor(color);
-  var rgb = color.type === 'hsl' ? decomposeColor(hslToRgb(color)).values : color.values;
-  rgb = rgb.map(function (val) {
-    val /= 255; // normalized
-
-    return val <= 0.03928 ? val / 12.92 : Math.pow((val + 0.055) / 1.055, 2.4);
-  }); // Truncate at 3 digits
-
-  return Number((0.2126 * rgb[0] + 0.7152 * rgb[1] + 0.0722 * rgb[2]).toFixed(3));
-}
-/**
- * Darken or lighten a color, depending on its luminance.
- * Light colors are darkened, dark colors are lightened.
- *
- * @param {string} color - CSS color, i.e. one of: #nnn, #nnnnnn, rgb(), rgba(), hsl(), hsla()
- * @param {number} coefficient=0.15 - multiplier in the range 0 - 1
- * @returns {string} A CSS color string. Hex input values are returned as rgb
- */
-
-
-function emphasize(color) {
-  var coefficient = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 0.15;
-  return getLuminance(color) > 0.5 ? darken(color, coefficient) : lighten(color, coefficient);
-}
-/**
- * Set the absolute transparency of a color.
- * Any existing alpha values are overwritten.
- *
- * @param {string} color - CSS color, i.e. one of: #nnn, #nnnnnn, rgb(), rgba(), hsl(), hsla()
- * @param {number} value - value to set the alpha channel to in the range 0 -1
- * @returns {string} A CSS color string. Hex input values are returned as rgb
- */
-
-
-function fade(color, value) {
-  color = decomposeColor(color);
-  value = clamp(value);
-
-  if (color.type === 'rgb' || color.type === 'hsl') {
-    color.type += 'a';
-  }
-
-  color.values[3] = value;
-  return recomposeColor(color);
-}
-/**
- * Darkens a color.
- *
- * @param {string} color - CSS color, i.e. one of: #nnn, #nnnnnn, rgb(), rgba(), hsl(), hsla()
- * @param {number} coefficient - multiplier in the range 0 - 1
- * @returns {string} A CSS color string. Hex input values are returned as rgb
- */
-
-
-function darken(color, coefficient) {
-  color = decomposeColor(color);
-  coefficient = clamp(coefficient);
-
-  if (color.type.indexOf('hsl') !== -1) {
-    color.values[2] *= 1 - coefficient;
-  } else if (color.type.indexOf('rgb') !== -1) {
-    for (var i = 0; i < 3; i += 1) {
-      color.values[i] *= 1 - coefficient;
-    }
-  }
-
-  return recomposeColor(color);
-}
-/**
- * Lightens a color.
- *
- * @param {string} color - CSS color, i.e. one of: #nnn, #nnnnnn, rgb(), rgba(), hsl(), hsla()
- * @param {number} coefficient - multiplier in the range 0 - 1
- * @returns {string} A CSS color string. Hex input values are returned as rgb
- */
-
-
-function lighten(color, coefficient) {
-  color = decomposeColor(color);
-  coefficient = clamp(coefficient);
-
-  if (color.type.indexOf('hsl') !== -1) {
-    color.values[2] += (100 - color.values[2]) * coefficient;
-  } else if (color.type.indexOf('rgb') !== -1) {
-    for (var i = 0; i < 3; i += 1) {
-      color.values[i] += (255 - color.values[i]) * coefficient;
-    }
-  }
-
-  return recomposeColor(color);
-}
-},{}],"../node_modules/@material-ui/core/node_modules/@babel/runtime/helpers/esm/defineProperty.js":[function(require,module,exports) {
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.default = _defineProperty;
-
-function _defineProperty(obj, key, value) {
-  if (key in obj) {
-    Object.defineProperty(obj, key, {
-      value: value,
-      enumerable: true,
-      configurable: true,
-      writable: true
-    });
-  } else {
-    obj[key] = value;
-  }
-
-  return obj;
-}
-},{}],"../node_modules/@material-ui/core/node_modules/@babel/runtime/helpers/esm/extends.js":[function(require,module,exports) {
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.default = _extends;
-
-function _extends() {
-  exports.default = _extends = Object.assign || function (target) {
-    for (var i = 1; i < arguments.length; i++) {
-      var source = arguments[i];
-
-      for (var key in source) {
-        if (Object.prototype.hasOwnProperty.call(source, key)) {
-          target[key] = source[key];
-        }
-      }
-    }
-
-    return target;
-  };
-
-  return _extends.apply(this, arguments);
-}
-},{}],"../node_modules/@material-ui/core/node_modules/@babel/runtime/helpers/esm/objectWithoutPropertiesLoose.js":[function(require,module,exports) {
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.default = _objectWithoutPropertiesLoose;
-
-function _objectWithoutPropertiesLoose(source, excluded) {
-  if (source == null) return {};
-  var target = {};
-  var sourceKeys = Object.keys(source);
-  var key, i;
-
-  for (i = 0; i < sourceKeys.length; i++) {
-    key = sourceKeys[i];
-    if (excluded.indexOf(key) >= 0) continue;
-    target[key] = source[key];
-  }
-
-  return target;
-}
-},{}],"../node_modules/@material-ui/core/node_modules/@babel/runtime/helpers/esm/objectWithoutProperties.js":[function(require,module,exports) {
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.default = _objectWithoutProperties;
-
-var _objectWithoutPropertiesLoose = _interopRequireDefault(require("./objectWithoutPropertiesLoose"));
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-function _objectWithoutProperties(source, excluded) {
-  if (source == null) return {};
-  var target = (0, _objectWithoutPropertiesLoose.default)(source, excluded);
-  var key, i;
-
-  if (Object.getOwnPropertySymbols) {
-    var sourceSymbolKeys = Object.getOwnPropertySymbols(source);
-
-    for (i = 0; i < sourceSymbolKeys.length; i++) {
-      key = sourceSymbolKeys[i];
-      if (excluded.indexOf(key) >= 0) continue;
-      if (!Object.prototype.propertyIsEnumerable.call(source, key)) continue;
-      target[key] = source[key];
-    }
-  }
-
-  return target;
-}
-},{"./objectWithoutPropertiesLoose":"../node_modules/@material-ui/core/node_modules/@babel/runtime/helpers/esm/objectWithoutPropertiesLoose.js"}],"../node_modules/deepmerge/dist/cjs.js":[function(require,module,exports) {
-'use strict';
-
-var isMergeableObject = function isMergeableObject(value) {
-  return isNonNullObject(value) && !isSpecial(value);
-};
-
-function isNonNullObject(value) {
-  return !!value && typeof value === 'object';
-}
-
-function isSpecial(value) {
-  var stringValue = Object.prototype.toString.call(value);
-  return stringValue === '[object RegExp]' || stringValue === '[object Date]' || isReactElement(value);
-} // see https://github.com/facebook/react/blob/b5ac963fb791d1298e7f396236383bc955f916c1/src/isomorphic/classic/element/ReactElement.js#L21-L25
-
-
-var canUseSymbol = typeof Symbol === 'function' && Symbol.for;
-var REACT_ELEMENT_TYPE = canUseSymbol ? Symbol.for('react.element') : 0xeac7;
-
-function isReactElement(value) {
-  return value.$$typeof === REACT_ELEMENT_TYPE;
-}
-
-function emptyTarget(val) {
-  return Array.isArray(val) ? [] : {};
-}
-
-function cloneUnlessOtherwiseSpecified(value, options) {
-  return options.clone !== false && options.isMergeableObject(value) ? deepmerge(emptyTarget(value), value, options) : value;
-}
-
-function defaultArrayMerge(target, source, options) {
-  return target.concat(source).map(function (element) {
-    return cloneUnlessOtherwiseSpecified(element, options);
-  });
-}
-
-function getMergeFunction(key, options) {
-  if (!options.customMerge) {
-    return deepmerge;
-  }
-
-  var customMerge = options.customMerge(key);
-  return typeof customMerge === 'function' ? customMerge : deepmerge;
-}
-
-function getEnumerableOwnPropertySymbols(target) {
-  return Object.getOwnPropertySymbols ? Object.getOwnPropertySymbols(target).filter(function (symbol) {
-    return target.propertyIsEnumerable(symbol);
-  }) : [];
-}
-
-function getKeys(target) {
-  return Object.keys(target).concat(getEnumerableOwnPropertySymbols(target));
-}
-
-function mergeObject(target, source, options) {
-  var destination = {};
-
-  if (options.isMergeableObject(target)) {
-    getKeys(target).forEach(function (key) {
-      destination[key] = cloneUnlessOtherwiseSpecified(target[key], options);
-    });
-  }
-
-  getKeys(source).forEach(function (key) {
-    if (!options.isMergeableObject(source[key]) || !target[key]) {
-      destination[key] = cloneUnlessOtherwiseSpecified(source[key], options);
-    } else {
-      destination[key] = getMergeFunction(key, options)(target[key], source[key], options);
-    }
-  });
-  return destination;
-}
-
-function deepmerge(target, source, options) {
-  options = options || {};
-  options.arrayMerge = options.arrayMerge || defaultArrayMerge;
-  options.isMergeableObject = options.isMergeableObject || isMergeableObject;
-  var sourceIsArray = Array.isArray(source);
-  var targetIsArray = Array.isArray(target);
-  var sourceAndTargetTypesMatch = sourceIsArray === targetIsArray;
-
-  if (!sourceAndTargetTypesMatch) {
-    return cloneUnlessOtherwiseSpecified(source, options);
-  } else if (sourceIsArray) {
-    return options.arrayMerge(target, source, options);
-  } else {
-    return mergeObject(target, source, options);
-  }
-}
-
-deepmerge.all = function deepmergeAll(array, options) {
-  if (!Array.isArray(array)) {
-    throw new Error('first argument should be an array');
-  }
-
-  return array.reduce(function (prev, next) {
-    return deepmerge(prev, next, options);
-  }, {});
-};
-
-var deepmerge_1 = deepmerge;
-module.exports = deepmerge_1;
-},{}],"../node_modules/@material-ui/core/node_modules/isobject/index.js":[function(require,module,exports) {
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.default = isObject;
-
-/*!
- * isobject <https://github.com/jonschlinkert/isobject>
- *
- * Copyright (c) 2014-2017, Jon Schlinkert.
- * Released under the MIT License.
- */
-function isObject(val) {
-  return val != null && typeof val === 'object' && Array.isArray(val) === false;
-}
-
-;
-},{}],"../node_modules/@material-ui/core/node_modules/is-plain-object/index.js":[function(require,module,exports) {
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.default = isPlainObject;
-
-var _isobject = _interopRequireDefault(require("isobject"));
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-/*!
- * is-plain-object <https://github.com/jonschlinkert/is-plain-object>
- *
- * Copyright (c) 2014-2017, Jon Schlinkert.
- * Released under the MIT License.
- */
-function isObjectObject(o) {
-  return (0, _isobject.default)(o) === true && Object.prototype.toString.call(o) === '[object Object]';
-}
-
-function isPlainObject(o) {
-  var ctor, prot;
-  if (isObjectObject(o) === false) return false; // If has modified constructor
-
-  ctor = o.constructor;
-  if (typeof ctor !== 'function') return false; // If has modified prototype
-
-  prot = ctor.prototype;
-  if (isObjectObject(prot) === false) return false; // If constructor does not have an Object-specific method
-
-  if (prot.hasOwnProperty('isPrototypeOf') === false) {
-    return false;
-  } // Most likely a plain Object
-
-
-  return true;
-}
-
-;
-},{"isobject":"../node_modules/@material-ui/core/node_modules/isobject/index.js"}],"../node_modules/@material-ui/core/esm/styles/createBreakpoints.js":[function(require,module,exports) {
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.default = createBreakpoints;
-exports.keys = void 0;
-
-var _extends2 = _interopRequireDefault(require("@babel/runtime/helpers/esm/extends"));
-
-var _objectWithoutProperties2 = _interopRequireDefault(require("@babel/runtime/helpers/esm/objectWithoutProperties"));
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-// Sorted ASC by size. That's important.
-// It can't be configured as it's used statically for propTypes.
-var keys = ['xs', 'sm', 'md', 'lg', 'xl']; // Keep in mind that @media is inclusive by the CSS specification.
-
-exports.keys = keys;
-
-function createBreakpoints(breakpoints) {
-  var _breakpoints$values = breakpoints.values,
-      values = _breakpoints$values === void 0 ? {
-    xs: 0,
-    sm: 600,
-    md: 960,
-    lg: 1280,
-    xl: 1920
-  } : _breakpoints$values,
-      _breakpoints$unit = breakpoints.unit,
-      unit = _breakpoints$unit === void 0 ? 'px' : _breakpoints$unit,
-      _breakpoints$step = breakpoints.step,
-      step = _breakpoints$step === void 0 ? 5 : _breakpoints$step,
-      other = (0, _objectWithoutProperties2.default)(breakpoints, ["values", "unit", "step"]);
-
-  function up(key) {
-    var value = typeof values[key] === 'number' ? values[key] : key;
-    return "@media (min-width:".concat(value).concat(unit, ")");
-  }
-
-  function down(key) {
-    var endIndex = keys.indexOf(key) + 1;
-    var upperbound = values[keys[endIndex]];
-
-    if (endIndex === keys.length) {
-      // xl down applies to all sizes
-      return up('xs');
-    }
-
-    var value = typeof upperbound === 'number' && endIndex > 0 ? upperbound : key;
-    return "@media (max-width:".concat(value - step / 100).concat(unit, ")");
-  }
-
-  function between(start, end) {
-    var endIndex = keys.indexOf(end) + 1;
-
-    if (endIndex === keys.length) {
-      return up(start);
-    }
-
-    return "@media (min-width:".concat(values[start]).concat(unit, ") and ") + "(max-width:".concat(values[keys[endIndex]] - step / 100).concat(unit, ")");
-  }
-
-  function only(key) {
-    return between(key, key);
-  }
-
-  function width(key) {
-    return values[key];
-  }
-
-  return (0, _extends2.default)({
-    keys: keys,
-    values: values,
-    up: up,
-    down: down,
-    between: between,
-    only: only,
-    width: width
-  }, other);
-}
-},{"@babel/runtime/helpers/esm/extends":"../node_modules/@material-ui/core/node_modules/@babel/runtime/helpers/esm/extends.js","@babel/runtime/helpers/esm/objectWithoutProperties":"../node_modules/@material-ui/core/node_modules/@babel/runtime/helpers/esm/objectWithoutProperties.js"}],"../node_modules/@material-ui/core/esm/styles/createMixins.js":[function(require,module,exports) {
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.default = createMixins;
-
-var _defineProperty2 = _interopRequireDefault(require("@babel/runtime/helpers/esm/defineProperty"));
-
-var _extends2 = _interopRequireDefault(require("@babel/runtime/helpers/esm/extends"));
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-function createMixins(breakpoints, spacing, mixins) {
-  var _toolbar;
-
-  return (0, _extends2.default)({
-    gutters: function gutters() {
-      var styles = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {}; // To deprecate in v4.1
-      //       warning(
-      //         false,
-      //         [
-      //           'Material-UI: theme.mixins.gutters() is deprecated.',
-      //           'You can use the source of the mixin directly:',
-      //           `
-      // paddingLeft: theme.spacing(2),
-      // paddingRight: theme.spacing(2),
-      // [theme.breakpoints.up('sm')]: {
-      //   paddingLeft: theme.spacing(3),
-      //   paddingRight: theme.spacing(3),
-      // },
-      // `,
-      //         ].join('\n'),
-      //       );
-
-      return (0, _extends2.default)({
-        paddingLeft: spacing(2),
-        paddingRight: spacing(2)
-      }, styles, (0, _defineProperty2.default)({}, breakpoints.up('sm'), (0, _extends2.default)({
-        paddingLeft: spacing(3),
-        paddingRight: spacing(3)
-      }, styles[breakpoints.up('sm')])));
-    },
-    toolbar: (_toolbar = {
-      minHeight: 56
-    }, (0, _defineProperty2.default)(_toolbar, "".concat(breakpoints.up('xs'), " and (orientation: landscape)"), {
-      minHeight: 48
-    }), (0, _defineProperty2.default)(_toolbar, breakpoints.up('sm'), {
-      minHeight: 64
-    }), _toolbar)
-  }, mixins);
-}
-},{"@babel/runtime/helpers/esm/defineProperty":"../node_modules/@material-ui/core/node_modules/@babel/runtime/helpers/esm/defineProperty.js","@babel/runtime/helpers/esm/extends":"../node_modules/@material-ui/core/node_modules/@babel/runtime/helpers/esm/extends.js"}],"../node_modules/@material-ui/core/esm/colors/indigo.js":[function(require,module,exports) {
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.default = void 0;
-var indigo = {
-  50: '#e8eaf6',
-  100: '#c5cae9',
-  200: '#9fa8da',
-  300: '#7986cb',
-  400: '#5c6bc0',
-  500: '#3f51b5',
-  600: '#3949ab',
-  700: '#303f9f',
-  800: '#283593',
-  900: '#1a237e',
-  A100: '#8c9eff',
-  A200: '#536dfe',
-  A400: '#3d5afe',
-  A700: '#304ffe'
-};
-var _default = indigo;
-exports.default = _default;
-},{}],"../node_modules/@material-ui/core/esm/colors/pink.js":[function(require,module,exports) {
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.default = void 0;
-var pink = {
-  50: '#fce4ec',
-  100: '#f8bbd0',
-  200: '#f48fb1',
-  300: '#f06292',
-  400: '#ec407a',
-  500: '#e91e63',
-  600: '#d81b60',
-  700: '#c2185b',
-  800: '#ad1457',
-  900: '#880e4f',
-  A100: '#ff80ab',
-  A200: '#ff4081',
-  A400: '#f50057',
-  A700: '#c51162'
-};
-var _default = pink;
-exports.default = _default;
-},{}],"../node_modules/@material-ui/core/esm/colors/grey.js":[function(require,module,exports) {
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.default = void 0;
-var grey = {
-  50: '#fafafa',
-  100: '#f5f5f5',
-  200: '#eeeeee',
-  300: '#e0e0e0',
-  400: '#bdbdbd',
-  500: '#9e9e9e',
-  600: '#757575',
-  700: '#616161',
-  800: '#424242',
-  900: '#212121',
-  A100: '#d5d5d5',
-  A200: '#aaaaaa',
-  A400: '#303030',
-  A700: '#616161'
-};
-var _default = grey;
-exports.default = _default;
-},{}],"../node_modules/@material-ui/core/esm/colors/red.js":[function(require,module,exports) {
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.default = void 0;
-var red = {
-  50: '#ffebee',
-  100: '#ffcdd2',
-  200: '#ef9a9a',
-  300: '#e57373',
-  400: '#ef5350',
-  500: '#f44336',
-  600: '#e53935',
-  700: '#d32f2f',
-  800: '#c62828',
-  900: '#b71c1c',
-  A100: '#ff8a80',
-  A200: '#ff5252',
-  A400: '#ff1744',
-  A700: '#d50000'
-};
-var _default = red;
-exports.default = _default;
-},{}],"../node_modules/@material-ui/core/esm/colors/common.js":[function(require,module,exports) {
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.default = void 0;
-var common = {
-  black: '#000',
-  white: '#fff'
-};
-var _default = common;
-exports.default = _default;
-},{}],"../node_modules/@material-ui/core/esm/styles/createPalette.js":[function(require,module,exports) {
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.default = createPalette;
-exports.dark = exports.light = void 0;
-
-var _extends2 = _interopRequireDefault(require("@babel/runtime/helpers/esm/extends"));
-
-var _objectWithoutProperties2 = _interopRequireDefault(require("@babel/runtime/helpers/esm/objectWithoutProperties"));
-
-var _deepmerge = _interopRequireDefault(require("deepmerge"));
-
-var _indigo = _interopRequireDefault(require("../colors/indigo"));
-
-var _pink = _interopRequireDefault(require("../colors/pink"));
-
-var _grey = _interopRequireDefault(require("../colors/grey"));
-
-var _red = _interopRequireDefault(require("../colors/red"));
-
-var _common = _interopRequireDefault(require("../colors/common"));
-
-var _colorManipulator = require("./colorManipulator");
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-// < 1kb payload overhead when lodash/merge is > 3kb.
-var light = {
-  // The colors used to style the text.
-  text: {
-    // The most important text.
-    primary: 'rgba(0, 0, 0, 0.87)',
-    // Secondary text.
-    secondary: 'rgba(0, 0, 0, 0.54)',
-    // Disabled text have even lower visual prominence.
-    disabled: 'rgba(0, 0, 0, 0.38)',
-    // Text hints.
-    hint: 'rgba(0, 0, 0, 0.38)'
-  },
-  // The color used to divide different elements.
-  divider: 'rgba(0, 0, 0, 0.12)',
-  // The background colors used to style the surfaces.
-  // Consistency between these values is important.
-  background: {
-    paper: _common.default.white,
-    default: _grey.default[50]
-  },
-  // The colors used to style the action elements.
-  action: {
-    // The color of an active action like an icon button.
-    active: 'rgba(0, 0, 0, 0.54)',
-    // The color of an hovered action.
-    hover: 'rgba(0, 0, 0, 0.08)',
-    hoverOpacity: 0.08,
-    // The color of a selected action.
-    selected: 'rgba(0, 0, 0, 0.14)',
-    // The color of a disabled action.
-    disabled: 'rgba(0, 0, 0, 0.26)',
-    // The background color of a disabled action.
-    disabledBackground: 'rgba(0, 0, 0, 0.12)'
-  }
-};
-exports.light = light;
-var dark = {
-  text: {
-    primary: _common.default.white,
-    secondary: 'rgba(255, 255, 255, 0.7)',
-    disabled: 'rgba(255, 255, 255, 0.5)',
-    hint: 'rgba(255, 255, 255, 0.5)',
-    icon: 'rgba(255, 255, 255, 0.5)'
-  },
-  divider: 'rgba(255, 255, 255, 0.12)',
-  background: {
-    paper: _grey.default[800],
-    default: '#303030'
-  },
-  action: {
-    active: _common.default.white,
-    hover: 'rgba(255, 255, 255, 0.1)',
-    hoverOpacity: 0.1,
-    selected: 'rgba(255, 255, 255, 0.2)',
-    disabled: 'rgba(255, 255, 255, 0.3)',
-    disabledBackground: 'rgba(255, 255, 255, 0.12)'
-  }
-};
-exports.dark = dark;
-
-function addLightOrDark(intent, direction, shade, tonalOffset) {
-  if (!intent[direction]) {
-    if (intent.hasOwnProperty(shade)) {
-      intent[direction] = intent[shade];
-    } else if (direction === 'light') {
-      intent.light = (0, _colorManipulator.lighten)(intent.main, tonalOffset);
-    } else if (direction === 'dark') {
-      intent.dark = (0, _colorManipulator.darken)(intent.main, tonalOffset * 1.5);
-    }
-  }
-}
-
-function createPalette(palette) {
-  var _palette$primary = palette.primary,
-      primary = _palette$primary === void 0 ? {
-    light: _indigo.default[300],
-    main: _indigo.default[500],
-    dark: _indigo.default[700]
-  } : _palette$primary,
-      _palette$secondary = palette.secondary,
-      secondary = _palette$secondary === void 0 ? {
-    light: _pink.default.A200,
-    main: _pink.default.A400,
-    dark: _pink.default.A700
-  } : _palette$secondary,
-      _palette$error = palette.error,
-      error = _palette$error === void 0 ? {
-    light: _red.default[300],
-    main: _red.default[500],
-    dark: _red.default[700]
-  } : _palette$error,
-      _palette$type = palette.type,
-      type = _palette$type === void 0 ? 'light' : _palette$type,
-      _palette$contrastThre = palette.contrastThreshold,
-      contrastThreshold = _palette$contrastThre === void 0 ? 3 : _palette$contrastThre,
-      _palette$tonalOffset = palette.tonalOffset,
-      tonalOffset = _palette$tonalOffset === void 0 ? 0.2 : _palette$tonalOffset,
-      other = (0, _objectWithoutProperties2.default)(palette, ["primary", "secondary", "error", "type", "contrastThreshold", "tonalOffset"]); // Use the same logic as
-  // Bootstrap: https://github.com/twbs/bootstrap/blob/1d6e3710dd447de1a200f29e8fa521f8a0908f70/scss/_functions.scss#L59
-  // and material-components-web https://github.com/material-components/material-components-web/blob/ac46b8863c4dab9fc22c4c662dc6bd1b65dd652f/packages/mdc-theme/_functions.scss#L54
-
-  function getContrastText(background) {
-    if ("development" !== 'production') {
-      if (!background) {
-        console.error("Material-UI: missing background argument in getContrastText(".concat(background, ")."));
-      }
-    }
-
-    var contrastText = (0, _colorManipulator.getContrastRatio)(background, dark.text.primary) >= contrastThreshold ? dark.text.primary : light.text.primary;
-
-    if ("development" !== 'production') {
-      var contrast = (0, _colorManipulator.getContrastRatio)(background, contrastText);
-
-      if ("development" !== 'production') {
-        if (contrast < 3) {
-          console.error(["Material-UI: the contrast ratio of ".concat(contrast, ":1 for ").concat(contrastText, " on ").concat(background), 'falls below the WACG recommended absolute minimum contrast ratio of 3:1.', 'https://www.w3.org/TR/2008/REC-WCAG20-20081211/#visual-audio-contrast-contrast'].join('\n'));
-        }
-      }
-    }
-
-    return contrastText;
-  }
-
-  function augmentColor(color) {
-    var mainShade = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 500;
-    var lightShade = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 300;
-    var darkShade = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : 700;
-    color = (0, _extends2.default)({}, color);
-
-    if (!color.main && color[mainShade]) {
-      color.main = color[mainShade];
-    }
-
-    if ("development" !== 'production') {
-      if (!color.main) {
-        throw new Error(['Material-UI: the color provided to augmentColor(color) is invalid.', "The color object needs to have a `main` property or a `".concat(mainShade, "` property.")].join('\n'));
-      }
-    }
-
-    addLightOrDark(color, 'light', lightShade, tonalOffset);
-    addLightOrDark(color, 'dark', darkShade, tonalOffset);
-
-    if (!color.contrastText) {
-      color.contrastText = getContrastText(color.main);
-    }
-
-    return color;
-  }
-
-  var types = {
-    dark: dark,
-    light: light
-  };
-
-  if ("development" !== 'production') {
-    if (!types[type]) {
-      console.error("Material-UI: the palette type `".concat(type, "` is not supported."));
-    }
-  }
-
-  var paletteOutput = (0, _deepmerge.default)((0, _extends2.default)({
-    // A collection of common colors.
-    common: _common.default,
-    // The palette type, can be light or dark.
-    type: type,
-    // The colors used to represent primary interface elements for a user.
-    primary: augmentColor(primary),
-    // The colors used to represent secondary interface elements for a user.
-    secondary: augmentColor(secondary, 'A400', 'A200', 'A700'),
-    // The colors used to represent interface elements that the user should be made aware of.
-    error: augmentColor(error),
-    // The grey colors.
-    grey: _grey.default,
-    // Used by `getContrastText()` to maximize the contrast between the background and
-    // the text.
-    contrastThreshold: contrastThreshold,
-    // Take a background color and return the color of the text to maximize the contrast.
-    getContrastText: getContrastText,
-    // Generate a rich color object.
-    augmentColor: augmentColor,
-    // Used by the functions below to shift a color's luminance by approximately
-    // two indexes within its tonal palette.
-    // E.g., shift from Red 500 to Red 300 or Red 700.
-    tonalOffset: tonalOffset
-  }, types[type]), other, {
-    clone: false // No need to clone deep
-
-  });
-  return paletteOutput;
-}
-},{"@babel/runtime/helpers/esm/extends":"../node_modules/@material-ui/core/node_modules/@babel/runtime/helpers/esm/extends.js","@babel/runtime/helpers/esm/objectWithoutProperties":"../node_modules/@material-ui/core/node_modules/@babel/runtime/helpers/esm/objectWithoutProperties.js","deepmerge":"../node_modules/deepmerge/dist/cjs.js","../colors/indigo":"../node_modules/@material-ui/core/esm/colors/indigo.js","../colors/pink":"../node_modules/@material-ui/core/esm/colors/pink.js","../colors/grey":"../node_modules/@material-ui/core/esm/colors/grey.js","../colors/red":"../node_modules/@material-ui/core/esm/colors/red.js","../colors/common":"../node_modules/@material-ui/core/esm/colors/common.js","./colorManipulator":"../node_modules/@material-ui/core/esm/styles/colorManipulator.js"}],"../node_modules/@material-ui/core/esm/styles/createTypography.js":[function(require,module,exports) {
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.default = createTypography;
-
-var _extends2 = _interopRequireDefault(require("@babel/runtime/helpers/esm/extends"));
-
-var _objectWithoutProperties2 = _interopRequireDefault(require("@babel/runtime/helpers/esm/objectWithoutProperties"));
-
-var _deepmerge = _interopRequireDefault(require("deepmerge"));
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-// < 1kb payload overhead when lodash/merge is > 3kb.
-function round(value) {
-  return Math.round(value * 1e5) / 1e5;
-}
-
-var caseAllCaps = {
-  textTransform: 'uppercase'
-};
-var defaultFontFamily = '"Roboto", "Helvetica", "Arial", sans-serif';
-/**
- * @see @link{https://material.io/design/typography/the-type-system.html}
- * @see @link{https://material.io/design/typography/understanding-typography.html}
- */
-
-function createTypography(palette, typography) {
-  var _ref = typeof typography === 'function' ? typography(palette) : typography,
-      _ref$fontFamily = _ref.fontFamily,
-      fontFamily = _ref$fontFamily === void 0 ? defaultFontFamily : _ref$fontFamily,
-      _ref$fontSize = _ref.fontSize,
-      fontSize = _ref$fontSize === void 0 ? 14 : _ref$fontSize,
-      _ref$fontWeightLight = _ref.fontWeightLight,
-      fontWeightLight = _ref$fontWeightLight === void 0 ? 300 : _ref$fontWeightLight,
-      _ref$fontWeightRegula = _ref.fontWeightRegular,
-      fontWeightRegular = _ref$fontWeightRegula === void 0 ? 400 : _ref$fontWeightRegula,
-      _ref$fontWeightMedium = _ref.fontWeightMedium,
-      fontWeightMedium = _ref$fontWeightMedium === void 0 ? 500 : _ref$fontWeightMedium,
-      _ref$fontWeightBold = _ref.fontWeightBold,
-      fontWeightBold = _ref$fontWeightBold === void 0 ? 700 : _ref$fontWeightBold,
-      _ref$htmlFontSize = _ref.htmlFontSize,
-      htmlFontSize = _ref$htmlFontSize === void 0 ? 16 : _ref$htmlFontSize,
-      allVariants = _ref.allVariants,
-      pxToRem2 = _ref.pxToRem,
-      other = (0, _objectWithoutProperties2.default)(_ref, ["fontFamily", "fontSize", "fontWeightLight", "fontWeightRegular", "fontWeightMedium", "fontWeightBold", "htmlFontSize", "allVariants", "pxToRem"]);
-
-  if ("development" !== 'production') {
-    if (typeof fontSize !== 'number') {
-      console.error("Material-UI: 'fontSize' is required to be a number.");
-    }
-
-    if (typeof htmlFontSize !== 'number') {
-      console.error("Material-UI: 'htmlFontSize' is required to be a number.");
-    }
-  }
-
-  var coef = fontSize / 14;
-
-  var pxToRem = pxToRem2 || function (size) {
-    return "".concat(size / htmlFontSize * coef, "rem");
-  };
-
-  var buildVariant = function buildVariant(fontWeight, size, lineHeight, letterSpacing, casing) {
-    return (0, _extends2.default)({
-      fontFamily: fontFamily,
-      fontWeight: fontWeight,
-      fontSize: pxToRem(size),
-      // Unitless following https://meyerweb.com/eric/thoughts/2006/02/08/unitless-line-heights/
-      lineHeight: lineHeight
-    }, fontFamily === defaultFontFamily ? {
-      letterSpacing: "".concat(round(letterSpacing / size), "em")
-    } : {}, {}, casing, {}, allVariants);
-  };
-
-  var variants = {
-    h1: buildVariant(fontWeightLight, 96, 1, -1.5),
-    h2: buildVariant(fontWeightLight, 60, 1, -0.5),
-    h3: buildVariant(fontWeightRegular, 48, 1.04, 0),
-    h4: buildVariant(fontWeightRegular, 34, 1.17, 0.25),
-    h5: buildVariant(fontWeightRegular, 24, 1.33, 0),
-    h6: buildVariant(fontWeightMedium, 20, 1.6, 0.15),
-    subtitle1: buildVariant(fontWeightRegular, 16, 1.75, 0.15),
-    subtitle2: buildVariant(fontWeightMedium, 14, 1.57, 0.1),
-    body1: buildVariant(fontWeightRegular, 16, 1.5, 0.15),
-    body2: buildVariant(fontWeightRegular, 14, 1.43, 0.15),
-    button: buildVariant(fontWeightMedium, 14, 1.75, 0.4, caseAllCaps),
-    caption: buildVariant(fontWeightRegular, 12, 1.66, 0.4),
-    overline: buildVariant(fontWeightRegular, 12, 2.66, 1, caseAllCaps)
-  };
-  return (0, _deepmerge.default)((0, _extends2.default)({
-    htmlFontSize: htmlFontSize,
-    pxToRem: pxToRem,
-    round: round,
-    // TODO To remove in v5?
-    fontFamily: fontFamily,
-    fontSize: fontSize,
-    fontWeightLight: fontWeightLight,
-    fontWeightRegular: fontWeightRegular,
-    fontWeightMedium: fontWeightMedium,
-    fontWeightBold: fontWeightBold
-  }, variants), other, {
-    clone: false // No need to clone deep
-
-  });
-}
-},{"@babel/runtime/helpers/esm/extends":"../node_modules/@material-ui/core/node_modules/@babel/runtime/helpers/esm/extends.js","@babel/runtime/helpers/esm/objectWithoutProperties":"../node_modules/@material-ui/core/node_modules/@babel/runtime/helpers/esm/objectWithoutProperties.js","deepmerge":"../node_modules/deepmerge/dist/cjs.js"}],"../node_modules/@material-ui/core/esm/styles/shadows.js":[function(require,module,exports) {
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.default = void 0;
-var shadowKeyUmbraOpacity = 0.2;
-var shadowKeyPenumbraOpacity = 0.14;
-var shadowAmbientShadowOpacity = 0.12;
-
-function createShadow() {
-  return ["".concat(arguments.length <= 0 ? undefined : arguments[0], "px ").concat(arguments.length <= 1 ? undefined : arguments[1], "px ").concat(arguments.length <= 2 ? undefined : arguments[2], "px ").concat(arguments.length <= 3 ? undefined : arguments[3], "px rgba(0,0,0,").concat(shadowKeyUmbraOpacity, ")"), "".concat(arguments.length <= 4 ? undefined : arguments[4], "px ").concat(arguments.length <= 5 ? undefined : arguments[5], "px ").concat(arguments.length <= 6 ? undefined : arguments[6], "px ").concat(arguments.length <= 7 ? undefined : arguments[7], "px rgba(0,0,0,").concat(shadowKeyPenumbraOpacity, ")"), "".concat(arguments.length <= 8 ? undefined : arguments[8], "px ").concat(arguments.length <= 9 ? undefined : arguments[9], "px ").concat(arguments.length <= 10 ? undefined : arguments[10], "px ").concat(arguments.length <= 11 ? undefined : arguments[11], "px rgba(0,0,0,").concat(shadowAmbientShadowOpacity, ")")].join(',');
-}
-
-var shadows = ['none', createShadow(0, 1, 3, 0, 0, 1, 1, 0, 0, 2, 1, -1), createShadow(0, 1, 5, 0, 0, 2, 2, 0, 0, 3, 1, -2), createShadow(0, 1, 8, 0, 0, 3, 4, 0, 0, 3, 3, -2), createShadow(0, 2, 4, -1, 0, 4, 5, 0, 0, 1, 10, 0), createShadow(0, 3, 5, -1, 0, 5, 8, 0, 0, 1, 14, 0), createShadow(0, 3, 5, -1, 0, 6, 10, 0, 0, 1, 18, 0), createShadow(0, 4, 5, -2, 0, 7, 10, 1, 0, 2, 16, 1), createShadow(0, 5, 5, -3, 0, 8, 10, 1, 0, 3, 14, 2), createShadow(0, 5, 6, -3, 0, 9, 12, 1, 0, 3, 16, 2), createShadow(0, 6, 6, -3, 0, 10, 14, 1, 0, 4, 18, 3), createShadow(0, 6, 7, -4, 0, 11, 15, 1, 0, 4, 20, 3), createShadow(0, 7, 8, -4, 0, 12, 17, 2, 0, 5, 22, 4), createShadow(0, 7, 8, -4, 0, 13, 19, 2, 0, 5, 24, 4), createShadow(0, 7, 9, -4, 0, 14, 21, 2, 0, 5, 26, 4), createShadow(0, 8, 9, -5, 0, 15, 22, 2, 0, 6, 28, 5), createShadow(0, 8, 10, -5, 0, 16, 24, 2, 0, 6, 30, 5), createShadow(0, 8, 11, -5, 0, 17, 26, 2, 0, 6, 32, 5), createShadow(0, 9, 11, -5, 0, 18, 28, 2, 0, 7, 34, 6), createShadow(0, 9, 12, -6, 0, 19, 29, 2, 0, 7, 36, 6), createShadow(0, 10, 13, -6, 0, 20, 31, 3, 0, 8, 38, 7), createShadow(0, 10, 13, -6, 0, 21, 33, 3, 0, 8, 40, 7), createShadow(0, 10, 14, -6, 0, 22, 35, 3, 0, 8, 42, 7), createShadow(0, 11, 14, -7, 0, 23, 36, 3, 0, 9, 44, 8), createShadow(0, 11, 15, -7, 0, 24, 38, 3, 0, 9, 46, 8)];
-var _default = shadows;
-exports.default = _default;
-},{}],"../node_modules/@material-ui/core/esm/styles/shape.js":[function(require,module,exports) {
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.default = void 0;
-var shape = {
-  borderRadius: 4
-};
-var _default = shape;
-exports.default = _default;
-},{}],"../node_modules/@material-ui/core/esm/styles/createSpacing.js":[function(require,module,exports) {
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.default = createSpacing;
-var warnOnce;
-
-function createSpacing() {
-  var spacingInput = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 8; // Already transformed.
-
-  if (spacingInput.mui) {
-    return spacingInput;
-  } // All components align to an 8dp square baseline grid for mobile, tablet, and desktop.
-  // https://material.io/design/layout/understanding-layout.html#pixel-density
-
-
-  var transform;
-
-  if (typeof spacingInput === 'function') {
-    transform = spacingInput;
-  } else {
-    if ("development" !== 'production') {
-      if (typeof spacingInput !== 'number') {
-        console.error(["Material-UI: the `theme.spacing` value (".concat(spacingInput, ") is invalid."), 'It should be a number or a function.'].join('\n'));
-      }
-    }
-
-    transform = function transform(factor) {
-      if ("development" !== 'production') {
-        if (typeof factor !== 'number') {
-          console.error("Expected spacing argument to be a number, got ".concat(factor));
-        }
-      }
-
-      return spacingInput * factor;
-    };
-  }
-
-  var spacing = function spacing() {
-    for (var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++) {
-      args[_key] = arguments[_key];
-    }
-
-    if ("development" !== 'production') {
-      if (!(args.length <= 4)) {
-        console.error("Material-UI: Too many arguments provided, expected between 0 and 4, got ".concat(args.length));
-      }
-    }
-
-    if (args.length === 0) {
-      return transform(1);
-    }
-
-    if (args.length === 1) {
-      return transform(args[0]);
-    }
-
-    return args.map(function (factor) {
-      var output = transform(factor);
-      return typeof output === 'number' ? "".concat(output, "px") : output;
-    }).join(' ');
-  }; // Backward compatibility, to remove in v5.
-
-
-  Object.defineProperty(spacing, 'unit', {
-    get: function get() {
-      if ("development" !== 'production') {
-        if (!warnOnce || "development" === 'test') {
-          console.error(['Material-UI: theme.spacing.unit usage has been deprecated.', 'It will be removed in v5.', 'You can replace `theme.spacing.unit * y` with `theme.spacing(y)`.', '', 'You can use the `https://github.com/mui-org/material-ui/tree/master/packages/material-ui-codemod/README.md#theme-spacing-api` migration helper to make the process smoother.'].join('\n'));
-        }
-
-        warnOnce = true;
-      }
-
-      return spacingInput;
-    }
-  });
-  spacing.mui = true;
-  return spacing;
-}
-},{}],"../node_modules/@material-ui/core/esm/styles/transitions.js":[function(require,module,exports) {
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.default = exports.isNumber = exports.isString = exports.formatMs = exports.duration = exports.easing = void 0;
-
-var _objectWithoutProperties2 = _interopRequireDefault(require("@babel/runtime/helpers/esm/objectWithoutProperties"));
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-/* eslint-disable no-restricted-globals */
-// Follow https://material.google.com/motion/duration-easing.html#duration-easing-natural-easing-curves
-// to learn the context in which each easing should be used.
-var easing = {
-  // This is the most common easing curve.
-  easeInOut: 'cubic-bezier(0.4, 0, 0.2, 1)',
-  // Objects enter the screen at full velocity from off-screen and
-  // slowly decelerate to a resting point.
-  easeOut: 'cubic-bezier(0.0, 0, 0.2, 1)',
-  // Objects leave the screen at full velocity. They do not decelerate when off-screen.
-  easeIn: 'cubic-bezier(0.4, 0, 1, 1)',
-  // The sharp curve is used by objects that may return to the screen at any time.
-  sharp: 'cubic-bezier(0.4, 0, 0.6, 1)'
-}; // Follow https://material.io/guidelines/motion/duration-easing.html#duration-easing-common-durations
-// to learn when use what timing
-
-exports.easing = easing;
-var duration = {
-  shortest: 150,
-  shorter: 200,
-  short: 250,
-  // most basic recommended timing
-  standard: 300,
-  // this is to be used in complex animations
-  complex: 375,
-  // recommended when something is entering screen
-  enteringScreen: 225,
-  // recommended when something is leaving screen
-  leavingScreen: 195
-};
-exports.duration = duration;
-
-var formatMs = function formatMs(milliseconds) {
-  return "".concat(Math.round(milliseconds), "ms");
-};
-
-exports.formatMs = formatMs;
-
-var isString = function isString(value) {
-  return typeof value === 'string';
-};
-
-exports.isString = isString;
-
-var isNumber = function isNumber(value) {
-  return !isNaN(parseFloat(value));
-};
-/**
- * @param {string|Array} props
- * @param {object} param
- * @param {string} param.prop
- * @param {number} param.duration
- * @param {string} param.easing
- * @param {number} param.delay
- */
-
-
-exports.isNumber = isNumber;
-var _default = {
-  easing: easing,
-  duration: duration,
-  create: function create() {
-    var props = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : ['all'];
-    var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
-    var _options$duration = options.duration,
-        durationOption = _options$duration === void 0 ? duration.standard : _options$duration,
-        _options$easing = options.easing,
-        easingOption = _options$easing === void 0 ? easing.easeInOut : _options$easing,
-        _options$delay = options.delay,
-        delay = _options$delay === void 0 ? 0 : _options$delay,
-        other = (0, _objectWithoutProperties2.default)(options, ["duration", "easing", "delay"]);
-
-    if ("development" !== 'production') {
-      if (!isString(props) && !Array.isArray(props)) {
-        console.error('Material-UI: argument "props" must be a string or Array.');
-      }
-
-      if (!isNumber(durationOption) && !isString(durationOption)) {
-        console.error("Material-UI: argument \"duration\" must be a number or a string but found ".concat(durationOption, "."));
-      }
-
-      if (!isString(easingOption)) {
-        console.error('Material-UI: argument "easing" must be a string.');
-      }
-
-      if (!isNumber(delay) && !isString(delay)) {
-        console.error('Material-UI: argument "delay" must be a number or a string.');
-      }
-
-      if (Object.keys(other).length !== 0) {
-        console.error("Material-UI: unrecognized argument(s) [".concat(Object.keys(other).join(','), "]"));
-      }
-    }
-
-    return (Array.isArray(props) ? props : [props]).map(function (animatedProp) {
-      return "".concat(animatedProp, " ").concat(typeof durationOption === 'string' ? durationOption : formatMs(durationOption), " ").concat(easingOption, " ").concat(typeof delay === 'string' ? delay : formatMs(delay));
-    }).join(',');
-  },
-  getAutoHeightDuration: function getAutoHeightDuration(height) {
-    if (!height) {
-      return 0;
-    }
-
-    var constant = height / 36; // https://www.wolframalpha.com/input/?i=(4+%2B+15+*+(x+%2F+36+)+**+0.25+%2B+(x+%2F+36)+%2F+5)+*+10
-
-    return Math.round((4 + 15 * Math.pow(constant, 0.25) + constant / 5) * 10);
-  }
-};
-exports.default = _default;
-},{"@babel/runtime/helpers/esm/objectWithoutProperties":"../node_modules/@material-ui/core/node_modules/@babel/runtime/helpers/esm/objectWithoutProperties.js"}],"../node_modules/@material-ui/core/esm/styles/zIndex.js":[function(require,module,exports) {
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.default = void 0;
-// We need to centralize the zIndex definitions as they work
-// like global values in the browser.
-var zIndex = {
-  mobileStepper: 1000,
-  speedDial: 1050,
-  appBar: 1100,
-  drawer: 1200,
-  modal: 1300,
-  snackbar: 1400,
-  tooltip: 1500
-};
-var _default = zIndex;
-exports.default = _default;
-},{}],"../node_modules/@material-ui/core/esm/styles/createMuiTheme.js":[function(require,module,exports) {
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.default = void 0;
-
-var _defineProperty2 = _interopRequireDefault(require("@babel/runtime/helpers/esm/defineProperty"));
-
-var _extends2 = _interopRequireDefault(require("@babel/runtime/helpers/esm/extends"));
-
-var _objectWithoutProperties2 = _interopRequireDefault(require("@babel/runtime/helpers/esm/objectWithoutProperties"));
-
-var _deepmerge = _interopRequireDefault(require("deepmerge"));
-
-var _isPlainObject = _interopRequireDefault(require("is-plain-object"));
-
-var _createBreakpoints = _interopRequireDefault(require("./createBreakpoints"));
-
-var _createMixins = _interopRequireDefault(require("./createMixins"));
-
-var _createPalette = _interopRequireDefault(require("./createPalette"));
-
-var _createTypography = _interopRequireDefault(require("./createTypography"));
-
-var _shadows = _interopRequireDefault(require("./shadows"));
-
-var _shape = _interopRequireDefault(require("./shape"));
-
-var _createSpacing = _interopRequireDefault(require("./createSpacing"));
-
-var _transitions = _interopRequireDefault(require("./transitions"));
-
-var _zIndex = _interopRequireDefault(require("./zIndex"));
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-// < 1kb payload overhead when lodash/merge is > 3kb.
-function createMuiTheme() {
-  var options = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
-  var _options$breakpoints = options.breakpoints,
-      breakpointsInput = _options$breakpoints === void 0 ? {} : _options$breakpoints,
-      _options$mixins = options.mixins,
-      mixinsInput = _options$mixins === void 0 ? {} : _options$mixins,
-      _options$palette = options.palette,
-      paletteInput = _options$palette === void 0 ? {} : _options$palette,
-      shadowsInput = options.shadows,
-      spacingInput = options.spacing,
-      _options$typography = options.typography,
-      typographyInput = _options$typography === void 0 ? {} : _options$typography,
-      other = (0, _objectWithoutProperties2.default)(options, ["breakpoints", "mixins", "palette", "shadows", "spacing", "typography"]);
-  var palette = (0, _createPalette.default)(paletteInput);
-  var breakpoints = (0, _createBreakpoints.default)(breakpointsInput);
-  var spacing = (0, _createSpacing.default)(spacingInput);
-  var muiTheme = (0, _extends2.default)({
-    breakpoints: breakpoints,
-    direction: 'ltr',
-    mixins: (0, _createMixins.default)(breakpoints, spacing, mixinsInput),
-    overrides: {},
-    // Inject custom styles
-    palette: palette,
-    props: {},
-    // Inject custom props
-    shadows: shadowsInput || _shadows.default,
-    typography: (0, _createTypography.default)(palette, typographyInput),
-    spacing: spacing
-  }, (0, _deepmerge.default)({
-    shape: _shape.default,
-    transitions: _transitions.default,
-    zIndex: _zIndex.default
-  }, other, {
-    isMergeableObject: _isPlainObject.default
-  }));
-
-  if ("development" !== 'production') {
-    var pseudoClasses = ['checked', 'disabled', 'error', 'focused', 'focusVisible', 'required', 'expanded', 'selected'];
-
-    var traverse = function traverse(node, parentKey) {
-      var depth = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 1;
-      var key; // eslint-disable-next-line guard-for-in, no-restricted-syntax
-
-      for (key in node) {
-        var child = node[key];
-
-        if (depth === 1) {
-          if (key.indexOf('Mui') === 0 && child) {
-            traverse(child, key, depth + 1);
-          }
-        } else if (pseudoClasses.indexOf(key) !== -1 && Object.keys(child).length > 0) {
-          if ("development" !== 'production') {
-            console.error(["Material-UI: the `".concat(parentKey, "` component increases ") + "the CSS specificity of the `".concat(key, "` internal state."), 'You can not override it like this: ', JSON.stringify(node, null, 2), '', 'Instead, you need to use the $ruleName syntax:', JSON.stringify({
-              root: (0, _defineProperty2.default)({}, "&$".concat(key), child)
-            }, null, 2), '', 'https://material-ui.com/r/pseudo-classes-guide'].join('\n'));
-          } // Remove the style to prevent global conflicts.
-
-
-          node[key] = {};
-        }
-      }
-    };
-
-    traverse(muiTheme.overrides);
-  }
-
-  if ("development" !== 'production') {
-    if (muiTheme.shadows.length !== 25) {
-      console.error('Material-UI: the shadows array provided to createMuiTheme should support 25 elevations.');
-    }
-  }
-
-  return muiTheme;
-}
-
-var _default = createMuiTheme;
-exports.default = _default;
-},{"@babel/runtime/helpers/esm/defineProperty":"../node_modules/@material-ui/core/node_modules/@babel/runtime/helpers/esm/defineProperty.js","@babel/runtime/helpers/esm/extends":"../node_modules/@material-ui/core/node_modules/@babel/runtime/helpers/esm/extends.js","@babel/runtime/helpers/esm/objectWithoutProperties":"../node_modules/@material-ui/core/node_modules/@babel/runtime/helpers/esm/objectWithoutProperties.js","deepmerge":"../node_modules/deepmerge/dist/cjs.js","is-plain-object":"../node_modules/@material-ui/core/node_modules/is-plain-object/index.js","./createBreakpoints":"../node_modules/@material-ui/core/esm/styles/createBreakpoints.js","./createMixins":"../node_modules/@material-ui/core/esm/styles/createMixins.js","./createPalette":"../node_modules/@material-ui/core/esm/styles/createPalette.js","./createTypography":"../node_modules/@material-ui/core/esm/styles/createTypography.js","./shadows":"../node_modules/@material-ui/core/esm/styles/shadows.js","./shape":"../node_modules/@material-ui/core/esm/styles/shape.js","./createSpacing":"../node_modules/@material-ui/core/esm/styles/createSpacing.js","./transitions":"../node_modules/@material-ui/core/esm/styles/transitions.js","./zIndex":"../node_modules/@material-ui/core/esm/styles/zIndex.js"}],"../node_modules/@material-ui/utils/esm/chainPropTypes.js":[function(require,module,exports) {
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.default = chainPropTypes;
-
-function chainPropTypes(propType1, propType2) {
-  if ("development" === 'production') {
-    return function () {
-      return null;
-    };
-  }
-
-  return function validate() {
-    return propType1.apply(void 0, arguments) || propType2.apply(void 0, arguments);
-  };
-}
-},{}],"../node_modules/react-is/cjs/react-is.development.js":[function(require,module,exports) {
+},{"./cjs/react-dom.development.js":"../node_modules/react-dom/cjs/react-dom.development.js"}],"../node_modules/react-is/cjs/react-is.development.js":[function(require,module,exports) {
 /** @license React v16.9.0
  * react-is.development.js
  *
@@ -33068,7 +31556,158 @@ if ("development" !== 'production') {
   // http://fb.me/prop-types-in-prod
   module.exports = require('./factoryWithThrowingShims')();
 }
-},{"react-is":"../node_modules/react-is/index.js","./factoryWithTypeCheckers":"../node_modules/prop-types/factoryWithTypeCheckers.js"}],"../node_modules/@material-ui/utils/esm/elementAcceptingRef.js":[function(require,module,exports) {
+},{"react-is":"../node_modules/react-is/index.js","./factoryWithTypeCheckers":"../node_modules/prop-types/factoryWithTypeCheckers.js"}],"../node_modules/@babel/runtime/helpers/esm/objectWithoutPropertiesLoose.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = _objectWithoutPropertiesLoose;
+
+function _objectWithoutPropertiesLoose(source, excluded) {
+  if (source == null) return {};
+  var target = {};
+  var sourceKeys = Object.keys(source);
+  var key, i;
+
+  for (i = 0; i < sourceKeys.length; i++) {
+    key = sourceKeys[i];
+    if (excluded.indexOf(key) >= 0) continue;
+    target[key] = source[key];
+  }
+
+  return target;
+}
+},{}],"../node_modules/@babel/runtime/helpers/esm/objectWithoutProperties.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = _objectWithoutProperties;
+
+var _objectWithoutPropertiesLoose = _interopRequireDefault(require("./objectWithoutPropertiesLoose"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _objectWithoutProperties(source, excluded) {
+  if (source == null) return {};
+  var target = (0, _objectWithoutPropertiesLoose.default)(source, excluded);
+  var key, i;
+
+  if (Object.getOwnPropertySymbols) {
+    var sourceSymbolKeys = Object.getOwnPropertySymbols(source);
+
+    for (i = 0; i < sourceSymbolKeys.length; i++) {
+      key = sourceSymbolKeys[i];
+      if (excluded.indexOf(key) >= 0) continue;
+      if (!Object.prototype.propertyIsEnumerable.call(source, key)) continue;
+      target[key] = source[key];
+    }
+  }
+
+  return target;
+}
+},{"./objectWithoutPropertiesLoose":"../node_modules/@babel/runtime/helpers/esm/objectWithoutPropertiesLoose.js"}],"../node_modules/@babel/runtime/helpers/esm/extends.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = _extends;
+
+function _extends() {
+  exports.default = _extends = Object.assign || function (target) {
+    for (var i = 1; i < arguments.length; i++) {
+      var source = arguments[i];
+
+      for (var key in source) {
+        if (Object.prototype.hasOwnProperty.call(source, key)) {
+          target[key] = source[key];
+        }
+      }
+    }
+
+    return target;
+  };
+
+  return _extends.apply(this, arguments);
+}
+},{}],"../node_modules/clsx/dist/clsx.m.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = _default;
+
+function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function (obj) { return typeof obj; }; } else { _typeof = function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+
+function toVal(mix) {
+  var k,
+      y,
+      str = '';
+
+  if (mix) {
+    if (_typeof(mix) === 'object') {
+      if (!!mix.push) {
+        for (k = 0; k < mix.length; k++) {
+          if (mix[k] && (y = toVal(mix[k]))) {
+            str && (str += ' ');
+            str += y;
+          }
+        }
+      } else {
+        for (k in mix) {
+          if (mix[k] && (y = toVal(k))) {
+            str && (str += ' ');
+            str += y;
+          }
+        }
+      }
+    } else if (typeof mix !== 'boolean' && !mix.call) {
+      str && (str += ' ');
+      str += mix;
+    }
+  }
+
+  return str;
+}
+
+function _default() {
+  var i = 0,
+      x,
+      str = '';
+
+  while (i < arguments.length) {
+    if (x = toVal(arguments[i++])) {
+      str && (str += ' ');
+      str += x;
+    }
+  }
+
+  return str;
+}
+},{}],"../node_modules/@material-ui/utils/esm/chainPropTypes.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = chainPropTypes;
+
+function chainPropTypes(propType1, propType2) {
+  if ("development" === 'production') {
+    return function () {
+      return null;
+    };
+  }
+
+  return function validate() {
+    return propType1.apply(void 0, arguments) || propType2.apply(void 0, arguments);
+  };
+}
+},{}],"../node_modules/@material-ui/utils/esm/elementAcceptingRef.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -33182,7 +31821,7 @@ function elementTypeAcceptingRef(props, propName, componentName, location, propF
 var _default = (0, _chainPropTypes.default)(PropTypes.elementType, elementTypeAcceptingRef);
 
 exports.default = _default;
-},{"prop-types":"../node_modules/prop-types/index.js","./chainPropTypes":"../node_modules/@material-ui/utils/esm/chainPropTypes.js"}],"../node_modules/@material-ui/utils/node_modules/@babel/runtime/helpers/esm/defineProperty.js":[function(require,module,exports) {
+},{"prop-types":"../node_modules/prop-types/index.js","./chainPropTypes":"../node_modules/@material-ui/utils/esm/chainPropTypes.js"}],"../node_modules/@babel/runtime/helpers/esm/defineProperty.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -33203,31 +31842,6 @@ function _defineProperty(obj, key, value) {
   }
 
   return obj;
-}
-},{}],"../node_modules/@material-ui/utils/node_modules/@babel/runtime/helpers/esm/extends.js":[function(require,module,exports) {
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.default = _extends;
-
-function _extends() {
-  exports.default = _extends = Object.assign || function (target) {
-    for (var i = 1; i < arguments.length; i++) {
-      var source = arguments[i];
-
-      for (var key in source) {
-        if (Object.prototype.hasOwnProperty.call(source, key)) {
-          target[key] = source[key];
-        }
-      }
-    }
-
-    return target;
-  };
-
-  return _extends.apply(this, arguments);
 }
 },{}],"../node_modules/@material-ui/utils/esm/exactProp.js":[function(require,module,exports) {
 "use strict";
@@ -33270,7 +31884,7 @@ function exactProp(propTypes) {
     return null;
   }));
 }
-},{"@babel/runtime/helpers/esm/defineProperty":"../node_modules/@material-ui/utils/node_modules/@babel/runtime/helpers/esm/defineProperty.js","@babel/runtime/helpers/esm/extends":"../node_modules/@material-ui/utils/node_modules/@babel/runtime/helpers/esm/extends.js"}],"../node_modules/@material-ui/utils/node_modules/@babel/runtime/helpers/esm/typeof.js":[function(require,module,exports) {
+},{"@babel/runtime/helpers/esm/defineProperty":"../node_modules/@babel/runtime/helpers/esm/defineProperty.js","@babel/runtime/helpers/esm/extends":"../node_modules/@babel/runtime/helpers/esm/extends.js"}],"../node_modules/@babel/runtime/helpers/esm/typeof.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -33380,7 +31994,7 @@ function getDisplayName(Component) {
 
   return undefined;
 }
-},{"@babel/runtime/helpers/esm/typeof":"../node_modules/@material-ui/utils/node_modules/@babel/runtime/helpers/esm/typeof.js","react-is":"../node_modules/react-is/index.js"}],"../node_modules/@material-ui/utils/esm/ponyfillGlobal.js":[function(require,module,exports) {
+},{"@babel/runtime/helpers/esm/typeof":"../node_modules/@babel/runtime/helpers/esm/typeof.js","react-is":"../node_modules/react-is/index.js"}],"../node_modules/@material-ui/utils/esm/ponyfillGlobal.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -33473,7 +32087,7 @@ var _ponyfillGlobal = _interopRequireDefault(require("./ponyfillGlobal"));
 var _refType = _interopRequireDefault(require("./refType"));
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-},{"./chainPropTypes":"../node_modules/@material-ui/utils/esm/chainPropTypes.js","./elementAcceptingRef":"../node_modules/@material-ui/utils/esm/elementAcceptingRef.js","./elementTypeAcceptingRef":"../node_modules/@material-ui/utils/esm/elementTypeAcceptingRef.js","./exactProp":"../node_modules/@material-ui/utils/esm/exactProp.js","./getDisplayName":"../node_modules/@material-ui/utils/esm/getDisplayName.js","./ponyfillGlobal":"../node_modules/@material-ui/utils/esm/ponyfillGlobal.js","./refType":"../node_modules/@material-ui/utils/esm/refType.js"}],"../node_modules/@material-ui/core/node_modules/@material-ui/styles/esm/ThemeProvider/nested.js":[function(require,module,exports) {
+},{"./chainPropTypes":"../node_modules/@material-ui/utils/esm/chainPropTypes.js","./elementAcceptingRef":"../node_modules/@material-ui/utils/esm/elementAcceptingRef.js","./elementTypeAcceptingRef":"../node_modules/@material-ui/utils/esm/elementTypeAcceptingRef.js","./exactProp":"../node_modules/@material-ui/utils/esm/exactProp.js","./getDisplayName":"../node_modules/@material-ui/utils/esm/getDisplayName.js","./ponyfillGlobal":"../node_modules/@material-ui/utils/esm/ponyfillGlobal.js","./refType":"../node_modules/@material-ui/utils/esm/refType.js"}],"../node_modules/@material-ui/styles/esm/ThemeProvider/nested.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -33485,7 +32099,7 @@ var hasSymbol = typeof Symbol === 'function' && Symbol.for;
 var _default = hasSymbol ? Symbol.for('mui.nested') : '__THEME_NESTED__';
 
 exports.default = _default;
-},{}],"../node_modules/@material-ui/core/node_modules/@material-ui/styles/esm/createGenerateClassName/createGenerateClassName.js":[function(require,module,exports) {
+},{}],"../node_modules/@material-ui/styles/esm/createGenerateClassName/createGenerateClassName.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -33562,7 +32176,7 @@ function createGenerateClassName() {
     return "".concat(seedPrefix).concat(suffix);
   };
 }
-},{"../ThemeProvider/nested":"../node_modules/@material-ui/core/node_modules/@material-ui/styles/esm/ThemeProvider/nested.js"}],"../node_modules/@material-ui/core/node_modules/@material-ui/styles/esm/createGenerateClassName/index.js":[function(require,module,exports) {
+},{"../ThemeProvider/nested":"../node_modules/@material-ui/styles/esm/ThemeProvider/nested.js"}],"../node_modules/@material-ui/styles/esm/createGenerateClassName/index.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -33578,7 +32192,7 @@ Object.defineProperty(exports, "default", {
 var _createGenerateClassName = _interopRequireDefault(require("./createGenerateClassName"));
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-},{"./createGenerateClassName":"../node_modules/@material-ui/core/node_modules/@material-ui/styles/esm/createGenerateClassName/createGenerateClassName.js"}],"../node_modules/@material-ui/core/node_modules/@material-ui/styles/esm/createStyles/createStyles.js":[function(require,module,exports) {
+},{"./createGenerateClassName":"../node_modules/@material-ui/styles/esm/createGenerateClassName/createGenerateClassName.js"}],"../node_modules/@material-ui/styles/esm/createStyles/createStyles.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -33589,7 +32203,7 @@ exports.default = createStyles;
 function createStyles(styles) {
   return styles;
 }
-},{}],"../node_modules/@material-ui/core/node_modules/@material-ui/styles/esm/createStyles/index.js":[function(require,module,exports) {
+},{}],"../node_modules/@material-ui/styles/esm/createStyles/index.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -33605,7 +32219,7 @@ Object.defineProperty(exports, "default", {
 var _createStyles = _interopRequireDefault(require("./createStyles"));
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-},{"./createStyles":"../node_modules/@material-ui/core/node_modules/@material-ui/styles/esm/createStyles/createStyles.js"}],"../node_modules/@material-ui/core/node_modules/@material-ui/styles/esm/getThemeProps/getThemeProps.js":[function(require,module,exports) {
+},{"./createStyles":"../node_modules/@material-ui/styles/esm/createStyles/createStyles.js"}],"../node_modules/@material-ui/styles/esm/getThemeProps/getThemeProps.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -33639,7 +32253,7 @@ function getThemeProps(params) {
 
 var _default = getThemeProps;
 exports.default = _default;
-},{}],"../node_modules/@material-ui/core/node_modules/@material-ui/styles/esm/getThemeProps/index.js":[function(require,module,exports) {
+},{}],"../node_modules/@material-ui/styles/esm/getThemeProps/index.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -33655,32 +32269,7 @@ Object.defineProperty(exports, "default", {
 var _getThemeProps = _interopRequireDefault(require("./getThemeProps"));
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-},{"./getThemeProps":"../node_modules/@material-ui/core/node_modules/@material-ui/styles/esm/getThemeProps/getThemeProps.js"}],"../node_modules/@babel/runtime/helpers/esm/extends.js":[function(require,module,exports) {
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.default = _extends;
-
-function _extends() {
-  exports.default = _extends = Object.assign || function (target) {
-    for (var i = 1; i < arguments.length; i++) {
-      var source = arguments[i];
-
-      for (var key in source) {
-        if (Object.prototype.hasOwnProperty.call(source, key)) {
-          target[key] = source[key];
-        }
-      }
-    }
-
-    return target;
-  };
-
-  return _extends.apply(this, arguments);
-}
-},{}],"../node_modules/is-in-browser/dist/module.js":[function(require,module,exports) {
+},{"./getThemeProps":"../node_modules/@material-ui/styles/esm/getThemeProps/getThemeProps.js"}],"../node_modules/is-in-browser/dist/module.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -33777,28 +32366,6 @@ function _assertThisInitialized(self) {
   }
 
   return self;
-}
-},{}],"../node_modules/@babel/runtime/helpers/esm/objectWithoutPropertiesLoose.js":[function(require,module,exports) {
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.default = _objectWithoutPropertiesLoose;
-
-function _objectWithoutPropertiesLoose(source, excluded) {
-  if (source == null) return {};
-  var target = {};
-  var sourceKeys = Object.keys(source);
-  var key, i;
-
-  for (i = 0; i < sourceKeys.length; i++) {
-    key = sourceKeys[i];
-    if (excluded.indexOf(key) >= 0) continue;
-    target[key] = source[key];
-  }
-
-  return target;
 }
 },{}],"../node_modules/jss/dist/jss.esm.js":[function(require,module,exports) {
 "use strict";
@@ -36726,7 +35293,7 @@ function defaultUnit(options) {
 
 var _default = defaultUnit;
 exports.default = _default;
-},{"jss":"../node_modules/jss/dist/jss.esm.js"}],"../node_modules/css-vendor/node_modules/@babel/runtime/helpers/esm/arrayWithoutHoles.js":[function(require,module,exports) {
+},{"jss":"../node_modules/jss/dist/jss.esm.js"}],"../node_modules/@babel/runtime/helpers/esm/arrayWithoutHoles.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -36743,7 +35310,7 @@ function _arrayWithoutHoles(arr) {
     return arr2;
   }
 }
-},{}],"../node_modules/css-vendor/node_modules/@babel/runtime/helpers/esm/iterableToArray.js":[function(require,module,exports) {
+},{}],"../node_modules/@babel/runtime/helpers/esm/iterableToArray.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -36754,7 +35321,7 @@ exports.default = _iterableToArray;
 function _iterableToArray(iter) {
   if (Symbol.iterator in Object(iter) || Object.prototype.toString.call(iter) === "[object Arguments]") return Array.from(iter);
 }
-},{}],"../node_modules/css-vendor/node_modules/@babel/runtime/helpers/esm/nonIterableSpread.js":[function(require,module,exports) {
+},{}],"../node_modules/@babel/runtime/helpers/esm/nonIterableSpread.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -36765,7 +35332,7 @@ exports.default = _nonIterableSpread;
 function _nonIterableSpread() {
   throw new TypeError("Invalid attempt to spread non-iterable instance");
 }
-},{}],"../node_modules/css-vendor/node_modules/@babel/runtime/helpers/esm/toConsumableArray.js":[function(require,module,exports) {
+},{}],"../node_modules/@babel/runtime/helpers/esm/toConsumableArray.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -36784,7 +35351,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 function _toConsumableArray(arr) {
   return (0, _arrayWithoutHoles.default)(arr) || (0, _iterableToArray.default)(arr) || (0, _nonIterableSpread.default)();
 }
-},{"./arrayWithoutHoles":"../node_modules/css-vendor/node_modules/@babel/runtime/helpers/esm/arrayWithoutHoles.js","./iterableToArray":"../node_modules/css-vendor/node_modules/@babel/runtime/helpers/esm/iterableToArray.js","./nonIterableSpread":"../node_modules/css-vendor/node_modules/@babel/runtime/helpers/esm/nonIterableSpread.js"}],"../node_modules/css-vendor/dist/css-vendor.esm.js":[function(require,module,exports) {
+},{"./arrayWithoutHoles":"../node_modules/@babel/runtime/helpers/esm/arrayWithoutHoles.js","./iterableToArray":"../node_modules/@babel/runtime/helpers/esm/iterableToArray.js","./nonIterableSpread":"../node_modules/@babel/runtime/helpers/esm/nonIterableSpread.js"}],"../node_modules/css-vendor/dist/css-vendor.esm.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -37324,7 +35891,7 @@ function supportedValue(property, value) {
   cache$1[cacheKey] = prefixedValue;
   return cache$1[cacheKey];
 }
-},{"is-in-browser":"../node_modules/is-in-browser/dist/module.js","@babel/runtime/helpers/esm/toConsumableArray":"../node_modules/css-vendor/node_modules/@babel/runtime/helpers/esm/toConsumableArray.js"}],"../node_modules/jss-plugin-vendor-prefixer/dist/jss-plugin-vendor-prefixer.esm.js":[function(require,module,exports) {
+},{"is-in-browser":"../node_modules/is-in-browser/dist/module.js","@babel/runtime/helpers/esm/toConsumableArray":"../node_modules/@babel/runtime/helpers/esm/toConsumableArray.js"}],"../node_modules/jss-plugin-vendor-prefixer/dist/jss-plugin-vendor-prefixer.esm.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -37420,2549 +35987,7 @@ function jssPropsSort() {
 
 var _default = jssPropsSort;
 exports.default = _default;
-},{}],"../node_modules/@material-ui/core/node_modules/@material-ui/styles/esm/jssPreset/jssPreset.js":[function(require,module,exports) {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.default = void 0;
-
-var _jssPluginRuleValueFunction = _interopRequireDefault(require("jss-plugin-rule-value-function"));
-
-var _jssPluginGlobal = _interopRequireDefault(require("jss-plugin-global"));
-
-var _jssPluginNested = _interopRequireDefault(require("jss-plugin-nested"));
-
-var _jssPluginCamelCase = _interopRequireDefault(require("jss-plugin-camel-case"));
-
-var _jssPluginDefaultUnit = _interopRequireDefault(require("jss-plugin-default-unit"));
-
-var _jssPluginVendorPrefixer = _interopRequireDefault(require("jss-plugin-vendor-prefixer"));
-
-var _jssPluginPropsSort = _interopRequireDefault(require("jss-plugin-props-sort"));
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-// Subset of jss-preset-default with only the plugins the Material-UI components are using.
-function jssPreset() {
-  return {
-    plugins: [(0, _jssPluginRuleValueFunction.default)(), (0, _jssPluginGlobal.default)(), (0, _jssPluginNested.default)(), (0, _jssPluginCamelCase.default)(), (0, _jssPluginDefaultUnit.default)(), // Disable the vendor prefixer server-side, it does nothing.
-    // This way, we can get a performance boost.
-    // In the documentation, we are using `autoprefixer` to solve this problem.
-    typeof window === 'undefined' ? null : (0, _jssPluginVendorPrefixer.default)(), (0, _jssPluginPropsSort.default)()]
-  };
-}
-
-var _default = jssPreset;
-exports.default = _default;
-},{"jss-plugin-rule-value-function":"../node_modules/jss-plugin-rule-value-function/dist/jss-plugin-rule-value-function.esm.js","jss-plugin-global":"../node_modules/jss-plugin-global/dist/jss-plugin-global.esm.js","jss-plugin-nested":"../node_modules/jss-plugin-nested/dist/jss-plugin-nested.esm.js","jss-plugin-camel-case":"../node_modules/jss-plugin-camel-case/dist/jss-plugin-camel-case.esm.js","jss-plugin-default-unit":"../node_modules/jss-plugin-default-unit/dist/jss-plugin-default-unit.esm.js","jss-plugin-vendor-prefixer":"../node_modules/jss-plugin-vendor-prefixer/dist/jss-plugin-vendor-prefixer.esm.js","jss-plugin-props-sort":"../node_modules/jss-plugin-props-sort/dist/jss-plugin-props-sort.esm.js"}],"../node_modules/@material-ui/core/node_modules/@material-ui/styles/esm/jssPreset/index.js":[function(require,module,exports) {
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-Object.defineProperty(exports, "default", {
-  enumerable: true,
-  get: function () {
-    return _jssPreset.default;
-  }
-});
-
-var _jssPreset = _interopRequireDefault(require("./jssPreset"));
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-},{"./jssPreset":"../node_modules/@material-ui/core/node_modules/@material-ui/styles/esm/jssPreset/jssPreset.js"}],"../node_modules/@material-ui/core/node_modules/@material-ui/styles/esm/mergeClasses/mergeClasses.js":[function(require,module,exports) {
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.default = void 0;
-
-var _extends2 = _interopRequireDefault(require("@babel/runtime/helpers/esm/extends"));
-
-var _utils = require("@material-ui/utils");
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-function mergeClasses() {
-  var options = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
-  var baseClasses = options.baseClasses,
-      newClasses = options.newClasses,
-      Component = options.Component;
-
-  if (!newClasses) {
-    return baseClasses;
-  }
-
-  var nextClasses = (0, _extends2.default)({}, baseClasses);
-
-  if ("development" !== 'production') {
-    if (typeof newClasses === 'string') {
-      console.error(["Material-UI: the value `".concat(newClasses, "` ") + "provided to the classes prop of ".concat((0, _utils.getDisplayName)(Component), " is incorrect."), 'You might want to use the className prop instead.'].join('\n'));
-      return baseClasses;
-    }
-  }
-
-  Object.keys(newClasses).forEach(function (key) {
-    if ("development" !== 'production') {
-      if (!baseClasses[key] && newClasses[key]) {
-        console.error(["Material-UI: the key `".concat(key, "` ") + "provided to the classes prop is not implemented in ".concat((0, _utils.getDisplayName)(Component), "."), "You can only override one of the following: ".concat(Object.keys(baseClasses).join(','), ".")].join('\n'));
-      }
-
-      if (newClasses[key] && typeof newClasses[key] !== 'string') {
-        console.error(["Material-UI: the key `".concat(key, "` ") + "provided to the classes prop is not valid for ".concat((0, _utils.getDisplayName)(Component), "."), "You need to provide a non empty string instead of: ".concat(newClasses[key], ".")].join('\n'));
-      }
-    }
-
-    if (newClasses[key]) {
-      nextClasses[key] = "".concat(baseClasses[key], " ").concat(newClasses[key]);
-    }
-  });
-  return nextClasses;
-}
-
-var _default = mergeClasses;
-exports.default = _default;
-},{"@babel/runtime/helpers/esm/extends":"../node_modules/@material-ui/core/node_modules/@babel/runtime/helpers/esm/extends.js","@material-ui/utils":"../node_modules/@material-ui/utils/esm/index.js"}],"../node_modules/@material-ui/core/node_modules/@material-ui/styles/esm/mergeClasses/index.js":[function(require,module,exports) {
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-Object.defineProperty(exports, "default", {
-  enumerable: true,
-  get: function () {
-    return _mergeClasses.default;
-  }
-});
-
-var _mergeClasses = _interopRequireDefault(require("./mergeClasses"));
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-},{"./mergeClasses":"../node_modules/@material-ui/core/node_modules/@material-ui/styles/esm/mergeClasses/mergeClasses.js"}],"../node_modules/@material-ui/core/node_modules/@material-ui/styles/esm/makeStyles/multiKeyStore.js":[function(require,module,exports) {
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.default = void 0;
-// Used https://github.com/thinkloop/multi-key-cache as inspiration
-var multiKeyStore = {
-  set: function set(cache, key1, key2, value) {
-    var subCache = cache.get(key1);
-
-    if (!subCache) {
-      subCache = new Map();
-      cache.set(key1, subCache);
-    }
-
-    subCache.set(key2, value);
-  },
-  get: function get(cache, key1, key2) {
-    var subCache = cache.get(key1);
-    return subCache ? subCache.get(key2) : undefined;
-  },
-  delete: function _delete(cache, key1, key2) {
-    var subCache = cache.get(key1);
-    subCache.delete(key2);
-  }
-};
-var _default = multiKeyStore;
-exports.default = _default;
-},{}],"../node_modules/@material-ui/core/node_modules/@material-ui/styles/esm/useTheme/ThemeContext.js":[function(require,module,exports) {
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.default = void 0;
-
-var _react = _interopRequireDefault(require("react"));
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-var ThemeContext = _react.default.createContext(null);
-
-var _default = ThemeContext;
-exports.default = _default;
-},{"react":"../node_modules/react/index.js"}],"../node_modules/@material-ui/core/node_modules/@material-ui/styles/esm/useTheme/useTheme.js":[function(require,module,exports) {
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.default = useTheme;
-
-var _react = _interopRequireDefault(require("react"));
-
-var _ThemeContext = _interopRequireDefault(require("./ThemeContext"));
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-function useTheme() {
-  return _react.default.useContext(_ThemeContext.default);
-}
-},{"react":"../node_modules/react/index.js","./ThemeContext":"../node_modules/@material-ui/core/node_modules/@material-ui/styles/esm/useTheme/ThemeContext.js"}],"../node_modules/@material-ui/core/node_modules/@material-ui/styles/esm/useTheme/index.js":[function(require,module,exports) {
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-Object.defineProperty(exports, "default", {
-  enumerable: true,
-  get: function () {
-    return _useTheme.default;
-  }
-});
-
-var _useTheme = _interopRequireDefault(require("./useTheme"));
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-},{"./useTheme":"../node_modules/@material-ui/core/node_modules/@material-ui/styles/esm/useTheme/useTheme.js"}],"../node_modules/@material-ui/core/node_modules/@material-ui/styles/esm/StylesProvider/StylesProvider.js":[function(require,module,exports) {
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.default = exports.StylesContext = exports.sheetsManager = void 0;
-
-var _extends2 = _interopRequireDefault(require("@babel/runtime/helpers/esm/extends"));
-
-var _objectWithoutProperties2 = _interopRequireDefault(require("@babel/runtime/helpers/esm/objectWithoutProperties"));
-
-var _react = _interopRequireDefault(require("react"));
-
-var _propTypes = _interopRequireDefault(require("prop-types"));
-
-var _utils = require("@material-ui/utils");
-
-var _createGenerateClassName = _interopRequireDefault(require("../createGenerateClassName"));
-
-var _jss = require("jss");
-
-var _jssPreset = _interopRequireDefault(require("../jssPreset"));
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-// Default JSS instance.
-var jss = (0, _jss.create)((0, _jssPreset.default)()); // Use a singleton or the provided one by the context.
-//
-// The counter-based approach doesn't tolerate any mistake.
-// It's much safer to use the same counter everywhere.
-
-var generateClassName = (0, _createGenerateClassName.default)(); // Exported for test purposes
-
-var sheetsManager = new Map();
-exports.sheetsManager = sheetsManager;
-var defaultOptions = {
-  disableGeneration: false,
-  generateClassName: generateClassName,
-  jss: jss,
-  sheetsCache: null,
-  sheetsManager: sheetsManager,
-  sheetsRegistry: null
-};
-
-var StylesContext = _react.default.createContext(defaultOptions);
-
-exports.StylesContext = StylesContext;
-var injectFirstNode;
-
-function StylesProvider(props) {
-  var children = props.children,
-      _props$injectFirst = props.injectFirst,
-      injectFirst = _props$injectFirst === void 0 ? false : _props$injectFirst,
-      _props$disableGenerat = props.disableGeneration,
-      disableGeneration = _props$disableGenerat === void 0 ? false : _props$disableGenerat,
-      localOptions = (0, _objectWithoutProperties2.default)(props, ["children", "injectFirst", "disableGeneration"]);
-
-  var outerOptions = _react.default.useContext(StylesContext);
-
-  var context = (0, _extends2.default)({}, outerOptions, {
-    disableGeneration: disableGeneration
-  }, localOptions);
-
-  if ("development" !== 'production') {
-    if (typeof window === 'undefined' && !context.sheetsManager) {
-      console.error('Material-UI: you need to use the ServerStyleSheets API when rendering on the server.');
-    }
-  }
-
-  if ("development" !== 'production') {
-    if (context.jss.options.insertionPoint && injectFirst) {
-      console.error('Material-UI: you cannot use a custom insertionPoint and <StylesContext injectFirst> at the same time.');
-    }
-  }
-
-  if ("development" !== 'production') {
-    if (injectFirst && localOptions.jss) {
-      console.error('Material-UI: you cannot use the jss and injectFirst props at the same time.');
-    }
-  }
-
-  if (!context.jss.options.insertionPoint && injectFirst && typeof window !== 'undefined') {
-    if (!injectFirstNode) {
-      var head = document.head;
-      injectFirstNode = document.createComment('mui-inject-first');
-      head.insertBefore(injectFirstNode, head.firstChild);
-    }
-
-    context.jss = (0, _jss.create)({
-      plugins: (0, _jssPreset.default)().plugins,
-      insertionPoint: injectFirstNode
-    });
-  }
-
-  return _react.default.createElement(StylesContext.Provider, {
-    value: context
-  }, children);
-}
-
-"development" !== "production" ? StylesProvider.propTypes = {
-  /**
-   * Your component tree.
-   */
-  children: _propTypes.default.node.isRequired,
-
-  /**
-   * You can disable the generation of the styles with this option.
-   * It can be useful when traversing the React tree outside of the HTML
-   * rendering step on the server.
-   * Let's say you are using react-apollo to extract all
-   * the queries made by the interface server-side - you can significantly speed up the traversal with this prop.
-   */
-  disableGeneration: _propTypes.default.bool,
-
-  /**
-   * JSS's class name generator.
-   */
-  generateClassName: _propTypes.default.func,
-
-  /**
-   * By default, the styles are injected last in the <head> element of the page.
-   * As a result, they gain more specificity than any other style sheet.
-   * If you want to override Material-UI's styles, set this prop.
-   */
-  injectFirst: _propTypes.default.bool,
-
-  /**
-   * JSS's instance.
-   */
-  jss: _propTypes.default.object,
-
-  /**
-   * @ignore
-   */
-  serverGenerateClassName: _propTypes.default.func,
-
-  /**
-   * @ignore
-   *
-   * Beta feature.
-   *
-   * Cache for the sheets.
-   */
-  sheetsCache: _propTypes.default.object,
-
-  /**
-   * @ignore
-   *
-   * The sheetsManager is used to deduplicate style sheet injection in the page.
-   * It's deduplicating using the (theme, styles) couple.
-   * On the server, you should provide a new instance for each request.
-   */
-  sheetsManager: _propTypes.default.object,
-
-  /**
-   * @ignore
-   *
-   * Collect the sheets.
-   */
-  sheetsRegistry: _propTypes.default.object
-} : void 0;
-
-if ("development" !== 'production') {
-  "development" !== "production" ? StylesProvider.propTypes = (0, _utils.exactProp)(StylesProvider.propTypes) : void 0;
-}
-
-var _default = StylesProvider;
-exports.default = _default;
-},{"@babel/runtime/helpers/esm/extends":"../node_modules/@material-ui/core/node_modules/@babel/runtime/helpers/esm/extends.js","@babel/runtime/helpers/esm/objectWithoutProperties":"../node_modules/@material-ui/core/node_modules/@babel/runtime/helpers/esm/objectWithoutProperties.js","react":"../node_modules/react/index.js","prop-types":"../node_modules/prop-types/index.js","@material-ui/utils":"../node_modules/@material-ui/utils/esm/index.js","../createGenerateClassName":"../node_modules/@material-ui/core/node_modules/@material-ui/styles/esm/createGenerateClassName/index.js","jss":"../node_modules/jss/dist/jss.esm.js","../jssPreset":"../node_modules/@material-ui/core/node_modules/@material-ui/styles/esm/jssPreset/index.js"}],"../node_modules/@material-ui/core/node_modules/@material-ui/styles/esm/StylesProvider/index.js":[function(require,module,exports) {
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-var _exportNames = {};
-Object.defineProperty(exports, "default", {
-  enumerable: true,
-  get: function () {
-    return _StylesProvider.default;
-  }
-});
-
-var _StylesProvider = _interopRequireWildcard(require("./StylesProvider"));
-
-Object.keys(_StylesProvider).forEach(function (key) {
-  if (key === "default" || key === "__esModule") return;
-  if (Object.prototype.hasOwnProperty.call(_exportNames, key)) return;
-  Object.defineProperty(exports, key, {
-    enumerable: true,
-    get: function () {
-      return _StylesProvider[key];
-    }
-  });
-});
-
-function _getRequireWildcardCache() { if (typeof WeakMap !== "function") return null; var cache = new WeakMap(); _getRequireWildcardCache = function () { return cache; }; return cache; }
-
-function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } var cache = _getRequireWildcardCache(); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; if (obj != null) { var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } } newObj.default = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
-},{"./StylesProvider":"../node_modules/@material-ui/core/node_modules/@material-ui/styles/esm/StylesProvider/StylesProvider.js"}],"../node_modules/@material-ui/core/node_modules/@material-ui/styles/esm/makeStyles/indexCounter.js":[function(require,module,exports) {
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.increment = increment;
-
-/* eslint-disable import/prefer-default-export */
-// Global index counter to preserve source order.
-// We create the style sheet during at the creation of the component,
-// children are handled after the parents, so the order of style elements would be parent->child.
-// It is a problem though when a parent passes a className
-// which needs to override any child's styles.
-// StyleSheet of the child has a higher specificity, because of the source order.
-// So our solution is to render sheets them in the reverse order child->sheet, so
-// that parent has a higher specificity.
-var indexCounter = -1e9;
-
-function increment() {
-  indexCounter += 1;
-
-  if ("development" !== 'production') {
-    if (indexCounter >= 0) {
-      console.warn(['Material-UI: you might have a memory leak.', 'The indexCounter is not supposed to grow that much.'].join('\n'));
-    }
-  }
-
-  return indexCounter;
-}
-},{}],"../node_modules/@material-ui/core/node_modules/@babel/runtime/helpers/esm/typeof.js":[function(require,module,exports) {
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.default = _typeof;
-
-function _typeof2(obj) {
-  if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") {
-    _typeof2 = function _typeof2(obj) {
-      return typeof obj;
-    };
-  } else {
-    _typeof2 = function _typeof2(obj) {
-      return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj;
-    };
-  }
-
-  return _typeof2(obj);
-}
-
-function _typeof(obj) {
-  if (typeof Symbol === "function" && _typeof2(Symbol.iterator) === "symbol") {
-    exports.default = _typeof = function _typeof(obj) {
-      return _typeof2(obj);
-    };
-  } else {
-    exports.default = _typeof = function _typeof(obj) {
-      return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : _typeof2(obj);
-    };
-  }
-
-  return _typeof(obj);
-}
-},{}],"../node_modules/@material-ui/core/node_modules/@material-ui/styles/esm/getStylesCreator/noopTheme.js":[function(require,module,exports) {
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.default = void 0;
-// We use the same empty object to ref count the styles that don't need a theme object.
-var noopTheme = {};
-var _default = noopTheme;
-exports.default = _default;
-},{}],"../node_modules/@material-ui/core/node_modules/@material-ui/styles/esm/getStylesCreator/getStylesCreator.js":[function(require,module,exports) {
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.default = void 0;
-
-var _extends2 = _interopRequireDefault(require("@babel/runtime/helpers/esm/extends"));
-
-var _typeof2 = _interopRequireDefault(require("@babel/runtime/helpers/esm/typeof"));
-
-var _deepmerge = _interopRequireDefault(require("deepmerge"));
-
-var _noopTheme = _interopRequireDefault(require("./noopTheme"));
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-// < 1kb payload overhead when lodash/merge is > 3kb.
-// Support for the jss-expand plugin.
-function arrayMerge(destination, source) {
-  return source;
-}
-
-function getStylesCreator(stylesOrCreator) {
-  var themingEnabled = typeof stylesOrCreator === 'function';
-
-  if ("development" !== 'production') {
-    if ((0, _typeof2.default)(stylesOrCreator) !== 'object' && !themingEnabled) {
-      console.error(['Material-UI: the `styles` argument provided is invalid.', 'You need to provide a function generating the styles or a styles object.'].join('\n'));
-    }
-  }
-
-  return {
-    create: function create(theme, name) {
-      var styles;
-
-      try {
-        styles = themingEnabled ? stylesOrCreator(theme) : stylesOrCreator;
-      } catch (err) {
-        if ("development" !== 'production') {
-          if (themingEnabled === true && theme === _noopTheme.default) {
-            // TODO: prepend error message/name instead
-            console.error(['Material-UI: the `styles` argument provided is invalid.', 'You are providing a function without a theme in the context.', 'One of the parent elements needs to use a ThemeProvider.'].join('\n'));
-          }
-        }
-
-        throw err;
-      }
-
-      if (!name || !theme.overrides || !theme.overrides[name]) {
-        return styles;
-      }
-
-      var overrides = theme.overrides[name];
-      var stylesWithOverrides = (0, _extends2.default)({}, styles);
-      Object.keys(overrides).forEach(function (key) {
-        if ("development" !== 'production') {
-          if (!stylesWithOverrides[key]) {
-            console.warn(['Material-UI: you are trying to override a style that does not exist.', "Fix the `".concat(key, "` key of `theme.overrides.").concat(name, "`.")].join('\n'));
-          }
-        }
-
-        stylesWithOverrides[key] = (0, _deepmerge.default)(stylesWithOverrides[key], overrides[key], {
-          arrayMerge: arrayMerge
-        });
-      });
-      return stylesWithOverrides;
-    },
-    options: {}
-  };
-}
-
-var _default = getStylesCreator;
-exports.default = _default;
-},{"@babel/runtime/helpers/esm/extends":"../node_modules/@material-ui/core/node_modules/@babel/runtime/helpers/esm/extends.js","@babel/runtime/helpers/esm/typeof":"../node_modules/@material-ui/core/node_modules/@babel/runtime/helpers/esm/typeof.js","deepmerge":"../node_modules/deepmerge/dist/cjs.js","./noopTheme":"../node_modules/@material-ui/core/node_modules/@material-ui/styles/esm/getStylesCreator/noopTheme.js"}],"../node_modules/@material-ui/core/node_modules/@material-ui/styles/esm/getStylesCreator/index.js":[function(require,module,exports) {
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-Object.defineProperty(exports, "default", {
-  enumerable: true,
-  get: function () {
-    return _getStylesCreator.default;
-  }
-});
-
-var _getStylesCreator = _interopRequireDefault(require("./getStylesCreator"));
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-},{"./getStylesCreator":"../node_modules/@material-ui/core/node_modules/@material-ui/styles/esm/getStylesCreator/getStylesCreator.js"}],"../node_modules/@material-ui/core/node_modules/@material-ui/styles/esm/makeStyles/makeStyles.js":[function(require,module,exports) {
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.default = void 0;
-
-var _objectWithoutProperties2 = _interopRequireDefault(require("@babel/runtime/helpers/esm/objectWithoutProperties"));
-
-var _extends2 = _interopRequireDefault(require("@babel/runtime/helpers/esm/extends"));
-
-var _react = _interopRequireDefault(require("react"));
-
-var _jss = require("jss");
-
-var _mergeClasses = _interopRequireDefault(require("../mergeClasses"));
-
-var _multiKeyStore = _interopRequireDefault(require("./multiKeyStore"));
-
-var _useTheme = _interopRequireDefault(require("../useTheme"));
-
-var _StylesProvider = require("../StylesProvider");
-
-var _indexCounter = require("./indexCounter");
-
-var _getStylesCreator = _interopRequireDefault(require("../getStylesCreator"));
-
-var _noopTheme = _interopRequireDefault(require("../getStylesCreator/noopTheme"));
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-function getClasses(_ref, classes, Component) {
-  var state = _ref.state,
-      stylesOptions = _ref.stylesOptions;
-
-  if (stylesOptions.disableGeneration) {
-    return classes || {};
-  }
-
-  if (!state.cacheClasses) {
-    state.cacheClasses = {
-      // Cache for the finalized classes value.
-      value: null,
-      // Cache for the last used classes prop pointer.
-      lastProp: null,
-      // Cache for the last used rendered classes pointer.
-      lastJSS: {}
-    };
-  } // Tracks if either the rendered classes or classes prop has changed,
-  // requiring the generation of a new finalized classes object.
-
-
-  var generate = false;
-
-  if (state.classes !== state.cacheClasses.lastJSS) {
-    state.cacheClasses.lastJSS = state.classes;
-    generate = true;
-  }
-
-  if (classes !== state.cacheClasses.lastProp) {
-    state.cacheClasses.lastProp = classes;
-    generate = true;
-  }
-
-  if (generate) {
-    state.cacheClasses.value = (0, _mergeClasses.default)({
-      baseClasses: state.cacheClasses.lastJSS,
-      newClasses: classes,
-      Component: Component
-    });
-  }
-
-  return state.cacheClasses.value;
-}
-
-function attach(_ref2, props) {
-  var state = _ref2.state,
-      theme = _ref2.theme,
-      stylesOptions = _ref2.stylesOptions,
-      stylesCreator = _ref2.stylesCreator,
-      name = _ref2.name;
-
-  if (stylesOptions.disableGeneration) {
-    return;
-  }
-
-  var sheetManager = _multiKeyStore.default.get(stylesOptions.sheetsManager, stylesCreator, theme);
-
-  if (!sheetManager) {
-    sheetManager = {
-      refs: 0,
-      staticSheet: null,
-      dynamicStyles: null
-    };
-
-    _multiKeyStore.default.set(stylesOptions.sheetsManager, stylesCreator, theme, sheetManager);
-  }
-
-  var options = (0, _extends2.default)({}, stylesCreator.options, {}, stylesOptions, {
-    theme: theme,
-    flip: typeof stylesOptions.flip === 'boolean' ? stylesOptions.flip : theme.direction === 'rtl'
-  });
-  options.generateId = options.serverGenerateClassName || options.generateClassName;
-  var sheetsRegistry = stylesOptions.sheetsRegistry;
-
-  if (sheetManager.refs === 0) {
-    var staticSheet;
-
-    if (stylesOptions.sheetsCache) {
-      staticSheet = _multiKeyStore.default.get(stylesOptions.sheetsCache, stylesCreator, theme);
-    }
-
-    var styles = stylesCreator.create(theme, name);
-
-    if (!staticSheet) {
-      staticSheet = stylesOptions.jss.createStyleSheet(styles, (0, _extends2.default)({
-        link: false
-      }, options));
-      staticSheet.attach();
-
-      if (stylesOptions.sheetsCache) {
-        _multiKeyStore.default.set(stylesOptions.sheetsCache, stylesCreator, theme, staticSheet);
-      }
-    }
-
-    if (sheetsRegistry) {
-      sheetsRegistry.add(staticSheet);
-    }
-
-    sheetManager.staticSheet = staticSheet;
-    sheetManager.dynamicStyles = (0, _jss.getDynamicStyles)(styles);
-  }
-
-  if (sheetManager.dynamicStyles) {
-    var dynamicSheet = stylesOptions.jss.createStyleSheet(sheetManager.dynamicStyles, (0, _extends2.default)({
-      link: true
-    }, options));
-    dynamicSheet.update(props).attach();
-    state.dynamicSheet = dynamicSheet;
-    state.classes = (0, _mergeClasses.default)({
-      baseClasses: sheetManager.staticSheet.classes,
-      newClasses: dynamicSheet.classes
-    });
-
-    if (sheetsRegistry) {
-      sheetsRegistry.add(dynamicSheet);
-    }
-  } else {
-    state.classes = sheetManager.staticSheet.classes;
-  }
-
-  sheetManager.refs += 1;
-}
-
-function update(_ref3, props) {
-  var state = _ref3.state;
-
-  if (state.dynamicSheet) {
-    state.dynamicSheet.update(props);
-  }
-}
-
-function detach(_ref4) {
-  var state = _ref4.state,
-      theme = _ref4.theme,
-      stylesOptions = _ref4.stylesOptions,
-      stylesCreator = _ref4.stylesCreator;
-
-  if (stylesOptions.disableGeneration) {
-    return;
-  }
-
-  var sheetManager = _multiKeyStore.default.get(stylesOptions.sheetsManager, stylesCreator, theme);
-
-  sheetManager.refs -= 1;
-  var sheetsRegistry = stylesOptions.sheetsRegistry;
-
-  if (sheetManager.refs === 0) {
-    _multiKeyStore.default.delete(stylesOptions.sheetsManager, stylesCreator, theme);
-
-    stylesOptions.jss.removeStyleSheet(sheetManager.staticSheet);
-
-    if (sheetsRegistry) {
-      sheetsRegistry.remove(sheetManager.staticSheet);
-    }
-  }
-
-  if (state.dynamicSheet) {
-    stylesOptions.jss.removeStyleSheet(state.dynamicSheet);
-
-    if (sheetsRegistry) {
-      sheetsRegistry.remove(state.dynamicSheet);
-    }
-  }
-}
-
-function useSynchronousEffect(func, values) {
-  var key = _react.default.useRef([]);
-
-  var output; // Store "generation" key. Just returns a new object every time
-
-  var currentKey = _react.default.useMemo(function () {
-    return {};
-  }, values); // eslint-disable-line react-hooks/exhaustive-deps
-  // "the first render", or "memo dropped the value"
-
-
-  if (key.current !== currentKey) {
-    key.current = currentKey;
-    output = func();
-  }
-
-  _react.default.useEffect(function () {
-    return function () {
-      if (output) {
-        output();
-      }
-    };
-  }, [currentKey] // eslint-disable-line react-hooks/exhaustive-deps
-  );
-}
-
-function makeStyles(stylesOrCreator) {
-  var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
-  var name = options.name,
-      classNamePrefixOption = options.classNamePrefix,
-      Component = options.Component,
-      _options$defaultTheme = options.defaultTheme,
-      defaultTheme = _options$defaultTheme === void 0 ? _noopTheme.default : _options$defaultTheme,
-      stylesOptions2 = (0, _objectWithoutProperties2.default)(options, ["name", "classNamePrefix", "Component", "defaultTheme"]);
-  var stylesCreator = (0, _getStylesCreator.default)(stylesOrCreator);
-  var classNamePrefix = name || classNamePrefixOption || 'makeStyles';
-  stylesCreator.options = {
-    index: (0, _indexCounter.increment)(),
-    name: name,
-    meta: classNamePrefix,
-    classNamePrefix: classNamePrefix
-  };
-  return function () {
-    var props = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
-    var theme = (0, _useTheme.default)() || defaultTheme;
-    var stylesOptions = (0, _extends2.default)({}, _react.default.useContext(_StylesProvider.StylesContext), {}, stylesOptions2);
-
-    var instance = _react.default.useRef();
-
-    var shouldUpdate = _react.default.useRef();
-
-    useSynchronousEffect(function () {
-      var current = {
-        name: name,
-        state: {},
-        stylesCreator: stylesCreator,
-        stylesOptions: stylesOptions,
-        theme: theme
-      };
-      attach(current, props);
-      shouldUpdate.current = false;
-      instance.current = current;
-      return function () {
-        detach(current);
-      };
-    }, [theme, stylesCreator]);
-
-    _react.default.useEffect(function () {
-      if (shouldUpdate.current) {
-        update(instance.current, props);
-      }
-
-      shouldUpdate.current = true;
-    });
-
-    return getClasses(instance.current, props.classes, Component);
-  };
-}
-
-var _default = makeStyles;
-exports.default = _default;
-},{"@babel/runtime/helpers/esm/objectWithoutProperties":"../node_modules/@material-ui/core/node_modules/@babel/runtime/helpers/esm/objectWithoutProperties.js","@babel/runtime/helpers/esm/extends":"../node_modules/@material-ui/core/node_modules/@babel/runtime/helpers/esm/extends.js","react":"../node_modules/react/index.js","jss":"../node_modules/jss/dist/jss.esm.js","../mergeClasses":"../node_modules/@material-ui/core/node_modules/@material-ui/styles/esm/mergeClasses/index.js","./multiKeyStore":"../node_modules/@material-ui/core/node_modules/@material-ui/styles/esm/makeStyles/multiKeyStore.js","../useTheme":"../node_modules/@material-ui/core/node_modules/@material-ui/styles/esm/useTheme/index.js","../StylesProvider":"../node_modules/@material-ui/core/node_modules/@material-ui/styles/esm/StylesProvider/index.js","./indexCounter":"../node_modules/@material-ui/core/node_modules/@material-ui/styles/esm/makeStyles/indexCounter.js","../getStylesCreator":"../node_modules/@material-ui/core/node_modules/@material-ui/styles/esm/getStylesCreator/index.js","../getStylesCreator/noopTheme":"../node_modules/@material-ui/core/node_modules/@material-ui/styles/esm/getStylesCreator/noopTheme.js"}],"../node_modules/@material-ui/core/node_modules/@material-ui/styles/esm/makeStyles/index.js":[function(require,module,exports) {
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-Object.defineProperty(exports, "default", {
-  enumerable: true,
-  get: function () {
-    return _makeStyles.default;
-  }
-});
-
-var _makeStyles = _interopRequireDefault(require("./makeStyles"));
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-},{"./makeStyles":"../node_modules/@material-ui/core/node_modules/@material-ui/styles/esm/makeStyles/makeStyles.js"}],"../node_modules/@material-ui/core/node_modules/@babel/runtime/helpers/esm/classCallCheck.js":[function(require,module,exports) {
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.default = _classCallCheck;
-
-function _classCallCheck(instance, Constructor) {
-  if (!(instance instanceof Constructor)) {
-    throw new TypeError("Cannot call a class as a function");
-  }
-}
-},{}],"../node_modules/@material-ui/core/node_modules/@babel/runtime/helpers/esm/createClass.js":[function(require,module,exports) {
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.default = _createClass;
-
-function _defineProperties(target, props) {
-  for (var i = 0; i < props.length; i++) {
-    var descriptor = props[i];
-    descriptor.enumerable = descriptor.enumerable || false;
-    descriptor.configurable = true;
-    if ("value" in descriptor) descriptor.writable = true;
-    Object.defineProperty(target, descriptor.key, descriptor);
-  }
-}
-
-function _createClass(Constructor, protoProps, staticProps) {
-  if (protoProps) _defineProperties(Constructor.prototype, protoProps);
-  if (staticProps) _defineProperties(Constructor, staticProps);
-  return Constructor;
-}
-},{}],"../node_modules/@material-ui/core/node_modules/@material-ui/styles/esm/ServerStyleSheets/ServerStyleSheets.js":[function(require,module,exports) {
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.default = void 0;
-
-var _extends2 = _interopRequireDefault(require("@babel/runtime/helpers/esm/extends"));
-
-var _classCallCheck2 = _interopRequireDefault(require("@babel/runtime/helpers/esm/classCallCheck"));
-
-var _createClass2 = _interopRequireDefault(require("@babel/runtime/helpers/esm/createClass"));
-
-var _react = _interopRequireDefault(require("react"));
-
-var _jss = require("jss");
-
-var _StylesProvider = _interopRequireDefault(require("../StylesProvider"));
-
-var _createGenerateClassName = _interopRequireDefault(require("../createGenerateClassName"));
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-var ServerStyleSheets =
-/*#__PURE__*/
-function () {
-  function ServerStyleSheets() {
-    var options = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
-    (0, _classCallCheck2.default)(this, ServerStyleSheets);
-    this.options = options;
-  }
-
-  (0, _createClass2.default)(ServerStyleSheets, [{
-    key: "collect",
-    value: function collect(children) {
-      // This is needed in order to deduplicate the injection of CSS in the page.
-      var sheetsManager = new Map(); // This is needed in order to inject the critical CSS.
-
-      this.sheetsRegistry = new _jss.SheetsRegistry(); // A new class name generator
-
-      var generateClassName = (0, _createGenerateClassName.default)();
-      return _react.default.createElement(_StylesProvider.default, (0, _extends2.default)({
-        sheetsManager: sheetsManager,
-        serverGenerateClassName: generateClassName,
-        sheetsRegistry: this.sheetsRegistry
-      }, this.options), children);
-    }
-  }, {
-    key: "toString",
-    value: function toString() {
-      return this.sheetsRegistry ? this.sheetsRegistry.toString() : '';
-    }
-  }, {
-    key: "getStyleElement",
-    value: function getStyleElement(props) {
-      return _react.default.createElement('style', (0, _extends2.default)({
-        id: 'jss-server-side',
-        key: 'jss-server-side',
-        dangerouslySetInnerHTML: {
-          __html: this.toString()
-        }
-      }, props));
-    }
-  }]);
-  return ServerStyleSheets;
-}();
-
-var _default = ServerStyleSheets;
-exports.default = _default;
-},{"@babel/runtime/helpers/esm/extends":"../node_modules/@material-ui/core/node_modules/@babel/runtime/helpers/esm/extends.js","@babel/runtime/helpers/esm/classCallCheck":"../node_modules/@material-ui/core/node_modules/@babel/runtime/helpers/esm/classCallCheck.js","@babel/runtime/helpers/esm/createClass":"../node_modules/@material-ui/core/node_modules/@babel/runtime/helpers/esm/createClass.js","react":"../node_modules/react/index.js","jss":"../node_modules/jss/dist/jss.esm.js","../StylesProvider":"../node_modules/@material-ui/core/node_modules/@material-ui/styles/esm/StylesProvider/index.js","../createGenerateClassName":"../node_modules/@material-ui/core/node_modules/@material-ui/styles/esm/createGenerateClassName/index.js"}],"../node_modules/@material-ui/core/node_modules/@material-ui/styles/esm/ServerStyleSheets/index.js":[function(require,module,exports) {
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-Object.defineProperty(exports, "default", {
-  enumerable: true,
-  get: function () {
-    return _ServerStyleSheets.default;
-  }
-});
-
-var _ServerStyleSheets = _interopRequireDefault(require("./ServerStyleSheets"));
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-},{"./ServerStyleSheets":"../node_modules/@material-ui/core/node_modules/@material-ui/styles/esm/ServerStyleSheets/ServerStyleSheets.js"}],"../node_modules/clsx/dist/clsx.m.js":[function(require,module,exports) {
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.default = _default;
-
-function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function (obj) { return typeof obj; }; } else { _typeof = function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
-
-function toVal(mix) {
-  var k,
-      y,
-      str = '';
-
-  if (mix) {
-    if (_typeof(mix) === 'object') {
-      if (!!mix.push) {
-        for (k = 0; k < mix.length; k++) {
-          if (mix[k] && (y = toVal(mix[k]))) {
-            str && (str += ' ');
-            str += y;
-          }
-        }
-      } else {
-        for (k in mix) {
-          if (mix[k] && (y = toVal(k))) {
-            str && (str += ' ');
-            str += y;
-          }
-        }
-      }
-    } else if (typeof mix !== 'boolean' && !mix.call) {
-      str && (str += ' ');
-      str += mix;
-    }
-  }
-
-  return str;
-}
-
-function _default() {
-  var i = 0,
-      x,
-      str = '';
-
-  while (i < arguments.length) {
-    if (x = toVal(arguments[i++])) {
-      str && (str += ' ');
-      str += x;
-    }
-  }
-
-  return str;
-}
-},{}],"../node_modules/hoist-non-react-statics/dist/hoist-non-react-statics.cjs.js":[function(require,module,exports) {
-'use strict';
-
-/**
- * Copyright 2015, Yahoo! Inc.
- * Copyrights licensed under the New BSD License. See the accompanying LICENSE file for terms.
- */
-var ReactIs = require('react-is');
-var REACT_STATICS = {
-    childContextTypes: true,
-    contextType: true,
-    contextTypes: true,
-    defaultProps: true,
-    displayName: true,
-    getDefaultProps: true,
-    getDerivedStateFromError: true,
-    getDerivedStateFromProps: true,
-    mixins: true,
-    propTypes: true,
-    type: true
-};
-
-var KNOWN_STATICS = {
-    name: true,
-    length: true,
-    prototype: true,
-    caller: true,
-    callee: true,
-    arguments: true,
-    arity: true
-};
-
-var FORWARD_REF_STATICS = {
-    '$$typeof': true,
-    render: true,
-    defaultProps: true,
-    displayName: true,
-    propTypes: true
-};
-
-var MEMO_STATICS = {
-    '$$typeof': true,
-    compare: true,
-    defaultProps: true,
-    displayName: true,
-    propTypes: true,
-    type: true
-};
-
-var TYPE_STATICS = {};
-TYPE_STATICS[ReactIs.ForwardRef] = FORWARD_REF_STATICS;
-
-function getStatics(component) {
-    if (ReactIs.isMemo(component)) {
-        return MEMO_STATICS;
-    }
-    return TYPE_STATICS[component['$$typeof']] || REACT_STATICS;
-}
-
-var defineProperty = Object.defineProperty;
-var getOwnPropertyNames = Object.getOwnPropertyNames;
-var getOwnPropertySymbols = Object.getOwnPropertySymbols;
-var getOwnPropertyDescriptor = Object.getOwnPropertyDescriptor;
-var getPrototypeOf = Object.getPrototypeOf;
-var objectPrototype = Object.prototype;
-
-function hoistNonReactStatics(targetComponent, sourceComponent, blacklist) {
-    if (typeof sourceComponent !== 'string') {
-        // don't hoist over string (html) components
-
-        if (objectPrototype) {
-            var inheritedComponent = getPrototypeOf(sourceComponent);
-            if (inheritedComponent && inheritedComponent !== objectPrototype) {
-                hoistNonReactStatics(targetComponent, inheritedComponent, blacklist);
-            }
-        }
-
-        var keys = getOwnPropertyNames(sourceComponent);
-
-        if (getOwnPropertySymbols) {
-            keys = keys.concat(getOwnPropertySymbols(sourceComponent));
-        }
-
-        var targetStatics = getStatics(targetComponent);
-        var sourceStatics = getStatics(sourceComponent);
-
-        for (var i = 0; i < keys.length; ++i) {
-            var key = keys[i];
-            if (!KNOWN_STATICS[key] && !(blacklist && blacklist[key]) && !(sourceStatics && sourceStatics[key]) && !(targetStatics && targetStatics[key])) {
-                var descriptor = getOwnPropertyDescriptor(sourceComponent, key);
-                try {
-                    // Avoid failures from read-only properties
-                    defineProperty(targetComponent, key, descriptor);
-                } catch (e) {}
-            }
-        }
-
-        return targetComponent;
-    }
-
-    return targetComponent;
-}
-
-module.exports = hoistNonReactStatics;
-
-},{"react-is":"../node_modules/react-is/index.js"}],"../node_modules/@material-ui/core/node_modules/@material-ui/styles/esm/styled/styled.js":[function(require,module,exports) {
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.default = void 0;
-
-var _extends2 = _interopRequireDefault(require("@babel/runtime/helpers/esm/extends"));
-
-var _objectWithoutProperties2 = _interopRequireDefault(require("@babel/runtime/helpers/esm/objectWithoutProperties"));
-
-var _react = _interopRequireDefault(require("react"));
-
-var _clsx = _interopRequireDefault(require("clsx"));
-
-var _propTypes = _interopRequireDefault(require("prop-types"));
-
-var _utils = require("@material-ui/utils");
-
-var _hoistNonReactStatics = _interopRequireDefault(require("hoist-non-react-statics"));
-
-var _makeStyles = _interopRequireDefault(require("../makeStyles"));
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-function omit(input, fields) {
-  var output = {};
-  Object.keys(input).forEach(function (prop) {
-    if (fields.indexOf(prop) === -1) {
-      output[prop] = input[prop];
-    }
-  });
-  return output;
-} // styled-components's API removes the mapping between components and styles.
-// Using components as a low-level styling construct can be simpler.
-
-
-function styled(Component) {
-  var componentCreator = function componentCreator(style) {
-    var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
-    var name = options.name,
-        stylesOptions = (0, _objectWithoutProperties2.default)(options, ["name"]);
-
-    if ("development" !== 'production' && Component === undefined) {
-      throw new Error(['You are calling styled(Component)(style) with an undefined component.', 'You may have forgotten to import it.'].join('\n'));
-    }
-
-    var classNamePrefix = name;
-
-    if ("development" !== 'production') {
-      if (!name) {
-        // Provide a better DX outside production.
-        var displayName = (0, _utils.getDisplayName)(Component);
-
-        if (displayName !== undefined) {
-          classNamePrefix = displayName;
-        }
-      }
-    }
-
-    var stylesOrCreator = typeof style === 'function' ? function (theme) {
-      return {
-        root: function root(props) {
-          return style((0, _extends2.default)({
-            theme: theme
-          }, props));
-        }
-      };
-    } : {
-      root: style
-    };
-    var useStyles = (0, _makeStyles.default)(stylesOrCreator, (0, _extends2.default)({
-      Component: Component,
-      name: name || Component.displayName,
-      classNamePrefix: classNamePrefix
-    }, stylesOptions));
-    var filterProps;
-    var propTypes = {};
-
-    if (style.filterProps) {
-      filterProps = style.filterProps;
-      delete style.filterProps;
-    }
-    /* eslint-disable react/forbid-foreign-prop-types */
-
-
-    if (style.propTypes) {
-      propTypes = style.propTypes;
-      delete style.propTypes;
-    }
-    /* eslint-enable react/forbid-foreign-prop-types */
-
-
-    var StyledComponent = _react.default.forwardRef(function StyledComponent(props, ref) {
-      var children = props.children,
-          classNameProp = props.className,
-          clone = props.clone,
-          ComponentProp = props.component,
-          other = (0, _objectWithoutProperties2.default)(props, ["children", "className", "clone", "component"]);
-      var classes = useStyles(props);
-      var className = (0, _clsx.default)(classes.root, classNameProp);
-      var spread = other;
-
-      if (filterProps) {
-        spread = omit(spread, filterProps);
-      }
-
-      if (clone) {
-        return _react.default.cloneElement(children, (0, _extends2.default)({
-          className: (0, _clsx.default)(children.props.className, className)
-        }, spread));
-      }
-
-      if (typeof children === 'function') {
-        return children((0, _extends2.default)({
-          className: className
-        }, spread));
-      }
-
-      var FinalComponent = ComponentProp || Component;
-      return _react.default.createElement(FinalComponent, (0, _extends2.default)({
-        ref: ref,
-        className: className
-      }, spread), children);
-    });
-
-    "development" !== "production" ? StyledComponent.propTypes = (0, _extends2.default)({
-      /**
-       * A render function or node.
-       */
-      children: _propTypes.default.oneOfType([_propTypes.default.node, _propTypes.default.func]),
-
-      /**
-       * @ignore
-       */
-      className: _propTypes.default.string,
-
-      /**
-       * If `true`, the component will recycle it's children DOM element.
-       * It's using `React.cloneElement` internally.
-       *
-       * This prop will be deprecated and removed in v5
-       */
-      clone: (0, _utils.chainPropTypes)(_propTypes.default.bool, function (props) {
-        if (props.clone && props.component) {
-          return new Error('You can not use the clone and component prop at the same time.');
-        }
-
-        return null;
-      }),
-
-      /**
-       * The component used for the root node.
-       * Either a string to use a DOM element or a component.
-       */
-      component: _propTypes.default.elementType
-    }, propTypes) : void 0;
-
-    if ("development" !== 'production') {
-      StyledComponent.displayName = "Styled(".concat(classNamePrefix, ")");
-    }
-
-    (0, _hoistNonReactStatics.default)(StyledComponent, Component);
-    return StyledComponent;
-  };
-
-  return componentCreator;
-}
-
-var _default = styled;
-exports.default = _default;
-},{"@babel/runtime/helpers/esm/extends":"../node_modules/@material-ui/core/node_modules/@babel/runtime/helpers/esm/extends.js","@babel/runtime/helpers/esm/objectWithoutProperties":"../node_modules/@material-ui/core/node_modules/@babel/runtime/helpers/esm/objectWithoutProperties.js","react":"../node_modules/react/index.js","clsx":"../node_modules/clsx/dist/clsx.m.js","prop-types":"../node_modules/prop-types/index.js","@material-ui/utils":"../node_modules/@material-ui/utils/esm/index.js","hoist-non-react-statics":"../node_modules/hoist-non-react-statics/dist/hoist-non-react-statics.cjs.js","../makeStyles":"../node_modules/@material-ui/core/node_modules/@material-ui/styles/esm/makeStyles/index.js"}],"../node_modules/@material-ui/core/node_modules/@material-ui/styles/esm/styled/index.js":[function(require,module,exports) {
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-Object.defineProperty(exports, "default", {
-  enumerable: true,
-  get: function () {
-    return _styled.default;
-  }
-});
-
-var _styled = _interopRequireDefault(require("./styled"));
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-},{"./styled":"../node_modules/@material-ui/core/node_modules/@material-ui/styles/esm/styled/styled.js"}],"../node_modules/@material-ui/core/node_modules/@material-ui/styles/esm/ThemeProvider/ThemeProvider.js":[function(require,module,exports) {
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.default = void 0;
-
-var _extends2 = _interopRequireDefault(require("@babel/runtime/helpers/esm/extends"));
-
-var _react = _interopRequireDefault(require("react"));
-
-var _propTypes = _interopRequireDefault(require("prop-types"));
-
-var _utils = require("@material-ui/utils");
-
-var _ThemeContext = _interopRequireDefault(require("../useTheme/ThemeContext"));
-
-var _useTheme = _interopRequireDefault(require("../useTheme"));
-
-var _nested = _interopRequireDefault(require("./nested"));
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-// To support composition of theme.
-function mergeOuterLocalTheme(outerTheme, localTheme) {
-  if (typeof localTheme === 'function') {
-    var mergedTheme = localTheme(outerTheme);
-
-    if ("development" !== 'production') {
-      if (!mergedTheme) {
-        console.error(['Material-UI: you should return an object from your theme function, i.e.', '<ThemeProvider theme={() => ({})} />'].join('\n'));
-      }
-    }
-
-    return mergedTheme;
-  }
-
-  return (0, _extends2.default)({}, outerTheme, {}, localTheme);
-}
-/**
- * This component takes a `theme` prop.
- * It makes the `theme` available down the React tree thanks to React context.
- * This component should preferably be used at **the root of your component tree**.
- */
-
-
-function ThemeProvider(props) {
-  var children = props.children,
-      localTheme = props.theme;
-  var outerTheme = (0, _useTheme.default)();
-
-  if ("development" !== 'production') {
-    if (outerTheme === null && typeof localTheme === 'function') {
-      console.error(['Material-UI: you are providing a theme function prop to the ThemeProvider component:', '<ThemeProvider theme={outerTheme => outerTheme} />', '', 'However, no outer theme is present.', 'Make sure a theme is already injected higher in the React tree ' + 'or provide a theme object.'].join('\n'));
-    }
-  }
-
-  var theme = _react.default.useMemo(function () {
-    var output = outerTheme === null ? localTheme : mergeOuterLocalTheme(outerTheme, localTheme);
-
-    if (output != null) {
-      output[_nested.default] = outerTheme !== null;
-    }
-
-    return output;
-  }, [localTheme, outerTheme]);
-
-  return _react.default.createElement(_ThemeContext.default.Provider, {
-    value: theme
-  }, children);
-}
-
-"development" !== "production" ? ThemeProvider.propTypes = {
-  /**
-   * Your component tree
-   */
-  children: _propTypes.default.node.isRequired,
-
-  /**
-   * A theme object. You can provide a function to extend the outer theme.
-   */
-  theme: _propTypes.default.oneOfType([_propTypes.default.object, _propTypes.default.func]).isRequired
-} : void 0;
-
-if ("development" !== 'production') {
-  "development" !== "production" ? ThemeProvider.propTypes = (0, _utils.exactProp)(ThemeProvider.propTypes) : void 0;
-}
-
-var _default = ThemeProvider;
-exports.default = _default;
-},{"@babel/runtime/helpers/esm/extends":"../node_modules/@material-ui/core/node_modules/@babel/runtime/helpers/esm/extends.js","react":"../node_modules/react/index.js","prop-types":"../node_modules/prop-types/index.js","@material-ui/utils":"../node_modules/@material-ui/utils/esm/index.js","../useTheme/ThemeContext":"../node_modules/@material-ui/core/node_modules/@material-ui/styles/esm/useTheme/ThemeContext.js","../useTheme":"../node_modules/@material-ui/core/node_modules/@material-ui/styles/esm/useTheme/index.js","./nested":"../node_modules/@material-ui/core/node_modules/@material-ui/styles/esm/ThemeProvider/nested.js"}],"../node_modules/@material-ui/core/node_modules/@material-ui/styles/esm/ThemeProvider/index.js":[function(require,module,exports) {
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-Object.defineProperty(exports, "default", {
-  enumerable: true,
-  get: function () {
-    return _ThemeProvider.default;
-  }
-});
-
-var _ThemeProvider = _interopRequireDefault(require("./ThemeProvider"));
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-},{"./ThemeProvider":"../node_modules/@material-ui/core/node_modules/@material-ui/styles/esm/ThemeProvider/ThemeProvider.js"}],"../node_modules/@material-ui/core/node_modules/@material-ui/styles/esm/withStyles/withStyles.js":[function(require,module,exports) {
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.default = void 0;
-
-var _extends2 = _interopRequireDefault(require("@babel/runtime/helpers/esm/extends"));
-
-var _objectWithoutProperties2 = _interopRequireDefault(require("@babel/runtime/helpers/esm/objectWithoutProperties"));
-
-var _react = _interopRequireDefault(require("react"));
-
-var _propTypes = _interopRequireDefault(require("prop-types"));
-
-var _hoistNonReactStatics = _interopRequireDefault(require("hoist-non-react-statics"));
-
-var _utils = require("@material-ui/utils");
-
-var _makeStyles = _interopRequireDefault(require("../makeStyles"));
-
-var _getThemeProps = _interopRequireDefault(require("../getThemeProps"));
-
-var _useTheme = _interopRequireDefault(require("../useTheme"));
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-// Link a style sheet with a component.
-// It does not modify the component passed to it;
-// instead, it returns a new component, with a `classes` property.
-var withStyles = function withStyles(stylesOrCreator) {
-  var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
-  return function (Component) {
-    var defaultTheme = options.defaultTheme,
-        _options$withTheme = options.withTheme,
-        withTheme = _options$withTheme === void 0 ? false : _options$withTheme,
-        name = options.name,
-        stylesOptions = (0, _objectWithoutProperties2.default)(options, ["defaultTheme", "withTheme", "name"]);
-
-    if ("development" !== 'production') {
-      if (Component === undefined) {
-        throw new Error(['You are calling withStyles(styles)(Component) with an undefined component.', 'You may have forgotten to import it.'].join('\n'));
-      }
-    }
-
-    var classNamePrefix = name;
-
-    if ("development" !== 'production') {
-      if (!name) {
-        // Provide a better DX outside production.
-        var displayName = (0, _utils.getDisplayName)(Component);
-
-        if (displayName !== undefined) {
-          classNamePrefix = displayName;
-        }
-      }
-    }
-
-    var useStyles = (0, _makeStyles.default)(stylesOrCreator, (0, _extends2.default)({
-      defaultTheme: defaultTheme,
-      Component: Component,
-      name: name || Component.displayName,
-      classNamePrefix: classNamePrefix
-    }, stylesOptions));
-
-    var WithStyles = _react.default.forwardRef(function WithStyles(props, ref) {
-      var classesProp = props.classes,
-          innerRef = props.innerRef,
-          other = (0, _objectWithoutProperties2.default)(props, ["classes", "innerRef"]);
-      var classes = useStyles(props);
-      var theme;
-      var more = other;
-
-      if (typeof name === 'string' || withTheme) {
-        // name and withTheme are invariant in the outer scope
-        // eslint-disable-next-line react-hooks/rules-of-hooks
-        theme = (0, _useTheme.default)() || defaultTheme;
-
-        if (name) {
-          more = (0, _getThemeProps.default)({
-            theme: theme,
-            name: name,
-            props: other
-          });
-        } // Provide the theme to the wrapped component.
-        // So we don't have to use the `withTheme()` Higher-order Component.
-
-
-        if (withTheme && !more.theme) {
-          more.theme = theme;
-        }
-      }
-
-      return _react.default.createElement(Component, (0, _extends2.default)({
-        ref: innerRef || ref,
-        classes: classes
-      }, more));
-    });
-
-    "development" !== "production" ? WithStyles.propTypes = {
-      /**
-       * Override or extend the styles applied to the component.
-       */
-      classes: _propTypes.default.object,
-
-      /**
-       * Use that prop to pass a ref to the decorated component.
-       * @deprecated
-       */
-      innerRef: (0, _utils.chainPropTypes)(_propTypes.default.oneOfType([_propTypes.default.func, _propTypes.default.object]), function (props) {
-        if (props.innerRef == null) {
-          return null;
-        }
-
-        return null; // return new Error(
-        //   'Material-UI: the `innerRef` prop is deprecated and will be removed in v5. ' +
-        //     'Refs are now automatically forwarded to the inner component.',
-        // );
-      })
-    } : void 0;
-
-    if ("development" !== 'production') {
-      WithStyles.displayName = "WithStyles(".concat((0, _utils.getDisplayName)(Component), ")");
-    }
-
-    (0, _hoistNonReactStatics.default)(WithStyles, Component);
-
-    if ("development" !== 'production') {
-      // Exposed for test purposes.
-      WithStyles.Naked = Component;
-      WithStyles.options = options;
-      WithStyles.useStyles = useStyles;
-    }
-
-    return WithStyles;
-  };
-};
-
-var _default = withStyles;
-exports.default = _default;
-},{"@babel/runtime/helpers/esm/extends":"../node_modules/@material-ui/core/node_modules/@babel/runtime/helpers/esm/extends.js","@babel/runtime/helpers/esm/objectWithoutProperties":"../node_modules/@material-ui/core/node_modules/@babel/runtime/helpers/esm/objectWithoutProperties.js","react":"../node_modules/react/index.js","prop-types":"../node_modules/prop-types/index.js","hoist-non-react-statics":"../node_modules/hoist-non-react-statics/dist/hoist-non-react-statics.cjs.js","@material-ui/utils":"../node_modules/@material-ui/utils/esm/index.js","../makeStyles":"../node_modules/@material-ui/core/node_modules/@material-ui/styles/esm/makeStyles/index.js","../getThemeProps":"../node_modules/@material-ui/core/node_modules/@material-ui/styles/esm/getThemeProps/index.js","../useTheme":"../node_modules/@material-ui/core/node_modules/@material-ui/styles/esm/useTheme/index.js"}],"../node_modules/@material-ui/core/node_modules/@material-ui/styles/esm/withStyles/index.js":[function(require,module,exports) {
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-Object.defineProperty(exports, "default", {
-  enumerable: true,
-  get: function () {
-    return _withStyles.default;
-  }
-});
-
-var _withStyles = _interopRequireDefault(require("./withStyles"));
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-},{"./withStyles":"../node_modules/@material-ui/core/node_modules/@material-ui/styles/esm/withStyles/withStyles.js"}],"../node_modules/@material-ui/core/node_modules/@material-ui/styles/esm/withTheme/withTheme.js":[function(require,module,exports) {
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.withThemeCreator = withThemeCreator;
-exports.default = void 0;
-
-var _extends2 = _interopRequireDefault(require("@babel/runtime/helpers/esm/extends"));
-
-var _objectWithoutProperties2 = _interopRequireDefault(require("@babel/runtime/helpers/esm/objectWithoutProperties"));
-
-var _react = _interopRequireDefault(require("react"));
-
-var _propTypes = _interopRequireDefault(require("prop-types"));
-
-var _hoistNonReactStatics = _interopRequireDefault(require("hoist-non-react-statics"));
-
-var _utils = require("@material-ui/utils");
-
-var _useTheme = _interopRequireDefault(require("../useTheme"));
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-function withThemeCreator() {
-  var options = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
-  var defaultTheme = options.defaultTheme;
-
-  var withTheme = function withTheme(Component) {
-    if ("development" !== 'production') {
-      if (Component === undefined) {
-        throw new Error(['You are calling withTheme(Component) with an undefined component.', 'You may have forgotten to import it.'].join('\n'));
-      }
-    }
-
-    var WithTheme = _react.default.forwardRef(function WithTheme(props, ref) {
-      var innerRef = props.innerRef,
-          other = (0, _objectWithoutProperties2.default)(props, ["innerRef"]);
-      var theme = (0, _useTheme.default)() || defaultTheme;
-      return _react.default.createElement(Component, (0, _extends2.default)({
-        theme: theme,
-        ref: innerRef || ref
-      }, other));
-    });
-
-    "development" !== "production" ? WithTheme.propTypes = {
-      /**
-       * Use that prop to pass a ref to the decorated component.
-       * @deprecated
-       */
-      innerRef: (0, _utils.chainPropTypes)(_propTypes.default.oneOfType([_propTypes.default.func, _propTypes.default.object]), function (props) {
-        if (props.innerRef == null) {
-          return null;
-        }
-
-        return new Error('Material-UI: the `innerRef` prop is deprecated and will be removed in v5. ' + 'Refs are now automatically forwarded to the inner component.');
-      })
-    } : void 0;
-
-    if ("development" !== 'production') {
-      WithTheme.displayName = "WithTheme(".concat((0, _utils.getDisplayName)(Component), ")");
-    }
-
-    (0, _hoistNonReactStatics.default)(WithTheme, Component);
-
-    if ("development" !== 'production') {
-      // Exposed for test purposes.
-      WithTheme.Naked = Component;
-    }
-
-    return WithTheme;
-  };
-
-  return withTheme;
-} // Provide the theme object as a prop to the input component.
-// It's an alternative API to useTheme().
-// We encourage the usage of useTheme() where possible.
-
-
-var withTheme = withThemeCreator();
-var _default = withTheme;
-exports.default = _default;
-},{"@babel/runtime/helpers/esm/extends":"../node_modules/@material-ui/core/node_modules/@babel/runtime/helpers/esm/extends.js","@babel/runtime/helpers/esm/objectWithoutProperties":"../node_modules/@material-ui/core/node_modules/@babel/runtime/helpers/esm/objectWithoutProperties.js","react":"../node_modules/react/index.js","prop-types":"../node_modules/prop-types/index.js","hoist-non-react-statics":"../node_modules/hoist-non-react-statics/dist/hoist-non-react-statics.cjs.js","@material-ui/utils":"../node_modules/@material-ui/utils/esm/index.js","../useTheme":"../node_modules/@material-ui/core/node_modules/@material-ui/styles/esm/useTheme/index.js"}],"../node_modules/@material-ui/core/node_modules/@material-ui/styles/esm/withTheme/index.js":[function(require,module,exports) {
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-var _exportNames = {};
-Object.defineProperty(exports, "default", {
-  enumerable: true,
-  get: function () {
-    return _withTheme.default;
-  }
-});
-
-var _withTheme = _interopRequireWildcard(require("./withTheme"));
-
-Object.keys(_withTheme).forEach(function (key) {
-  if (key === "default" || key === "__esModule") return;
-  if (Object.prototype.hasOwnProperty.call(_exportNames, key)) return;
-  Object.defineProperty(exports, key, {
-    enumerable: true,
-    get: function () {
-      return _withTheme[key];
-    }
-  });
-});
-
-function _getRequireWildcardCache() { if (typeof WeakMap !== "function") return null; var cache = new WeakMap(); _getRequireWildcardCache = function () { return cache; }; return cache; }
-
-function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } var cache = _getRequireWildcardCache(); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; if (obj != null) { var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } } newObj.default = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
-},{"./withTheme":"../node_modules/@material-ui/core/node_modules/@material-ui/styles/esm/withTheme/withTheme.js"}],"../node_modules/@material-ui/core/node_modules/@material-ui/styles/esm/index.js":[function(require,module,exports) {
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-Object.defineProperty(exports, "createGenerateClassName", {
-  enumerable: true,
-  get: function () {
-    return _createGenerateClassName.default;
-  }
-});
-Object.defineProperty(exports, "createStyles", {
-  enumerable: true,
-  get: function () {
-    return _createStyles.default;
-  }
-});
-Object.defineProperty(exports, "getThemeProps", {
-  enumerable: true,
-  get: function () {
-    return _getThemeProps.default;
-  }
-});
-Object.defineProperty(exports, "jssPreset", {
-  enumerable: true,
-  get: function () {
-    return _jssPreset.default;
-  }
-});
-Object.defineProperty(exports, "makeStyles", {
-  enumerable: true,
-  get: function () {
-    return _makeStyles.default;
-  }
-});
-Object.defineProperty(exports, "mergeClasses", {
-  enumerable: true,
-  get: function () {
-    return _mergeClasses.default;
-  }
-});
-Object.defineProperty(exports, "ServerStyleSheets", {
-  enumerable: true,
-  get: function () {
-    return _ServerStyleSheets.default;
-  }
-});
-Object.defineProperty(exports, "styled", {
-  enumerable: true,
-  get: function () {
-    return _styled.default;
-  }
-});
-Object.defineProperty(exports, "StylesProvider", {
-  enumerable: true,
-  get: function () {
-    return _StylesProvider.default;
-  }
-});
-Object.defineProperty(exports, "ThemeProvider", {
-  enumerable: true,
-  get: function () {
-    return _ThemeProvider.default;
-  }
-});
-Object.defineProperty(exports, "useTheme", {
-  enumerable: true,
-  get: function () {
-    return _useTheme.default;
-  }
-});
-Object.defineProperty(exports, "withStyles", {
-  enumerable: true,
-  get: function () {
-    return _withStyles.default;
-  }
-});
-Object.defineProperty(exports, "withTheme", {
-  enumerable: true,
-  get: function () {
-    return _withTheme.default;
-  }
-});
-Object.defineProperty(exports, "withThemeCreator", {
-  enumerable: true,
-  get: function () {
-    return _withTheme.withThemeCreator;
-  }
-});
-
-var _utils = require("@material-ui/utils");
-
-var _createGenerateClassName = _interopRequireDefault(require("./createGenerateClassName"));
-
-var _createStyles = _interopRequireDefault(require("./createStyles"));
-
-var _getThemeProps = _interopRequireDefault(require("./getThemeProps"));
-
-var _jssPreset = _interopRequireDefault(require("./jssPreset"));
-
-var _makeStyles = _interopRequireDefault(require("./makeStyles"));
-
-var _mergeClasses = _interopRequireDefault(require("./mergeClasses"));
-
-var _ServerStyleSheets = _interopRequireDefault(require("./ServerStyleSheets"));
-
-var _styled = _interopRequireDefault(require("./styled"));
-
-var _StylesProvider = _interopRequireDefault(require("./StylesProvider"));
-
-var _ThemeProvider = _interopRequireDefault(require("./ThemeProvider"));
-
-var _useTheme = _interopRequireDefault(require("./useTheme"));
-
-var _withStyles = _interopRequireDefault(require("./withStyles"));
-
-var _withTheme = _interopRequireWildcard(require("./withTheme"));
-
-function _getRequireWildcardCache() { if (typeof WeakMap !== "function") return null; var cache = new WeakMap(); _getRequireWildcardCache = function () { return cache; }; return cache; }
-
-function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } var cache = _getRequireWildcardCache(); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; if (obj != null) { var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } } newObj.default = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-/** @license Material-UI v4.4.3
- *
- * This source code is licensed under the MIT license found in the
- * LICENSE file in the root directory of this source tree.
- */
-
-/* Warning if there are several instances of @material-ui/styles */
-if ("development" !== 'production' && "development" !== 'test' && typeof window !== 'undefined') {
-  _utils.ponyfillGlobal['__@material-ui/styles-init__'] = _utils.ponyfillGlobal['__@material-ui/styles-init__'] || 0;
-
-  if (_utils.ponyfillGlobal['__@material-ui/styles-init__'] === 1) {
-    console.warn(['It looks like there are several instances of `@material-ui/styles` initialized in this application.', 'This may cause theme propagation issues, broken class names, ' + 'specificity issues, and makes your application bigger without a good reason.', '', 'See https://material-ui.com/r/styles-instance-warning for more info.'].join('\n'));
-  }
-
-  _utils.ponyfillGlobal['__@material-ui/styles-init__'] += 1;
-}
-},{"@material-ui/utils":"../node_modules/@material-ui/utils/esm/index.js","./createGenerateClassName":"../node_modules/@material-ui/core/node_modules/@material-ui/styles/esm/createGenerateClassName/index.js","./createStyles":"../node_modules/@material-ui/core/node_modules/@material-ui/styles/esm/createStyles/index.js","./getThemeProps":"../node_modules/@material-ui/core/node_modules/@material-ui/styles/esm/getThemeProps/index.js","./jssPreset":"../node_modules/@material-ui/core/node_modules/@material-ui/styles/esm/jssPreset/index.js","./makeStyles":"../node_modules/@material-ui/core/node_modules/@material-ui/styles/esm/makeStyles/index.js","./mergeClasses":"../node_modules/@material-ui/core/node_modules/@material-ui/styles/esm/mergeClasses/index.js","./ServerStyleSheets":"../node_modules/@material-ui/core/node_modules/@material-ui/styles/esm/ServerStyleSheets/index.js","./styled":"../node_modules/@material-ui/core/node_modules/@material-ui/styles/esm/styled/index.js","./StylesProvider":"../node_modules/@material-ui/core/node_modules/@material-ui/styles/esm/StylesProvider/index.js","./ThemeProvider":"../node_modules/@material-ui/core/node_modules/@material-ui/styles/esm/ThemeProvider/index.js","./useTheme":"../node_modules/@material-ui/core/node_modules/@material-ui/styles/esm/useTheme/index.js","./withStyles":"../node_modules/@material-ui/core/node_modules/@material-ui/styles/esm/withStyles/index.js","./withTheme":"../node_modules/@material-ui/core/node_modules/@material-ui/styles/esm/withTheme/index.js"}],"../node_modules/@material-ui/core/esm/styles/createStyles.js":[function(require,module,exports) {
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.default = createStyles;
-
-var _styles = require("@material-ui/styles");
-
-// let warnOnce = false;
-// To remove in v5
-function createStyles(styles) {
-  // warning(
-  //   warnOnce,
-  //   [
-  //     'Material-UI: createStyles from @material-ui/core/styles is deprecated.',
-  //     'Please use @material-ui/styles/createStyles',
-  //   ].join('\n'),
-  // );
-  // warnOnce = true;
-  return (0, _styles.createStyles)(styles);
-}
-},{"@material-ui/styles":"../node_modules/@material-ui/core/node_modules/@material-ui/styles/esm/index.js"}],"../node_modules/@material-ui/core/esm/styles/defaultTheme.js":[function(require,module,exports) {
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.default = void 0;
-
-var _createMuiTheme = _interopRequireDefault(require("./createMuiTheme"));
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-var defaultTheme = (0, _createMuiTheme.default)();
-var _default = defaultTheme;
-exports.default = _default;
-},{"./createMuiTheme":"../node_modules/@material-ui/core/esm/styles/createMuiTheme.js"}],"../node_modules/@material-ui/core/esm/styles/makeStyles.js":[function(require,module,exports) {
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.default = void 0;
-
-var _extends2 = _interopRequireDefault(require("@babel/runtime/helpers/esm/extends"));
-
-var _styles = require("@material-ui/styles");
-
-var _defaultTheme = _interopRequireDefault(require("./defaultTheme"));
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-function makeStyles(stylesOrCreator) {
-  var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
-  return (0, _styles.makeStyles)(stylesOrCreator, (0, _extends2.default)({
-    defaultTheme: _defaultTheme.default
-  }, options));
-}
-
-var _default = makeStyles;
-exports.default = _default;
-},{"@babel/runtime/helpers/esm/extends":"../node_modules/@material-ui/core/node_modules/@babel/runtime/helpers/esm/extends.js","@material-ui/styles":"../node_modules/@material-ui/core/node_modules/@material-ui/styles/esm/index.js","./defaultTheme":"../node_modules/@material-ui/core/esm/styles/defaultTheme.js"}],"../node_modules/@material-ui/core/esm/styles/MuiThemeProvider.js":[function(require,module,exports) {
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.default = void 0;
-
-var _styles = require("@material-ui/styles");
-
-/**
- * @ignore - do not document.
- */
-var _default = _styles.ThemeProvider;
-exports.default = _default;
-},{"@material-ui/styles":"../node_modules/@material-ui/core/node_modules/@material-ui/styles/esm/index.js"}],"../node_modules/convert-css-length/dist/index.esm.js":[function(require,module,exports) {
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.default = _default;
-
-var e = function (e) {
-  return parseFloat(e);
-};
-
-function _default(r) {
-  return null == r && (r = r), function (n, t, i, f) {
-    null == i && (i = r), null == f && (f = i);
-    var l = String(n).match(/[\d.\-\+]*\s*(.*)/)[1] || "";
-    if (l === t) return n;
-    var u = e(n);
-    if ("px" !== l) if ("em" === l) u = e(n) * e(i);else if ("rem" === l) u = e(n) * e(r);else {
-      if ("ex" !== l) return n;
-      u = e(n) * e(i) * 2;
-    }
-    var a = u;
-    if ("px" !== t) if ("em" === t) a = u / e(f);else if ("rem" === t) a = u / e(r);else {
-      if ("ex" !== t) return n;
-      a = u / e(f) / 2;
-    }
-    return parseFloat(a.toFixed(5)) + t;
-  };
-}
-},{}],"../node_modules/@material-ui/core/esm/styles/cssUtils.js":[function(require,module,exports) {
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.alignProperty = alignProperty;
-exports.fontGrid = fontGrid;
-exports.responsiveProperty = responsiveProperty;
-
-var _defineProperty2 = _interopRequireDefault(require("@babel/runtime/helpers/esm/defineProperty"));
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-function alignProperty(_ref) {
-  var size = _ref.size,
-      grid = _ref.grid;
-  var sizeBelow = size - size % grid;
-  var sizeAbove = sizeBelow + grid;
-  return size - sizeBelow < sizeAbove - size ? sizeBelow : sizeAbove;
-} // fontGrid finds a minimal grid (in rem) for the fontSize values so that the
-// lineHeight falls under a x pixels grid, 4px in the case of Material Design,
-// without changing the relative line height
-
-
-function fontGrid(_ref2) {
-  var lineHeight = _ref2.lineHeight,
-      pixels = _ref2.pixels,
-      htmlFontSize = _ref2.htmlFontSize;
-  return pixels / (lineHeight * htmlFontSize);
-}
-/**
- * generate a responsive version of a given CSS property
- * @example
- * responsiveProperty({
- *   cssProperty: 'fontSize',
- *   min: 15,
- *   max: 20,
- *   unit: 'px',
- *   breakpoints: [300, 600],
- * })
- *
- * // this returns
- *
- * {
- *   fontSize: '15px',
- *   '@media (min-width:300px)': {
- *     fontSize: '17.5px',
- *   },
- *   '@media (min-width:600px)': {
- *     fontSize: '20px',
- *   },
- * }
- *
- * @param {Object} params
- * @param {string} params.cssProperty - The CSS property to be made responsive
- * @param {number} params.min - The smallest value of the CSS property
- * @param {number} params.max - The largest value of the CSS property
- * @param {string} [params.unit] - The unit to be used for the CSS property
- * @param {Array.number} [params.breakpoints]  - An array of breakpoints
- * @param {number} [params.alignStep] - Round scaled value to fall under this grid
- * @returns {Object} responsive styles for {params.cssProperty}
- */
-
-
-function responsiveProperty(_ref3) {
-  var cssProperty = _ref3.cssProperty,
-      min = _ref3.min,
-      max = _ref3.max,
-      _ref3$unit = _ref3.unit,
-      unit = _ref3$unit === void 0 ? 'rem' : _ref3$unit,
-      _ref3$breakpoints = _ref3.breakpoints,
-      breakpoints = _ref3$breakpoints === void 0 ? [600, 960, 1280] : _ref3$breakpoints,
-      _ref3$transform = _ref3.transform,
-      transform = _ref3$transform === void 0 ? null : _ref3$transform;
-  var output = (0, _defineProperty2.default)({}, cssProperty, "".concat(min).concat(unit));
-  var factor = (max - min) / breakpoints[breakpoints.length - 1];
-  breakpoints.forEach(function (breakpoint) {
-    var value = min + factor * breakpoint;
-
-    if (transform !== null) {
-      value = transform(value);
-    }
-
-    output["@media (min-width:".concat(breakpoint, "px)")] = (0, _defineProperty2.default)({}, cssProperty, "".concat(Math.round(value * 10000) / 10000).concat(unit));
-  });
-  return output;
-}
-},{"@babel/runtime/helpers/esm/defineProperty":"../node_modules/@material-ui/core/node_modules/@babel/runtime/helpers/esm/defineProperty.js"}],"../node_modules/@material-ui/core/esm/styles/responsiveFontSizes.js":[function(require,module,exports) {
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.default = responsiveFontSizes;
-
-var _extends2 = _interopRequireDefault(require("@babel/runtime/helpers/esm/extends"));
-
-var _convertCssLength = _interopRequireDefault(require("convert-css-length"));
-
-var _cssUtils = require("./cssUtils");
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-function isUnitless(value) {
-  return String(parseFloat(value)).length === String(value).length;
-}
-
-function responsiveFontSizes(themeInput) {
-  var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
-  var _options$breakpoints = options.breakpoints,
-      breakpoints = _options$breakpoints === void 0 ? ['sm', 'md', 'lg'] : _options$breakpoints,
-      _options$disableAlign = options.disableAlign,
-      disableAlign = _options$disableAlign === void 0 ? false : _options$disableAlign,
-      _options$factor = options.factor,
-      factor = _options$factor === void 0 ? 2 : _options$factor,
-      _options$variants = options.variants,
-      variants = _options$variants === void 0 ? ['h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'subtitle1', 'subtitle2', 'body1', 'body2', 'caption', 'button', 'overline'] : _options$variants;
-  var theme = (0, _extends2.default)({}, themeInput);
-  theme.typography = (0, _extends2.default)({}, theme.typography);
-  var typography = theme.typography; // Convert between css lengths e.g. em->px or px->rem
-  // Set the baseFontSize for your project. Defaults to 16px (also the browser default).
-
-  var convert = (0, _convertCssLength.default)(typography.htmlFontSize);
-  var breakpointValues = breakpoints.map(function (x) {
-    return theme.breakpoints.values[x];
-  });
-  variants.forEach(function (variant) {
-    var style = typography[variant];
-    var remFontSize = parseFloat(convert(style.fontSize, 'rem'));
-
-    if (remFontSize <= 1) {
-      return;
-    }
-
-    var maxFontSize = remFontSize;
-    var minFontSize = 1 + (maxFontSize - 1) / factor;
-    var lineHeight = style.lineHeight;
-
-    if (!isUnitless(lineHeight) && !disableAlign) {
-      throw new Error(["Material-UI: unsupported non-unitless line height with grid alignment.", 'Use unitless line heights instead.'].join('\n'));
-    }
-
-    if (!isUnitless(lineHeight)) {
-      // make it unitless
-      lineHeight = parseFloat(convert(lineHeight, 'rem')) / parseFloat(remFontSize);
-    }
-
-    var transform = null;
-
-    if (!disableAlign) {
-      transform = function transform(value) {
-        return (0, _cssUtils.alignProperty)({
-          size: value,
-          grid: (0, _cssUtils.fontGrid)({
-            pixels: 4,
-            lineHeight: lineHeight,
-            htmlFontSize: typography.htmlFontSize
-          })
-        });
-      };
-    }
-
-    typography[variant] = (0, _extends2.default)({}, style, {}, (0, _cssUtils.responsiveProperty)({
-      cssProperty: 'fontSize',
-      min: minFontSize,
-      max: maxFontSize,
-      unit: 'rem',
-      breakpoints: breakpointValues,
-      transform: transform
-    }));
-  });
-  return theme;
-}
-},{"@babel/runtime/helpers/esm/extends":"../node_modules/@material-ui/core/node_modules/@babel/runtime/helpers/esm/extends.js","convert-css-length":"../node_modules/convert-css-length/dist/index.esm.js","./cssUtils":"../node_modules/@material-ui/core/esm/styles/cssUtils.js"}],"../node_modules/@material-ui/core/esm/styles/styled.js":[function(require,module,exports) {
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.default = void 0;
-
-var _extends2 = _interopRequireDefault(require("@babel/runtime/helpers/esm/extends"));
-
-var _styles = require("@material-ui/styles");
-
-var _defaultTheme = _interopRequireDefault(require("./defaultTheme"));
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-var styled = function styled(Component) {
-  var componentCreator = (0, _styles.styled)(Component);
-  return function (style, options) {
-    return componentCreator(style, (0, _extends2.default)({
-      defaultTheme: _defaultTheme.default
-    }, options));
-  };
-};
-
-var _default = styled;
-exports.default = _default;
-},{"@babel/runtime/helpers/esm/extends":"../node_modules/@material-ui/core/node_modules/@babel/runtime/helpers/esm/extends.js","@material-ui/styles":"../node_modules/@material-ui/core/node_modules/@material-ui/styles/esm/index.js","./defaultTheme":"../node_modules/@material-ui/core/esm/styles/defaultTheme.js"}],"../node_modules/@material-ui/core/esm/styles/useTheme.js":[function(require,module,exports) {
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.default = useTheme;
-
-var _styles = require("@material-ui/styles");
-
-var _defaultTheme = _interopRequireDefault(require("./defaultTheme"));
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-function useTheme() {
-  return (0, _styles.useTheme)() || _defaultTheme.default;
-}
-},{"@material-ui/styles":"../node_modules/@material-ui/core/node_modules/@material-ui/styles/esm/index.js","./defaultTheme":"../node_modules/@material-ui/core/esm/styles/defaultTheme.js"}],"../node_modules/@material-ui/core/esm/styles/withStyles.js":[function(require,module,exports) {
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.default = void 0;
-
-var _extends2 = _interopRequireDefault(require("@babel/runtime/helpers/esm/extends"));
-
-var _styles = require("@material-ui/styles");
-
-var _defaultTheme = _interopRequireDefault(require("./defaultTheme"));
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-function withStyles(stylesOrCreator, options) {
-  return (0, _styles.withStyles)(stylesOrCreator, (0, _extends2.default)({
-    defaultTheme: _defaultTheme.default
-  }, options));
-}
-
-var _default = withStyles;
-exports.default = _default;
-},{"@babel/runtime/helpers/esm/extends":"../node_modules/@material-ui/core/node_modules/@babel/runtime/helpers/esm/extends.js","@material-ui/styles":"../node_modules/@material-ui/core/node_modules/@material-ui/styles/esm/index.js","./defaultTheme":"../node_modules/@material-ui/core/esm/styles/defaultTheme.js"}],"../node_modules/@material-ui/core/esm/styles/withTheme.js":[function(require,module,exports) {
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.default = void 0;
-
-var _styles = require("@material-ui/styles");
-
-var _defaultTheme = _interopRequireDefault(require("./defaultTheme"));
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-var withTheme = (0, _styles.withThemeCreator)({
-  defaultTheme: _defaultTheme.default
-});
-var _default = withTheme;
-exports.default = _default;
-},{"@material-ui/styles":"../node_modules/@material-ui/core/node_modules/@material-ui/styles/esm/index.js","./defaultTheme":"../node_modules/@material-ui/core/esm/styles/defaultTheme.js"}],"../node_modules/@material-ui/core/esm/styles/index.js":[function(require,module,exports) {
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-var _exportNames = {
-  createMuiTheme: true,
-  createStyles: true,
-  makeStyles: true,
-  MuiThemeProvider: true,
-  responsiveFontSizes: true,
-  styled: true,
-  useTheme: true,
-  withStyles: true,
-  withTheme: true
-};
-Object.defineProperty(exports, "createMuiTheme", {
-  enumerable: true,
-  get: function () {
-    return _createMuiTheme.default;
-  }
-});
-Object.defineProperty(exports, "createStyles", {
-  enumerable: true,
-  get: function () {
-    return _createStyles.default;
-  }
-});
-Object.defineProperty(exports, "makeStyles", {
-  enumerable: true,
-  get: function () {
-    return _makeStyles.default;
-  }
-});
-Object.defineProperty(exports, "MuiThemeProvider", {
-  enumerable: true,
-  get: function () {
-    return _MuiThemeProvider.default;
-  }
-});
-Object.defineProperty(exports, "responsiveFontSizes", {
-  enumerable: true,
-  get: function () {
-    return _responsiveFontSizes.default;
-  }
-});
-Object.defineProperty(exports, "styled", {
-  enumerable: true,
-  get: function () {
-    return _styled.default;
-  }
-});
-Object.defineProperty(exports, "useTheme", {
-  enumerable: true,
-  get: function () {
-    return _useTheme.default;
-  }
-});
-Object.defineProperty(exports, "withStyles", {
-  enumerable: true,
-  get: function () {
-    return _withStyles.default;
-  }
-});
-Object.defineProperty(exports, "withTheme", {
-  enumerable: true,
-  get: function () {
-    return _withTheme.default;
-  }
-});
-
-var _colorManipulator = require("./colorManipulator");
-
-Object.keys(_colorManipulator).forEach(function (key) {
-  if (key === "default" || key === "__esModule") return;
-  if (Object.prototype.hasOwnProperty.call(_exportNames, key)) return;
-  Object.defineProperty(exports, key, {
-    enumerable: true,
-    get: function () {
-      return _colorManipulator[key];
-    }
-  });
-});
-
-var _createMuiTheme = _interopRequireDefault(require("./createMuiTheme"));
-
-var _createStyles = _interopRequireDefault(require("./createStyles"));
-
-var _makeStyles = _interopRequireDefault(require("./makeStyles"));
-
-var _MuiThemeProvider = _interopRequireDefault(require("./MuiThemeProvider"));
-
-var _responsiveFontSizes = _interopRequireDefault(require("./responsiveFontSizes"));
-
-var _styled = _interopRequireDefault(require("./styled"));
-
-var _transitions = require("./transitions");
-
-Object.keys(_transitions).forEach(function (key) {
-  if (key === "default" || key === "__esModule") return;
-  if (Object.prototype.hasOwnProperty.call(_exportNames, key)) return;
-  Object.defineProperty(exports, key, {
-    enumerable: true,
-    get: function () {
-      return _transitions[key];
-    }
-  });
-});
-
-var _useTheme = _interopRequireDefault(require("./useTheme"));
-
-var _withStyles = _interopRequireDefault(require("./withStyles"));
-
-var _withTheme = _interopRequireDefault(require("./withTheme"));
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-},{"./colorManipulator":"../node_modules/@material-ui/core/esm/styles/colorManipulator.js","./createMuiTheme":"../node_modules/@material-ui/core/esm/styles/createMuiTheme.js","./createStyles":"../node_modules/@material-ui/core/esm/styles/createStyles.js","./makeStyles":"../node_modules/@material-ui/core/esm/styles/makeStyles.js","./MuiThemeProvider":"../node_modules/@material-ui/core/esm/styles/MuiThemeProvider.js","./responsiveFontSizes":"../node_modules/@material-ui/core/esm/styles/responsiveFontSizes.js","./styled":"../node_modules/@material-ui/core/esm/styles/styled.js","./transitions":"../node_modules/@material-ui/core/esm/styles/transitions.js","./useTheme":"../node_modules/@material-ui/core/esm/styles/useTheme.js","./withStyles":"../node_modules/@material-ui/core/esm/styles/withStyles.js","./withTheme":"../node_modules/@material-ui/core/esm/styles/withTheme.js"}],"../node_modules/@material-ui/core/colors/blueGrey.js":[function(require,module,exports) {
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.default = void 0;
-var blueGrey = {
-  50: '#eceff1',
-  100: '#cfd8dc',
-  200: '#b0bec5',
-  300: '#90a4ae',
-  400: '#78909c',
-  500: '#607d8b',
-  600: '#546e7a',
-  700: '#455a64',
-  800: '#37474f',
-  900: '#263238',
-  A100: '#cfd8dc',
-  A200: '#b0bec5',
-  A400: '#78909c',
-  A700: '#455a64'
-};
-var _default = blueGrey;
-exports.default = _default;
-},{}],"../node_modules/@material-ui/styles/esm/ThemeProvider/nested.js":[function(require,module,exports) {
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.default = void 0;
-var hasSymbol = typeof Symbol === 'function' && Symbol.for;
-
-var _default = hasSymbol ? Symbol.for('mui.nested') : '__THEME_NESTED__';
-
-exports.default = _default;
-},{}],"../node_modules/@material-ui/styles/esm/createGenerateClassName/createGenerateClassName.js":[function(require,module,exports) {
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.default = createGenerateClassName;
-
-var _nested = _interopRequireDefault(require("../ThemeProvider/nested"));
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-/**
- * This is the list of the style rule name we use as drop in replacement for the built-in
- * pseudo classes (:checked, :disabled, :focused, etc.).
- *
- * Why do they exist in the first place?
- * These classes are used at a specificity of 2.
- * It allows them to override previously definied styles as well as
- * being untouched by simple user overrides.
- */
-var pseudoClasses = ['checked', 'disabled', 'error', 'focused', 'focusVisible', 'required', 'expanded', 'selected']; // Returns a function which generates unique class names based on counters.
-// When new generator function is created, rule counter is reset.
-// We need to reset the rule counter for SSR for each request.
-//
-// It's inspired by
-// https://github.com/cssinjs/jss/blob/4e6a05dd3f7b6572fdd3ab216861d9e446c20331/src/utils/createGenerateClassName.js
-
-function createGenerateClassName() {
-  var options = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
-  var _options$disableGloba = options.disableGlobal,
-      disableGlobal = _options$disableGloba === void 0 ? false : _options$disableGloba,
-      _options$productionPr = options.productionPrefix,
-      productionPrefix = _options$productionPr === void 0 ? 'jss' : _options$productionPr,
-      _options$seed = options.seed,
-      seed = _options$seed === void 0 ? '' : _options$seed;
-  var seedPrefix = seed === '' ? '' : "".concat(seed, "-");
-  var ruleCounter = 0;
-  return function (rule, styleSheet) {
-    ruleCounter += 1;
-
-    if ("development" !== 'production') {
-      if (ruleCounter >= 1e10) {
-        console.warn(['Material-UI: you might have a memory leak.', 'The ruleCounter is not supposed to grow that much.'].join(''));
-      }
-    }
-
-    var name = styleSheet.options.name; // Is a global static MUI style?
-
-    if (name && name.indexOf('Mui') === 0 && !styleSheet.options.link && !disableGlobal) {
-      // We can use a shorthand class name, we never use the keys to style the components.
-      if (pseudoClasses.indexOf(rule.key) !== -1) {
-        return "Mui-".concat(rule.key);
-      }
-
-      var prefix = "".concat(seedPrefix).concat(name, "-").concat(rule.key);
-
-      if (!styleSheet.options.theme[_nested.default] || seed !== '') {
-        return prefix;
-      }
-
-      return "".concat(prefix, "-").concat(ruleCounter);
-    }
-
-    if ("development" === 'production') {
-      return "".concat(seedPrefix).concat(productionPrefix).concat(ruleCounter);
-    }
-
-    var suffix = "".concat(rule.key, "-").concat(ruleCounter); // Help with debuggability.
-
-    if (styleSheet.options.classNamePrefix) {
-      return "".concat(seedPrefix).concat(styleSheet.options.classNamePrefix, "-").concat(suffix);
-    }
-
-    return "".concat(seedPrefix).concat(suffix);
-  };
-}
-},{"../ThemeProvider/nested":"../node_modules/@material-ui/styles/esm/ThemeProvider/nested.js"}],"../node_modules/@material-ui/styles/esm/createGenerateClassName/index.js":[function(require,module,exports) {
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-Object.defineProperty(exports, "default", {
-  enumerable: true,
-  get: function () {
-    return _createGenerateClassName.default;
-  }
-});
-
-var _createGenerateClassName = _interopRequireDefault(require("./createGenerateClassName"));
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-},{"./createGenerateClassName":"../node_modules/@material-ui/styles/esm/createGenerateClassName/createGenerateClassName.js"}],"../node_modules/@material-ui/styles/esm/createStyles/createStyles.js":[function(require,module,exports) {
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.default = createStyles;
-
-function createStyles(styles) {
-  return styles;
-}
-},{}],"../node_modules/@material-ui/styles/esm/createStyles/index.js":[function(require,module,exports) {
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-Object.defineProperty(exports, "default", {
-  enumerable: true,
-  get: function () {
-    return _createStyles.default;
-  }
-});
-
-var _createStyles = _interopRequireDefault(require("./createStyles"));
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-},{"./createStyles":"../node_modules/@material-ui/styles/esm/createStyles/createStyles.js"}],"../node_modules/@material-ui/styles/esm/getThemeProps/getThemeProps.js":[function(require,module,exports) {
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.default = void 0;
-
-/* eslint-disable no-restricted-syntax */
-function getThemeProps(params) {
-  var theme = params.theme,
-      name = params.name,
-      props = params.props;
-
-  if (!theme || !theme.props || !theme.props[name]) {
-    return props;
-  } // Resolve default props, code borrow from React source.
-  // https://github.com/facebook/react/blob/15a8f031838a553e41c0b66eb1bcf1da8448104d/packages/react/src/ReactElement.js#L221
-
-
-  var defaultProps = theme.props[name];
-  var propName;
-
-  for (propName in defaultProps) {
-    if (props[propName] === undefined) {
-      props[propName] = defaultProps[propName];
-    }
-  }
-
-  return props;
-}
-
-var _default = getThemeProps;
-exports.default = _default;
-},{}],"../node_modules/@material-ui/styles/esm/getThemeProps/index.js":[function(require,module,exports) {
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-Object.defineProperty(exports, "default", {
-  enumerable: true,
-  get: function () {
-    return _getThemeProps.default;
-  }
-});
-
-var _getThemeProps = _interopRequireDefault(require("./getThemeProps"));
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-},{"./getThemeProps":"../node_modules/@material-ui/styles/esm/getThemeProps/getThemeProps.js"}],"../node_modules/@material-ui/styles/esm/jssPreset/jssPreset.js":[function(require,module,exports) {
+},{}],"../node_modules/@material-ui/styles/esm/jssPreset/jssPreset.js":[function(require,module,exports) {
 
 "use strict";
 
@@ -40015,84 +36040,7 @@ Object.defineProperty(exports, "default", {
 var _jssPreset = _interopRequireDefault(require("./jssPreset"));
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-},{"./jssPreset":"../node_modules/@material-ui/styles/esm/jssPreset/jssPreset.js"}],"../node_modules/@material-ui/styles/node_modules/@babel/runtime/helpers/esm/objectWithoutPropertiesLoose.js":[function(require,module,exports) {
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.default = _objectWithoutPropertiesLoose;
-
-function _objectWithoutPropertiesLoose(source, excluded) {
-  if (source == null) return {};
-  var target = {};
-  var sourceKeys = Object.keys(source);
-  var key, i;
-
-  for (i = 0; i < sourceKeys.length; i++) {
-    key = sourceKeys[i];
-    if (excluded.indexOf(key) >= 0) continue;
-    target[key] = source[key];
-  }
-
-  return target;
-}
-},{}],"../node_modules/@material-ui/styles/node_modules/@babel/runtime/helpers/esm/objectWithoutProperties.js":[function(require,module,exports) {
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.default = _objectWithoutProperties;
-
-var _objectWithoutPropertiesLoose = _interopRequireDefault(require("./objectWithoutPropertiesLoose"));
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-function _objectWithoutProperties(source, excluded) {
-  if (source == null) return {};
-  var target = (0, _objectWithoutPropertiesLoose.default)(source, excluded);
-  var key, i;
-
-  if (Object.getOwnPropertySymbols) {
-    var sourceSymbolKeys = Object.getOwnPropertySymbols(source);
-
-    for (i = 0; i < sourceSymbolKeys.length; i++) {
-      key = sourceSymbolKeys[i];
-      if (excluded.indexOf(key) >= 0) continue;
-      if (!Object.prototype.propertyIsEnumerable.call(source, key)) continue;
-      target[key] = source[key];
-    }
-  }
-
-  return target;
-}
-},{"./objectWithoutPropertiesLoose":"../node_modules/@material-ui/styles/node_modules/@babel/runtime/helpers/esm/objectWithoutPropertiesLoose.js"}],"../node_modules/@material-ui/styles/node_modules/@babel/runtime/helpers/esm/extends.js":[function(require,module,exports) {
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.default = _extends;
-
-function _extends() {
-  exports.default = _extends = Object.assign || function (target) {
-    for (var i = 1; i < arguments.length; i++) {
-      var source = arguments[i];
-
-      for (var key in source) {
-        if (Object.prototype.hasOwnProperty.call(source, key)) {
-          target[key] = source[key];
-        }
-      }
-    }
-
-    return target;
-  };
-
-  return _extends.apply(this, arguments);
-}
-},{}],"../node_modules/@material-ui/styles/esm/mergeClasses/mergeClasses.js":[function(require,module,exports) {
+},{"./jssPreset":"../node_modules/@material-ui/styles/esm/jssPreset/jssPreset.js"}],"../node_modules/@material-ui/styles/esm/mergeClasses/mergeClasses.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -40145,7 +36093,7 @@ function mergeClasses() {
 
 var _default = mergeClasses;
 exports.default = _default;
-},{"@babel/runtime/helpers/esm/extends":"../node_modules/@material-ui/styles/node_modules/@babel/runtime/helpers/esm/extends.js","@material-ui/utils":"../node_modules/@material-ui/utils/esm/index.js"}],"../node_modules/@material-ui/styles/esm/mergeClasses/index.js":[function(require,module,exports) {
+},{"@babel/runtime/helpers/esm/extends":"../node_modules/@babel/runtime/helpers/esm/extends.js","@material-ui/utils":"../node_modules/@material-ui/utils/esm/index.js"}],"../node_modules/@material-ui/styles/esm/mergeClasses/index.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -40409,7 +36357,7 @@ if ("development" !== 'production') {
 
 var _default = StylesProvider;
 exports.default = _default;
-},{"@babel/runtime/helpers/esm/extends":"../node_modules/@material-ui/styles/node_modules/@babel/runtime/helpers/esm/extends.js","@babel/runtime/helpers/esm/objectWithoutProperties":"../node_modules/@material-ui/styles/node_modules/@babel/runtime/helpers/esm/objectWithoutProperties.js","react":"../node_modules/react/index.js","prop-types":"../node_modules/prop-types/index.js","@material-ui/utils":"../node_modules/@material-ui/utils/esm/index.js","../createGenerateClassName":"../node_modules/@material-ui/styles/esm/createGenerateClassName/index.js","jss":"../node_modules/jss/dist/jss.esm.js","../jssPreset":"../node_modules/@material-ui/styles/esm/jssPreset/index.js"}],"../node_modules/@material-ui/styles/esm/StylesProvider/index.js":[function(require,module,exports) {
+},{"@babel/runtime/helpers/esm/extends":"../node_modules/@babel/runtime/helpers/esm/extends.js","@babel/runtime/helpers/esm/objectWithoutProperties":"../node_modules/@babel/runtime/helpers/esm/objectWithoutProperties.js","react":"../node_modules/react/index.js","prop-types":"../node_modules/prop-types/index.js","@material-ui/utils":"../node_modules/@material-ui/utils/esm/index.js","../createGenerateClassName":"../node_modules/@material-ui/styles/esm/createGenerateClassName/index.js","jss":"../node_modules/jss/dist/jss.esm.js","../jssPreset":"../node_modules/@material-ui/styles/esm/jssPreset/index.js"}],"../node_modules/@material-ui/styles/esm/StylesProvider/index.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -40469,41 +36417,111 @@ function increment() {
 
   return indexCounter;
 }
-},{}],"../node_modules/@material-ui/styles/node_modules/@babel/runtime/helpers/esm/typeof.js":[function(require,module,exports) {
-"use strict";
+},{}],"../node_modules/deepmerge/dist/cjs.js":[function(require,module,exports) {
+'use strict';
 
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.default = _typeof;
+var isMergeableObject = function isMergeableObject(value) {
+  return isNonNullObject(value) && !isSpecial(value);
+};
 
-function _typeof2(obj) {
-  if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") {
-    _typeof2 = function _typeof2(obj) {
-      return typeof obj;
-    };
-  } else {
-    _typeof2 = function _typeof2(obj) {
-      return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj;
-    };
-  }
-
-  return _typeof2(obj);
+function isNonNullObject(value) {
+  return !!value && typeof value === 'object';
 }
 
-function _typeof(obj) {
-  if (typeof Symbol === "function" && _typeof2(Symbol.iterator) === "symbol") {
-    exports.default = _typeof = function _typeof(obj) {
-      return _typeof2(obj);
-    };
-  } else {
-    exports.default = _typeof = function _typeof(obj) {
-      return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : _typeof2(obj);
-    };
+function isSpecial(value) {
+  var stringValue = Object.prototype.toString.call(value);
+  return stringValue === '[object RegExp]' || stringValue === '[object Date]' || isReactElement(value);
+} // see https://github.com/facebook/react/blob/b5ac963fb791d1298e7f396236383bc955f916c1/src/isomorphic/classic/element/ReactElement.js#L21-L25
+
+
+var canUseSymbol = typeof Symbol === 'function' && Symbol.for;
+var REACT_ELEMENT_TYPE = canUseSymbol ? Symbol.for('react.element') : 0xeac7;
+
+function isReactElement(value) {
+  return value.$$typeof === REACT_ELEMENT_TYPE;
+}
+
+function emptyTarget(val) {
+  return Array.isArray(val) ? [] : {};
+}
+
+function cloneUnlessOtherwiseSpecified(value, options) {
+  return options.clone !== false && options.isMergeableObject(value) ? deepmerge(emptyTarget(value), value, options) : value;
+}
+
+function defaultArrayMerge(target, source, options) {
+  return target.concat(source).map(function (element) {
+    return cloneUnlessOtherwiseSpecified(element, options);
+  });
+}
+
+function getMergeFunction(key, options) {
+  if (!options.customMerge) {
+    return deepmerge;
   }
 
-  return _typeof(obj);
+  var customMerge = options.customMerge(key);
+  return typeof customMerge === 'function' ? customMerge : deepmerge;
 }
+
+function getEnumerableOwnPropertySymbols(target) {
+  return Object.getOwnPropertySymbols ? Object.getOwnPropertySymbols(target).filter(function (symbol) {
+    return target.propertyIsEnumerable(symbol);
+  }) : [];
+}
+
+function getKeys(target) {
+  return Object.keys(target).concat(getEnumerableOwnPropertySymbols(target));
+}
+
+function mergeObject(target, source, options) {
+  var destination = {};
+
+  if (options.isMergeableObject(target)) {
+    getKeys(target).forEach(function (key) {
+      destination[key] = cloneUnlessOtherwiseSpecified(target[key], options);
+    });
+  }
+
+  getKeys(source).forEach(function (key) {
+    if (!options.isMergeableObject(source[key]) || !target[key]) {
+      destination[key] = cloneUnlessOtherwiseSpecified(source[key], options);
+    } else {
+      destination[key] = getMergeFunction(key, options)(target[key], source[key], options);
+    }
+  });
+  return destination;
+}
+
+function deepmerge(target, source, options) {
+  options = options || {};
+  options.arrayMerge = options.arrayMerge || defaultArrayMerge;
+  options.isMergeableObject = options.isMergeableObject || isMergeableObject;
+  var sourceIsArray = Array.isArray(source);
+  var targetIsArray = Array.isArray(target);
+  var sourceAndTargetTypesMatch = sourceIsArray === targetIsArray;
+
+  if (!sourceAndTargetTypesMatch) {
+    return cloneUnlessOtherwiseSpecified(source, options);
+  } else if (sourceIsArray) {
+    return options.arrayMerge(target, source, options);
+  } else {
+    return mergeObject(target, source, options);
+  }
+}
+
+deepmerge.all = function deepmergeAll(array, options) {
+  if (!Array.isArray(array)) {
+    throw new Error('first argument should be an array');
+  }
+
+  return array.reduce(function (prev, next) {
+    return deepmerge(prev, next, options);
+  }, {});
+};
+
+var deepmerge_1 = deepmerge;
+module.exports = deepmerge_1;
 },{}],"../node_modules/@material-ui/styles/esm/getStylesCreator/noopTheme.js":[function(require,module,exports) {
 "use strict";
 
@@ -40590,7 +36608,7 @@ function getStylesCreator(stylesOrCreator) {
 
 var _default = getStylesCreator;
 exports.default = _default;
-},{"@babel/runtime/helpers/esm/extends":"../node_modules/@material-ui/styles/node_modules/@babel/runtime/helpers/esm/extends.js","@babel/runtime/helpers/esm/typeof":"../node_modules/@material-ui/styles/node_modules/@babel/runtime/helpers/esm/typeof.js","deepmerge":"../node_modules/deepmerge/dist/cjs.js","./noopTheme":"../node_modules/@material-ui/styles/esm/getStylesCreator/noopTheme.js"}],"../node_modules/@material-ui/styles/esm/getStylesCreator/index.js":[function(require,module,exports) {
+},{"@babel/runtime/helpers/esm/extends":"../node_modules/@babel/runtime/helpers/esm/extends.js","@babel/runtime/helpers/esm/typeof":"../node_modules/@babel/runtime/helpers/esm/typeof.js","deepmerge":"../node_modules/deepmerge/dist/cjs.js","./noopTheme":"../node_modules/@material-ui/styles/esm/getStylesCreator/noopTheme.js"}],"../node_modules/@material-ui/styles/esm/getStylesCreator/index.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -40884,7 +36902,7 @@ function makeStyles(stylesOrCreator) {
 
 var _default = makeStyles;
 exports.default = _default;
-},{"@babel/runtime/helpers/esm/objectWithoutProperties":"../node_modules/@material-ui/styles/node_modules/@babel/runtime/helpers/esm/objectWithoutProperties.js","@babel/runtime/helpers/esm/extends":"../node_modules/@material-ui/styles/node_modules/@babel/runtime/helpers/esm/extends.js","react":"../node_modules/react/index.js","jss":"../node_modules/jss/dist/jss.esm.js","../mergeClasses":"../node_modules/@material-ui/styles/esm/mergeClasses/index.js","./multiKeyStore":"../node_modules/@material-ui/styles/esm/makeStyles/multiKeyStore.js","../useTheme":"../node_modules/@material-ui/styles/esm/useTheme/index.js","../StylesProvider":"../node_modules/@material-ui/styles/esm/StylesProvider/index.js","./indexCounter":"../node_modules/@material-ui/styles/esm/makeStyles/indexCounter.js","../getStylesCreator":"../node_modules/@material-ui/styles/esm/getStylesCreator/index.js","../getStylesCreator/noopTheme":"../node_modules/@material-ui/styles/esm/getStylesCreator/noopTheme.js"}],"../node_modules/@material-ui/styles/esm/makeStyles/index.js":[function(require,module,exports) {
+},{"@babel/runtime/helpers/esm/objectWithoutProperties":"../node_modules/@babel/runtime/helpers/esm/objectWithoutProperties.js","@babel/runtime/helpers/esm/extends":"../node_modules/@babel/runtime/helpers/esm/extends.js","react":"../node_modules/react/index.js","jss":"../node_modules/jss/dist/jss.esm.js","../mergeClasses":"../node_modules/@material-ui/styles/esm/mergeClasses/index.js","./multiKeyStore":"../node_modules/@material-ui/styles/esm/makeStyles/multiKeyStore.js","../useTheme":"../node_modules/@material-ui/styles/esm/useTheme/index.js","../StylesProvider":"../node_modules/@material-ui/styles/esm/StylesProvider/index.js","./indexCounter":"../node_modules/@material-ui/styles/esm/makeStyles/indexCounter.js","../getStylesCreator":"../node_modules/@material-ui/styles/esm/getStylesCreator/index.js","../getStylesCreator/noopTheme":"../node_modules/@material-ui/styles/esm/getStylesCreator/noopTheme.js"}],"../node_modules/@material-ui/styles/esm/makeStyles/index.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -40900,7 +36918,7 @@ Object.defineProperty(exports, "default", {
 var _makeStyles = _interopRequireDefault(require("./makeStyles"));
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-},{"./makeStyles":"../node_modules/@material-ui/styles/esm/makeStyles/makeStyles.js"}],"../node_modules/@material-ui/styles/node_modules/@babel/runtime/helpers/esm/classCallCheck.js":[function(require,module,exports) {
+},{"./makeStyles":"../node_modules/@material-ui/styles/esm/makeStyles/makeStyles.js"}],"../node_modules/@babel/runtime/helpers/esm/classCallCheck.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -40912,29 +36930,6 @@ function _classCallCheck(instance, Constructor) {
   if (!(instance instanceof Constructor)) {
     throw new TypeError("Cannot call a class as a function");
   }
-}
-},{}],"../node_modules/@material-ui/styles/node_modules/@babel/runtime/helpers/esm/createClass.js":[function(require,module,exports) {
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.default = _createClass;
-
-function _defineProperties(target, props) {
-  for (var i = 0; i < props.length; i++) {
-    var descriptor = props[i];
-    descriptor.enumerable = descriptor.enumerable || false;
-    descriptor.configurable = true;
-    if ("value" in descriptor) descriptor.writable = true;
-    Object.defineProperty(target, descriptor.key, descriptor);
-  }
-}
-
-function _createClass(Constructor, protoProps, staticProps) {
-  if (protoProps) _defineProperties(Constructor.prototype, protoProps);
-  if (staticProps) _defineProperties(Constructor, staticProps);
-  return Constructor;
 }
 },{}],"../node_modules/@material-ui/styles/esm/ServerStyleSheets/ServerStyleSheets.js":[function(require,module,exports) {
 "use strict";
@@ -41006,7 +37001,7 @@ function () {
 
 var _default = ServerStyleSheets;
 exports.default = _default;
-},{"@babel/runtime/helpers/esm/extends":"../node_modules/@material-ui/styles/node_modules/@babel/runtime/helpers/esm/extends.js","@babel/runtime/helpers/esm/classCallCheck":"../node_modules/@material-ui/styles/node_modules/@babel/runtime/helpers/esm/classCallCheck.js","@babel/runtime/helpers/esm/createClass":"../node_modules/@material-ui/styles/node_modules/@babel/runtime/helpers/esm/createClass.js","react":"../node_modules/react/index.js","jss":"../node_modules/jss/dist/jss.esm.js","../StylesProvider":"../node_modules/@material-ui/styles/esm/StylesProvider/index.js","../createGenerateClassName":"../node_modules/@material-ui/styles/esm/createGenerateClassName/index.js"}],"../node_modules/@material-ui/styles/esm/ServerStyleSheets/index.js":[function(require,module,exports) {
+},{"@babel/runtime/helpers/esm/extends":"../node_modules/@babel/runtime/helpers/esm/extends.js","@babel/runtime/helpers/esm/classCallCheck":"../node_modules/@babel/runtime/helpers/esm/classCallCheck.js","@babel/runtime/helpers/esm/createClass":"../node_modules/@babel/runtime/helpers/esm/createClass.js","react":"../node_modules/react/index.js","jss":"../node_modules/jss/dist/jss.esm.js","../StylesProvider":"../node_modules/@material-ui/styles/esm/StylesProvider/index.js","../createGenerateClassName":"../node_modules/@material-ui/styles/esm/createGenerateClassName/index.js"}],"../node_modules/@material-ui/styles/esm/ServerStyleSheets/index.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -41022,7 +37017,112 @@ Object.defineProperty(exports, "default", {
 var _ServerStyleSheets = _interopRequireDefault(require("./ServerStyleSheets"));
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-},{"./ServerStyleSheets":"../node_modules/@material-ui/styles/esm/ServerStyleSheets/ServerStyleSheets.js"}],"../node_modules/@material-ui/styles/esm/styled/styled.js":[function(require,module,exports) {
+},{"./ServerStyleSheets":"../node_modules/@material-ui/styles/esm/ServerStyleSheets/ServerStyleSheets.js"}],"../node_modules/hoist-non-react-statics/dist/hoist-non-react-statics.cjs.js":[function(require,module,exports) {
+'use strict';
+
+/**
+ * Copyright 2015, Yahoo! Inc.
+ * Copyrights licensed under the New BSD License. See the accompanying LICENSE file for terms.
+ */
+var ReactIs = require('react-is');
+var REACT_STATICS = {
+    childContextTypes: true,
+    contextType: true,
+    contextTypes: true,
+    defaultProps: true,
+    displayName: true,
+    getDefaultProps: true,
+    getDerivedStateFromError: true,
+    getDerivedStateFromProps: true,
+    mixins: true,
+    propTypes: true,
+    type: true
+};
+
+var KNOWN_STATICS = {
+    name: true,
+    length: true,
+    prototype: true,
+    caller: true,
+    callee: true,
+    arguments: true,
+    arity: true
+};
+
+var FORWARD_REF_STATICS = {
+    '$$typeof': true,
+    render: true,
+    defaultProps: true,
+    displayName: true,
+    propTypes: true
+};
+
+var MEMO_STATICS = {
+    '$$typeof': true,
+    compare: true,
+    defaultProps: true,
+    displayName: true,
+    propTypes: true,
+    type: true
+};
+
+var TYPE_STATICS = {};
+TYPE_STATICS[ReactIs.ForwardRef] = FORWARD_REF_STATICS;
+
+function getStatics(component) {
+    if (ReactIs.isMemo(component)) {
+        return MEMO_STATICS;
+    }
+    return TYPE_STATICS[component['$$typeof']] || REACT_STATICS;
+}
+
+var defineProperty = Object.defineProperty;
+var getOwnPropertyNames = Object.getOwnPropertyNames;
+var getOwnPropertySymbols = Object.getOwnPropertySymbols;
+var getOwnPropertyDescriptor = Object.getOwnPropertyDescriptor;
+var getPrototypeOf = Object.getPrototypeOf;
+var objectPrototype = Object.prototype;
+
+function hoistNonReactStatics(targetComponent, sourceComponent, blacklist) {
+    if (typeof sourceComponent !== 'string') {
+        // don't hoist over string (html) components
+
+        if (objectPrototype) {
+            var inheritedComponent = getPrototypeOf(sourceComponent);
+            if (inheritedComponent && inheritedComponent !== objectPrototype) {
+                hoistNonReactStatics(targetComponent, inheritedComponent, blacklist);
+            }
+        }
+
+        var keys = getOwnPropertyNames(sourceComponent);
+
+        if (getOwnPropertySymbols) {
+            keys = keys.concat(getOwnPropertySymbols(sourceComponent));
+        }
+
+        var targetStatics = getStatics(targetComponent);
+        var sourceStatics = getStatics(sourceComponent);
+
+        for (var i = 0; i < keys.length; ++i) {
+            var key = keys[i];
+            if (!KNOWN_STATICS[key] && !(blacklist && blacklist[key]) && !(sourceStatics && sourceStatics[key]) && !(targetStatics && targetStatics[key])) {
+                var descriptor = getOwnPropertyDescriptor(sourceComponent, key);
+                try {
+                    // Avoid failures from read-only properties
+                    defineProperty(targetComponent, key, descriptor);
+                } catch (e) {}
+            }
+        }
+
+        return targetComponent;
+    }
+
+    return targetComponent;
+}
+
+module.exports = hoistNonReactStatics;
+
+},{"react-is":"../node_modules/react-is/index.js"}],"../node_modules/@material-ui/styles/esm/styled/styled.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -41194,7 +37294,7 @@ function styled(Component) {
 
 var _default = styled;
 exports.default = _default;
-},{"@babel/runtime/helpers/esm/extends":"../node_modules/@material-ui/styles/node_modules/@babel/runtime/helpers/esm/extends.js","@babel/runtime/helpers/esm/objectWithoutProperties":"../node_modules/@material-ui/styles/node_modules/@babel/runtime/helpers/esm/objectWithoutProperties.js","react":"../node_modules/react/index.js","clsx":"../node_modules/clsx/dist/clsx.m.js","prop-types":"../node_modules/prop-types/index.js","@material-ui/utils":"../node_modules/@material-ui/utils/esm/index.js","hoist-non-react-statics":"../node_modules/hoist-non-react-statics/dist/hoist-non-react-statics.cjs.js","../makeStyles":"../node_modules/@material-ui/styles/esm/makeStyles/index.js"}],"../node_modules/@material-ui/styles/esm/styled/index.js":[function(require,module,exports) {
+},{"@babel/runtime/helpers/esm/extends":"../node_modules/@babel/runtime/helpers/esm/extends.js","@babel/runtime/helpers/esm/objectWithoutProperties":"../node_modules/@babel/runtime/helpers/esm/objectWithoutProperties.js","react":"../node_modules/react/index.js","clsx":"../node_modules/clsx/dist/clsx.m.js","prop-types":"../node_modules/prop-types/index.js","@material-ui/utils":"../node_modules/@material-ui/utils/esm/index.js","hoist-non-react-statics":"../node_modules/hoist-non-react-statics/dist/hoist-non-react-statics.cjs.js","../makeStyles":"../node_modules/@material-ui/styles/esm/makeStyles/index.js"}],"../node_modules/@material-ui/styles/esm/styled/index.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -41301,7 +37401,7 @@ if ("development" !== 'production') {
 
 var _default = ThemeProvider;
 exports.default = _default;
-},{"@babel/runtime/helpers/esm/extends":"../node_modules/@material-ui/styles/node_modules/@babel/runtime/helpers/esm/extends.js","react":"../node_modules/react/index.js","prop-types":"../node_modules/prop-types/index.js","@material-ui/utils":"../node_modules/@material-ui/utils/esm/index.js","../useTheme/ThemeContext":"../node_modules/@material-ui/styles/esm/useTheme/ThemeContext.js","../useTheme":"../node_modules/@material-ui/styles/esm/useTheme/index.js","./nested":"../node_modules/@material-ui/styles/esm/ThemeProvider/nested.js"}],"../node_modules/@material-ui/styles/esm/ThemeProvider/index.js":[function(require,module,exports) {
+},{"@babel/runtime/helpers/esm/extends":"../node_modules/@babel/runtime/helpers/esm/extends.js","react":"../node_modules/react/index.js","prop-types":"../node_modules/prop-types/index.js","@material-ui/utils":"../node_modules/@material-ui/utils/esm/index.js","../useTheme/ThemeContext":"../node_modules/@material-ui/styles/esm/useTheme/ThemeContext.js","../useTheme":"../node_modules/@material-ui/styles/esm/useTheme/index.js","./nested":"../node_modules/@material-ui/styles/esm/ThemeProvider/nested.js"}],"../node_modules/@material-ui/styles/esm/ThemeProvider/index.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -41458,7 +37558,7 @@ var withStyles = function withStyles(stylesOrCreator) {
 
 var _default = withStyles;
 exports.default = _default;
-},{"@babel/runtime/helpers/esm/extends":"../node_modules/@material-ui/styles/node_modules/@babel/runtime/helpers/esm/extends.js","@babel/runtime/helpers/esm/objectWithoutProperties":"../node_modules/@material-ui/styles/node_modules/@babel/runtime/helpers/esm/objectWithoutProperties.js","react":"../node_modules/react/index.js","prop-types":"../node_modules/prop-types/index.js","hoist-non-react-statics":"../node_modules/hoist-non-react-statics/dist/hoist-non-react-statics.cjs.js","@material-ui/utils":"../node_modules/@material-ui/utils/esm/index.js","../makeStyles":"../node_modules/@material-ui/styles/esm/makeStyles/index.js","../getThemeProps":"../node_modules/@material-ui/styles/esm/getThemeProps/index.js","../useTheme":"../node_modules/@material-ui/styles/esm/useTheme/index.js"}],"../node_modules/@material-ui/styles/esm/withStyles/index.js":[function(require,module,exports) {
+},{"@babel/runtime/helpers/esm/extends":"../node_modules/@babel/runtime/helpers/esm/extends.js","@babel/runtime/helpers/esm/objectWithoutProperties":"../node_modules/@babel/runtime/helpers/esm/objectWithoutProperties.js","react":"../node_modules/react/index.js","prop-types":"../node_modules/prop-types/index.js","hoist-non-react-statics":"../node_modules/hoist-non-react-statics/dist/hoist-non-react-statics.cjs.js","@material-ui/utils":"../node_modules/@material-ui/utils/esm/index.js","../makeStyles":"../node_modules/@material-ui/styles/esm/makeStyles/index.js","../getThemeProps":"../node_modules/@material-ui/styles/esm/getThemeProps/index.js","../useTheme":"../node_modules/@material-ui/styles/esm/useTheme/index.js"}],"../node_modules/@material-ui/styles/esm/withStyles/index.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -41557,7 +37657,7 @@ function withThemeCreator() {
 var withTheme = withThemeCreator();
 var _default = withTheme;
 exports.default = _default;
-},{"@babel/runtime/helpers/esm/extends":"../node_modules/@material-ui/styles/node_modules/@babel/runtime/helpers/esm/extends.js","@babel/runtime/helpers/esm/objectWithoutProperties":"../node_modules/@material-ui/styles/node_modules/@babel/runtime/helpers/esm/objectWithoutProperties.js","react":"../node_modules/react/index.js","prop-types":"../node_modules/prop-types/index.js","hoist-non-react-statics":"../node_modules/hoist-non-react-statics/dist/hoist-non-react-statics.cjs.js","@material-ui/utils":"../node_modules/@material-ui/utils/esm/index.js","../useTheme":"../node_modules/@material-ui/styles/esm/useTheme/index.js"}],"../node_modules/@material-ui/styles/esm/withTheme/index.js":[function(require,module,exports) {
+},{"@babel/runtime/helpers/esm/extends":"../node_modules/@babel/runtime/helpers/esm/extends.js","@babel/runtime/helpers/esm/objectWithoutProperties":"../node_modules/@babel/runtime/helpers/esm/objectWithoutProperties.js","react":"../node_modules/react/index.js","prop-types":"../node_modules/prop-types/index.js","hoist-non-react-statics":"../node_modules/hoist-non-react-statics/dist/hoist-non-react-statics.cjs.js","@material-ui/utils":"../node_modules/@material-ui/utils/esm/index.js","../useTheme":"../node_modules/@material-ui/styles/esm/useTheme/index.js"}],"../node_modules/@material-ui/styles/esm/withTheme/index.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -41728,203 +37828,1210 @@ if ("development" !== 'production' && "development" !== 'test' && typeof window 
 
   _utils.ponyfillGlobal['__@material-ui/styles-init__'] += 1;
 }
-},{"@material-ui/utils":"../node_modules/@material-ui/utils/esm/index.js","./createGenerateClassName":"../node_modules/@material-ui/styles/esm/createGenerateClassName/index.js","./createStyles":"../node_modules/@material-ui/styles/esm/createStyles/index.js","./getThemeProps":"../node_modules/@material-ui/styles/esm/getThemeProps/index.js","./jssPreset":"../node_modules/@material-ui/styles/esm/jssPreset/index.js","./makeStyles":"../node_modules/@material-ui/styles/esm/makeStyles/index.js","./mergeClasses":"../node_modules/@material-ui/styles/esm/mergeClasses/index.js","./ServerStyleSheets":"../node_modules/@material-ui/styles/esm/ServerStyleSheets/index.js","./styled":"../node_modules/@material-ui/styles/esm/styled/index.js","./StylesProvider":"../node_modules/@material-ui/styles/esm/StylesProvider/index.js","./ThemeProvider":"../node_modules/@material-ui/styles/esm/ThemeProvider/index.js","./useTheme":"../node_modules/@material-ui/styles/esm/useTheme/index.js","./withStyles":"../node_modules/@material-ui/styles/esm/withStyles/index.js","./withTheme":"../node_modules/@material-ui/styles/esm/withTheme/index.js"}],"../node_modules/@material-ui/core/node_modules/@material-ui/system/esm/responsivePropType.js":[function(require,module,exports) {
+},{"@material-ui/utils":"../node_modules/@material-ui/utils/esm/index.js","./createGenerateClassName":"../node_modules/@material-ui/styles/esm/createGenerateClassName/index.js","./createStyles":"../node_modules/@material-ui/styles/esm/createStyles/index.js","./getThemeProps":"../node_modules/@material-ui/styles/esm/getThemeProps/index.js","./jssPreset":"../node_modules/@material-ui/styles/esm/jssPreset/index.js","./makeStyles":"../node_modules/@material-ui/styles/esm/makeStyles/index.js","./mergeClasses":"../node_modules/@material-ui/styles/esm/mergeClasses/index.js","./ServerStyleSheets":"../node_modules/@material-ui/styles/esm/ServerStyleSheets/index.js","./styled":"../node_modules/@material-ui/styles/esm/styled/index.js","./StylesProvider":"../node_modules/@material-ui/styles/esm/StylesProvider/index.js","./ThemeProvider":"../node_modules/@material-ui/styles/esm/ThemeProvider/index.js","./useTheme":"../node_modules/@material-ui/styles/esm/useTheme/index.js","./withStyles":"../node_modules/@material-ui/styles/esm/withStyles/index.js","./withTheme":"../node_modules/@material-ui/styles/esm/withTheme/index.js"}],"../node_modules/isobject/index.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.default = void 0;
+exports.default = isObject;
 
-var _propTypes = _interopRequireDefault(require("prop-types"));
+/*!
+ * isobject <https://github.com/jonschlinkert/isobject>
+ *
+ * Copyright (c) 2014-2017, Jon Schlinkert.
+ * Released under the MIT License.
+ */
+function isObject(val) {
+  return val != null && typeof val === 'object' && Array.isArray(val) === false;
+}
+
+;
+},{}],"../node_modules/is-plain-object/index.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = isPlainObject;
+
+var _isobject = _interopRequireDefault(require("isobject"));
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-var responsivePropType = "development" !== 'production' ? _propTypes.default.oneOfType([_propTypes.default.number, _propTypes.default.string, _propTypes.default.object, _propTypes.default.array]) : {};
-var _default = responsivePropType;
-exports.default = _default;
-},{"prop-types":"../node_modules/prop-types/index.js"}],"../node_modules/@material-ui/core/node_modules/@babel/runtime/helpers/esm/arrayWithoutHoles.js":[function(require,module,exports) {
+/*!
+ * is-plain-object <https://github.com/jonschlinkert/is-plain-object>
+ *
+ * Copyright (c) 2014-2017, Jon Schlinkert.
+ * Released under the MIT License.
+ */
+function isObjectObject(o) {
+  return (0, _isobject.default)(o) === true && Object.prototype.toString.call(o) === '[object Object]';
+}
+
+function isPlainObject(o) {
+  var ctor, prot;
+  if (isObjectObject(o) === false) return false; // If has modified constructor
+
+  ctor = o.constructor;
+  if (typeof ctor !== 'function') return false; // If has modified prototype
+
+  prot = ctor.prototype;
+  if (isObjectObject(prot) === false) return false; // If constructor does not have an Object-specific method
+
+  if (prot.hasOwnProperty('isPrototypeOf') === false) {
+    return false;
+  } // Most likely a plain Object
+
+
+  return true;
+}
+
+;
+},{"isobject":"../node_modules/isobject/index.js"}],"../node_modules/@material-ui/core/esm/styles/createBreakpoints.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.default = _arrayWithoutHoles;
+exports.default = createBreakpoints;
+exports.keys = void 0;
 
-function _arrayWithoutHoles(arr) {
-  if (Array.isArray(arr)) {
-    for (var i = 0, arr2 = new Array(arr.length); i < arr.length; i++) {
-      arr2[i] = arr[i];
+var _extends2 = _interopRequireDefault(require("@babel/runtime/helpers/esm/extends"));
+
+var _objectWithoutProperties2 = _interopRequireDefault(require("@babel/runtime/helpers/esm/objectWithoutProperties"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+// Sorted ASC by size. That's important.
+// It can't be configured as it's used statically for propTypes.
+var keys = ['xs', 'sm', 'md', 'lg', 'xl']; // Keep in mind that @media is inclusive by the CSS specification.
+
+exports.keys = keys;
+
+function createBreakpoints(breakpoints) {
+  var _breakpoints$values = breakpoints.values,
+      values = _breakpoints$values === void 0 ? {
+    xs: 0,
+    sm: 600,
+    md: 960,
+    lg: 1280,
+    xl: 1920
+  } : _breakpoints$values,
+      _breakpoints$unit = breakpoints.unit,
+      unit = _breakpoints$unit === void 0 ? 'px' : _breakpoints$unit,
+      _breakpoints$step = breakpoints.step,
+      step = _breakpoints$step === void 0 ? 5 : _breakpoints$step,
+      other = (0, _objectWithoutProperties2.default)(breakpoints, ["values", "unit", "step"]);
+
+  function up(key) {
+    var value = typeof values[key] === 'number' ? values[key] : key;
+    return "@media (min-width:".concat(value).concat(unit, ")");
+  }
+
+  function down(key) {
+    var endIndex = keys.indexOf(key) + 1;
+    var upperbound = values[keys[endIndex]];
+
+    if (endIndex === keys.length) {
+      // xl down applies to all sizes
+      return up('xs');
     }
 
-    return arr2;
+    var value = typeof upperbound === 'number' && endIndex > 0 ? upperbound : key;
+    return "@media (max-width:".concat(value - step / 100).concat(unit, ")");
   }
+
+  function between(start, end) {
+    var endIndex = keys.indexOf(end) + 1;
+
+    if (endIndex === keys.length) {
+      return up(start);
+    }
+
+    return "@media (min-width:".concat(values[start]).concat(unit, ") and ") + "(max-width:".concat(values[keys[endIndex]] - step / 100).concat(unit, ")");
+  }
+
+  function only(key) {
+    return between(key, key);
+  }
+
+  function width(key) {
+    return values[key];
+  }
+
+  return (0, _extends2.default)({
+    keys: keys,
+    values: values,
+    up: up,
+    down: down,
+    between: between,
+    only: only,
+    width: width
+  }, other);
 }
-},{}],"../node_modules/@material-ui/core/node_modules/@babel/runtime/helpers/esm/iterableToArray.js":[function(require,module,exports) {
+},{"@babel/runtime/helpers/esm/extends":"../node_modules/@babel/runtime/helpers/esm/extends.js","@babel/runtime/helpers/esm/objectWithoutProperties":"../node_modules/@babel/runtime/helpers/esm/objectWithoutProperties.js"}],"../node_modules/@material-ui/core/esm/styles/createMixins.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.default = _iterableToArray;
+exports.default = createMixins;
 
-function _iterableToArray(iter) {
-  if (Symbol.iterator in Object(iter) || Object.prototype.toString.call(iter) === "[object Arguments]") return Array.from(iter);
-}
-},{}],"../node_modules/@material-ui/core/node_modules/@babel/runtime/helpers/esm/nonIterableSpread.js":[function(require,module,exports) {
-"use strict";
+var _defineProperty2 = _interopRequireDefault(require("@babel/runtime/helpers/esm/defineProperty"));
 
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.default = _nonIterableSpread;
-
-function _nonIterableSpread() {
-  throw new TypeError("Invalid attempt to spread non-iterable instance");
-}
-},{}],"../node_modules/@material-ui/core/node_modules/@babel/runtime/helpers/esm/toConsumableArray.js":[function(require,module,exports) {
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.default = _toConsumableArray;
-
-var _arrayWithoutHoles = _interopRequireDefault(require("./arrayWithoutHoles"));
-
-var _iterableToArray = _interopRequireDefault(require("./iterableToArray"));
-
-var _nonIterableSpread = _interopRequireDefault(require("./nonIterableSpread"));
+var _extends2 = _interopRequireDefault(require("@babel/runtime/helpers/esm/extends"));
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-function _toConsumableArray(arr) {
-  return (0, _arrayWithoutHoles.default)(arr) || (0, _iterableToArray.default)(arr) || (0, _nonIterableSpread.default)();
+function createMixins(breakpoints, spacing, mixins) {
+  var _toolbar;
+
+  return (0, _extends2.default)({
+    gutters: function gutters() {
+      var styles = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {}; // To deprecate in v4.1
+      //       warning(
+      //         false,
+      //         [
+      //           'Material-UI: theme.mixins.gutters() is deprecated.',
+      //           'You can use the source of the mixin directly:',
+      //           `
+      // paddingLeft: theme.spacing(2),
+      // paddingRight: theme.spacing(2),
+      // [theme.breakpoints.up('sm')]: {
+      //   paddingLeft: theme.spacing(3),
+      //   paddingRight: theme.spacing(3),
+      // },
+      // `,
+      //         ].join('\n'),
+      //       );
+
+      return (0, _extends2.default)({
+        paddingLeft: spacing(2),
+        paddingRight: spacing(2)
+      }, styles, (0, _defineProperty2.default)({}, breakpoints.up('sm'), (0, _extends2.default)({
+        paddingLeft: spacing(3),
+        paddingRight: spacing(3)
+      }, styles[breakpoints.up('sm')])));
+    },
+    toolbar: (_toolbar = {
+      minHeight: 56
+    }, (0, _defineProperty2.default)(_toolbar, "".concat(breakpoints.up('xs'), " and (orientation: landscape)"), {
+      minHeight: 48
+    }), (0, _defineProperty2.default)(_toolbar, breakpoints.up('sm'), {
+      minHeight: 64
+    }), _toolbar)
+  }, mixins);
 }
-},{"./arrayWithoutHoles":"../node_modules/@material-ui/core/node_modules/@babel/runtime/helpers/esm/arrayWithoutHoles.js","./iterableToArray":"../node_modules/@material-ui/core/node_modules/@babel/runtime/helpers/esm/iterableToArray.js","./nonIterableSpread":"../node_modules/@material-ui/core/node_modules/@babel/runtime/helpers/esm/nonIterableSpread.js"}],"../node_modules/@material-ui/core/node_modules/@material-ui/system/esm/merge.js":[function(require,module,exports) {
+},{"@babel/runtime/helpers/esm/defineProperty":"../node_modules/@babel/runtime/helpers/esm/defineProperty.js","@babel/runtime/helpers/esm/extends":"../node_modules/@babel/runtime/helpers/esm/extends.js"}],"../node_modules/@material-ui/core/esm/colors/indigo.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports.default = void 0;
+var indigo = {
+  50: '#e8eaf6',
+  100: '#c5cae9',
+  200: '#9fa8da',
+  300: '#7986cb',
+  400: '#5c6bc0',
+  500: '#3f51b5',
+  600: '#3949ab',
+  700: '#303f9f',
+  800: '#283593',
+  900: '#1a237e',
+  A100: '#8c9eff',
+  A200: '#536dfe',
+  A400: '#3d5afe',
+  A700: '#304ffe'
+};
+var _default = indigo;
+exports.default = _default;
+},{}],"../node_modules/@material-ui/core/esm/colors/pink.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+var pink = {
+  50: '#fce4ec',
+  100: '#f8bbd0',
+  200: '#f48fb1',
+  300: '#f06292',
+  400: '#ec407a',
+  500: '#e91e63',
+  600: '#d81b60',
+  700: '#c2185b',
+  800: '#ad1457',
+  900: '#880e4f',
+  A100: '#ff80ab',
+  A200: '#ff4081',
+  A400: '#f50057',
+  A700: '#c51162'
+};
+var _default = pink;
+exports.default = _default;
+},{}],"../node_modules/@material-ui/core/esm/colors/grey.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+var grey = {
+  50: '#fafafa',
+  100: '#f5f5f5',
+  200: '#eeeeee',
+  300: '#e0e0e0',
+  400: '#bdbdbd',
+  500: '#9e9e9e',
+  600: '#757575',
+  700: '#616161',
+  800: '#424242',
+  900: '#212121',
+  A100: '#d5d5d5',
+  A200: '#aaaaaa',
+  A400: '#303030',
+  A700: '#616161'
+};
+var _default = grey;
+exports.default = _default;
+},{}],"../node_modules/@material-ui/core/esm/colors/red.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+var red = {
+  50: '#ffebee',
+  100: '#ffcdd2',
+  200: '#ef9a9a',
+  300: '#e57373',
+  400: '#ef5350',
+  500: '#f44336',
+  600: '#e53935',
+  700: '#d32f2f',
+  800: '#c62828',
+  900: '#b71c1c',
+  A100: '#ff8a80',
+  A200: '#ff5252',
+  A400: '#ff1744',
+  A700: '#d50000'
+};
+var _default = red;
+exports.default = _default;
+},{}],"../node_modules/@material-ui/core/esm/colors/common.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+var common = {
+  black: '#000',
+  white: '#fff'
+};
+var _default = common;
+exports.default = _default;
+},{}],"../node_modules/@material-ui/core/esm/styles/colorManipulator.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.hexToRgb = hexToRgb;
+exports.rgbToHex = rgbToHex;
+exports.hslToRgb = hslToRgb;
+exports.decomposeColor = decomposeColor;
+exports.recomposeColor = recomposeColor;
+exports.getContrastRatio = getContrastRatio;
+exports.getLuminance = getLuminance;
+exports.emphasize = emphasize;
+exports.fade = fade;
+exports.darken = darken;
+exports.lighten = lighten;
+
+/* eslint-disable no-use-before-define */
+
+/**
+ * Returns a number whose value is limited to the given range.
+ *
+ * @param {number} value The value to be clamped
+ * @param {number} min The lower boundary of the output range
+ * @param {number} max The upper boundary of the output range
+ * @returns {number} A number in the range [min, max]
+ */
+function clamp(value) {
+  var min = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 0;
+  var max = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 1;
+
+  if ("development" !== 'production') {
+    if (value < min || value > max) {
+      console.error("Material-UI: the value provided ".concat(value, " is out of range [").concat(min, ", ").concat(max, "]."));
+    }
+  }
+
+  if (value < min) {
+    return min;
+  }
+
+  if (value > max) {
+    return max;
+  }
+
+  return value;
+}
+/**
+ * Converts a color from CSS hex format to CSS rgb format.
+ *
+ * @param {string} color - Hex color, i.e. #nnn or #nnnnnn
+ * @returns {string} A CSS rgb color string
+ */
+
+
+function hexToRgb(color) {
+  color = color.substr(1);
+  var re = new RegExp(".{1,".concat(color.length / 3, "}"), 'g');
+  var colors = color.match(re);
+
+  if (colors && colors[0].length === 1) {
+    colors = colors.map(function (n) {
+      return n + n;
+    });
+  }
+
+  return colors ? "rgb(".concat(colors.map(function (n) {
+    return parseInt(n, 16);
+  }).join(', '), ")") : '';
+}
+
+function intToHex(int) {
+  var hex = int.toString(16);
+  return hex.length === 1 ? "0".concat(hex) : hex;
+}
+/**
+ * Converts a color from CSS rgb format to CSS hex format.
+ *
+ * @param {string} color - RGB color, i.e. rgb(n, n, n)
+ * @returns {string} A CSS rgb color string, i.e. #nnnnnn
+ */
+
+
+function rgbToHex(color) {
+  // Idempotent
+  if (color.indexOf('#') === 0) {
+    return color;
+  }
+
+  var _decomposeColor = decomposeColor(color),
+      values = _decomposeColor.values;
+
+  return "#".concat(values.map(function (n) {
+    return intToHex(n);
+  }).join(''));
+}
+/**
+ * Converts a color from hsl format to rgb format.
+ *
+ * @param {string} color - HSL color values
+ * @returns {string} rgb color values
+ */
+
+
+function hslToRgb(color) {
+  color = decomposeColor(color);
+  var _color = color,
+      values = _color.values;
+  var h = values[0];
+  var s = values[1] / 100;
+  var l = values[2] / 100;
+  var a = s * Math.min(l, 1 - l);
+
+  var f = function f(n) {
+    var k = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : (n + h / 30) % 12;
+    return l - a * Math.max(Math.min(k - 3, 9 - k, 1), -1);
+  };
+
+  var type = 'rgb';
+  var rgb = [Math.round(f(0) * 255), Math.round(f(8) * 255), Math.round(f(4) * 255)];
+
+  if (color.type === 'hsla') {
+    type += 'a';
+    rgb.push(values[3]);
+  }
+
+  return recomposeColor({
+    type: type,
+    values: rgb
+  });
+}
+/**
+ * Returns an object with the type and values of a color.
+ *
+ * Note: Does not support rgb % values.
+ *
+ * @param {string} color - CSS color, i.e. one of: #nnn, #nnnnnn, rgb(), rgba(), hsl(), hsla()
+ * @returns {object} - A MUI color object: {type: string, values: number[]}
+ */
+
+
+function decomposeColor(color) {
+  // Idempotent
+  if (color.type) {
+    return color;
+  }
+
+  if (color.charAt(0) === '#') {
+    return decomposeColor(hexToRgb(color));
+  }
+
+  var marker = color.indexOf('(');
+  var type = color.substring(0, marker);
+
+  if (['rgb', 'rgba', 'hsl', 'hsla'].indexOf(type) === -1) {
+    throw new Error(["Material-UI: unsupported `".concat(color, "` color."), 'We support the following formats: #nnn, #nnnnnn, rgb(), rgba(), hsl(), hsla().'].join('\n'));
+  }
+
+  var values = color.substring(marker + 1, color.length - 1).split(',');
+  values = values.map(function (value) {
+    return parseFloat(value);
+  });
+  return {
+    type: type,
+    values: values
+  };
+}
+/**
+ * Converts a color object with type and values to a string.
+ *
+ * @param {object} color - Decomposed color
+ * @param {string} color.type - One of: 'rgb', 'rgba', 'hsl', 'hsla'
+ * @param {array} color.values - [n,n,n] or [n,n,n,n]
+ * @returns {string} A CSS color string
+ */
+
+
+function recomposeColor(color) {
+  var type = color.type;
+  var values = color.values;
+
+  if (type.indexOf('rgb') !== -1) {
+    // Only convert the first 3 values to int (i.e. not alpha)
+    values = values.map(function (n, i) {
+      return i < 3 ? parseInt(n, 10) : n;
+    });
+  } else if (type.indexOf('hsl') !== -1) {
+    values[1] = "".concat(values[1], "%");
+    values[2] = "".concat(values[2], "%");
+  }
+
+  return "".concat(type, "(").concat(values.join(', '), ")");
+}
+/**
+ * Calculates the contrast ratio between two colors.
+ *
+ * Formula: https://www.w3.org/TR/WCAG20-TECHS/G17.html#G17-tests
+ *
+ * @param {string} foreground - CSS color, i.e. one of: #nnn, #nnnnnn, rgb(), rgba(), hsl(), hsla()
+ * @param {string} background - CSS color, i.e. one of: #nnn, #nnnnnn, rgb(), rgba(), hsl(), hsla()
+ * @returns {number} A contrast ratio value in the range 0 - 21.
+ */
+
+
+function getContrastRatio(foreground, background) {
+  var lumA = getLuminance(foreground);
+  var lumB = getLuminance(background);
+  return (Math.max(lumA, lumB) + 0.05) / (Math.min(lumA, lumB) + 0.05);
+}
+/**
+ * The relative brightness of any point in a color space,
+ * normalized to 0 for darkest black and 1 for lightest white.
+ *
+ * Formula: https://www.w3.org/TR/WCAG20-TECHS/G17.html#G17-tests
+ *
+ * @param {string} color - CSS color, i.e. one of: #nnn, #nnnnnn, rgb(), rgba(), hsl(), hsla()
+ * @returns {number} The relative brightness of the color in the range 0 - 1
+ */
+
+
+function getLuminance(color) {
+  color = decomposeColor(color);
+  var rgb = color.type === 'hsl' ? decomposeColor(hslToRgb(color)).values : color.values;
+  rgb = rgb.map(function (val) {
+    val /= 255; // normalized
+
+    return val <= 0.03928 ? val / 12.92 : Math.pow((val + 0.055) / 1.055, 2.4);
+  }); // Truncate at 3 digits
+
+  return Number((0.2126 * rgb[0] + 0.7152 * rgb[1] + 0.0722 * rgb[2]).toFixed(3));
+}
+/**
+ * Darken or lighten a color, depending on its luminance.
+ * Light colors are darkened, dark colors are lightened.
+ *
+ * @param {string} color - CSS color, i.e. one of: #nnn, #nnnnnn, rgb(), rgba(), hsl(), hsla()
+ * @param {number} coefficient=0.15 - multiplier in the range 0 - 1
+ * @returns {string} A CSS color string. Hex input values are returned as rgb
+ */
+
+
+function emphasize(color) {
+  var coefficient = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 0.15;
+  return getLuminance(color) > 0.5 ? darken(color, coefficient) : lighten(color, coefficient);
+}
+/**
+ * Set the absolute transparency of a color.
+ * Any existing alpha values are overwritten.
+ *
+ * @param {string} color - CSS color, i.e. one of: #nnn, #nnnnnn, rgb(), rgba(), hsl(), hsla()
+ * @param {number} value - value to set the alpha channel to in the range 0 -1
+ * @returns {string} A CSS color string. Hex input values are returned as rgb
+ */
+
+
+function fade(color, value) {
+  color = decomposeColor(color);
+  value = clamp(value);
+
+  if (color.type === 'rgb' || color.type === 'hsl') {
+    color.type += 'a';
+  }
+
+  color.values[3] = value;
+  return recomposeColor(color);
+}
+/**
+ * Darkens a color.
+ *
+ * @param {string} color - CSS color, i.e. one of: #nnn, #nnnnnn, rgb(), rgba(), hsl(), hsla()
+ * @param {number} coefficient - multiplier in the range 0 - 1
+ * @returns {string} A CSS color string. Hex input values are returned as rgb
+ */
+
+
+function darken(color, coefficient) {
+  color = decomposeColor(color);
+  coefficient = clamp(coefficient);
+
+  if (color.type.indexOf('hsl') !== -1) {
+    color.values[2] *= 1 - coefficient;
+  } else if (color.type.indexOf('rgb') !== -1) {
+    for (var i = 0; i < 3; i += 1) {
+      color.values[i] *= 1 - coefficient;
+    }
+  }
+
+  return recomposeColor(color);
+}
+/**
+ * Lightens a color.
+ *
+ * @param {string} color - CSS color, i.e. one of: #nnn, #nnnnnn, rgb(), rgba(), hsl(), hsla()
+ * @param {number} coefficient - multiplier in the range 0 - 1
+ * @returns {string} A CSS color string. Hex input values are returned as rgb
+ */
+
+
+function lighten(color, coefficient) {
+  color = decomposeColor(color);
+  coefficient = clamp(coefficient);
+
+  if (color.type.indexOf('hsl') !== -1) {
+    color.values[2] += (100 - color.values[2]) * coefficient;
+  } else if (color.type.indexOf('rgb') !== -1) {
+    for (var i = 0; i < 3; i += 1) {
+      color.values[i] += (255 - color.values[i]) * coefficient;
+    }
+  }
+
+  return recomposeColor(color);
+}
+},{}],"../node_modules/@material-ui/core/esm/styles/createPalette.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = createPalette;
+exports.dark = exports.light = void 0;
+
+var _extends2 = _interopRequireDefault(require("@babel/runtime/helpers/esm/extends"));
+
+var _objectWithoutProperties2 = _interopRequireDefault(require("@babel/runtime/helpers/esm/objectWithoutProperties"));
+
+var _deepmerge = _interopRequireDefault(require("deepmerge"));
+
+var _indigo = _interopRequireDefault(require("../colors/indigo"));
+
+var _pink = _interopRequireDefault(require("../colors/pink"));
+
+var _grey = _interopRequireDefault(require("../colors/grey"));
+
+var _red = _interopRequireDefault(require("../colors/red"));
+
+var _common = _interopRequireDefault(require("../colors/common"));
+
+var _colorManipulator = require("./colorManipulator");
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+// < 1kb payload overhead when lodash/merge is > 3kb.
+var light = {
+  // The colors used to style the text.
+  text: {
+    // The most important text.
+    primary: 'rgba(0, 0, 0, 0.87)',
+    // Secondary text.
+    secondary: 'rgba(0, 0, 0, 0.54)',
+    // Disabled text have even lower visual prominence.
+    disabled: 'rgba(0, 0, 0, 0.38)',
+    // Text hints.
+    hint: 'rgba(0, 0, 0, 0.38)'
+  },
+  // The color used to divide different elements.
+  divider: 'rgba(0, 0, 0, 0.12)',
+  // The background colors used to style the surfaces.
+  // Consistency between these values is important.
+  background: {
+    paper: _common.default.white,
+    default: _grey.default[50]
+  },
+  // The colors used to style the action elements.
+  action: {
+    // The color of an active action like an icon button.
+    active: 'rgba(0, 0, 0, 0.54)',
+    // The color of an hovered action.
+    hover: 'rgba(0, 0, 0, 0.08)',
+    hoverOpacity: 0.08,
+    // The color of a selected action.
+    selected: 'rgba(0, 0, 0, 0.14)',
+    // The color of a disabled action.
+    disabled: 'rgba(0, 0, 0, 0.26)',
+    // The background color of a disabled action.
+    disabledBackground: 'rgba(0, 0, 0, 0.12)'
+  }
+};
+exports.light = light;
+var dark = {
+  text: {
+    primary: _common.default.white,
+    secondary: 'rgba(255, 255, 255, 0.7)',
+    disabled: 'rgba(255, 255, 255, 0.5)',
+    hint: 'rgba(255, 255, 255, 0.5)',
+    icon: 'rgba(255, 255, 255, 0.5)'
+  },
+  divider: 'rgba(255, 255, 255, 0.12)',
+  background: {
+    paper: _grey.default[800],
+    default: '#303030'
+  },
+  action: {
+    active: _common.default.white,
+    hover: 'rgba(255, 255, 255, 0.1)',
+    hoverOpacity: 0.1,
+    selected: 'rgba(255, 255, 255, 0.2)',
+    disabled: 'rgba(255, 255, 255, 0.3)',
+    disabledBackground: 'rgba(255, 255, 255, 0.12)'
+  }
+};
+exports.dark = dark;
+
+function addLightOrDark(intent, direction, shade, tonalOffset) {
+  if (!intent[direction]) {
+    if (intent.hasOwnProperty(shade)) {
+      intent[direction] = intent[shade];
+    } else if (direction === 'light') {
+      intent.light = (0, _colorManipulator.lighten)(intent.main, tonalOffset);
+    } else if (direction === 'dark') {
+      intent.dark = (0, _colorManipulator.darken)(intent.main, tonalOffset * 1.5);
+    }
+  }
+}
+
+function createPalette(palette) {
+  var _palette$primary = palette.primary,
+      primary = _palette$primary === void 0 ? {
+    light: _indigo.default[300],
+    main: _indigo.default[500],
+    dark: _indigo.default[700]
+  } : _palette$primary,
+      _palette$secondary = palette.secondary,
+      secondary = _palette$secondary === void 0 ? {
+    light: _pink.default.A200,
+    main: _pink.default.A400,
+    dark: _pink.default.A700
+  } : _palette$secondary,
+      _palette$error = palette.error,
+      error = _palette$error === void 0 ? {
+    light: _red.default[300],
+    main: _red.default[500],
+    dark: _red.default[700]
+  } : _palette$error,
+      _palette$type = palette.type,
+      type = _palette$type === void 0 ? 'light' : _palette$type,
+      _palette$contrastThre = palette.contrastThreshold,
+      contrastThreshold = _palette$contrastThre === void 0 ? 3 : _palette$contrastThre,
+      _palette$tonalOffset = palette.tonalOffset,
+      tonalOffset = _palette$tonalOffset === void 0 ? 0.2 : _palette$tonalOffset,
+      other = (0, _objectWithoutProperties2.default)(palette, ["primary", "secondary", "error", "type", "contrastThreshold", "tonalOffset"]); // Use the same logic as
+  // Bootstrap: https://github.com/twbs/bootstrap/blob/1d6e3710dd447de1a200f29e8fa521f8a0908f70/scss/_functions.scss#L59
+  // and material-components-web https://github.com/material-components/material-components-web/blob/ac46b8863c4dab9fc22c4c662dc6bd1b65dd652f/packages/mdc-theme/_functions.scss#L54
+
+  function getContrastText(background) {
+    if ("development" !== 'production') {
+      if (!background) {
+        console.error("Material-UI: missing background argument in getContrastText(".concat(background, ")."));
+      }
+    }
+
+    var contrastText = (0, _colorManipulator.getContrastRatio)(background, dark.text.primary) >= contrastThreshold ? dark.text.primary : light.text.primary;
+
+    if ("development" !== 'production') {
+      var contrast = (0, _colorManipulator.getContrastRatio)(background, contrastText);
+
+      if ("development" !== 'production') {
+        if (contrast < 3) {
+          console.error(["Material-UI: the contrast ratio of ".concat(contrast, ":1 for ").concat(contrastText, " on ").concat(background), 'falls below the WACG recommended absolute minimum contrast ratio of 3:1.', 'https://www.w3.org/TR/2008/REC-WCAG20-20081211/#visual-audio-contrast-contrast'].join('\n'));
+        }
+      }
+    }
+
+    return contrastText;
+  }
+
+  function augmentColor(color) {
+    var mainShade = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 500;
+    var lightShade = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 300;
+    var darkShade = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : 700;
+    color = (0, _extends2.default)({}, color);
+
+    if (!color.main && color[mainShade]) {
+      color.main = color[mainShade];
+    }
+
+    if ("development" !== 'production') {
+      if (!color.main) {
+        throw new Error(['Material-UI: the color provided to augmentColor(color) is invalid.', "The color object needs to have a `main` property or a `".concat(mainShade, "` property.")].join('\n'));
+      }
+    }
+
+    addLightOrDark(color, 'light', lightShade, tonalOffset);
+    addLightOrDark(color, 'dark', darkShade, tonalOffset);
+
+    if (!color.contrastText) {
+      color.contrastText = getContrastText(color.main);
+    }
+
+    return color;
+  }
+
+  var types = {
+    dark: dark,
+    light: light
+  };
+
+  if ("development" !== 'production') {
+    if (!types[type]) {
+      console.error("Material-UI: the palette type `".concat(type, "` is not supported."));
+    }
+  }
+
+  var paletteOutput = (0, _deepmerge.default)((0, _extends2.default)({
+    // A collection of common colors.
+    common: _common.default,
+    // The palette type, can be light or dark.
+    type: type,
+    // The colors used to represent primary interface elements for a user.
+    primary: augmentColor(primary),
+    // The colors used to represent secondary interface elements for a user.
+    secondary: augmentColor(secondary, 'A400', 'A200', 'A700'),
+    // The colors used to represent interface elements that the user should be made aware of.
+    error: augmentColor(error),
+    // The grey colors.
+    grey: _grey.default,
+    // Used by `getContrastText()` to maximize the contrast between the background and
+    // the text.
+    contrastThreshold: contrastThreshold,
+    // Take a background color and return the color of the text to maximize the contrast.
+    getContrastText: getContrastText,
+    // Generate a rich color object.
+    augmentColor: augmentColor,
+    // Used by the functions below to shift a color's luminance by approximately
+    // two indexes within its tonal palette.
+    // E.g., shift from Red 500 to Red 300 or Red 700.
+    tonalOffset: tonalOffset
+  }, types[type]), other, {
+    clone: false // No need to clone deep
+
+  });
+  return paletteOutput;
+}
+},{"@babel/runtime/helpers/esm/extends":"../node_modules/@babel/runtime/helpers/esm/extends.js","@babel/runtime/helpers/esm/objectWithoutProperties":"../node_modules/@babel/runtime/helpers/esm/objectWithoutProperties.js","deepmerge":"../node_modules/deepmerge/dist/cjs.js","../colors/indigo":"../node_modules/@material-ui/core/esm/colors/indigo.js","../colors/pink":"../node_modules/@material-ui/core/esm/colors/pink.js","../colors/grey":"../node_modules/@material-ui/core/esm/colors/grey.js","../colors/red":"../node_modules/@material-ui/core/esm/colors/red.js","../colors/common":"../node_modules/@material-ui/core/esm/colors/common.js","./colorManipulator":"../node_modules/@material-ui/core/esm/styles/colorManipulator.js"}],"../node_modules/@material-ui/core/esm/styles/createTypography.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = createTypography;
+
+var _extends2 = _interopRequireDefault(require("@babel/runtime/helpers/esm/extends"));
+
+var _objectWithoutProperties2 = _interopRequireDefault(require("@babel/runtime/helpers/esm/objectWithoutProperties"));
 
 var _deepmerge = _interopRequireDefault(require("deepmerge"));
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 // < 1kb payload overhead when lodash/merge is > 3kb.
-function merge(acc, item) {
-  if (!item) {
-    return acc;
+function round(value) {
+  return Math.round(value * 1e5) / 1e5;
+}
+
+var caseAllCaps = {
+  textTransform: 'uppercase'
+};
+var defaultFontFamily = '"Roboto", "Helvetica", "Arial", sans-serif';
+/**
+ * @see @link{https://material.io/design/typography/the-type-system.html}
+ * @see @link{https://material.io/design/typography/understanding-typography.html}
+ */
+
+function createTypography(palette, typography) {
+  var _ref = typeof typography === 'function' ? typography(palette) : typography,
+      _ref$fontFamily = _ref.fontFamily,
+      fontFamily = _ref$fontFamily === void 0 ? defaultFontFamily : _ref$fontFamily,
+      _ref$fontSize = _ref.fontSize,
+      fontSize = _ref$fontSize === void 0 ? 14 : _ref$fontSize,
+      _ref$fontWeightLight = _ref.fontWeightLight,
+      fontWeightLight = _ref$fontWeightLight === void 0 ? 300 : _ref$fontWeightLight,
+      _ref$fontWeightRegula = _ref.fontWeightRegular,
+      fontWeightRegular = _ref$fontWeightRegula === void 0 ? 400 : _ref$fontWeightRegula,
+      _ref$fontWeightMedium = _ref.fontWeightMedium,
+      fontWeightMedium = _ref$fontWeightMedium === void 0 ? 500 : _ref$fontWeightMedium,
+      _ref$fontWeightBold = _ref.fontWeightBold,
+      fontWeightBold = _ref$fontWeightBold === void 0 ? 700 : _ref$fontWeightBold,
+      _ref$htmlFontSize = _ref.htmlFontSize,
+      htmlFontSize = _ref$htmlFontSize === void 0 ? 16 : _ref$htmlFontSize,
+      allVariants = _ref.allVariants,
+      pxToRem2 = _ref.pxToRem,
+      other = (0, _objectWithoutProperties2.default)(_ref, ["fontFamily", "fontSize", "fontWeightLight", "fontWeightRegular", "fontWeightMedium", "fontWeightBold", "htmlFontSize", "allVariants", "pxToRem"]);
+
+  if ("development" !== 'production') {
+    if (typeof fontSize !== 'number') {
+      console.error("Material-UI: 'fontSize' is required to be a number.");
+    }
+
+    if (typeof htmlFontSize !== 'number') {
+      console.error("Material-UI: 'htmlFontSize' is required to be a number.");
+    }
   }
 
-  return (0, _deepmerge.default)(acc, item, {
-    clone: false // No need to clone deep, it's way faster.
+  var coef = fontSize / 14;
+
+  var pxToRem = pxToRem2 || function (size) {
+    return "".concat(size / htmlFontSize * coef, "rem");
+  };
+
+  var buildVariant = function buildVariant(fontWeight, size, lineHeight, letterSpacing, casing) {
+    return (0, _extends2.default)({
+      fontFamily: fontFamily,
+      fontWeight: fontWeight,
+      fontSize: pxToRem(size),
+      // Unitless following https://meyerweb.com/eric/thoughts/2006/02/08/unitless-line-heights/
+      lineHeight: lineHeight
+    }, fontFamily === defaultFontFamily ? {
+      letterSpacing: "".concat(round(letterSpacing / size), "em")
+    } : {}, {}, casing, {}, allVariants);
+  };
+
+  var variants = {
+    h1: buildVariant(fontWeightLight, 96, 1, -1.5),
+    h2: buildVariant(fontWeightLight, 60, 1, -0.5),
+    h3: buildVariant(fontWeightRegular, 48, 1.04, 0),
+    h4: buildVariant(fontWeightRegular, 34, 1.17, 0.25),
+    h5: buildVariant(fontWeightRegular, 24, 1.33, 0),
+    h6: buildVariant(fontWeightMedium, 20, 1.6, 0.15),
+    subtitle1: buildVariant(fontWeightRegular, 16, 1.75, 0.15),
+    subtitle2: buildVariant(fontWeightMedium, 14, 1.57, 0.1),
+    body1: buildVariant(fontWeightRegular, 16, 1.5, 0.15),
+    body2: buildVariant(fontWeightRegular, 14, 1.43, 0.15),
+    button: buildVariant(fontWeightMedium, 14, 1.75, 0.4, caseAllCaps),
+    caption: buildVariant(fontWeightRegular, 12, 1.66, 0.4),
+    overline: buildVariant(fontWeightRegular, 12, 2.66, 1, caseAllCaps)
+  };
+  return (0, _deepmerge.default)((0, _extends2.default)({
+    htmlFontSize: htmlFontSize,
+    pxToRem: pxToRem,
+    round: round,
+    // TODO To remove in v5?
+    fontFamily: fontFamily,
+    fontSize: fontSize,
+    fontWeightLight: fontWeightLight,
+    fontWeightRegular: fontWeightRegular,
+    fontWeightMedium: fontWeightMedium,
+    fontWeightBold: fontWeightBold
+  }, variants), other, {
+    clone: false // No need to clone deep
 
   });
 }
-
-var _default = merge;
-exports.default = _default;
-},{"deepmerge":"../node_modules/deepmerge/dist/cjs.js"}],"../node_modules/@material-ui/core/node_modules/@material-ui/system/esm/breakpoints.js":[function(require,module,exports) {
+},{"@babel/runtime/helpers/esm/extends":"../node_modules/@babel/runtime/helpers/esm/extends.js","@babel/runtime/helpers/esm/objectWithoutProperties":"../node_modules/@babel/runtime/helpers/esm/objectWithoutProperties.js","deepmerge":"../node_modules/deepmerge/dist/cjs.js"}],"../node_modules/@material-ui/core/esm/styles/shadows.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.handleBreakpoints = handleBreakpoints;
 exports.default = void 0;
+var shadowKeyUmbraOpacity = 0.2;
+var shadowKeyPenumbraOpacity = 0.14;
+var shadowAmbientShadowOpacity = 0.12;
 
-var _toConsumableArray2 = _interopRequireDefault(require("@babel/runtime/helpers/esm/toConsumableArray"));
+function createShadow() {
+  return ["".concat(arguments.length <= 0 ? undefined : arguments[0], "px ").concat(arguments.length <= 1 ? undefined : arguments[1], "px ").concat(arguments.length <= 2 ? undefined : arguments[2], "px ").concat(arguments.length <= 3 ? undefined : arguments[3], "px rgba(0,0,0,").concat(shadowKeyUmbraOpacity, ")"), "".concat(arguments.length <= 4 ? undefined : arguments[4], "px ").concat(arguments.length <= 5 ? undefined : arguments[5], "px ").concat(arguments.length <= 6 ? undefined : arguments[6], "px ").concat(arguments.length <= 7 ? undefined : arguments[7], "px rgba(0,0,0,").concat(shadowKeyPenumbraOpacity, ")"), "".concat(arguments.length <= 8 ? undefined : arguments[8], "px ").concat(arguments.length <= 9 ? undefined : arguments[9], "px ").concat(arguments.length <= 10 ? undefined : arguments[10], "px ").concat(arguments.length <= 11 ? undefined : arguments[11], "px rgba(0,0,0,").concat(shadowAmbientShadowOpacity, ")")].join(',');
+}
 
-var _extends2 = _interopRequireDefault(require("@babel/runtime/helpers/esm/extends"));
+var shadows = ['none', createShadow(0, 1, 3, 0, 0, 1, 1, 0, 0, 2, 1, -1), createShadow(0, 1, 5, 0, 0, 2, 2, 0, 0, 3, 1, -2), createShadow(0, 1, 8, 0, 0, 3, 4, 0, 0, 3, 3, -2), createShadow(0, 2, 4, -1, 0, 4, 5, 0, 0, 1, 10, 0), createShadow(0, 3, 5, -1, 0, 5, 8, 0, 0, 1, 14, 0), createShadow(0, 3, 5, -1, 0, 6, 10, 0, 0, 1, 18, 0), createShadow(0, 4, 5, -2, 0, 7, 10, 1, 0, 2, 16, 1), createShadow(0, 5, 5, -3, 0, 8, 10, 1, 0, 3, 14, 2), createShadow(0, 5, 6, -3, 0, 9, 12, 1, 0, 3, 16, 2), createShadow(0, 6, 6, -3, 0, 10, 14, 1, 0, 4, 18, 3), createShadow(0, 6, 7, -4, 0, 11, 15, 1, 0, 4, 20, 3), createShadow(0, 7, 8, -4, 0, 12, 17, 2, 0, 5, 22, 4), createShadow(0, 7, 8, -4, 0, 13, 19, 2, 0, 5, 24, 4), createShadow(0, 7, 9, -4, 0, 14, 21, 2, 0, 5, 26, 4), createShadow(0, 8, 9, -5, 0, 15, 22, 2, 0, 6, 28, 5), createShadow(0, 8, 10, -5, 0, 16, 24, 2, 0, 6, 30, 5), createShadow(0, 8, 11, -5, 0, 17, 26, 2, 0, 6, 32, 5), createShadow(0, 9, 11, -5, 0, 18, 28, 2, 0, 7, 34, 6), createShadow(0, 9, 12, -6, 0, 19, 29, 2, 0, 7, 36, 6), createShadow(0, 10, 13, -6, 0, 20, 31, 3, 0, 8, 38, 7), createShadow(0, 10, 13, -6, 0, 21, 33, 3, 0, 8, 40, 7), createShadow(0, 10, 14, -6, 0, 22, 35, 3, 0, 8, 42, 7), createShadow(0, 11, 14, -7, 0, 23, 36, 3, 0, 9, 44, 8), createShadow(0, 11, 15, -7, 0, 24, 38, 3, 0, 9, 46, 8)];
+var _default = shadows;
+exports.default = _default;
+},{}],"../node_modules/@material-ui/core/esm/styles/shape.js":[function(require,module,exports) {
+"use strict";
 
-var _typeof2 = _interopRequireDefault(require("@babel/runtime/helpers/esm/typeof"));
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+var shape = {
+  borderRadius: 4
+};
+var _default = shape;
+exports.default = _default;
+},{}],"../node_modules/@material-ui/core/esm/styles/createSpacing.js":[function(require,module,exports) {
+"use strict";
 
-var _propTypes = _interopRequireDefault(require("prop-types"));
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = createSpacing;
+var warnOnce;
 
-var _merge = _interopRequireDefault(require("./merge"));
+function createSpacing() {
+  var spacingInput = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 8; // Already transformed.
+
+  if (spacingInput.mui) {
+    return spacingInput;
+  } // All components align to an 8dp square baseline grid for mobile, tablet, and desktop.
+  // https://material.io/design/layout/understanding-layout.html#pixel-density
+
+
+  var transform;
+
+  if (typeof spacingInput === 'function') {
+    transform = spacingInput;
+  } else {
+    if ("development" !== 'production') {
+      if (typeof spacingInput !== 'number') {
+        console.error(["Material-UI: the `theme.spacing` value (".concat(spacingInput, ") is invalid."), 'It should be a number or a function.'].join('\n'));
+      }
+    }
+
+    transform = function transform(factor) {
+      if ("development" !== 'production') {
+        if (typeof factor !== 'number') {
+          console.error("Expected spacing argument to be a number, got ".concat(factor));
+        }
+      }
+
+      return spacingInput * factor;
+    };
+  }
+
+  var spacing = function spacing() {
+    for (var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++) {
+      args[_key] = arguments[_key];
+    }
+
+    if ("development" !== 'production') {
+      if (!(args.length <= 4)) {
+        console.error("Material-UI: Too many arguments provided, expected between 0 and 4, got ".concat(args.length));
+      }
+    }
+
+    if (args.length === 0) {
+      return transform(1);
+    }
+
+    if (args.length === 1) {
+      return transform(args[0]);
+    }
+
+    return args.map(function (factor) {
+      var output = transform(factor);
+      return typeof output === 'number' ? "".concat(output, "px") : output;
+    }).join(' ');
+  }; // Backward compatibility, to remove in v5.
+
+
+  Object.defineProperty(spacing, 'unit', {
+    get: function get() {
+      if ("development" !== 'production') {
+        if (!warnOnce || "development" === 'test') {
+          console.error(['Material-UI: theme.spacing.unit usage has been deprecated.', 'It will be removed in v5.', 'You can replace `theme.spacing.unit * y` with `theme.spacing(y)`.', '', 'You can use the `https://github.com/mui-org/material-ui/tree/master/packages/material-ui-codemod/README.md#theme-spacing-api` migration helper to make the process smoother.'].join('\n'));
+        }
+
+        warnOnce = true;
+      }
+
+      return spacingInput;
+    }
+  });
+  spacing.mui = true;
+  return spacing;
+}
+},{}],"../node_modules/@material-ui/core/esm/styles/transitions.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = exports.isNumber = exports.isString = exports.formatMs = exports.duration = exports.easing = void 0;
+
+var _objectWithoutProperties2 = _interopRequireDefault(require("@babel/runtime/helpers/esm/objectWithoutProperties"));
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-// The breakpoint **start** at this value.
-// For instance with the first breakpoint xs: [xs, sm[.
-var values = {
-  xs: 0,
-  sm: 600,
-  md: 960,
-  lg: 1280,
-  xl: 1920
+/* eslint-disable no-restricted-globals */
+// Follow https://material.google.com/motion/duration-easing.html#duration-easing-natural-easing-curves
+// to learn the context in which each easing should be used.
+var easing = {
+  // This is the most common easing curve.
+  easeInOut: 'cubic-bezier(0.4, 0, 0.2, 1)',
+  // Objects enter the screen at full velocity from off-screen and
+  // slowly decelerate to a resting point.
+  easeOut: 'cubic-bezier(0.0, 0, 0.2, 1)',
+  // Objects leave the screen at full velocity. They do not decelerate when off-screen.
+  easeIn: 'cubic-bezier(0.4, 0, 1, 1)',
+  // The sharp curve is used by objects that may return to the screen at any time.
+  sharp: 'cubic-bezier(0.4, 0, 0.6, 1)'
+}; // Follow https://material.io/guidelines/motion/duration-easing.html#duration-easing-common-durations
+// to learn when use what timing
+
+exports.easing = easing;
+var duration = {
+  shortest: 150,
+  shorter: 200,
+  short: 250,
+  // most basic recommended timing
+  standard: 300,
+  // this is to be used in complex animations
+  complex: 375,
+  // recommended when something is entering screen
+  enteringScreen: 225,
+  // recommended when something is leaving screen
+  leavingScreen: 195
 };
-var defaultBreakpoints = {
-  // Sorted ASC by size. That's important.
-  // It can't be configured as it's used statically for propTypes.
-  keys: ['xs', 'sm', 'md', 'lg', 'xl'],
-  up: function up(key) {
-    return "@media (min-width:".concat(values[key], "px)");
-  }
+exports.duration = duration;
+
+var formatMs = function formatMs(milliseconds) {
+  return "".concat(Math.round(milliseconds), "ms");
 };
 
-function handleBreakpoints(props, propValue, styleFromPropValue) {
-  if ("development" !== 'production') {
-    if (!props.theme) {
-      console.error('@material-ui/system: you are calling a style function without a theme value.');
-    }
-  }
+exports.formatMs = formatMs;
 
-  if (Array.isArray(propValue)) {
-    var themeBreakpoints = props.theme.breakpoints || defaultBreakpoints;
-    return propValue.reduce(function (acc, item, index) {
-      acc[themeBreakpoints.up(themeBreakpoints.keys[index])] = styleFromPropValue(propValue[index]);
-      return acc;
-    }, {});
-  }
+var isString = function isString(value) {
+  return typeof value === 'string';
+};
 
-  if ((0, _typeof2.default)(propValue) === 'object') {
-    var _themeBreakpoints = props.theme.breakpoints || defaultBreakpoints;
+exports.isString = isString;
 
-    return Object.keys(propValue).reduce(function (acc, breakpoint) {
-      acc[_themeBreakpoints.up(breakpoint)] = styleFromPropValue(propValue[breakpoint]);
-      return acc;
-    }, {});
-  }
+var isNumber = function isNumber(value) {
+  return !isNaN(parseFloat(value));
+};
+/**
+ * @param {string|Array} props
+ * @param {object} param
+ * @param {string} param.prop
+ * @param {number} param.duration
+ * @param {string} param.easing
+ * @param {number} param.delay
+ */
 
-  var output = styleFromPropValue(propValue);
-  return output;
-}
 
-function breakpoints(styleFunction) {
-  var newStyleFunction = function newStyleFunction(props) {
-    var base = styleFunction(props);
-    var themeBreakpoints = props.theme.breakpoints || defaultBreakpoints;
-    var extended = themeBreakpoints.keys.reduce(function (acc, key) {
-      if (props[key]) {
-        acc = acc || {};
-        acc[themeBreakpoints.up(key)] = styleFunction((0, _extends2.default)({
-          theme: props.theme
-        }, props[key]));
+exports.isNumber = isNumber;
+var _default = {
+  easing: easing,
+  duration: duration,
+  create: function create() {
+    var props = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : ['all'];
+    var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+    var _options$duration = options.duration,
+        durationOption = _options$duration === void 0 ? duration.standard : _options$duration,
+        _options$easing = options.easing,
+        easingOption = _options$easing === void 0 ? easing.easeInOut : _options$easing,
+        _options$delay = options.delay,
+        delay = _options$delay === void 0 ? 0 : _options$delay,
+        other = (0, _objectWithoutProperties2.default)(options, ["duration", "easing", "delay"]);
+
+    if ("development" !== 'production') {
+      if (!isString(props) && !Array.isArray(props)) {
+        console.error('Material-UI: argument "props" must be a string or Array.');
       }
 
-      return acc;
-    }, null);
-    return (0, _merge.default)(base, extended);
-  };
+      if (!isNumber(durationOption) && !isString(durationOption)) {
+        console.error("Material-UI: argument \"duration\" must be a number or a string but found ".concat(durationOption, "."));
+      }
 
-  newStyleFunction.propTypes = "development" !== 'production' ? (0, _extends2.default)({}, styleFunction.propTypes, {
-    xs: _propTypes.default.object,
-    sm: _propTypes.default.object,
-    md: _propTypes.default.object,
-    lg: _propTypes.default.object,
-    xl: _propTypes.default.object
-  }) : {};
-  newStyleFunction.filterProps = ['xs', 'sm', 'md', 'lg', 'xl'].concat((0, _toConsumableArray2.default)(styleFunction.filterProps));
-  return newStyleFunction;
-}
+      if (!isString(easingOption)) {
+        console.error('Material-UI: argument "easing" must be a string.');
+      }
 
-var _default = breakpoints;
+      if (!isNumber(delay) && !isString(delay)) {
+        console.error('Material-UI: argument "delay" must be a number or a string.');
+      }
+
+      if (Object.keys(other).length !== 0) {
+        console.error("Material-UI: unrecognized argument(s) [".concat(Object.keys(other).join(','), "]"));
+      }
+    }
+
+    return (Array.isArray(props) ? props : [props]).map(function (animatedProp) {
+      return "".concat(animatedProp, " ").concat(typeof durationOption === 'string' ? durationOption : formatMs(durationOption), " ").concat(easingOption, " ").concat(typeof delay === 'string' ? delay : formatMs(delay));
+    }).join(',');
+  },
+  getAutoHeightDuration: function getAutoHeightDuration(height) {
+    if (!height) {
+      return 0;
+    }
+
+    var constant = height / 36; // https://www.wolframalpha.com/input/?i=(4+%2B+15+*+(x+%2F+36+)+**+0.25+%2B+(x+%2F+36)+%2F+5)+*+10
+
+    return Math.round((4 + 15 * Math.pow(constant, 0.25) + constant / 5) * 10);
+  }
+};
 exports.default = _default;
-},{"@babel/runtime/helpers/esm/toConsumableArray":"../node_modules/@material-ui/core/node_modules/@babel/runtime/helpers/esm/toConsumableArray.js","@babel/runtime/helpers/esm/extends":"../node_modules/@material-ui/core/node_modules/@babel/runtime/helpers/esm/extends.js","@babel/runtime/helpers/esm/typeof":"../node_modules/@material-ui/core/node_modules/@babel/runtime/helpers/esm/typeof.js","prop-types":"../node_modules/prop-types/index.js","./merge":"../node_modules/@material-ui/core/node_modules/@material-ui/system/esm/merge.js"}],"../node_modules/@material-ui/core/node_modules/@material-ui/system/esm/style.js":[function(require,module,exports) {
+},{"@babel/runtime/helpers/esm/objectWithoutProperties":"../node_modules/@babel/runtime/helpers/esm/objectWithoutProperties.js"}],"../node_modules/@material-ui/core/esm/styles/zIndex.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+// We need to centralize the zIndex definitions as they work
+// like global values in the browser.
+var zIndex = {
+  mobileStepper: 1000,
+  speedDial: 1050,
+  appBar: 1100,
+  drawer: 1200,
+  modal: 1300,
+  snackbar: 1400,
+  tooltip: 1500
+};
+var _default = zIndex;
+exports.default = _default;
+},{}],"../node_modules/@material-ui/core/esm/styles/createMuiTheme.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -41934,1031 +39041,262 @@ exports.default = void 0;
 
 var _defineProperty2 = _interopRequireDefault(require("@babel/runtime/helpers/esm/defineProperty"));
 
-var _responsivePropType = _interopRequireDefault(require("./responsivePropType"));
-
-var _breakpoints = require("./breakpoints");
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-function getPath(obj, path) {
-  if (!path || typeof path !== 'string') {
-    return null;
-  }
-
-  return path.split('.').reduce(function (acc, item) {
-    return acc && acc[item] ? acc[item] : null;
-  }, obj);
-}
-
-function style(options) {
-  var prop = options.prop,
-      _options$cssProperty = options.cssProperty,
-      cssProperty = _options$cssProperty === void 0 ? options.prop : _options$cssProperty,
-      themeKey = options.themeKey,
-      transform = options.transform;
-
-  var fn = function fn(props) {
-    if (props[prop] == null) {
-      return null;
-    }
-
-    var propValue = props[prop];
-    var theme = props.theme;
-    var themeMapping = getPath(theme, themeKey) || {};
-
-    var styleFromPropValue = function styleFromPropValue(propValueFinal) {
-      var value;
-
-      if (typeof themeMapping === 'function') {
-        value = themeMapping(propValueFinal);
-      } else if (Array.isArray(themeMapping)) {
-        value = themeMapping[propValueFinal];
-      } else {
-        value = getPath(themeMapping, propValueFinal) || propValueFinal;
-
-        if (transform) {
-          value = transform(value);
-        }
-      }
-
-      if (cssProperty === false) {
-        return value;
-      }
-
-      return (0, _defineProperty2.default)({}, cssProperty, value);
-    };
-
-    return (0, _breakpoints.handleBreakpoints)(props, propValue, styleFromPropValue);
-  };
-
-  fn.propTypes = "development" !== 'production' ? (0, _defineProperty2.default)({}, prop, _responsivePropType.default) : {};
-  fn.filterProps = [prop];
-  return fn;
-}
-
-var _default = style;
-exports.default = _default;
-},{"@babel/runtime/helpers/esm/defineProperty":"../node_modules/@material-ui/core/node_modules/@babel/runtime/helpers/esm/defineProperty.js","./responsivePropType":"../node_modules/@material-ui/core/node_modules/@material-ui/system/esm/responsivePropType.js","./breakpoints":"../node_modules/@material-ui/core/node_modules/@material-ui/system/esm/breakpoints.js"}],"../node_modules/@material-ui/core/node_modules/@material-ui/system/esm/compose.js":[function(require,module,exports) {
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.default = void 0;
-
 var _extends2 = _interopRequireDefault(require("@babel/runtime/helpers/esm/extends"));
 
-var _merge = _interopRequireDefault(require("./merge"));
+var _objectWithoutProperties2 = _interopRequireDefault(require("@babel/runtime/helpers/esm/objectWithoutProperties"));
 
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+var _deepmerge = _interopRequireDefault(require("deepmerge"));
 
-function compose() {
-  for (var _len = arguments.length, styles = new Array(_len), _key = 0; _key < _len; _key++) {
-    styles[_key] = arguments[_key];
-  }
+var _isPlainObject = _interopRequireDefault(require("is-plain-object"));
 
-  var fn = function fn(props) {
-    return styles.reduce(function (acc, style) {
-      var output = style(props);
+var _createBreakpoints = _interopRequireDefault(require("./createBreakpoints"));
 
-      if (output) {
-        return (0, _merge.default)(acc, output);
-      }
+var _createMixins = _interopRequireDefault(require("./createMixins"));
 
-      return acc;
-    }, {});
-  }; // Alternative approach that doesn't yield any performance gain.
-  // const handlers = styles.reduce((acc, style) => {
-  //   style.filterProps.forEach(prop => {
-  //     acc[prop] = style;
-  //   });
-  //   return acc;
-  // }, {});
-  // const fn = props => {
-  //   return Object.keys(props).reduce((acc, prop) => {
-  //     if (handlers[prop]) {
-  //       return merge(acc, handlers[prop](props));
-  //     }
-  //     return acc;
-  //   }, {});
-  // };
+var _createPalette = _interopRequireDefault(require("./createPalette"));
 
-
-  fn.propTypes = "development" !== 'production' ? styles.reduce(function (acc, style) {
-    return (0, _extends2.default)(acc, style.propTypes);
-  }, {}) : {};
-  fn.filterProps = styles.reduce(function (acc, style) {
-    return acc.concat(style.filterProps);
-  }, []);
-  return fn;
-}
-
-var _default = compose;
-exports.default = _default;
-},{"@babel/runtime/helpers/esm/extends":"../node_modules/@material-ui/core/node_modules/@babel/runtime/helpers/esm/extends.js","./merge":"../node_modules/@material-ui/core/node_modules/@material-ui/system/esm/merge.js"}],"../node_modules/@material-ui/core/node_modules/@material-ui/system/esm/borders.js":[function(require,module,exports) {
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.default = exports.borderRadius = exports.borderColor = exports.borderLeft = exports.borderBottom = exports.borderRight = exports.borderTop = exports.border = void 0;
-
-var _style = _interopRequireDefault(require("./style"));
-
-var _compose = _interopRequireDefault(require("./compose"));
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-function getBorder(value) {
-  if (typeof value !== 'number') {
-    return value;
-  }
-
-  return "".concat(value, "px solid");
-}
-
-var border = (0, _style.default)({
-  prop: 'border',
-  themeKey: 'borders',
-  transform: getBorder
-});
-exports.border = border;
-var borderTop = (0, _style.default)({
-  prop: 'borderTop',
-  themeKey: 'borders',
-  transform: getBorder
-});
-exports.borderTop = borderTop;
-var borderRight = (0, _style.default)({
-  prop: 'borderRight',
-  themeKey: 'borders',
-  transform: getBorder
-});
-exports.borderRight = borderRight;
-var borderBottom = (0, _style.default)({
-  prop: 'borderBottom',
-  themeKey: 'borders',
-  transform: getBorder
-});
-exports.borderBottom = borderBottom;
-var borderLeft = (0, _style.default)({
-  prop: 'borderLeft',
-  themeKey: 'borders',
-  transform: getBorder
-});
-exports.borderLeft = borderLeft;
-var borderColor = (0, _style.default)({
-  prop: 'borderColor',
-  themeKey: 'palette'
-});
-exports.borderColor = borderColor;
-var borderRadius = (0, _style.default)({
-  prop: 'borderRadius',
-  themeKey: 'shape'
-});
-exports.borderRadius = borderRadius;
-var borders = (0, _compose.default)(border, borderTop, borderRight, borderBottom, borderLeft, borderColor, borderRadius);
-var _default = borders;
-exports.default = _default;
-},{"./style":"../node_modules/@material-ui/core/node_modules/@material-ui/system/esm/style.js","./compose":"../node_modules/@material-ui/core/node_modules/@material-ui/system/esm/compose.js"}],"../node_modules/@material-ui/core/node_modules/@material-ui/system/esm/css.js":[function(require,module,exports) {
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.default = void 0;
-
-var _toConsumableArray2 = _interopRequireDefault(require("@babel/runtime/helpers/esm/toConsumableArray"));
-
-var _extends2 = _interopRequireDefault(require("@babel/runtime/helpers/esm/extends"));
-
-var _propTypes = _interopRequireDefault(require("prop-types"));
-
-var _merge = _interopRequireDefault(require("./merge"));
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-function omit(input, fields) {
-  var output = {};
-  Object.keys(input).forEach(function (prop) {
-    if (fields.indexOf(prop) === -1) {
-      output[prop] = input[prop];
-    }
-  });
-  return output;
-}
-
-function css(styleFunction) {
-  var newStyleFunction = function newStyleFunction(props) {
-    var output = styleFunction(props);
-
-    if (props.css) {
-      return (0, _extends2.default)({}, (0, _merge.default)(output, styleFunction((0, _extends2.default)({
-        theme: props.theme
-      }, props.css))), {}, omit(props.css, [styleFunction.filterProps]));
-    }
-
-    return output;
-  };
-
-  newStyleFunction.propTypes = "development" !== 'production' ? (0, _extends2.default)({}, styleFunction.propTypes, {
-    css: _propTypes.default.object
-  }) : {};
-  newStyleFunction.filterProps = ['css'].concat((0, _toConsumableArray2.default)(styleFunction.filterProps));
-  return newStyleFunction;
-}
-
-var _default = css;
-exports.default = _default;
-},{"@babel/runtime/helpers/esm/toConsumableArray":"../node_modules/@material-ui/core/node_modules/@babel/runtime/helpers/esm/toConsumableArray.js","@babel/runtime/helpers/esm/extends":"../node_modules/@material-ui/core/node_modules/@babel/runtime/helpers/esm/extends.js","prop-types":"../node_modules/prop-types/index.js","./merge":"../node_modules/@material-ui/core/node_modules/@material-ui/system/esm/merge.js"}],"../node_modules/@material-ui/core/node_modules/@material-ui/system/esm/display.js":[function(require,module,exports) {
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.default = exports.whiteSpace = exports.visibility = exports.textOverflow = exports.overflow = exports.displayRaw = exports.displayPrint = void 0;
-
-var _style = _interopRequireDefault(require("./style"));
-
-var _compose = _interopRequireDefault(require("./compose"));
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-var displayPrint = (0, _style.default)({
-  prop: 'displayPrint',
-  cssProperty: false,
-  transform: function transform(value) {
-    return {
-      '@media print': {
-        display: value
-      }
-    };
-  }
-});
-exports.displayPrint = displayPrint;
-var displayRaw = (0, _style.default)({
-  prop: 'display'
-});
-exports.displayRaw = displayRaw;
-var overflow = (0, _style.default)({
-  prop: 'overflow'
-});
-exports.overflow = overflow;
-var textOverflow = (0, _style.default)({
-  prop: 'textOverflow'
-});
-exports.textOverflow = textOverflow;
-var visibility = (0, _style.default)({
-  prop: 'visibility'
-});
-exports.visibility = visibility;
-var whiteSpace = (0, _style.default)({
-  prop: 'whiteSpace'
-});
-exports.whiteSpace = whiteSpace;
-
-var _default = (0, _compose.default)(displayPrint, displayRaw, overflow, textOverflow, visibility, whiteSpace);
-
-exports.default = _default;
-},{"./style":"../node_modules/@material-ui/core/node_modules/@material-ui/system/esm/style.js","./compose":"../node_modules/@material-ui/core/node_modules/@material-ui/system/esm/compose.js"}],"../node_modules/@material-ui/core/node_modules/@material-ui/system/esm/flexbox.js":[function(require,module,exports) {
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.default = exports.justifySelf = exports.justifyItems = exports.alignSelf = exports.flexShrink = exports.flexGrow = exports.flex = exports.order = exports.alignContent = exports.alignItems = exports.justifyContent = exports.flexWrap = exports.flexDirection = exports.flexBasis = void 0;
-
-var _style = _interopRequireDefault(require("./style"));
-
-var _compose = _interopRequireDefault(require("./compose"));
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-var flexBasis = (0, _style.default)({
-  prop: 'flexBasis'
-});
-exports.flexBasis = flexBasis;
-var flexDirection = (0, _style.default)({
-  prop: 'flexDirection'
-});
-exports.flexDirection = flexDirection;
-var flexWrap = (0, _style.default)({
-  prop: 'flexWrap'
-});
-exports.flexWrap = flexWrap;
-var justifyContent = (0, _style.default)({
-  prop: 'justifyContent'
-});
-exports.justifyContent = justifyContent;
-var alignItems = (0, _style.default)({
-  prop: 'alignItems'
-});
-exports.alignItems = alignItems;
-var alignContent = (0, _style.default)({
-  prop: 'alignContent'
-});
-exports.alignContent = alignContent;
-var order = (0, _style.default)({
-  prop: 'order'
-});
-exports.order = order;
-var flex = (0, _style.default)({
-  prop: 'flex'
-});
-exports.flex = flex;
-var flexGrow = (0, _style.default)({
-  prop: 'flexGrow'
-});
-exports.flexGrow = flexGrow;
-var flexShrink = (0, _style.default)({
-  prop: 'flexShrink'
-});
-exports.flexShrink = flexShrink;
-var alignSelf = (0, _style.default)({
-  prop: 'alignSelf'
-});
-exports.alignSelf = alignSelf;
-var justifyItems = (0, _style.default)({
-  prop: 'justifyItems'
-});
-exports.justifyItems = justifyItems;
-var justifySelf = (0, _style.default)({
-  prop: 'justifySelf'
-});
-exports.justifySelf = justifySelf;
-var flexbox = (0, _compose.default)(flexBasis, flexDirection, flexWrap, justifyContent, alignItems, alignContent, order, flex, flexGrow, flexShrink, alignSelf, justifyItems, justifySelf);
-var _default = flexbox;
-exports.default = _default;
-},{"./style":"../node_modules/@material-ui/core/node_modules/@material-ui/system/esm/style.js","./compose":"../node_modules/@material-ui/core/node_modules/@material-ui/system/esm/compose.js"}],"../node_modules/@material-ui/core/node_modules/@material-ui/system/esm/palette.js":[function(require,module,exports) {
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.default = exports.bgcolor = exports.color = void 0;
-
-var _style = _interopRequireDefault(require("./style"));
-
-var _compose = _interopRequireDefault(require("./compose"));
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-var color = (0, _style.default)({
-  prop: 'color',
-  themeKey: 'palette'
-});
-exports.color = color;
-var bgcolor = (0, _style.default)({
-  prop: 'bgcolor',
-  cssProperty: 'backgroundColor',
-  themeKey: 'palette'
-});
-exports.bgcolor = bgcolor;
-var palette = (0, _compose.default)(color, bgcolor);
-var _default = palette;
-exports.default = _default;
-},{"./style":"../node_modules/@material-ui/core/node_modules/@material-ui/system/esm/style.js","./compose":"../node_modules/@material-ui/core/node_modules/@material-ui/system/esm/compose.js"}],"../node_modules/@material-ui/core/node_modules/@material-ui/system/esm/positions.js":[function(require,module,exports) {
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.default = exports.left = exports.bottom = exports.right = exports.top = exports.zIndex = exports.position = void 0;
-
-var _style = _interopRequireDefault(require("./style"));
-
-var _compose = _interopRequireDefault(require("./compose"));
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-var position = (0, _style.default)({
-  prop: 'position'
-});
-exports.position = position;
-var zIndex = (0, _style.default)({
-  prop: 'zIndex',
-  themeKey: 'zIndex'
-});
-exports.zIndex = zIndex;
-var top = (0, _style.default)({
-  prop: 'top'
-});
-exports.top = top;
-var right = (0, _style.default)({
-  prop: 'right'
-});
-exports.right = right;
-var bottom = (0, _style.default)({
-  prop: 'bottom'
-});
-exports.bottom = bottom;
-var left = (0, _style.default)({
-  prop: 'left'
-});
-exports.left = left;
-
-var _default = (0, _compose.default)(position, zIndex, top, right, bottom, left);
-
-exports.default = _default;
-},{"./style":"../node_modules/@material-ui/core/node_modules/@material-ui/system/esm/style.js","./compose":"../node_modules/@material-ui/core/node_modules/@material-ui/system/esm/compose.js"}],"../node_modules/@material-ui/core/node_modules/@material-ui/system/esm/shadows.js":[function(require,module,exports) {
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.default = void 0;
-
-var _style = _interopRequireDefault(require("./style"));
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-var boxShadow = (0, _style.default)({
-  prop: 'boxShadow',
-  themeKey: 'shadows'
-});
-var _default = boxShadow;
-exports.default = _default;
-},{"./style":"../node_modules/@material-ui/core/node_modules/@material-ui/system/esm/style.js"}],"../node_modules/@material-ui/core/node_modules/@material-ui/system/esm/sizing.js":[function(require,module,exports) {
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.default = exports.sizeHeight = exports.sizeWidth = exports.minHeight = exports.maxHeight = exports.height = exports.minWidth = exports.maxWidth = exports.width = void 0;
-
-var _style = _interopRequireDefault(require("./style"));
-
-var _compose = _interopRequireDefault(require("./compose"));
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-function transform(value) {
-  return value <= 1 ? "".concat(value * 100, "%") : value;
-}
-
-var width = (0, _style.default)({
-  prop: 'width',
-  transform: transform
-});
-exports.width = width;
-var maxWidth = (0, _style.default)({
-  prop: 'maxWidth',
-  transform: transform
-});
-exports.maxWidth = maxWidth;
-var minWidth = (0, _style.default)({
-  prop: 'minWidth',
-  transform: transform
-});
-exports.minWidth = minWidth;
-var height = (0, _style.default)({
-  prop: 'height',
-  transform: transform
-});
-exports.height = height;
-var maxHeight = (0, _style.default)({
-  prop: 'maxHeight',
-  transform: transform
-});
-exports.maxHeight = maxHeight;
-var minHeight = (0, _style.default)({
-  prop: 'minHeight',
-  transform: transform
-});
-exports.minHeight = minHeight;
-var sizeWidth = (0, _style.default)({
-  prop: 'size',
-  cssProperty: 'width',
-  transform: transform
-});
-exports.sizeWidth = sizeWidth;
-var sizeHeight = (0, _style.default)({
-  prop: 'size',
-  cssProperty: 'height',
-  transform: transform
-});
-exports.sizeHeight = sizeHeight;
-var sizing = (0, _compose.default)(width, maxWidth, minWidth, height, maxHeight, minHeight);
-var _default = sizing;
-exports.default = _default;
-},{"./style":"../node_modules/@material-ui/core/node_modules/@material-ui/system/esm/style.js","./compose":"../node_modules/@material-ui/core/node_modules/@material-ui/system/esm/compose.js"}],"../node_modules/@material-ui/core/node_modules/@babel/runtime/helpers/esm/arrayWithHoles.js":[function(require,module,exports) {
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.default = _arrayWithHoles;
-
-function _arrayWithHoles(arr) {
-  if (Array.isArray(arr)) return arr;
-}
-},{}],"../node_modules/@material-ui/core/node_modules/@babel/runtime/helpers/esm/iterableToArrayLimit.js":[function(require,module,exports) {
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.default = _iterableToArrayLimit;
-
-function _iterableToArrayLimit(arr, i) {
-  if (!(Symbol.iterator in Object(arr) || Object.prototype.toString.call(arr) === "[object Arguments]")) {
-    return;
-  }
-
-  var _arr = [];
-  var _n = true;
-  var _d = false;
-  var _e = undefined;
-
-  try {
-    for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) {
-      _arr.push(_s.value);
-
-      if (i && _arr.length === i) break;
-    }
-  } catch (err) {
-    _d = true;
-    _e = err;
-  } finally {
-    try {
-      if (!_n && _i["return"] != null) _i["return"]();
-    } finally {
-      if (_d) throw _e;
-    }
-  }
-
-  return _arr;
-}
-},{}],"../node_modules/@material-ui/core/node_modules/@babel/runtime/helpers/esm/nonIterableRest.js":[function(require,module,exports) {
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.default = _nonIterableRest;
-
-function _nonIterableRest() {
-  throw new TypeError("Invalid attempt to destructure non-iterable instance");
-}
-},{}],"../node_modules/@material-ui/core/node_modules/@babel/runtime/helpers/esm/slicedToArray.js":[function(require,module,exports) {
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.default = _slicedToArray;
-
-var _arrayWithHoles = _interopRequireDefault(require("./arrayWithHoles"));
-
-var _iterableToArrayLimit = _interopRequireDefault(require("./iterableToArrayLimit"));
-
-var _nonIterableRest = _interopRequireDefault(require("./nonIterableRest"));
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-function _slicedToArray(arr, i) {
-  return (0, _arrayWithHoles.default)(arr) || (0, _iterableToArrayLimit.default)(arr, i) || (0, _nonIterableRest.default)();
-}
-},{"./arrayWithHoles":"../node_modules/@material-ui/core/node_modules/@babel/runtime/helpers/esm/arrayWithHoles.js","./iterableToArrayLimit":"../node_modules/@material-ui/core/node_modules/@babel/runtime/helpers/esm/iterableToArrayLimit.js","./nonIterableRest":"../node_modules/@material-ui/core/node_modules/@babel/runtime/helpers/esm/nonIterableRest.js"}],"../node_modules/@material-ui/core/node_modules/@material-ui/system/esm/memoize.js":[function(require,module,exports) {
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.default = memoize;
-
-function memoize(fn) {
-  var cache = {};
-  return function (arg) {
-    if (cache[arg] === undefined) {
-      cache[arg] = fn(arg);
-    }
-
-    return cache[arg];
-  };
-}
-},{}],"../node_modules/@material-ui/core/node_modules/@material-ui/system/esm/spacing.js":[function(require,module,exports) {
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.default = void 0;
-
-var _slicedToArray2 = _interopRequireDefault(require("@babel/runtime/helpers/esm/slicedToArray"));
-
-var _responsivePropType = _interopRequireDefault(require("./responsivePropType"));
-
-var _breakpoints = require("./breakpoints");
-
-var _merge = _interopRequireDefault(require("./merge"));
-
-var _memoize = _interopRequireDefault(require("./memoize"));
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-var properties = {
-  m: 'margin',
-  p: 'padding'
-};
-var directions = {
-  t: 'Top',
-  r: 'Right',
-  b: 'Bottom',
-  l: 'Left',
-  x: ['Left', 'Right'],
-  y: ['Top', 'Bottom']
-};
-var aliases = {
-  marginX: 'mx',
-  marginY: 'my',
-  paddingX: 'px',
-  paddingY: 'py'
-}; // memoize() impact:
-// From 300,000 ops/sec
-// To 350,000 ops/sec
-
-var getCssProperties = (0, _memoize.default)(function (prop) {
-  // It's not a shorthand notation.
-  if (prop.length > 2) {
-    if (aliases[prop]) {
-      prop = aliases[prop];
-    } else {
-      return [prop];
-    }
-  }
-
-  var _prop$split = prop.split(''),
-      _prop$split2 = (0, _slicedToArray2.default)(_prop$split, 2),
-      a = _prop$split2[0],
-      b = _prop$split2[1];
-
-  var property = properties[a];
-  var direction = directions[b] || '';
-  return Array.isArray(direction) ? direction.map(function (dir) {
-    return property + dir;
-  }) : [property + direction];
-});
-var spacingKeys = ['m', 'mt', 'mr', 'mb', 'ml', 'mx', 'my', 'p', 'pt', 'pr', 'pb', 'pl', 'px', 'py', 'margin', 'marginTop', 'marginRight', 'marginBottom', 'marginLeft', 'marginX', 'marginY', 'padding', 'paddingTop', 'paddingRight', 'paddingBottom', 'paddingLeft', 'paddingX', 'paddingY'];
-
-function getTransformer(theme) {
-  var themeSpacing = theme.spacing || 8;
-
-  if (typeof themeSpacing === 'number') {
-    return function (abs) {
-      return themeSpacing * abs;
-    };
-  }
-
-  if (Array.isArray(themeSpacing)) {
-    return function (abs) {
-      if ("development" !== 'production') {
-        if (abs > themeSpacing.length - 1) {
-          console.error(["@material-ui/system: the value provided (".concat(abs, ") overflows."), "The supported values are: ".concat(JSON.stringify(themeSpacing), "."), "".concat(abs, " > ").concat(themeSpacing.length - 1, ", you need to add the missing values.")].join('\n'));
-        }
-      }
-
-      return themeSpacing[abs];
-    };
-  }
-
-  if (typeof themeSpacing === 'function') {
-    return themeSpacing;
-  }
-
-  if ("development" !== 'production') {
-    console.error(["@material-ui/system: the `theme.spacing` value (".concat(themeSpacing, ") is invalid."), 'It should be a number, an array or a function.'].join('\n'));
-  }
-
-  return function () {
-    return undefined;
-  };
-}
-
-function getValue(transformer, propValue) {
-  if (typeof propValue === 'string') {
-    return propValue;
-  }
-
-  var abs = Math.abs(propValue);
-  var transformed = transformer(abs);
-
-  if (propValue >= 0) {
-    return transformed;
-  }
-
-  if (typeof transformed === 'number') {
-    return -transformed;
-  }
-
-  return "-".concat(transformed);
-}
-
-function getStyleFromPropValue(cssProperties, transformer) {
-  return function (propValue) {
-    return cssProperties.reduce(function (acc, cssProperty) {
-      acc[cssProperty] = getValue(transformer, propValue);
-      return acc;
-    }, {});
-  };
-}
-
-function spacing(props) {
-  var theme = props.theme;
-  var transformer = getTransformer(theme);
-  return Object.keys(props).map(function (prop) {
-    // Using a hash computation over an array iteration could be faster, but with only 28 items,
-    // it's doesn't worth the bundle size.
-    if (spacingKeys.indexOf(prop) === -1) {
-      return null;
-    }
-
-    var cssProperties = getCssProperties(prop);
-    var styleFromPropValue = getStyleFromPropValue(cssProperties, transformer);
-    var propValue = props[prop];
-    return (0, _breakpoints.handleBreakpoints)(props, propValue, styleFromPropValue);
-  }).reduce(_merge.default, {});
-}
-
-spacing.propTypes = "development" !== 'production' ? spacingKeys.reduce(function (obj, key) {
-  obj[key] = _responsivePropType.default;
-  return obj;
-}, {}) : {};
-spacing.filterProps = spacingKeys;
-var _default = spacing;
-exports.default = _default;
-},{"@babel/runtime/helpers/esm/slicedToArray":"../node_modules/@material-ui/core/node_modules/@babel/runtime/helpers/esm/slicedToArray.js","./responsivePropType":"../node_modules/@material-ui/core/node_modules/@material-ui/system/esm/responsivePropType.js","./breakpoints":"../node_modules/@material-ui/core/node_modules/@material-ui/system/esm/breakpoints.js","./merge":"../node_modules/@material-ui/core/node_modules/@material-ui/system/esm/merge.js","./memoize":"../node_modules/@material-ui/core/node_modules/@material-ui/system/esm/memoize.js"}],"../node_modules/@material-ui/core/node_modules/@material-ui/system/esm/typography.js":[function(require,module,exports) {
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.default = exports.textAlign = exports.lineHeight = exports.letterSpacing = exports.fontWeight = exports.fontStyle = exports.fontSize = exports.fontFamily = void 0;
-
-var _style = _interopRequireDefault(require("./style"));
-
-var _compose = _interopRequireDefault(require("./compose"));
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-var fontFamily = (0, _style.default)({
-  prop: 'fontFamily',
-  themeKey: 'typography'
-});
-exports.fontFamily = fontFamily;
-var fontSize = (0, _style.default)({
-  prop: 'fontSize',
-  themeKey: 'typography'
-});
-exports.fontSize = fontSize;
-var fontStyle = (0, _style.default)({
-  prop: 'fontStyle',
-  themeKey: 'typography'
-});
-exports.fontStyle = fontStyle;
-var fontWeight = (0, _style.default)({
-  prop: 'fontWeight',
-  themeKey: 'typography'
-});
-exports.fontWeight = fontWeight;
-var letterSpacing = (0, _style.default)({
-  prop: 'letterSpacing'
-});
-exports.letterSpacing = letterSpacing;
-var lineHeight = (0, _style.default)({
-  prop: 'lineHeight'
-});
-exports.lineHeight = lineHeight;
-var textAlign = (0, _style.default)({
-  prop: 'textAlign'
-});
-exports.textAlign = textAlign;
-var typography = (0, _compose.default)(fontFamily, fontSize, fontStyle, fontWeight, letterSpacing, lineHeight, textAlign);
-var _default = typography;
-exports.default = _default;
-},{"./style":"../node_modules/@material-ui/core/node_modules/@material-ui/system/esm/style.js","./compose":"../node_modules/@material-ui/core/node_modules/@material-ui/system/esm/compose.js"}],"../node_modules/@material-ui/core/node_modules/@material-ui/system/esm/index.js":[function(require,module,exports) {
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-var _exportNames = {
-  borders: true,
-  breakpoints: true,
-  compose: true,
-  css: true,
-  display: true,
-  flexbox: true,
-  palette: true,
-  positions: true,
-  shadows: true,
-  sizing: true,
-  spacing: true,
-  style: true,
-  typography: true
-};
-Object.defineProperty(exports, "borders", {
-  enumerable: true,
-  get: function () {
-    return _borders.default;
-  }
-});
-Object.defineProperty(exports, "breakpoints", {
-  enumerable: true,
-  get: function () {
-    return _breakpoints.default;
-  }
-});
-Object.defineProperty(exports, "compose", {
-  enumerable: true,
-  get: function () {
-    return _compose.default;
-  }
-});
-Object.defineProperty(exports, "css", {
-  enumerable: true,
-  get: function () {
-    return _css.default;
-  }
-});
-Object.defineProperty(exports, "display", {
-  enumerable: true,
-  get: function () {
-    return _display.default;
-  }
-});
-Object.defineProperty(exports, "flexbox", {
-  enumerable: true,
-  get: function () {
-    return _flexbox.default;
-  }
-});
-Object.defineProperty(exports, "palette", {
-  enumerable: true,
-  get: function () {
-    return _palette.default;
-  }
-});
-Object.defineProperty(exports, "positions", {
-  enumerable: true,
-  get: function () {
-    return _positions.default;
-  }
-});
-Object.defineProperty(exports, "shadows", {
-  enumerable: true,
-  get: function () {
-    return _shadows.default;
-  }
-});
-Object.defineProperty(exports, "sizing", {
-  enumerable: true,
-  get: function () {
-    return _sizing.default;
-  }
-});
-Object.defineProperty(exports, "spacing", {
-  enumerable: true,
-  get: function () {
-    return _spacing.default;
-  }
-});
-Object.defineProperty(exports, "style", {
-  enumerable: true,
-  get: function () {
-    return _style.default;
-  }
-});
-Object.defineProperty(exports, "typography", {
-  enumerable: true,
-  get: function () {
-    return _typography.default;
-  }
-});
-
-var _borders = _interopRequireWildcard(require("./borders"));
-
-Object.keys(_borders).forEach(function (key) {
-  if (key === "default" || key === "__esModule") return;
-  if (Object.prototype.hasOwnProperty.call(_exportNames, key)) return;
-  Object.defineProperty(exports, key, {
-    enumerable: true,
-    get: function () {
-      return _borders[key];
-    }
-  });
-});
-
-var _breakpoints = _interopRequireDefault(require("./breakpoints"));
-
-var _compose = _interopRequireDefault(require("./compose"));
-
-var _css = _interopRequireDefault(require("./css"));
-
-var _display = _interopRequireDefault(require("./display"));
-
-var _flexbox = _interopRequireWildcard(require("./flexbox"));
-
-Object.keys(_flexbox).forEach(function (key) {
-  if (key === "default" || key === "__esModule") return;
-  if (Object.prototype.hasOwnProperty.call(_exportNames, key)) return;
-  Object.defineProperty(exports, key, {
-    enumerable: true,
-    get: function () {
-      return _flexbox[key];
-    }
-  });
-});
-
-var _palette = _interopRequireWildcard(require("./palette"));
-
-Object.keys(_palette).forEach(function (key) {
-  if (key === "default" || key === "__esModule") return;
-  if (Object.prototype.hasOwnProperty.call(_exportNames, key)) return;
-  Object.defineProperty(exports, key, {
-    enumerable: true,
-    get: function () {
-      return _palette[key];
-    }
-  });
-});
-
-var _positions = _interopRequireWildcard(require("./positions"));
-
-Object.keys(_positions).forEach(function (key) {
-  if (key === "default" || key === "__esModule") return;
-  if (Object.prototype.hasOwnProperty.call(_exportNames, key)) return;
-  Object.defineProperty(exports, key, {
-    enumerable: true,
-    get: function () {
-      return _positions[key];
-    }
-  });
-});
+var _createTypography = _interopRequireDefault(require("./createTypography"));
 
 var _shadows = _interopRequireDefault(require("./shadows"));
 
-var _sizing = _interopRequireWildcard(require("./sizing"));
+var _shape = _interopRequireDefault(require("./shape"));
 
-Object.keys(_sizing).forEach(function (key) {
-  if (key === "default" || key === "__esModule") return;
-  if (Object.prototype.hasOwnProperty.call(_exportNames, key)) return;
-  Object.defineProperty(exports, key, {
-    enumerable: true,
-    get: function () {
-      return _sizing[key];
-    }
-  });
-});
+var _createSpacing = _interopRequireDefault(require("./createSpacing"));
 
-var _spacing = _interopRequireDefault(require("./spacing"));
+var _transitions = _interopRequireDefault(require("./transitions"));
 
-var _style = _interopRequireDefault(require("./style"));
-
-var _typography = _interopRequireWildcard(require("./typography"));
-
-Object.keys(_typography).forEach(function (key) {
-  if (key === "default" || key === "__esModule") return;
-  if (Object.prototype.hasOwnProperty.call(_exportNames, key)) return;
-  Object.defineProperty(exports, key, {
-    enumerable: true,
-    get: function () {
-      return _typography[key];
-    }
-  });
-});
+var _zIndex = _interopRequireDefault(require("./zIndex"));
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-function _getRequireWildcardCache() { if (typeof WeakMap !== "function") return null; var cache = new WeakMap(); _getRequireWildcardCache = function () { return cache; }; return cache; }
+// < 1kb payload overhead when lodash/merge is > 3kb.
+function createMuiTheme() {
+  var options = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+  var _options$breakpoints = options.breakpoints,
+      breakpointsInput = _options$breakpoints === void 0 ? {} : _options$breakpoints,
+      _options$mixins = options.mixins,
+      mixinsInput = _options$mixins === void 0 ? {} : _options$mixins,
+      _options$palette = options.palette,
+      paletteInput = _options$palette === void 0 ? {} : _options$palette,
+      shadowsInput = options.shadows,
+      spacingInput = options.spacing,
+      _options$typography = options.typography,
+      typographyInput = _options$typography === void 0 ? {} : _options$typography,
+      other = (0, _objectWithoutProperties2.default)(options, ["breakpoints", "mixins", "palette", "shadows", "spacing", "typography"]);
+  var palette = (0, _createPalette.default)(paletteInput);
+  var breakpoints = (0, _createBreakpoints.default)(breakpointsInput);
+  var spacing = (0, _createSpacing.default)(spacingInput);
+  var muiTheme = (0, _extends2.default)({
+    breakpoints: breakpoints,
+    direction: 'ltr',
+    mixins: (0, _createMixins.default)(breakpoints, spacing, mixinsInput),
+    overrides: {},
+    // Inject custom styles
+    palette: palette,
+    props: {},
+    // Inject custom props
+    shadows: shadowsInput || _shadows.default,
+    typography: (0, _createTypography.default)(palette, typographyInput),
+    spacing: spacing
+  }, (0, _deepmerge.default)({
+    shape: _shape.default,
+    transitions: _transitions.default,
+    zIndex: _zIndex.default
+  }, other, {
+    isMergeableObject: _isPlainObject.default
+  }));
 
-function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } var cache = _getRequireWildcardCache(); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; if (obj != null) { var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } } newObj.default = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
-},{"./borders":"../node_modules/@material-ui/core/node_modules/@material-ui/system/esm/borders.js","./breakpoints":"../node_modules/@material-ui/core/node_modules/@material-ui/system/esm/breakpoints.js","./compose":"../node_modules/@material-ui/core/node_modules/@material-ui/system/esm/compose.js","./css":"../node_modules/@material-ui/core/node_modules/@material-ui/system/esm/css.js","./display":"../node_modules/@material-ui/core/node_modules/@material-ui/system/esm/display.js","./flexbox":"../node_modules/@material-ui/core/node_modules/@material-ui/system/esm/flexbox.js","./palette":"../node_modules/@material-ui/core/node_modules/@material-ui/system/esm/palette.js","./positions":"../node_modules/@material-ui/core/node_modules/@material-ui/system/esm/positions.js","./shadows":"../node_modules/@material-ui/core/node_modules/@material-ui/system/esm/shadows.js","./sizing":"../node_modules/@material-ui/core/node_modules/@material-ui/system/esm/sizing.js","./spacing":"../node_modules/@material-ui/core/node_modules/@material-ui/system/esm/spacing.js","./style":"../node_modules/@material-ui/core/node_modules/@material-ui/system/esm/style.js","./typography":"../node_modules/@material-ui/core/node_modules/@material-ui/system/esm/typography.js"}],"../node_modules/@material-ui/core/esm/Box/Box.js":[function(require,module,exports) {
+  if ("development" !== 'production') {
+    var pseudoClasses = ['checked', 'disabled', 'error', 'focused', 'focusVisible', 'required', 'expanded', 'selected'];
+
+    var traverse = function traverse(node, parentKey) {
+      var depth = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 1;
+      var key; // eslint-disable-next-line guard-for-in, no-restricted-syntax
+
+      for (key in node) {
+        var child = node[key];
+
+        if (depth === 1) {
+          if (key.indexOf('Mui') === 0 && child) {
+            traverse(child, key, depth + 1);
+          }
+        } else if (pseudoClasses.indexOf(key) !== -1 && Object.keys(child).length > 0) {
+          if ("development" !== 'production') {
+            console.error(["Material-UI: the `".concat(parentKey, "` component increases ") + "the CSS specificity of the `".concat(key, "` internal state."), 'You can not override it like this: ', JSON.stringify(node, null, 2), '', 'Instead, you need to use the $ruleName syntax:', JSON.stringify({
+              root: (0, _defineProperty2.default)({}, "&$".concat(key), child)
+            }, null, 2), '', 'https://material-ui.com/r/pseudo-classes-guide'].join('\n'));
+          } // Remove the style to prevent global conflicts.
+
+
+          node[key] = {};
+        }
+      }
+    };
+
+    traverse(muiTheme.overrides);
+  }
+
+  if ("development" !== 'production') {
+    if (muiTheme.shadows.length !== 25) {
+      console.error('Material-UI: the shadows array provided to createMuiTheme should support 25 elevations.');
+    }
+  }
+
+  return muiTheme;
+}
+
+var _default = createMuiTheme;
+exports.default = _default;
+},{"@babel/runtime/helpers/esm/defineProperty":"../node_modules/@babel/runtime/helpers/esm/defineProperty.js","@babel/runtime/helpers/esm/extends":"../node_modules/@babel/runtime/helpers/esm/extends.js","@babel/runtime/helpers/esm/objectWithoutProperties":"../node_modules/@babel/runtime/helpers/esm/objectWithoutProperties.js","deepmerge":"../node_modules/deepmerge/dist/cjs.js","is-plain-object":"../node_modules/is-plain-object/index.js","./createBreakpoints":"../node_modules/@material-ui/core/esm/styles/createBreakpoints.js","./createMixins":"../node_modules/@material-ui/core/esm/styles/createMixins.js","./createPalette":"../node_modules/@material-ui/core/esm/styles/createPalette.js","./createTypography":"../node_modules/@material-ui/core/esm/styles/createTypography.js","./shadows":"../node_modules/@material-ui/core/esm/styles/shadows.js","./shape":"../node_modules/@material-ui/core/esm/styles/shape.js","./createSpacing":"../node_modules/@material-ui/core/esm/styles/createSpacing.js","./transitions":"../node_modules/@material-ui/core/esm/styles/transitions.js","./zIndex":"../node_modules/@material-ui/core/esm/styles/zIndex.js"}],"../node_modules/@material-ui/core/esm/styles/defaultTheme.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.default = exports.styleFunction = void 0;
+exports.default = void 0;
 
-var _system = require("@material-ui/system");
-
-var _styled = _interopRequireDefault(require("../styles/styled"));
+var _createMuiTheme = _interopRequireDefault(require("./createMuiTheme"));
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-var styleFunction = (0, _system.css)((0, _system.compose)(_system.borders, _system.display, _system.flexbox, _system.positions, _system.palette, _system.shadows, _system.sizing, _system.spacing, _system.typography));
-/**
- * @ignore - do not document.
- */
-
-exports.styleFunction = styleFunction;
-var Box = (0, _styled.default)('div')(styleFunction, {
-  name: 'MuiBox'
-});
-var _default = Box;
+var defaultTheme = (0, _createMuiTheme.default)();
+var _default = defaultTheme;
 exports.default = _default;
-},{"@material-ui/system":"../node_modules/@material-ui/core/node_modules/@material-ui/system/esm/index.js","../styles/styled":"../node_modules/@material-ui/core/esm/styles/styled.js"}],"../node_modules/@material-ui/core/esm/Box/index.js":[function(require,module,exports) {
+},{"./createMuiTheme":"../node_modules/@material-ui/core/esm/styles/createMuiTheme.js"}],"../node_modules/@material-ui/core/esm/styles/withStyles.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var _extends2 = _interopRequireDefault(require("@babel/runtime/helpers/esm/extends"));
+
+var _styles = require("@material-ui/styles");
+
+var _defaultTheme = _interopRequireDefault(require("./defaultTheme"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function withStyles(stylesOrCreator, options) {
+  return (0, _styles.withStyles)(stylesOrCreator, (0, _extends2.default)({
+    defaultTheme: _defaultTheme.default
+  }, options));
+}
+
+var _default = withStyles;
+exports.default = _default;
+},{"@babel/runtime/helpers/esm/extends":"../node_modules/@babel/runtime/helpers/esm/extends.js","@material-ui/styles":"../node_modules/@material-ui/styles/esm/index.js","./defaultTheme":"../node_modules/@material-ui/core/esm/styles/defaultTheme.js"}],"../node_modules/@material-ui/core/esm/Paper/Paper.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = exports.styles = void 0;
+
+var _objectWithoutProperties2 = _interopRequireDefault(require("@babel/runtime/helpers/esm/objectWithoutProperties"));
+
+var _extends2 = _interopRequireDefault(require("@babel/runtime/helpers/esm/extends"));
+
+var _react = _interopRequireDefault(require("react"));
+
+var _propTypes = _interopRequireDefault(require("prop-types"));
+
+var _clsx = _interopRequireDefault(require("clsx"));
+
+var _withStyles = _interopRequireDefault(require("../styles/withStyles"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var styles = function styles(theme) {
+  var elevations = {};
+  theme.shadows.forEach(function (shadow, index) {
+    elevations["elevation".concat(index)] = {
+      boxShadow: shadow
+    };
+  });
+  return (0, _extends2.default)({
+    /* Styles applied to the root element. */
+    root: {
+      backgroundColor: theme.palette.background.paper,
+      color: theme.palette.text.primary,
+      transition: theme.transitions.create('box-shadow')
+    },
+
+    /* Styles applied to the root element if `square={false}`. */
+    rounded: {
+      borderRadius: theme.shape.borderRadius
+    }
+  }, elevations);
+};
+
+exports.styles = styles;
+
+var Paper = _react.default.forwardRef(function Paper(props, ref) {
+  var classes = props.classes,
+      classNameProp = props.className,
+      _props$component = props.component,
+      Component = _props$component === void 0 ? 'div' : _props$component,
+      _props$square = props.square,
+      square = _props$square === void 0 ? false : _props$square,
+      _props$elevation = props.elevation,
+      elevation = _props$elevation === void 0 ? 1 : _props$elevation,
+      other = (0, _objectWithoutProperties2.default)(props, ["classes", "className", "component", "square", "elevation"]);
+
+  if ("development" !== 'production') {
+    if (elevation < 0 || elevation >= 25) {
+      console.error("Material-UI: this elevation `".concat(elevation, "` is not implemented."));
+    }
+  }
+
+  var className = (0, _clsx.default)(classes.root, classes["elevation".concat(elevation)], classNameProp, !square && classes.rounded);
+  return _react.default.createElement(Component, (0, _extends2.default)({
+    className: className,
+    ref: ref
+  }, other));
+});
+
+"development" !== "production" ? Paper.propTypes = {
+  /**
+   * The content of the component.
+   */
+  children: _propTypes.default.node,
+
+  /**
+   * Override or extend the styles applied to the component.
+   * See [CSS API](#css) below for more details.
+   */
+  classes: _propTypes.default.object.isRequired,
+
+  /**
+   * @ignore
+   */
+  className: _propTypes.default.string,
+
+  /**
+   * The component used for the root node.
+   * Either a string to use a DOM element or a component.
+   */
+  component: _propTypes.default.elementType,
+
+  /**
+   * Shadow depth, corresponds to `dp` in the spec.
+   * It accepts values between 0 and 24 inclusive.
+   */
+  elevation: _propTypes.default.number,
+
+  /**
+   * If `true`, rounded corners are disabled.
+   */
+  square: _propTypes.default.bool
+} : void 0;
+
+var _default = (0, _withStyles.default)(styles, {
+  name: 'MuiPaper'
+})(Paper);
+
+exports.default = _default;
+},{"@babel/runtime/helpers/esm/objectWithoutProperties":"../node_modules/@babel/runtime/helpers/esm/objectWithoutProperties.js","@babel/runtime/helpers/esm/extends":"../node_modules/@babel/runtime/helpers/esm/extends.js","react":"../node_modules/react/index.js","prop-types":"../node_modules/prop-types/index.js","clsx":"../node_modules/clsx/dist/clsx.m.js","../styles/withStyles":"../node_modules/@material-ui/core/esm/styles/withStyles.js"}],"../node_modules/@material-ui/core/esm/Paper/index.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -42967,22 +39305,322 @@ Object.defineProperty(exports, "__esModule", {
 Object.defineProperty(exports, "default", {
   enumerable: true,
   get: function () {
-    return _Box.default;
-  }
-});
-Object.defineProperty(exports, "styleFunction", {
-  enumerable: true,
-  get: function () {
-    return _Box.styleFunction;
+    return _Paper.default;
   }
 });
 
-var _Box = _interopRequireWildcard(require("./Box"));
+var _Paper = _interopRequireDefault(require("./Paper"));
 
-function _getRequireWildcardCache() { if (typeof WeakMap !== "function") return null; var cache = new WeakMap(); _getRequireWildcardCache = function () { return cache; }; return cache; }
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+},{"./Paper":"../node_modules/@material-ui/core/esm/Paper/Paper.js"}],"../node_modules/@material-ui/core/esm/utils/debounce.js":[function(require,module,exports) {
+"use strict";
 
-function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } var cache = _getRequireWildcardCache(); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; if (obj != null) { var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } } newObj.default = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
-},{"./Box":"../node_modules/@material-ui/core/esm/Box/Box.js"}],"../node_modules/@material-ui/core/esm/utils/helpers.js":[function(require,module,exports) {
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = debounce;
+
+// Corresponds to 10 frames at 60 Hz.
+// A few bytes payload overhead when lodash/debounce is ~3 kB and debounce ~300 B.
+function debounce(func) {
+  var wait = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 166;
+  var timeout;
+
+  function debounced() {
+    for (var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++) {
+      args[_key] = arguments[_key];
+    } // eslint-disable-next-line consistent-this
+
+
+    var that = this;
+
+    var later = function later() {
+      func.apply(that, args);
+    };
+
+    clearTimeout(timeout);
+    timeout = setTimeout(later, wait);
+  }
+
+  debounced.clear = function () {
+    clearTimeout(timeout);
+  };
+
+  return debounced;
+}
+},{}],"../node_modules/@material-ui/core/esm/utils/ownerDocument.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+function ownerDocument(node) {
+  return node && node.ownerDocument || document;
+}
+
+var _default = ownerDocument;
+exports.default = _default;
+},{}],"../node_modules/@material-ui/core/esm/utils/ownerWindow.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var _ownerDocument = _interopRequireDefault(require("./ownerDocument"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function ownerWindow(node) {
+  var doc = (0, _ownerDocument.default)(node);
+  return doc.defaultView || window;
+}
+
+var _default = ownerWindow;
+exports.default = _default;
+},{"./ownerDocument":"../node_modules/@material-ui/core/esm/utils/ownerDocument.js"}],"../node_modules/normalize-scroll-left/esm/main.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports._setScrollType = _setScrollType;
+exports.detectScrollType = detectScrollType;
+exports.getNormalizedScrollLeft = getNormalizedScrollLeft;
+exports.setNormalizedScrollLeft = setNormalizedScrollLeft;
+// Based on https://github.com/react-bootstrap/dom-helpers/blob/master/src/util/inDOM.js
+var inDOM = !!(typeof window !== 'undefined' && window.document && window.document.createElement);
+var cachedType;
+
+function _setScrollType(type) {
+  cachedType = type;
+} // Based on the jquery plugin https://github.com/othree/jquery.rtl-scroll-type
+
+
+function detectScrollType() {
+  if (cachedType) {
+    return cachedType;
+  }
+
+  if (!inDOM || !window.document.body) {
+    return 'indeterminate';
+  }
+
+  var dummy = window.document.createElement('div');
+  dummy.appendChild(document.createTextNode('ABCD'));
+  dummy.dir = 'rtl';
+  dummy.style.fontSize = '14px';
+  dummy.style.width = '4px';
+  dummy.style.height = '1px';
+  dummy.style.position = 'absolute';
+  dummy.style.top = '-1000px';
+  dummy.style.overflow = 'scroll';
+  document.body.appendChild(dummy);
+  cachedType = 'reverse';
+
+  if (dummy.scrollLeft > 0) {
+    cachedType = 'default';
+  } else {
+    dummy.scrollLeft = 1;
+
+    if (dummy.scrollLeft === 0) {
+      cachedType = 'negative';
+    }
+  }
+
+  document.body.removeChild(dummy);
+  return cachedType;
+} // Based on https://stackoverflow.com/a/24394376
+
+
+function getNormalizedScrollLeft(element, direction) {
+  var scrollLeft = element.scrollLeft; // Perform the calculations only when direction is rtl to avoid messing up the ltr bahavior
+
+  if (direction !== 'rtl') {
+    return scrollLeft;
+  }
+
+  var type = detectScrollType();
+
+  if (type === 'indeterminate') {
+    return Number.NaN;
+  }
+
+  switch (type) {
+    case 'negative':
+      return element.scrollWidth - element.clientWidth + scrollLeft;
+
+    case 'reverse':
+      return element.scrollWidth - element.clientWidth - scrollLeft;
+  }
+
+  return scrollLeft;
+}
+
+function setNormalizedScrollLeft(element, scrollLeft, direction) {
+  // Perform the calculations only when direction is rtl to avoid messing up the ltr bahavior
+  if (direction !== 'rtl') {
+    element.scrollLeft = scrollLeft;
+    return;
+  }
+
+  var type = detectScrollType();
+
+  if (type === 'indeterminate') {
+    return;
+  }
+
+  switch (type) {
+    case 'negative':
+      element.scrollLeft = element.clientWidth - element.scrollWidth + scrollLeft;
+      break;
+
+    case 'reverse':
+      element.scrollLeft = element.scrollWidth - element.clientWidth - scrollLeft;
+      break;
+
+    default:
+      element.scrollLeft = scrollLeft;
+      break;
+  }
+}
+},{}],"../node_modules/@material-ui/core/esm/internal/animate.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = animate;
+
+function easeInOutSin(time) {
+  return (1 + Math.sin(Math.PI * time - Math.PI / 2)) / 2;
+}
+
+function animate(property, element, to) {
+  var options = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : {};
+  var cb = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : function () {};
+  var _options$ease = options.ease,
+      ease = _options$ease === void 0 ? easeInOutSin : _options$ease,
+      _options$duration = options.duration,
+      duration = _options$duration === void 0 ? 300 : _options$duration;
+  var start = null;
+  var from = element[property];
+  var cancelled = false;
+
+  var cancel = function cancel() {
+    cancelled = true;
+  };
+
+  var step = function step(timestamp) {
+    if (cancelled) {
+      cb(new Error('Animation cancelled'));
+      return;
+    }
+
+    if (start === null) {
+      start = timestamp;
+    }
+
+    var time = Math.min(1, (timestamp - start) / duration);
+    element[property] = ease(time) * (to - from) + from;
+
+    if (time >= 1) {
+      requestAnimationFrame(function () {
+        cb(null);
+      });
+      return;
+    }
+
+    requestAnimationFrame(step);
+  };
+
+  if (from === to) {
+    cb(new Error('Element already at target position'));
+    return cancel;
+  }
+
+  requestAnimationFrame(step);
+  return cancel;
+}
+},{}],"../node_modules/@material-ui/core/esm/Tabs/ScrollbarSize.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = ScrollbarSize;
+
+var _extends2 = _interopRequireDefault(require("@babel/runtime/helpers/esm/extends"));
+
+var _objectWithoutProperties2 = _interopRequireDefault(require("@babel/runtime/helpers/esm/objectWithoutProperties"));
+
+var _react = _interopRequireDefault(require("react"));
+
+var _propTypes = _interopRequireDefault(require("prop-types"));
+
+var _debounce = _interopRequireDefault(require("../utils/debounce"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var styles = {
+  width: 99,
+  height: 99,
+  position: 'absolute',
+  top: -9999,
+  overflow: 'scroll'
+};
+/**
+ * @ignore - internal component.
+ * The component is originates from https://github.com/STORIS/react-scrollbar-size.
+ * It has been moved into the core in order to minimize the bundle size.
+ */
+
+function ScrollbarSize(props) {
+  var onChange = props.onChange,
+      other = (0, _objectWithoutProperties2.default)(props, ["onChange"]);
+
+  var scrollbarHeight = _react.default.useRef();
+
+  var nodeRef = _react.default.useRef(null);
+
+  var setMeasurements = function setMeasurements() {
+    scrollbarHeight.current = nodeRef.current.offsetHeight - nodeRef.current.clientHeight;
+  };
+
+  _react.default.useEffect(function () {
+    var handleResize = (0, _debounce.default)(function () {
+      var prevHeight = scrollbarHeight.current;
+      setMeasurements();
+
+      if (prevHeight !== scrollbarHeight.current) {
+        onChange(scrollbarHeight.current);
+      }
+    });
+    window.addEventListener('resize', handleResize);
+    return function () {
+      handleResize.clear();
+      window.removeEventListener('resize', handleResize);
+    };
+  }, [onChange]);
+
+  _react.default.useEffect(function () {
+    setMeasurements();
+    onChange(scrollbarHeight.current);
+  }, [onChange]);
+
+  return _react.default.createElement("div", (0, _extends2.default)({
+    style: styles,
+    ref: nodeRef
+  }, other));
+}
+
+"development" !== "production" ? ScrollbarSize.propTypes = {
+  onChange: _propTypes.default.func.isRequired
+} : void 0;
+},{"@babel/runtime/helpers/esm/extends":"../node_modules/@babel/runtime/helpers/esm/extends.js","@babel/runtime/helpers/esm/objectWithoutProperties":"../node_modules/@babel/runtime/helpers/esm/objectWithoutProperties.js","react":"../node_modules/react/index.js","prop-types":"../node_modules/prop-types/index.js","../utils/debounce":"../node_modules/@material-ui/core/esm/utils/debounce.js"}],"../node_modules/@material-ui/core/esm/utils/helpers.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -43041,7 +39679,4588 @@ function createChainedFunction() {
     };
   }, function () {});
 }
-},{}],"../node_modules/@material-ui/core/esm/Typography/Typography.js":[function(require,module,exports) {
+},{}],"../node_modules/@material-ui/core/esm/Tabs/TabIndicator.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = exports.styles = void 0;
+
+var _extends2 = _interopRequireDefault(require("@babel/runtime/helpers/esm/extends"));
+
+var _objectWithoutProperties2 = _interopRequireDefault(require("@babel/runtime/helpers/esm/objectWithoutProperties"));
+
+var _react = _interopRequireDefault(require("react"));
+
+var _propTypes = _interopRequireDefault(require("prop-types"));
+
+var _clsx = _interopRequireDefault(require("clsx"));
+
+var _withStyles = _interopRequireDefault(require("../styles/withStyles"));
+
+var _helpers = require("../utils/helpers");
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var styles = function styles(theme) {
+  return {
+    root: {
+      position: 'absolute',
+      height: 2,
+      bottom: 0,
+      width: '100%',
+      transition: theme.transitions.create()
+    },
+    colorPrimary: {
+      backgroundColor: theme.palette.primary.main
+    },
+    colorSecondary: {
+      backgroundColor: theme.palette.secondary.main
+    },
+    vertical: {
+      height: '100%',
+      width: 2,
+      right: 0
+    }
+  };
+};
+/**
+ * @ignore - internal component.
+ */
+
+
+exports.styles = styles;
+
+var TabIndicator = _react.default.forwardRef(function TabIndicator(props, ref) {
+  var classes = props.classes,
+      className = props.className,
+      color = props.color,
+      orientation = props.orientation,
+      other = (0, _objectWithoutProperties2.default)(props, ["classes", "className", "color", "orientation"]);
+  return _react.default.createElement("span", (0, _extends2.default)({
+    className: (0, _clsx.default)(classes.root, classes["color".concat((0, _helpers.capitalize)(color))], className, {
+      vertical: classes.vertical
+    }[orientation]),
+    ref: ref
+  }, other));
+});
+
+"development" !== "production" ? TabIndicator.propTypes = {
+  /**
+   * Override or extend the styles applied to the component.
+   * See [CSS API](#css) below for more details.
+   */
+  classes: _propTypes.default.object.isRequired,
+
+  /**
+   * @ignore
+   */
+  className: _propTypes.default.string,
+
+  /**
+   * @ignore
+   * The color of the tab indicator.
+   */
+  color: _propTypes.default.oneOf(['primary', 'secondary']).isRequired,
+
+  /**
+   * The tabs orientation (layout flow direction).
+   */
+  orientation: _propTypes.default.oneOf(['horizontal', 'vertical']).isRequired
+} : void 0;
+
+var _default = (0, _withStyles.default)(styles, {
+  name: 'PrivateTabIndicator'
+})(TabIndicator);
+
+exports.default = _default;
+},{"@babel/runtime/helpers/esm/extends":"../node_modules/@babel/runtime/helpers/esm/extends.js","@babel/runtime/helpers/esm/objectWithoutProperties":"../node_modules/@babel/runtime/helpers/esm/objectWithoutProperties.js","react":"../node_modules/react/index.js","prop-types":"../node_modules/prop-types/index.js","clsx":"../node_modules/clsx/dist/clsx.m.js","../styles/withStyles":"../node_modules/@material-ui/core/esm/styles/withStyles.js","../utils/helpers":"../node_modules/@material-ui/core/esm/utils/helpers.js"}],"../node_modules/@material-ui/core/esm/SvgIcon/SvgIcon.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = exports.styles = void 0;
+
+var _extends2 = _interopRequireDefault(require("@babel/runtime/helpers/esm/extends"));
+
+var _objectWithoutProperties2 = _interopRequireDefault(require("@babel/runtime/helpers/esm/objectWithoutProperties"));
+
+var _react = _interopRequireDefault(require("react"));
+
+var _propTypes = _interopRequireDefault(require("prop-types"));
+
+var _clsx = _interopRequireDefault(require("clsx"));
+
+var _withStyles = _interopRequireDefault(require("../styles/withStyles"));
+
+var _helpers = require("../utils/helpers");
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var styles = function styles(theme) {
+  return {
+    /* Styles applied to the root element. */
+    root: {
+      userSelect: 'none',
+      width: '1em',
+      height: '1em',
+      display: 'inline-block',
+      fill: 'currentColor',
+      flexShrink: 0,
+      fontSize: theme.typography.pxToRem(24),
+      transition: theme.transitions.create('fill', {
+        duration: theme.transitions.duration.shorter
+      })
+    },
+
+    /* Styles applied to the root element if `color="primary"`. */
+    colorPrimary: {
+      color: theme.palette.primary.main
+    },
+
+    /* Styles applied to the root element if `color="secondary"`. */
+    colorSecondary: {
+      color: theme.palette.secondary.main
+    },
+
+    /* Styles applied to the root element if `color="action"`. */
+    colorAction: {
+      color: theme.palette.action.active
+    },
+
+    /* Styles applied to the root element if `color="error"`. */
+    colorError: {
+      color: theme.palette.error.main
+    },
+
+    /* Styles applied to the root element if `color="disabled"`. */
+    colorDisabled: {
+      color: theme.palette.action.disabled
+    },
+
+    /* Styles applied to the root element if `fontSize="inherit"`. */
+    fontSizeInherit: {
+      fontSize: 'inherit'
+    },
+
+    /* Styles applied to the root element if `fontSize="small"`. */
+    fontSizeSmall: {
+      fontSize: theme.typography.pxToRem(20)
+    },
+
+    /* Styles applied to the root element if `fontSize="large"`. */
+    fontSizeLarge: {
+      fontSize: theme.typography.pxToRem(35)
+    }
+  };
+};
+
+exports.styles = styles;
+
+var SvgIcon = _react.default.forwardRef(function SvgIcon(props, ref) {
+  var children = props.children,
+      classes = props.classes,
+      className = props.className,
+      _props$color = props.color,
+      color = _props$color === void 0 ? 'inherit' : _props$color,
+      _props$component = props.component,
+      Component = _props$component === void 0 ? 'svg' : _props$component,
+      _props$fontSize = props.fontSize,
+      fontSize = _props$fontSize === void 0 ? 'default' : _props$fontSize,
+      htmlColor = props.htmlColor,
+      titleAccess = props.titleAccess,
+      _props$viewBox = props.viewBox,
+      viewBox = _props$viewBox === void 0 ? '0 0 24 24' : _props$viewBox,
+      other = (0, _objectWithoutProperties2.default)(props, ["children", "classes", "className", "color", "component", "fontSize", "htmlColor", "titleAccess", "viewBox"]);
+  return _react.default.createElement(Component, (0, _extends2.default)({
+    className: (0, _clsx.default)(classes.root, className, color !== 'inherit' && classes["color".concat((0, _helpers.capitalize)(color))], fontSize !== 'default' && classes["fontSize".concat((0, _helpers.capitalize)(fontSize))]),
+    focusable: "false",
+    viewBox: viewBox,
+    color: htmlColor,
+    "aria-hidden": titleAccess ? 'false' : 'true',
+    role: titleAccess ? 'img' : 'presentation',
+    ref: ref
+  }, other), children, titleAccess ? _react.default.createElement("title", null, titleAccess) : null);
+});
+
+"development" !== "production" ? SvgIcon.propTypes = {
+  // ----------------------------- Warning --------------------------------
+  // | These PropTypes are generated from the TypeScript type definitions |
+  // |     To update them edit the d.ts file and run "yarn proptypes"     |
+  // ----------------------------------------------------------------------
+
+  /**
+   * Node passed into the SVG element.
+   */
+  children: _propTypes.default.node,
+
+  /**
+   * Override or extend the styles applied to the component.
+   * See [CSS API](#css) below for more details.
+   */
+  classes: _propTypes.default.object,
+
+  /**
+   * @ignore
+   */
+  className: _propTypes.default.string,
+
+  /**
+   * The color of the component. It supports those theme colors that make sense for this component.
+   * You can use the `htmlColor` prop to apply a color attribute to the SVG element.
+   */
+  color: _propTypes.default.oneOf(['action', 'disabled', 'error', 'inherit', 'primary', 'secondary']),
+
+  /**
+   * The component used for the root node.
+   * Either a string to use a DOM element or a component.
+   */
+  component: _propTypes.default.elementType,
+
+  /**
+   * The fontSize applied to the icon. Defaults to 24px, but can be configure to inherit font size.
+   */
+  fontSize: _propTypes.default.oneOf(['default', 'inherit', 'large', 'small']),
+
+  /**
+   * Applies a color attribute to the SVG element.
+   */
+  htmlColor: _propTypes.default.string,
+
+  /**
+   * The shape-rendering attribute. The behavior of the different options is described on the
+   * [MDN Web Docs](https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/shape-rendering).
+   * If you are having issues with blurry icons you should investigate this property.
+   */
+  shapeRendering: _propTypes.default.string,
+
+  /**
+   * Provides a human-readable title for the element that contains it.
+   * https://www.w3.org/TR/SVG-access/#Equivalent
+   */
+  titleAccess: _propTypes.default.string,
+
+  /**
+   * Allows you to redefine what the coordinates without units mean inside an SVG element.
+   * For example, if the SVG element is 500 (width) by 200 (height),
+   * and you pass viewBox="0 0 50 20",
+   * this means that the coordinates inside the SVG will go from the top left corner (0,0)
+   * to bottom right (50,20) and each unit will be worth 10px.
+   */
+  viewBox: _propTypes.default.string
+} : void 0;
+SvgIcon.muiName = 'SvgIcon';
+
+var _default = (0, _withStyles.default)(styles, {
+  name: 'MuiSvgIcon'
+})(SvgIcon);
+
+exports.default = _default;
+},{"@babel/runtime/helpers/esm/extends":"../node_modules/@babel/runtime/helpers/esm/extends.js","@babel/runtime/helpers/esm/objectWithoutProperties":"../node_modules/@babel/runtime/helpers/esm/objectWithoutProperties.js","react":"../node_modules/react/index.js","prop-types":"../node_modules/prop-types/index.js","clsx":"../node_modules/clsx/dist/clsx.m.js","../styles/withStyles":"../node_modules/@material-ui/core/esm/styles/withStyles.js","../utils/helpers":"../node_modules/@material-ui/core/esm/utils/helpers.js"}],"../node_modules/@material-ui/core/esm/SvgIcon/index.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+Object.defineProperty(exports, "default", {
+  enumerable: true,
+  get: function () {
+    return _SvgIcon.default;
+  }
+});
+
+var _SvgIcon = _interopRequireDefault(require("./SvgIcon"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+},{"./SvgIcon":"../node_modules/@material-ui/core/esm/SvgIcon/SvgIcon.js"}],"../node_modules/@material-ui/core/esm/internal/svg-icons/createSvgIcon.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = createSvgIcon;
+
+var _extends2 = _interopRequireDefault(require("@babel/runtime/helpers/esm/extends"));
+
+var _react = _interopRequireDefault(require("react"));
+
+var _SvgIcon = _interopRequireDefault(require("../../SvgIcon"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function createSvgIcon(path, displayName) {
+  var Component = _react.default.memo(_react.default.forwardRef(function (props, ref) {
+    return _react.default.createElement(_SvgIcon.default, (0, _extends2.default)({}, props, {
+      ref: ref
+    }), path);
+  }));
+
+  if ("development" !== 'production') {
+    Component.displayName = "".concat(displayName, "Icon");
+  }
+
+  Component.muiName = _SvgIcon.default.muiName;
+  return Component;
+}
+},{"@babel/runtime/helpers/esm/extends":"../node_modules/@babel/runtime/helpers/esm/extends.js","react":"../node_modules/react/index.js","../../SvgIcon":"../node_modules/@material-ui/core/esm/SvgIcon/index.js"}],"../node_modules/@material-ui/core/esm/internal/svg-icons/KeyboardArrowLeft.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var _react = _interopRequireDefault(require("react"));
+
+var _createSvgIcon = _interopRequireDefault(require("./createSvgIcon"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+/**
+ * @ignore - internal component.
+ */
+var _default = (0, _createSvgIcon.default)(_react.default.createElement("path", {
+  d: "M15.41 16.09l-4.58-4.59 4.58-4.59L14 5.5l-6 6 6 6z"
+}), 'KeyboardArrowLeft');
+
+exports.default = _default;
+},{"react":"../node_modules/react/index.js","./createSvgIcon":"../node_modules/@material-ui/core/esm/internal/svg-icons/createSvgIcon.js"}],"../node_modules/@material-ui/core/esm/internal/svg-icons/KeyboardArrowRight.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var _react = _interopRequireDefault(require("react"));
+
+var _createSvgIcon = _interopRequireDefault(require("./createSvgIcon"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+/**
+ * @ignore - internal component.
+ */
+var _default = (0, _createSvgIcon.default)(_react.default.createElement("path", {
+  d: "M8.59 16.34l4.58-4.59-4.58-4.59L10 5.75l6 6-6 6z"
+}), 'KeyboardArrowRight');
+
+exports.default = _default;
+},{"react":"../node_modules/react/index.js","./createSvgIcon":"../node_modules/@material-ui/core/esm/internal/svg-icons/createSvgIcon.js"}],"../node_modules/@material-ui/core/esm/utils/reactHelpers.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.isMuiElement = isMuiElement;
+exports.setRef = setRef;
+exports.useForkRef = useForkRef;
+
+var _react = _interopRequireDefault(require("react"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function isMuiElement(element, muiNames) {
+  return _react.default.isValidElement(element) && muiNames.indexOf(element.type.muiName) !== -1;
+} // TODO: Make it private only in v5
+
+
+function setRef(ref, value) {
+  if (typeof ref === 'function') {
+    ref(value);
+  } else if (ref) {
+    ref.current = value;
+  }
+}
+
+function useForkRef(refA, refB) {
+  /**
+   * This will create a new function if the ref props change and are defined.
+   * This means react will call the old forkRef with `null` and the new forkRef
+   * with the ref. Cleanup naturally emerges from this behavior
+   */
+  return _react.default.useMemo(function () {
+    if (refA == null && refB == null) {
+      return null;
+    }
+
+    return function (refValue) {
+      setRef(refA, refValue);
+      setRef(refB, refValue);
+    };
+  }, [refA, refB]);
+}
+},{"react":"../node_modules/react/index.js"}],"../node_modules/@material-ui/core/esm/utils/useEventCallback.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = useEventCallback;
+
+var _react = _interopRequireDefault(require("react"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var useEnhancedEffect = typeof window !== 'undefined' ? _react.default.useLayoutEffect : _react.default.useEffect;
+/**
+ * https://github.com/facebook/react/issues/14099#issuecomment-440013892
+ *
+ * @param {function} fn
+ */
+
+function useEventCallback(fn) {
+  var ref = _react.default.useRef(fn);
+
+  useEnhancedEffect(function () {
+    ref.current = fn;
+  });
+  return _react.default.useCallback(function (event) {
+    return (0, ref.current)(event);
+  }, []);
+}
+},{"react":"../node_modules/react/index.js"}],"../node_modules/@material-ui/core/esm/NoSsr/NoSsr.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var _react = _interopRequireDefault(require("react"));
+
+var _propTypes = _interopRequireDefault(require("prop-types"));
+
+var _utils = require("@material-ui/utils");
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var useEnhancedEffect = typeof window !== 'undefined' && "development" !== 'test' ? _react.default.useLayoutEffect : _react.default.useEffect;
+/**
+ * NoSsr purposely removes components from the subject of Server Side Rendering (SSR).
+ *
+ * This component can be useful in a variety of situations:
+ * - Escape hatch for broken dependencies not supporting SSR.
+ * - Improve the time-to-first paint on the client by only rendering above the fold.
+ * - Reduce the rendering time on the server.
+ * - Under too heavy server load, you can turn on service degradation.
+ */
+
+function NoSsr(props) {
+  var children = props.children,
+      _props$defer = props.defer,
+      defer = _props$defer === void 0 ? false : _props$defer,
+      _props$fallback = props.fallback,
+      fallback = _props$fallback === void 0 ? null : _props$fallback;
+
+  var _React$useState = _react.default.useState(false),
+      mountedState = _React$useState[0],
+      setMountedState = _React$useState[1];
+
+  useEnhancedEffect(function () {
+    if (!defer) {
+      setMountedState(true);
+    }
+  }, [defer]);
+
+  _react.default.useEffect(function () {
+    if (defer) {
+      setMountedState(true);
+    }
+  }, [defer]); // We need the Fragment here to force react-docgen to recognise NoSsr as a component.
+
+
+  return _react.default.createElement(_react.default.Fragment, null, mountedState ? children : fallback);
+}
+
+"development" !== "production" ? NoSsr.propTypes = {
+  /**
+   * You can wrap a node.
+   */
+  children: _propTypes.default.node.isRequired,
+
+  /**
+   * If `true`, the component will not only prevent server-side rendering.
+   * It will also defer the rendering of the children into a different screen frame.
+   */
+  defer: _propTypes.default.bool,
+
+  /**
+   * The fallback content to display.
+   */
+  fallback: _propTypes.default.node
+} : void 0;
+
+if ("development" !== 'production') {
+  // eslint-disable-next-line
+  NoSsr['propTypes' + ''] = (0, _utils.exactProp)(NoSsr.propTypes);
+}
+
+var _default = NoSsr;
+exports.default = _default;
+},{"react":"../node_modules/react/index.js","prop-types":"../node_modules/prop-types/index.js","@material-ui/utils":"../node_modules/@material-ui/utils/esm/index.js"}],"../node_modules/@material-ui/core/esm/NoSsr/index.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+Object.defineProperty(exports, "default", {
+  enumerable: true,
+  get: function () {
+    return _NoSsr.default;
+  }
+});
+
+var _NoSsr = _interopRequireDefault(require("./NoSsr"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+},{"./NoSsr":"../node_modules/@material-ui/core/esm/NoSsr/NoSsr.js"}],"../node_modules/@material-ui/core/esm/utils/focusVisible.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.teardown = teardown;
+exports.useIsFocusVisible = useIsFocusVisible;
+
+var _react = _interopRequireDefault(require("react"));
+
+var _reactDom = _interopRequireDefault(require("react-dom"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+// based on https://github.com/WICG/focus-visible/blob/v4.1.5/src/focus-visible.js
+var hadKeyboardEvent = true;
+var hadFocusVisibleRecently = false;
+var hadFocusVisibleRecentlyTimeout = null;
+var inputTypesWhitelist = {
+  text: true,
+  search: true,
+  url: true,
+  tel: true,
+  email: true,
+  password: true,
+  number: true,
+  date: true,
+  month: true,
+  week: true,
+  time: true,
+  datetime: true,
+  'datetime-local': true
+};
+/**
+ * Computes whether the given element should automatically trigger the
+ * `focus-visible` class being added, i.e. whether it should always match
+ * `:focus-visible` when focused.
+ * @param {Element} node
+ * @return {boolean}
+ */
+
+function focusTriggersKeyboardModality(node) {
+  var type = node.type,
+      tagName = node.tagName;
+
+  if (tagName === 'INPUT' && inputTypesWhitelist[type] && !node.readOnly) {
+    return true;
+  }
+
+  if (tagName === 'TEXTAREA' && !node.readOnly) {
+    return true;
+  }
+
+  if (node.isContentEditable) {
+    return true;
+  }
+
+  return false;
+}
+
+function handleKeyDown() {
+  hadKeyboardEvent = true;
+}
+/**
+ * If at any point a user clicks with a pointing device, ensure that we change
+ * the modality away from keyboard.
+ * This avoids the situation where a user presses a key on an already focused
+ * element, and then clicks on a different element, focusing it with a
+ * pointing device, while we still think we're in keyboard modality.
+ * @param {Event} e
+ */
+
+
+function handlePointerDown() {
+  hadKeyboardEvent = false;
+}
+
+function handleVisibilityChange() {
+  if (this.visibilityState === 'hidden') {
+    // If the tab becomes active again, the browser will handle calling focus
+    // on the element (Safari actually calls it twice).
+    // If this tab change caused a blur on an element with focus-visible,
+    // re-apply the class when the user switches back to the tab.
+    if (hadFocusVisibleRecently) {
+      hadKeyboardEvent = true;
+    }
+  }
+}
+
+function prepare(ownerDocument) {
+  ownerDocument.addEventListener('keydown', handleKeyDown, true);
+  ownerDocument.addEventListener('mousedown', handlePointerDown, true);
+  ownerDocument.addEventListener('pointerdown', handlePointerDown, true);
+  ownerDocument.addEventListener('touchstart', handlePointerDown, true);
+  ownerDocument.addEventListener('visibilitychange', handleVisibilityChange, true);
+}
+
+function teardown(ownerDocument) {
+  ownerDocument.removeEventListener('keydown', handleKeyDown, true);
+  ownerDocument.removeEventListener('mousedown', handlePointerDown, true);
+  ownerDocument.removeEventListener('pointerdown', handlePointerDown, true);
+  ownerDocument.removeEventListener('touchstart', handlePointerDown, true);
+  ownerDocument.removeEventListener('visibilitychange', handleVisibilityChange, true);
+}
+
+function isFocusVisible(event) {
+  var target = event.target;
+
+  try {
+    return target.matches(':focus-visible');
+  } catch (error) {} // browsers not implementing :focus-visible will throw a SyntaxError
+  // we use our own heuristic for those browsers
+  // rethrow might be better if it's not the expected error but do we really
+  // want to crash if focus-visible malfunctioned?
+  // no need for validFocusTarget check. the user does that by attaching it to
+  // focusable events only
+
+
+  return hadKeyboardEvent || focusTriggersKeyboardModality(target);
+}
+/**
+ * Should be called if a blur event is fired on a focus-visible element
+ */
+
+
+function handleBlurVisible() {
+  // To detect a tab/window switch, we look for a blur event followed
+  // rapidly by a visibility change.
+  // If we don't see a visibility change within 100ms, it's probably a
+  // regular focus change.
+  hadFocusVisibleRecently = true;
+  window.clearTimeout(hadFocusVisibleRecentlyTimeout);
+  hadFocusVisibleRecentlyTimeout = window.setTimeout(function () {
+    hadFocusVisibleRecently = false;
+    window.clearTimeout(hadFocusVisibleRecentlyTimeout);
+  }, 100);
+}
+
+function useIsFocusVisible() {
+  var ref = _react.default.useCallback(function (instance) {
+    var node = _reactDom.default.findDOMNode(instance);
+
+    if (node != null) {
+      prepare(node.ownerDocument);
+    }
+  }, []);
+
+  return {
+    isFocusVisible: isFocusVisible,
+    onBlurVisible: handleBlurVisible,
+    ref: ref
+  };
+}
+},{"react":"../node_modules/react/index.js","react-dom":"../node_modules/react-dom/index.js"}],"../node_modules/dom-helpers/esm/hasClass.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = hasClass;
+
+function hasClass(element, className) {
+  if (element.classList) return !!className && element.classList.contains(className);
+  return (" " + (element.className.baseVal || element.className) + " ").indexOf(" " + className + " ") !== -1;
+}
+},{}],"../node_modules/dom-helpers/esm/addClass.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = addClass;
+
+var _hasClass = _interopRequireDefault(require("./hasClass"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function addClass(element, className) {
+  if (element.classList) element.classList.add(className);else if (!(0, _hasClass.default)(element, className)) if (typeof element.className === 'string') element.className = element.className + " " + className;else element.setAttribute('class', (element.className && element.className.baseVal || '') + " " + className);
+}
+},{"./hasClass":"../node_modules/dom-helpers/esm/hasClass.js"}],"../node_modules/dom-helpers/esm/removeClass.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = removeClass;
+
+function replaceClassName(origClass, classToRemove) {
+  return origClass.replace(new RegExp("(^|\\s)" + classToRemove + "(?:\\s|$)", 'g'), '$1').replace(/\s+/g, ' ').replace(/^\s*|\s*$/g, '');
+}
+
+function removeClass(element, className) {
+  if (element.classList) {
+    element.classList.remove(className);
+  } else if (typeof element.className === 'string') {
+    ;
+    element.className = replaceClassName(element.className, className);
+  } else {
+    element.setAttribute('class', replaceClassName(element.className && element.className.baseVal || '', className));
+  }
+}
+},{}],"../node_modules/react-transition-group/esm/config.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+var _default = {
+  disabled: false
+};
+exports.default = _default;
+},{}],"../node_modules/react-transition-group/esm/utils/PropTypes.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.classNamesShape = exports.timeoutsShape = void 0;
+
+var _propTypes = _interopRequireDefault(require("prop-types"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var timeoutsShape = "development" !== 'production' ? _propTypes.default.oneOfType([_propTypes.default.number, _propTypes.default.shape({
+  enter: _propTypes.default.number,
+  exit: _propTypes.default.number,
+  appear: _propTypes.default.number
+}).isRequired]) : null;
+exports.timeoutsShape = timeoutsShape;
+var classNamesShape = "development" !== 'production' ? _propTypes.default.oneOfType([_propTypes.default.string, _propTypes.default.shape({
+  enter: _propTypes.default.string,
+  exit: _propTypes.default.string,
+  active: _propTypes.default.string
+}), _propTypes.default.shape({
+  enter: _propTypes.default.string,
+  enterDone: _propTypes.default.string,
+  enterActive: _propTypes.default.string,
+  exit: _propTypes.default.string,
+  exitDone: _propTypes.default.string,
+  exitActive: _propTypes.default.string
+})]) : null;
+exports.classNamesShape = classNamesShape;
+},{"prop-types":"../node_modules/prop-types/index.js"}],"../node_modules/react-transition-group/esm/TransitionGroupContext.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var _react = _interopRequireDefault(require("react"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var _default = _react.default.createContext(null);
+
+exports.default = _default;
+},{"react":"../node_modules/react/index.js"}],"../node_modules/react-transition-group/esm/Transition.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = exports.EXITING = exports.ENTERED = exports.ENTERING = exports.EXITED = exports.UNMOUNTED = void 0;
+
+var _objectWithoutPropertiesLoose2 = _interopRequireDefault(require("@babel/runtime/helpers/esm/objectWithoutPropertiesLoose"));
+
+var _inheritsLoose2 = _interopRequireDefault(require("@babel/runtime/helpers/esm/inheritsLoose"));
+
+var _propTypes = _interopRequireDefault(require("prop-types"));
+
+var _react = _interopRequireDefault(require("react"));
+
+var _reactDom = _interopRequireDefault(require("react-dom"));
+
+var _config = _interopRequireDefault(require("./config"));
+
+var _PropTypes = require("./utils/PropTypes");
+
+var _TransitionGroupContext = _interopRequireDefault(require("./TransitionGroupContext"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var UNMOUNTED = 'unmounted';
+exports.UNMOUNTED = UNMOUNTED;
+var EXITED = 'exited';
+exports.EXITED = EXITED;
+var ENTERING = 'entering';
+exports.ENTERING = ENTERING;
+var ENTERED = 'entered';
+exports.ENTERED = ENTERED;
+var EXITING = 'exiting';
+/**
+ * The Transition component lets you describe a transition from one component
+ * state to another _over time_ with a simple declarative API. Most commonly
+ * it's used to animate the mounting and unmounting of a component, but can also
+ * be used to describe in-place transition states as well.
+ *
+ * ---
+ *
+ * **Note**: `Transition` is a platform-agnostic base component. If you're using
+ * transitions in CSS, you'll probably want to use
+ * [`CSSTransition`](https://reactcommunity.org/react-transition-group/css-transition)
+ * instead. It inherits all the features of `Transition`, but contains
+ * additional features necessary to play nice with CSS transitions (hence the
+ * name of the component).
+ *
+ * ---
+ *
+ * By default the `Transition` component does not alter the behavior of the
+ * component it renders, it only tracks "enter" and "exit" states for the
+ * components. It's up to you to give meaning and effect to those states. For
+ * example we can add styles to a component when it enters or exits:
+ *
+ * ```jsx
+ * import { Transition } from 'react-transition-group';
+ *
+ * const duration = 300;
+ *
+ * const defaultStyle = {
+ *   transition: `opacity ${duration}ms ease-in-out`,
+ *   opacity: 0,
+ * }
+ *
+ * const transitionStyles = {
+ *   entering: { opacity: 1 },
+ *   entered:  { opacity: 1 },
+ *   exiting:  { opacity: 0 },
+ *   exited:  { opacity: 0 },
+ * };
+ *
+ * const Fade = ({ in: inProp }) => (
+ *   <Transition in={inProp} timeout={duration}>
+ *     {state => (
+ *       <div style={{
+ *         ...defaultStyle,
+ *         ...transitionStyles[state]
+ *       }}>
+ *         I'm a fade Transition!
+ *       </div>
+ *     )}
+ *   </Transition>
+ * );
+ * ```
+ *
+ * There are 4 main states a Transition can be in:
+ *  - `'entering'`
+ *  - `'entered'`
+ *  - `'exiting'`
+ *  - `'exited'`
+ *
+ * Transition state is toggled via the `in` prop. When `true` the component
+ * begins the "Enter" stage. During this stage, the component will shift from
+ * its current transition state, to `'entering'` for the duration of the
+ * transition and then to the `'entered'` stage once it's complete. Let's take
+ * the following example (we'll use the
+ * [useState](https://reactjs.org/docs/hooks-reference.html#usestate) hook):
+ *
+ * ```jsx
+ * function App() {
+ *   const [inProp, setInProp] = useState(false);
+ *   return (
+ *     <div>
+ *       <Transition in={inProp} timeout={500}>
+ *         {state => (
+ *           // ...
+ *         )}
+ *       </Transition>
+ *       <button onClick={() => setInProp(true)}>
+ *         Click to Enter
+ *       </button>
+ *     </div>
+ *   );
+ * }
+ * ```
+ *
+ * When the button is clicked the component will shift to the `'entering'` state
+ * and stay there for 500ms (the value of `timeout`) before it finally switches
+ * to `'entered'`.
+ *
+ * When `in` is `false` the same thing happens except the state moves from
+ * `'exiting'` to `'exited'`.
+ */
+
+exports.EXITING = EXITING;
+
+var Transition =
+/*#__PURE__*/
+function (_React$Component) {
+  (0, _inheritsLoose2.default)(Transition, _React$Component);
+
+  function Transition(props, context) {
+    var _this;
+
+    _this = _React$Component.call(this, props, context) || this;
+    var parentGroup = context; // In the context of a TransitionGroup all enters are really appears
+
+    var appear = parentGroup && !parentGroup.isMounting ? props.enter : props.appear;
+    var initialStatus;
+    _this.appearStatus = null;
+
+    if (props.in) {
+      if (appear) {
+        initialStatus = EXITED;
+        _this.appearStatus = ENTERING;
+      } else {
+        initialStatus = ENTERED;
+      }
+    } else {
+      if (props.unmountOnExit || props.mountOnEnter) {
+        initialStatus = UNMOUNTED;
+      } else {
+        initialStatus = EXITED;
+      }
+    }
+
+    _this.state = {
+      status: initialStatus
+    };
+    _this.nextCallback = null;
+    return _this;
+  }
+
+  Transition.getDerivedStateFromProps = function getDerivedStateFromProps(_ref, prevState) {
+    var nextIn = _ref.in;
+
+    if (nextIn && prevState.status === UNMOUNTED) {
+      return {
+        status: EXITED
+      };
+    }
+
+    return null;
+  }; // getSnapshotBeforeUpdate(prevProps) {
+  //   let nextStatus = null
+  //   if (prevProps !== this.props) {
+  //     const { status } = this.state
+  //     if (this.props.in) {
+  //       if (status !== ENTERING && status !== ENTERED) {
+  //         nextStatus = ENTERING
+  //       }
+  //     } else {
+  //       if (status === ENTERING || status === ENTERED) {
+  //         nextStatus = EXITING
+  //       }
+  //     }
+  //   }
+  //   return { nextStatus }
+  // }
+
+
+  var _proto = Transition.prototype;
+
+  _proto.componentDidMount = function componentDidMount() {
+    this.updateStatus(true, this.appearStatus);
+  };
+
+  _proto.componentDidUpdate = function componentDidUpdate(prevProps) {
+    var nextStatus = null;
+
+    if (prevProps !== this.props) {
+      var status = this.state.status;
+
+      if (this.props.in) {
+        if (status !== ENTERING && status !== ENTERED) {
+          nextStatus = ENTERING;
+        }
+      } else {
+        if (status === ENTERING || status === ENTERED) {
+          nextStatus = EXITING;
+        }
+      }
+    }
+
+    this.updateStatus(false, nextStatus);
+  };
+
+  _proto.componentWillUnmount = function componentWillUnmount() {
+    this.cancelNextCallback();
+  };
+
+  _proto.getTimeouts = function getTimeouts() {
+    var timeout = this.props.timeout;
+    var exit, enter, appear;
+    exit = enter = appear = timeout;
+
+    if (timeout != null && typeof timeout !== 'number') {
+      exit = timeout.exit;
+      enter = timeout.enter; // TODO: remove fallback for next major
+
+      appear = timeout.appear !== undefined ? timeout.appear : enter;
+    }
+
+    return {
+      exit: exit,
+      enter: enter,
+      appear: appear
+    };
+  };
+
+  _proto.updateStatus = function updateStatus(mounting, nextStatus) {
+    if (mounting === void 0) {
+      mounting = false;
+    }
+
+    if (nextStatus !== null) {
+      // nextStatus will always be ENTERING or EXITING.
+      this.cancelNextCallback();
+
+      var node = _reactDom.default.findDOMNode(this);
+
+      if (nextStatus === ENTERING) {
+        this.performEnter(node, mounting);
+      } else {
+        this.performExit(node);
+      }
+    } else if (this.props.unmountOnExit && this.state.status === EXITED) {
+      this.setState({
+        status: UNMOUNTED
+      });
+    }
+  };
+
+  _proto.performEnter = function performEnter(node, mounting) {
+    var _this2 = this;
+
+    var enter = this.props.enter;
+    var appearing = this.context ? this.context.isMounting : mounting;
+    var timeouts = this.getTimeouts();
+    var enterTimeout = appearing ? timeouts.appear : timeouts.enter; // no enter animation skip right to ENTERED
+    // if we are mounting and running this it means appear _must_ be set
+
+    if (!mounting && !enter || _config.default.disabled) {
+      this.safeSetState({
+        status: ENTERED
+      }, function () {
+        _this2.props.onEntered(node);
+      });
+      return;
+    }
+
+    this.props.onEnter(node, appearing);
+    this.safeSetState({
+      status: ENTERING
+    }, function () {
+      _this2.props.onEntering(node, appearing);
+
+      _this2.onTransitionEnd(node, enterTimeout, function () {
+        _this2.safeSetState({
+          status: ENTERED
+        }, function () {
+          _this2.props.onEntered(node, appearing);
+        });
+      });
+    });
+  };
+
+  _proto.performExit = function performExit(node) {
+    var _this3 = this;
+
+    var exit = this.props.exit;
+    var timeouts = this.getTimeouts(); // no exit animation skip right to EXITED
+
+    if (!exit || _config.default.disabled) {
+      this.safeSetState({
+        status: EXITED
+      }, function () {
+        _this3.props.onExited(node);
+      });
+      return;
+    }
+
+    this.props.onExit(node);
+    this.safeSetState({
+      status: EXITING
+    }, function () {
+      _this3.props.onExiting(node);
+
+      _this3.onTransitionEnd(node, timeouts.exit, function () {
+        _this3.safeSetState({
+          status: EXITED
+        }, function () {
+          _this3.props.onExited(node);
+        });
+      });
+    });
+  };
+
+  _proto.cancelNextCallback = function cancelNextCallback() {
+    if (this.nextCallback !== null) {
+      this.nextCallback.cancel();
+      this.nextCallback = null;
+    }
+  };
+
+  _proto.safeSetState = function safeSetState(nextState, callback) {
+    // This shouldn't be necessary, but there are weird race conditions with
+    // setState callbacks and unmounting in testing, so always make sure that
+    // we can cancel any pending setState callbacks after we unmount.
+    callback = this.setNextCallback(callback);
+    this.setState(nextState, callback);
+  };
+
+  _proto.setNextCallback = function setNextCallback(callback) {
+    var _this4 = this;
+
+    var active = true;
+
+    this.nextCallback = function (event) {
+      if (active) {
+        active = false;
+        _this4.nextCallback = null;
+        callback(event);
+      }
+    };
+
+    this.nextCallback.cancel = function () {
+      active = false;
+    };
+
+    return this.nextCallback;
+  };
+
+  _proto.onTransitionEnd = function onTransitionEnd(node, timeout, handler) {
+    this.setNextCallback(handler);
+    var doesNotHaveTimeoutOrListener = timeout == null && !this.props.addEndListener;
+
+    if (!node || doesNotHaveTimeoutOrListener) {
+      setTimeout(this.nextCallback, 0);
+      return;
+    }
+
+    if (this.props.addEndListener) {
+      this.props.addEndListener(node, this.nextCallback);
+    }
+
+    if (timeout != null) {
+      setTimeout(this.nextCallback, timeout);
+    }
+  };
+
+  _proto.render = function render() {
+    var status = this.state.status;
+
+    if (status === UNMOUNTED) {
+      return null;
+    }
+
+    var _this$props = this.props,
+        children = _this$props.children,
+        childProps = (0, _objectWithoutPropertiesLoose2.default)(_this$props, ["children"]); // filter props for Transtition
+
+    delete childProps.in;
+    delete childProps.mountOnEnter;
+    delete childProps.unmountOnExit;
+    delete childProps.appear;
+    delete childProps.enter;
+    delete childProps.exit;
+    delete childProps.timeout;
+    delete childProps.addEndListener;
+    delete childProps.onEnter;
+    delete childProps.onEntering;
+    delete childProps.onEntered;
+    delete childProps.onExit;
+    delete childProps.onExiting;
+    delete childProps.onExited;
+
+    if (typeof children === 'function') {
+      // allows for nested Transitions
+      return _react.default.createElement(_TransitionGroupContext.default.Provider, {
+        value: null
+      }, children(status, childProps));
+    }
+
+    var child = _react.default.Children.only(children);
+
+    return (// allows for nested Transitions
+      _react.default.createElement(_TransitionGroupContext.default.Provider, {
+        value: null
+      }, _react.default.cloneElement(child, childProps))
+    );
+  };
+
+  return Transition;
+}(_react.default.Component);
+
+Transition.contextType = _TransitionGroupContext.default;
+Transition.propTypes = "development" !== "production" ? {
+  /**
+   * A `function` child can be used instead of a React element. This function is
+   * called with the current transition status (`'entering'`, `'entered'`,
+   * `'exiting'`, `'exited'`), which can be used to apply context
+   * specific props to a component.
+   *
+   * ```jsx
+   * <Transition in={this.state.in} timeout={150}>
+   *   {state => (
+   *     <MyComponent className={`fade fade-${state}`} />
+   *   )}
+   * </Transition>
+   * ```
+   */
+  children: _propTypes.default.oneOfType([_propTypes.default.func.isRequired, _propTypes.default.element.isRequired]).isRequired,
+
+  /**
+   * Show the component; triggers the enter or exit states
+   */
+  in: _propTypes.default.bool,
+
+  /**
+   * By default the child component is mounted immediately along with
+   * the parent `Transition` component. If you want to "lazy mount" the component on the
+   * first `in={true}` you can set `mountOnEnter`. After the first enter transition the component will stay
+   * mounted, even on "exited", unless you also specify `unmountOnExit`.
+   */
+  mountOnEnter: _propTypes.default.bool,
+
+  /**
+   * By default the child component stays mounted after it reaches the `'exited'` state.
+   * Set `unmountOnExit` if you'd prefer to unmount the component after it finishes exiting.
+   */
+  unmountOnExit: _propTypes.default.bool,
+
+  /**
+   * Normally a component is not transitioned if it is shown when the
+   * `<Transition>` component mounts. If you want to transition on the first
+   * mount set `appear` to `true`, and the component will transition in as soon
+   * as the `<Transition>` mounts.
+   *
+   * > **Note**: there are no special appear states like `appearing`/`appeared`, this prop
+   * > only adds an additional enter transition. However, in the
+   * > `<CSSTransition>` component that first enter transition does result in
+   * > additional `.appear-*` classes, that way you can choose to style it
+   * > differently.
+   */
+  appear: _propTypes.default.bool,
+
+  /**
+   * Enable or disable enter transitions.
+   */
+  enter: _propTypes.default.bool,
+
+  /**
+   * Enable or disable exit transitions.
+   */
+  exit: _propTypes.default.bool,
+
+  /**
+   * The duration of the transition, in milliseconds.
+   * Required unless `addEndListener` is provided.
+   *
+   * You may specify a single timeout for all transitions:
+   *
+   * ```jsx
+   * timeout={500}
+   * ```
+   *
+   * or individually:
+   *
+   * ```jsx
+   * timeout={{
+   *  appear: 500,
+   *  enter: 300,
+   *  exit: 500,
+   * }}
+   * ```
+   *
+   * - `appear` defaults to the value of `enter`
+   * - `enter` defaults to `0`
+   * - `exit` defaults to `0`
+   *
+   * @type {number | { enter?: number, exit?: number, appear?: number }}
+   */
+  timeout: function timeout(props) {
+    var pt = _PropTypes.timeoutsShape;
+    if (!props.addEndListener) pt = pt.isRequired;
+
+    for (var _len = arguments.length, args = new Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
+      args[_key - 1] = arguments[_key];
+    }
+
+    return pt.apply(void 0, [props].concat(args));
+  },
+
+  /**
+   * Add a custom transition end trigger. Called with the transitioning
+   * DOM node and a `done` callback. Allows for more fine grained transition end
+   * logic. **Note:** Timeouts are still used as a fallback if provided.
+   *
+   * ```jsx
+   * addEndListener={(node, done) => {
+   *   // use the css transitionend event to mark the finish of a transition
+   *   node.addEventListener('transitionend', done, false);
+   * }}
+   * ```
+   */
+  addEndListener: _propTypes.default.func,
+
+  /**
+   * Callback fired before the "entering" status is applied. An extra parameter
+   * `isAppearing` is supplied to indicate if the enter stage is occurring on the initial mount
+   *
+   * @type Function(node: HtmlElement, isAppearing: bool) -> void
+   */
+  onEnter: _propTypes.default.func,
+
+  /**
+   * Callback fired after the "entering" status is applied. An extra parameter
+   * `isAppearing` is supplied to indicate if the enter stage is occurring on the initial mount
+   *
+   * @type Function(node: HtmlElement, isAppearing: bool)
+   */
+  onEntering: _propTypes.default.func,
+
+  /**
+   * Callback fired after the "entered" status is applied. An extra parameter
+   * `isAppearing` is supplied to indicate if the enter stage is occurring on the initial mount
+   *
+   * @type Function(node: HtmlElement, isAppearing: bool) -> void
+   */
+  onEntered: _propTypes.default.func,
+
+  /**
+   * Callback fired before the "exiting" status is applied.
+   *
+   * @type Function(node: HtmlElement) -> void
+   */
+  onExit: _propTypes.default.func,
+
+  /**
+   * Callback fired after the "exiting" status is applied.
+   *
+   * @type Function(node: HtmlElement) -> void
+   */
+  onExiting: _propTypes.default.func,
+
+  /**
+   * Callback fired after the "exited" status is applied.
+   *
+   * @type Function(node: HtmlElement) -> void
+   */
+  onExited: _propTypes.default.func // Name the function so it is clearer in the documentation
+
+} : {};
+
+function noop() {}
+
+Transition.defaultProps = {
+  in: false,
+  mountOnEnter: false,
+  unmountOnExit: false,
+  appear: false,
+  enter: true,
+  exit: true,
+  onEnter: noop,
+  onEntering: noop,
+  onEntered: noop,
+  onExit: noop,
+  onExiting: noop,
+  onExited: noop
+};
+Transition.UNMOUNTED = 0;
+Transition.EXITED = 1;
+Transition.ENTERING = 2;
+Transition.ENTERED = 3;
+Transition.EXITING = 4;
+var _default = Transition;
+exports.default = _default;
+},{"@babel/runtime/helpers/esm/objectWithoutPropertiesLoose":"../node_modules/@babel/runtime/helpers/esm/objectWithoutPropertiesLoose.js","@babel/runtime/helpers/esm/inheritsLoose":"../node_modules/@babel/runtime/helpers/esm/inheritsLoose.js","prop-types":"../node_modules/prop-types/index.js","react":"../node_modules/react/index.js","react-dom":"../node_modules/react-dom/index.js","./config":"../node_modules/react-transition-group/esm/config.js","./utils/PropTypes":"../node_modules/react-transition-group/esm/utils/PropTypes.js","./TransitionGroupContext":"../node_modules/react-transition-group/esm/TransitionGroupContext.js"}],"../node_modules/react-transition-group/esm/CSSTransition.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var _extends2 = _interopRequireDefault(require("@babel/runtime/helpers/esm/extends"));
+
+var _objectWithoutPropertiesLoose2 = _interopRequireDefault(require("@babel/runtime/helpers/esm/objectWithoutPropertiesLoose"));
+
+var _inheritsLoose2 = _interopRequireDefault(require("@babel/runtime/helpers/esm/inheritsLoose"));
+
+var _propTypes = _interopRequireDefault(require("prop-types"));
+
+var _addClass2 = _interopRequireDefault(require("dom-helpers/addClass"));
+
+var _removeClass = _interopRequireDefault(require("dom-helpers/removeClass"));
+
+var _react = _interopRequireDefault(require("react"));
+
+var _Transition = _interopRequireDefault(require("./Transition"));
+
+var _PropTypes = require("./utils/PropTypes");
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var _addClass = function addClass(node, classes) {
+  return node && classes && classes.split(' ').forEach(function (c) {
+    return (0, _addClass2.default)(node, c);
+  });
+};
+
+var removeClass = function removeClass(node, classes) {
+  return node && classes && classes.split(' ').forEach(function (c) {
+    return (0, _removeClass.default)(node, c);
+  });
+};
+/**
+ * A transition component inspired by the excellent
+ * [ng-animate](http://www.nganimate.org/) library, you should use it if you're
+ * using CSS transitions or animations. It's built upon the
+ * [`Transition`](https://reactcommunity.org/react-transition-group/transition)
+ * component, so it inherits all of its props.
+ *
+ * `CSSTransition` applies a pair of class names during the `appear`, `enter`,
+ * and `exit` states of the transition. The first class is applied and then a
+ * second `*-active` class in order to activate the CSS transition. After the
+ * transition, matching `*-done` class names are applied to persist the
+ * transition state.
+ *
+ * ```jsx
+ * function App() {
+ *   const [inProp, setInProp] = useState(false);
+ *   return (
+ *     <div>
+ *       <CSSTransition in={inProp} timeout={200} classNames="my-node">
+ *         <div>
+ *           {"I'll receive my-node-* classes"}
+ *         </div>
+ *       </CSSTransition>
+ *       <button type="button" onClick={() => setInProp(true)}>
+ *         Click to Enter
+ *       </button>
+ *     </div>
+ *   );
+ * }
+ * ```
+ *
+ * When the `in` prop is set to `true`, the child component will first receive
+ * the class `example-enter`, then the `example-enter-active` will be added in
+ * the next tick. `CSSTransition` [forces a
+ * reflow](https://github.com/reactjs/react-transition-group/blob/5007303e729a74be66a21c3e2205e4916821524b/src/CSSTransition.js#L208-L215)
+ * between before adding the `example-enter-active`. This is an important trick
+ * because it allows us to transition between `example-enter` and
+ * `example-enter-active` even though they were added immediately one after
+ * another. Most notably, this is what makes it possible for us to animate
+ * _appearance_.
+ *
+ * ```css
+ * .my-node-enter {
+ *   opacity: 0;
+ * }
+ * .my-node-enter-active {
+ *   opacity: 1;
+ *   transition: opacity 200ms;
+ * }
+ * .my-node-exit {
+ *   opacity: 1;
+ * }
+ * .my-node-exit-active {
+ *   opacity: 0;
+ *   transition: opacity 200ms;
+ * }
+ * ```
+ *
+ * `*-active` classes represent which styles you want to animate **to**.
+ *
+ * **Note**: If you're using the
+ * [`appear`](http://reactcommunity.org/react-transition-group/transition#Transition-prop-appear)
+ * prop, make sure to define styles for `.appear-*` classes as well.
+ */
+
+
+var CSSTransition =
+/*#__PURE__*/
+function (_React$Component) {
+  (0, _inheritsLoose2.default)(CSSTransition, _React$Component);
+
+  function CSSTransition() {
+    var _this;
+
+    for (var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++) {
+      args[_key] = arguments[_key];
+    }
+
+    _this = _React$Component.call.apply(_React$Component, [this].concat(args)) || this;
+    _this.appliedClasses = {
+      appear: {},
+      enter: {},
+      exit: {}
+    };
+
+    _this.onEnter = function (node, appearing) {
+      _this.removeClasses(node, 'exit');
+
+      _this.addClass(node, appearing ? 'appear' : 'enter', 'base');
+
+      if (_this.props.onEnter) {
+        _this.props.onEnter(node, appearing);
+      }
+    };
+
+    _this.onEntering = function (node, appearing) {
+      var type = appearing ? 'appear' : 'enter';
+
+      _this.addClass(node, type, 'active');
+
+      if (_this.props.onEntering) {
+        _this.props.onEntering(node, appearing);
+      }
+    };
+
+    _this.onEntered = function (node, appearing) {
+      var type = appearing ? 'appear' : 'enter';
+
+      _this.removeClasses(node, type);
+
+      _this.addClass(node, type, 'done');
+
+      if (_this.props.onEntered) {
+        _this.props.onEntered(node, appearing);
+      }
+    };
+
+    _this.onExit = function (node) {
+      _this.removeClasses(node, 'appear');
+
+      _this.removeClasses(node, 'enter');
+
+      _this.addClass(node, 'exit', 'base');
+
+      if (_this.props.onExit) {
+        _this.props.onExit(node);
+      }
+    };
+
+    _this.onExiting = function (node) {
+      _this.addClass(node, 'exit', 'active');
+
+      if (_this.props.onExiting) {
+        _this.props.onExiting(node);
+      }
+    };
+
+    _this.onExited = function (node) {
+      _this.removeClasses(node, 'exit');
+
+      _this.addClass(node, 'exit', 'done');
+
+      if (_this.props.onExited) {
+        _this.props.onExited(node);
+      }
+    };
+
+    _this.getClassNames = function (type) {
+      var classNames = _this.props.classNames;
+      var isStringClassNames = typeof classNames === 'string';
+      var prefix = isStringClassNames && classNames ? classNames + "-" : '';
+      var baseClassName = isStringClassNames ? "" + prefix + type : classNames[type];
+      var activeClassName = isStringClassNames ? baseClassName + "-active" : classNames[type + "Active"];
+      var doneClassName = isStringClassNames ? baseClassName + "-done" : classNames[type + "Done"];
+      return {
+        baseClassName: baseClassName,
+        activeClassName: activeClassName,
+        doneClassName: doneClassName
+      };
+    };
+
+    return _this;
+  }
+
+  var _proto = CSSTransition.prototype;
+
+  _proto.addClass = function addClass(node, type, phase) {
+    var className = this.getClassNames(type)[phase + "ClassName"];
+
+    if (type === 'appear' && phase === 'done') {
+      className += " " + this.getClassNames('enter').doneClassName;
+    } // This is for to force a repaint,
+    // which is necessary in order to transition styles when adding a class name.
+
+
+    if (phase === 'active') {
+      /* eslint-disable no-unused-expressions */
+      node && node.scrollTop;
+    }
+
+    this.appliedClasses[type][phase] = className;
+
+    _addClass(node, className);
+  };
+
+  _proto.removeClasses = function removeClasses(node, type) {
+    var _this$appliedClasses$ = this.appliedClasses[type],
+        baseClassName = _this$appliedClasses$.base,
+        activeClassName = _this$appliedClasses$.active,
+        doneClassName = _this$appliedClasses$.done;
+    this.appliedClasses[type] = {};
+
+    if (baseClassName) {
+      removeClass(node, baseClassName);
+    }
+
+    if (activeClassName) {
+      removeClass(node, activeClassName);
+    }
+
+    if (doneClassName) {
+      removeClass(node, doneClassName);
+    }
+  };
+
+  _proto.render = function render() {
+    var _this$props = this.props,
+        _ = _this$props.classNames,
+        props = (0, _objectWithoutPropertiesLoose2.default)(_this$props, ["classNames"]);
+    return _react.default.createElement(_Transition.default, (0, _extends2.default)({}, props, {
+      onEnter: this.onEnter,
+      onEntered: this.onEntered,
+      onEntering: this.onEntering,
+      onExit: this.onExit,
+      onExiting: this.onExiting,
+      onExited: this.onExited
+    }));
+  };
+
+  return CSSTransition;
+}(_react.default.Component);
+
+CSSTransition.defaultProps = {
+  classNames: ''
+};
+CSSTransition.propTypes = "development" !== "production" ? (0, _extends2.default)({}, _Transition.default.propTypes, {
+  /**
+   * The animation classNames applied to the component as it appears, enters,
+   * exits or has finished the transition. A single name can be provided and it
+   * will be suffixed for each stage: e.g.
+   *
+   * `classNames="fade"` applies `fade-appear`, `fade-appear-active`,
+   * `fade-appear-done`, `fade-enter`, `fade-enter-active`, `fade-enter-done`,
+   * `fade-exit`, `fade-exit-active`, and `fade-exit-done`.
+   *
+   * **Note**: `fade-appear-done` and `fade-enter-done` will _both_ be applied.
+   * This allows you to define different behavior for when appearing is done and
+   * when regular entering is done, using selectors like
+   * `.fade-enter-done:not(.fade-appear-done)`. For example, you could apply an
+   * epic entrance animation when element first appears in the DOM using
+   * [Animate.css](https://daneden.github.io/animate.css/). Otherwise you can
+   * simply use `fade-enter-done` for defining both cases.
+   *
+   * Each individual classNames can also be specified independently like:
+   *
+   * ```js
+   * classNames={{
+   *  appear: 'my-appear',
+   *  appearActive: 'my-active-appear',
+   *  appearDone: 'my-done-appear',
+   *  enter: 'my-enter',
+   *  enterActive: 'my-active-enter',
+   *  enterDone: 'my-done-enter',
+   *  exit: 'my-exit',
+   *  exitActive: 'my-active-exit',
+   *  exitDone: 'my-done-exit',
+   * }}
+   * ```
+   *
+   * If you want to set these classes using CSS Modules:
+   *
+   * ```js
+   * import styles from './styles.css';
+   * ```
+   *
+   * you might want to use camelCase in your CSS file, that way could simply
+   * spread them instead of listing them one by one:
+   *
+   * ```js
+   * classNames={{ ...styles }}
+   * ```
+   *
+   * @type {string | {
+   *  appear?: string,
+   *  appearActive?: string,
+   *  appearDone?: string,
+   *  enter?: string,
+   *  enterActive?: string,
+   *  enterDone?: string,
+   *  exit?: string,
+   *  exitActive?: string,
+   *  exitDone?: string,
+   * }}
+   */
+  classNames: _PropTypes.classNamesShape,
+
+  /**
+   * A `<Transition>` callback fired immediately after the 'enter' or 'appear' class is
+   * applied.
+   *
+   * @type Function(node: HtmlElement, isAppearing: bool)
+   */
+  onEnter: _propTypes.default.func,
+
+  /**
+   * A `<Transition>` callback fired immediately after the 'enter-active' or
+   * 'appear-active' class is applied.
+   *
+   * @type Function(node: HtmlElement, isAppearing: bool)
+   */
+  onEntering: _propTypes.default.func,
+
+  /**
+   * A `<Transition>` callback fired immediately after the 'enter' or
+   * 'appear' classes are **removed** and the `done` class is added to the DOM node.
+   *
+   * @type Function(node: HtmlElement, isAppearing: bool)
+   */
+  onEntered: _propTypes.default.func,
+
+  /**
+   * A `<Transition>` callback fired immediately after the 'exit' class is
+   * applied.
+   *
+   * @type Function(node: HtmlElement)
+   */
+  onExit: _propTypes.default.func,
+
+  /**
+   * A `<Transition>` callback fired immediately after the 'exit-active' is applied.
+   *
+   * @type Function(node: HtmlElement)
+   */
+  onExiting: _propTypes.default.func,
+
+  /**
+   * A `<Transition>` callback fired immediately after the 'exit' classes
+   * are **removed** and the `exit-done` class is added to the DOM node.
+   *
+   * @type Function(node: HtmlElement)
+   */
+  onExited: _propTypes.default.func
+}) : {};
+var _default = CSSTransition;
+exports.default = _default;
+},{"@babel/runtime/helpers/esm/extends":"../node_modules/@babel/runtime/helpers/esm/extends.js","@babel/runtime/helpers/esm/objectWithoutPropertiesLoose":"../node_modules/@babel/runtime/helpers/esm/objectWithoutPropertiesLoose.js","@babel/runtime/helpers/esm/inheritsLoose":"../node_modules/@babel/runtime/helpers/esm/inheritsLoose.js","prop-types":"../node_modules/prop-types/index.js","dom-helpers/addClass":"../node_modules/dom-helpers/esm/addClass.js","dom-helpers/removeClass":"../node_modules/dom-helpers/esm/removeClass.js","react":"../node_modules/react/index.js","./Transition":"../node_modules/react-transition-group/esm/Transition.js","./utils/PropTypes":"../node_modules/react-transition-group/esm/utils/PropTypes.js"}],"../node_modules/react-transition-group/esm/utils/ChildMapping.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.getChildMapping = getChildMapping;
+exports.mergeChildMappings = mergeChildMappings;
+exports.getInitialChildMapping = getInitialChildMapping;
+exports.getNextChildMapping = getNextChildMapping;
+
+var _react = require("react");
+
+/**
+ * Given `this.props.children`, return an object mapping key to child.
+ *
+ * @param {*} children `this.props.children`
+ * @return {object} Mapping of key to child
+ */
+function getChildMapping(children, mapFn) {
+  var mapper = function mapper(child) {
+    return mapFn && (0, _react.isValidElement)(child) ? mapFn(child) : child;
+  };
+
+  var result = Object.create(null);
+  if (children) _react.Children.map(children, function (c) {
+    return c;
+  }).forEach(function (child) {
+    // run the map function here instead so that the key is the computed one
+    result[child.key] = mapper(child);
+  });
+  return result;
+}
+/**
+ * When you're adding or removing children some may be added or removed in the
+ * same render pass. We want to show *both* since we want to simultaneously
+ * animate elements in and out. This function takes a previous set of keys
+ * and a new set of keys and merges them with its best guess of the correct
+ * ordering. In the future we may expose some of the utilities in
+ * ReactMultiChild to make this easy, but for now React itself does not
+ * directly have this concept of the union of prevChildren and nextChildren
+ * so we implement it here.
+ *
+ * @param {object} prev prev children as returned from
+ * `ReactTransitionChildMapping.getChildMapping()`.
+ * @param {object} next next children as returned from
+ * `ReactTransitionChildMapping.getChildMapping()`.
+ * @return {object} a key set that contains all keys in `prev` and all keys
+ * in `next` in a reasonable order.
+ */
+
+
+function mergeChildMappings(prev, next) {
+  prev = prev || {};
+  next = next || {};
+
+  function getValueForKey(key) {
+    return key in next ? next[key] : prev[key];
+  } // For each key of `next`, the list of keys to insert before that key in
+  // the combined list
+
+
+  var nextKeysPending = Object.create(null);
+  var pendingKeys = [];
+
+  for (var prevKey in prev) {
+    if (prevKey in next) {
+      if (pendingKeys.length) {
+        nextKeysPending[prevKey] = pendingKeys;
+        pendingKeys = [];
+      }
+    } else {
+      pendingKeys.push(prevKey);
+    }
+  }
+
+  var i;
+  var childMapping = {};
+
+  for (var nextKey in next) {
+    if (nextKeysPending[nextKey]) {
+      for (i = 0; i < nextKeysPending[nextKey].length; i++) {
+        var pendingNextKey = nextKeysPending[nextKey][i];
+        childMapping[nextKeysPending[nextKey][i]] = getValueForKey(pendingNextKey);
+      }
+    }
+
+    childMapping[nextKey] = getValueForKey(nextKey);
+  } // Finally, add the keys which didn't appear before any key in `next`
+
+
+  for (i = 0; i < pendingKeys.length; i++) {
+    childMapping[pendingKeys[i]] = getValueForKey(pendingKeys[i]);
+  }
+
+  return childMapping;
+}
+
+function getProp(child, prop, props) {
+  return props[prop] != null ? props[prop] : child.props[prop];
+}
+
+function getInitialChildMapping(props, onExited) {
+  return getChildMapping(props.children, function (child) {
+    return (0, _react.cloneElement)(child, {
+      onExited: onExited.bind(null, child),
+      in: true,
+      appear: getProp(child, 'appear', props),
+      enter: getProp(child, 'enter', props),
+      exit: getProp(child, 'exit', props)
+    });
+  });
+}
+
+function getNextChildMapping(nextProps, prevChildMapping, onExited) {
+  var nextChildMapping = getChildMapping(nextProps.children);
+  var children = mergeChildMappings(prevChildMapping, nextChildMapping);
+  Object.keys(children).forEach(function (key) {
+    var child = children[key];
+    if (!(0, _react.isValidElement)(child)) return;
+    var hasPrev = key in prevChildMapping;
+    var hasNext = key in nextChildMapping;
+    var prevChild = prevChildMapping[key];
+    var isLeaving = (0, _react.isValidElement)(prevChild) && !prevChild.props.in; // item is new (entering)
+
+    if (hasNext && (!hasPrev || isLeaving)) {
+      // console.log('entering', key)
+      children[key] = (0, _react.cloneElement)(child, {
+        onExited: onExited.bind(null, child),
+        in: true,
+        exit: getProp(child, 'exit', nextProps),
+        enter: getProp(child, 'enter', nextProps)
+      });
+    } else if (!hasNext && hasPrev && !isLeaving) {
+      // item is old (exiting)
+      // console.log('leaving', key)
+      children[key] = (0, _react.cloneElement)(child, {
+        in: false
+      });
+    } else if (hasNext && hasPrev && (0, _react.isValidElement)(prevChild)) {
+      // item hasn't changed transition states
+      // copy over the last transition props;
+      // console.log('unchanged', key)
+      children[key] = (0, _react.cloneElement)(child, {
+        onExited: onExited.bind(null, child),
+        in: prevChild.props.in,
+        exit: getProp(child, 'exit', nextProps),
+        enter: getProp(child, 'enter', nextProps)
+      });
+    }
+  });
+  return children;
+}
+},{"react":"../node_modules/react/index.js"}],"../node_modules/react-transition-group/esm/TransitionGroup.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var _objectWithoutPropertiesLoose2 = _interopRequireDefault(require("@babel/runtime/helpers/esm/objectWithoutPropertiesLoose"));
+
+var _extends2 = _interopRequireDefault(require("@babel/runtime/helpers/esm/extends"));
+
+var _inheritsLoose2 = _interopRequireDefault(require("@babel/runtime/helpers/esm/inheritsLoose"));
+
+var _assertThisInitialized2 = _interopRequireDefault(require("@babel/runtime/helpers/esm/assertThisInitialized"));
+
+var _propTypes = _interopRequireDefault(require("prop-types"));
+
+var _react = _interopRequireDefault(require("react"));
+
+var _TransitionGroupContext = _interopRequireDefault(require("./TransitionGroupContext"));
+
+var _ChildMapping = require("./utils/ChildMapping");
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var values = Object.values || function (obj) {
+  return Object.keys(obj).map(function (k) {
+    return obj[k];
+  });
+};
+
+var defaultProps = {
+  component: 'div',
+  childFactory: function childFactory(child) {
+    return child;
+  }
+  /**
+   * The `<TransitionGroup>` component manages a set of transition components
+   * (`<Transition>` and `<CSSTransition>`) in a list. Like with the transition
+   * components, `<TransitionGroup>` is a state machine for managing the mounting
+   * and unmounting of components over time.
+   *
+   * Consider the example below. As items are removed or added to the TodoList the
+   * `in` prop is toggled automatically by the `<TransitionGroup>`.
+   *
+   * Note that `<TransitionGroup>`  does not define any animation behavior!
+   * Exactly _how_ a list item animates is up to the individual transition
+   * component. This means you can mix and match animations across different list
+   * items.
+   */
+
+};
+
+var TransitionGroup =
+/*#__PURE__*/
+function (_React$Component) {
+  (0, _inheritsLoose2.default)(TransitionGroup, _React$Component);
+
+  function TransitionGroup(props, context) {
+    var _this;
+
+    _this = _React$Component.call(this, props, context) || this;
+
+    var handleExited = _this.handleExited.bind((0, _assertThisInitialized2.default)((0, _assertThisInitialized2.default)(_this))); // Initial children should all be entering, dependent on appear
+
+
+    _this.state = {
+      contextValue: {
+        isMounting: true
+      },
+      handleExited: handleExited,
+      firstRender: true
+    };
+    return _this;
+  }
+
+  var _proto = TransitionGroup.prototype;
+
+  _proto.componentDidMount = function componentDidMount() {
+    this.mounted = true;
+    this.setState({
+      contextValue: {
+        isMounting: false
+      }
+    });
+  };
+
+  _proto.componentWillUnmount = function componentWillUnmount() {
+    this.mounted = false;
+  };
+
+  TransitionGroup.getDerivedStateFromProps = function getDerivedStateFromProps(nextProps, _ref) {
+    var prevChildMapping = _ref.children,
+        handleExited = _ref.handleExited,
+        firstRender = _ref.firstRender;
+    return {
+      children: firstRender ? (0, _ChildMapping.getInitialChildMapping)(nextProps, handleExited) : (0, _ChildMapping.getNextChildMapping)(nextProps, prevChildMapping, handleExited),
+      firstRender: false
+    };
+  };
+
+  _proto.handleExited = function handleExited(child, node) {
+    var currentChildMapping = (0, _ChildMapping.getChildMapping)(this.props.children);
+    if (child.key in currentChildMapping) return;
+
+    if (child.props.onExited) {
+      child.props.onExited(node);
+    }
+
+    if (this.mounted) {
+      this.setState(function (state) {
+        var children = (0, _extends2.default)({}, state.children);
+        delete children[child.key];
+        return {
+          children: children
+        };
+      });
+    }
+  };
+
+  _proto.render = function render() {
+    var _this$props = this.props,
+        Component = _this$props.component,
+        childFactory = _this$props.childFactory,
+        props = (0, _objectWithoutPropertiesLoose2.default)(_this$props, ["component", "childFactory"]);
+    var contextValue = this.state.contextValue;
+    var children = values(this.state.children).map(childFactory);
+    delete props.appear;
+    delete props.enter;
+    delete props.exit;
+
+    if (Component === null) {
+      return _react.default.createElement(_TransitionGroupContext.default.Provider, {
+        value: contextValue
+      }, children);
+    }
+
+    return _react.default.createElement(_TransitionGroupContext.default.Provider, {
+      value: contextValue
+    }, _react.default.createElement(Component, props, children));
+  };
+
+  return TransitionGroup;
+}(_react.default.Component);
+
+TransitionGroup.propTypes = "development" !== "production" ? {
+  /**
+   * `<TransitionGroup>` renders a `<div>` by default. You can change this
+   * behavior by providing a `component` prop.
+   * If you use React v16+ and would like to avoid a wrapping `<div>` element
+   * you can pass in `component={null}`. This is useful if the wrapping div
+   * borks your css styles.
+   */
+  component: _propTypes.default.any,
+
+  /**
+   * A set of `<Transition>` components, that are toggled `in` and out as they
+   * leave. the `<TransitionGroup>` will inject specific transition props, so
+   * remember to spread them through if you are wrapping the `<Transition>` as
+   * with our `<Fade>` example.
+   *
+   * While this component is meant for multiple `Transition` or `CSSTransition`
+   * children, sometimes you may want to have a single transition child with
+   * content that you want to be transitioned out and in when you change it
+   * (e.g. routes, images etc.) In that case you can change the `key` prop of
+   * the transition child as you change its content, this will cause
+   * `TransitionGroup` to transition the child out and back in.
+   */
+  children: _propTypes.default.node,
+
+  /**
+   * A convenience prop that enables or disables appear animations
+   * for all children. Note that specifying this will override any defaults set
+   * on individual children Transitions.
+   */
+  appear: _propTypes.default.bool,
+
+  /**
+   * A convenience prop that enables or disables enter animations
+   * for all children. Note that specifying this will override any defaults set
+   * on individual children Transitions.
+   */
+  enter: _propTypes.default.bool,
+
+  /**
+   * A convenience prop that enables or disables exit animations
+   * for all children. Note that specifying this will override any defaults set
+   * on individual children Transitions.
+   */
+  exit: _propTypes.default.bool,
+
+  /**
+   * You may need to apply reactive updates to a child as it is exiting.
+   * This is generally done by using `cloneElement` however in the case of an exiting
+   * child the element has already been removed and not accessible to the consumer.
+   *
+   * If you do need to update a child as it leaves you can provide a `childFactory`
+   * to wrap every child, even the ones that are leaving.
+   *
+   * @type Function(child: ReactElement) -> ReactElement
+   */
+  childFactory: _propTypes.default.func
+} : {};
+TransitionGroup.defaultProps = defaultProps;
+var _default = TransitionGroup;
+exports.default = _default;
+},{"@babel/runtime/helpers/esm/objectWithoutPropertiesLoose":"../node_modules/@babel/runtime/helpers/esm/objectWithoutPropertiesLoose.js","@babel/runtime/helpers/esm/extends":"../node_modules/@babel/runtime/helpers/esm/extends.js","@babel/runtime/helpers/esm/inheritsLoose":"../node_modules/@babel/runtime/helpers/esm/inheritsLoose.js","@babel/runtime/helpers/esm/assertThisInitialized":"../node_modules/@babel/runtime/helpers/esm/assertThisInitialized.js","prop-types":"../node_modules/prop-types/index.js","react":"../node_modules/react/index.js","./TransitionGroupContext":"../node_modules/react-transition-group/esm/TransitionGroupContext.js","./utils/ChildMapping":"../node_modules/react-transition-group/esm/utils/ChildMapping.js"}],"../node_modules/react-transition-group/esm/ReplaceTransition.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var _objectWithoutPropertiesLoose2 = _interopRequireDefault(require("@babel/runtime/helpers/esm/objectWithoutPropertiesLoose"));
+
+var _inheritsLoose2 = _interopRequireDefault(require("@babel/runtime/helpers/esm/inheritsLoose"));
+
+var _propTypes = _interopRequireDefault(require("prop-types"));
+
+var _react = _interopRequireDefault(require("react"));
+
+var _reactDom = _interopRequireDefault(require("react-dom"));
+
+var _TransitionGroup = _interopRequireDefault(require("./TransitionGroup"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+/**
+ * The `<ReplaceTransition>` component is a specialized `Transition` component
+ * that animates between two children.
+ *
+ * ```jsx
+ * <ReplaceTransition in>
+ *   <Fade><div>I appear first</div></Fade>
+ *   <Fade><div>I replace the above</div></Fade>
+ * </ReplaceTransition>
+ * ```
+ */
+var ReplaceTransition =
+/*#__PURE__*/
+function (_React$Component) {
+  (0, _inheritsLoose2.default)(ReplaceTransition, _React$Component);
+
+  function ReplaceTransition() {
+    var _this;
+
+    for (var _len = arguments.length, _args = new Array(_len), _key = 0; _key < _len; _key++) {
+      _args[_key] = arguments[_key];
+    }
+
+    _this = _React$Component.call.apply(_React$Component, [this].concat(_args)) || this;
+
+    _this.handleEnter = function () {
+      for (var _len2 = arguments.length, args = new Array(_len2), _key2 = 0; _key2 < _len2; _key2++) {
+        args[_key2] = arguments[_key2];
+      }
+
+      return _this.handleLifecycle('onEnter', 0, args);
+    };
+
+    _this.handleEntering = function () {
+      for (var _len3 = arguments.length, args = new Array(_len3), _key3 = 0; _key3 < _len3; _key3++) {
+        args[_key3] = arguments[_key3];
+      }
+
+      return _this.handleLifecycle('onEntering', 0, args);
+    };
+
+    _this.handleEntered = function () {
+      for (var _len4 = arguments.length, args = new Array(_len4), _key4 = 0; _key4 < _len4; _key4++) {
+        args[_key4] = arguments[_key4];
+      }
+
+      return _this.handleLifecycle('onEntered', 0, args);
+    };
+
+    _this.handleExit = function () {
+      for (var _len5 = arguments.length, args = new Array(_len5), _key5 = 0; _key5 < _len5; _key5++) {
+        args[_key5] = arguments[_key5];
+      }
+
+      return _this.handleLifecycle('onExit', 1, args);
+    };
+
+    _this.handleExiting = function () {
+      for (var _len6 = arguments.length, args = new Array(_len6), _key6 = 0; _key6 < _len6; _key6++) {
+        args[_key6] = arguments[_key6];
+      }
+
+      return _this.handleLifecycle('onExiting', 1, args);
+    };
+
+    _this.handleExited = function () {
+      for (var _len7 = arguments.length, args = new Array(_len7), _key7 = 0; _key7 < _len7; _key7++) {
+        args[_key7] = arguments[_key7];
+      }
+
+      return _this.handleLifecycle('onExited', 1, args);
+    };
+
+    return _this;
+  }
+
+  var _proto = ReplaceTransition.prototype;
+
+  _proto.handleLifecycle = function handleLifecycle(handler, idx, originalArgs) {
+    var _child$props;
+
+    var children = this.props.children;
+
+    var child = _react.default.Children.toArray(children)[idx];
+
+    if (child.props[handler]) (_child$props = child.props)[handler].apply(_child$props, originalArgs);
+    if (this.props[handler]) this.props[handler](_reactDom.default.findDOMNode(this));
+  };
+
+  _proto.render = function render() {
+    var _this$props = this.props,
+        children = _this$props.children,
+        inProp = _this$props.in,
+        props = (0, _objectWithoutPropertiesLoose2.default)(_this$props, ["children", "in"]);
+
+    var _React$Children$toArr = _react.default.Children.toArray(children),
+        first = _React$Children$toArr[0],
+        second = _React$Children$toArr[1];
+
+    delete props.onEnter;
+    delete props.onEntering;
+    delete props.onEntered;
+    delete props.onExit;
+    delete props.onExiting;
+    delete props.onExited;
+    return _react.default.createElement(_TransitionGroup.default, props, inProp ? _react.default.cloneElement(first, {
+      key: 'first',
+      onEnter: this.handleEnter,
+      onEntering: this.handleEntering,
+      onEntered: this.handleEntered
+    }) : _react.default.cloneElement(second, {
+      key: 'second',
+      onEnter: this.handleExit,
+      onEntering: this.handleExiting,
+      onEntered: this.handleExited
+    }));
+  };
+
+  return ReplaceTransition;
+}(_react.default.Component);
+
+ReplaceTransition.propTypes = "development" !== "production" ? {
+  in: _propTypes.default.bool.isRequired,
+  children: function children(props, propName) {
+    if (_react.default.Children.count(props[propName]) !== 2) return new Error("\"" + propName + "\" must be exactly two transition components.");
+    return null;
+  }
+} : {};
+var _default = ReplaceTransition;
+exports.default = _default;
+},{"@babel/runtime/helpers/esm/objectWithoutPropertiesLoose":"../node_modules/@babel/runtime/helpers/esm/objectWithoutPropertiesLoose.js","@babel/runtime/helpers/esm/inheritsLoose":"../node_modules/@babel/runtime/helpers/esm/inheritsLoose.js","prop-types":"../node_modules/prop-types/index.js","react":"../node_modules/react/index.js","react-dom":"../node_modules/react-dom/index.js","./TransitionGroup":"../node_modules/react-transition-group/esm/TransitionGroup.js"}],"../node_modules/react-transition-group/esm/SwitchTransition.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = exports.modes = void 0;
+
+var _inheritsLoose2 = _interopRequireDefault(require("@babel/runtime/helpers/esm/inheritsLoose"));
+
+var _react = _interopRequireDefault(require("react"));
+
+var _propTypes = _interopRequireDefault(require("prop-types"));
+
+var _Transition = require("./Transition");
+
+var _TransitionGroupContext = _interopRequireDefault(require("./TransitionGroupContext"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var _leaveRenders, _enterRenders;
+
+function areChildrenDifferent(oldChildren, newChildren) {
+  if (oldChildren === newChildren) return false;
+
+  if (_react.default.isValidElement(oldChildren) && _react.default.isValidElement(newChildren) && oldChildren.key != null && oldChildren.key === newChildren.key) {
+    return false;
+  }
+
+  return true;
+}
+/**
+ * Enum of modes for SwitchTransition component
+ * @enum { string }
+ */
+
+
+var modes = {
+  out: 'out-in',
+  in: 'in-out'
+};
+exports.modes = modes;
+
+var callHook = function callHook(element, name, cb) {
+  return function () {
+    var _element$props;
+
+    element.props[name] && (_element$props = element.props)[name].apply(_element$props, arguments);
+    cb();
+  };
+};
+
+var leaveRenders = (_leaveRenders = {}, _leaveRenders[modes.out] = function (_ref) {
+  var current = _ref.current,
+      changeState = _ref.changeState;
+  return _react.default.cloneElement(current, {
+    in: false,
+    onExited: callHook(current, 'onExited', function () {
+      changeState(_Transition.ENTERING, null);
+    })
+  });
+}, _leaveRenders[modes.in] = function (_ref2) {
+  var current = _ref2.current,
+      changeState = _ref2.changeState,
+      children = _ref2.children;
+  return [current, _react.default.cloneElement(children, {
+    in: true,
+    onEntered: callHook(children, 'onEntered', function () {
+      changeState(_Transition.ENTERING);
+    })
+  })];
+}, _leaveRenders);
+var enterRenders = (_enterRenders = {}, _enterRenders[modes.out] = function (_ref3) {
+  var children = _ref3.children,
+      changeState = _ref3.changeState;
+  return _react.default.cloneElement(children, {
+    in: true,
+    onEntered: callHook(children, 'onEntered', function () {
+      changeState(_Transition.ENTERED, _react.default.cloneElement(children, {
+        in: true
+      }));
+    })
+  });
+}, _enterRenders[modes.in] = function (_ref4) {
+  var current = _ref4.current,
+      children = _ref4.children,
+      changeState = _ref4.changeState;
+  return [_react.default.cloneElement(current, {
+    in: false,
+    onExited: callHook(current, 'onExited', function () {
+      changeState(_Transition.ENTERED, _react.default.cloneElement(children, {
+        in: true
+      }));
+    })
+  }), _react.default.cloneElement(children, {
+    in: true
+  })];
+}, _enterRenders);
+/**
+ * A transition component inspired by the [vue transition modes](https://vuejs.org/v2/guide/transitions.html#Transition-Modes).
+ * You can use it when you want to control the render between state transitions.
+ * Based on the selected mode and the child's key which is the `Transition` or `CSSTransition` component, the `SwitchTransition` makes a consistent transition between them.
+ *
+ * If the `out-in` mode is selected, the `SwitchTransition` waits until the old child leaves and then inserts a new child.
+ * If the `in-out` mode is selected, the `SwitchTransition` inserts a new child first, waits for the new child to enter and then removes the old child
+ *
+ * ```jsx
+ *
+ * function App() {
+ *  const [state, setState] = useState(false);
+ *  return (
+ *    <SwitchTransition>
+ *      <FadeTransition key={state ? "Goodbye, world!" : "Hello, world!"}
+ *        addEndListener={(node, done) => node.addEventListener("transitionend", done, false)}
+ *        classNames='fade' >
+ *        <button onClick={() => setState(state => !state)}>
+ *          {state ? "Goodbye, world!" : "Hello, world!"}
+ *        </button>
+ *      </FadeTransition>
+ *    </SwitchTransition>
+ *  )
+ * }
+ * ```
+ */
+
+var SwitchTransition =
+/*#__PURE__*/
+function (_React$Component) {
+  (0, _inheritsLoose2.default)(SwitchTransition, _React$Component);
+
+  function SwitchTransition() {
+    var _this;
+
+    for (var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++) {
+      args[_key] = arguments[_key];
+    }
+
+    _this = _React$Component.call.apply(_React$Component, [this].concat(args)) || this;
+    _this.state = {
+      status: _Transition.ENTERED,
+      current: null
+    };
+    _this.appeared = false;
+
+    _this.changeState = function (status, current) {
+      if (current === void 0) {
+        current = _this.state.current;
+      }
+
+      _this.setState({
+        status: status,
+        current: current
+      });
+    };
+
+    return _this;
+  }
+
+  var _proto = SwitchTransition.prototype;
+
+  _proto.componentDidMount = function componentDidMount() {
+    this.appeared = true;
+  };
+
+  SwitchTransition.getDerivedStateFromProps = function getDerivedStateFromProps(props, state) {
+    if (props.children == null) {
+      return {
+        current: null
+      };
+    }
+
+    if (state.status === _Transition.ENTERING && props.mode === modes.in) {
+      return {
+        status: _Transition.ENTERING
+      };
+    }
+
+    if (state.current && areChildrenDifferent(state.current, props.children)) {
+      return {
+        status: _Transition.EXITING
+      };
+    }
+
+    return {
+      current: _react.default.cloneElement(props.children, {
+        in: true
+      })
+    };
+  };
+
+  _proto.render = function render() {
+    var _this$props = this.props,
+        children = _this$props.children,
+        mode = _this$props.mode,
+        _this$state = this.state,
+        status = _this$state.status,
+        current = _this$state.current;
+    var data = {
+      children: children,
+      current: current,
+      changeState: this.changeState,
+      status: status
+    };
+    var component;
+
+    switch (status) {
+      case _Transition.ENTERING:
+        component = enterRenders[mode](data);
+        break;
+
+      case _Transition.EXITING:
+        component = leaveRenders[mode](data);
+        break;
+
+      case _Transition.ENTERED:
+        component = current;
+    }
+
+    return _react.default.createElement(_TransitionGroupContext.default.Provider, {
+      value: {
+        isMounting: !this.appeared
+      }
+    }, component);
+  };
+
+  return SwitchTransition;
+}(_react.default.Component);
+
+SwitchTransition.propTypes = "development" !== "production" ? {
+  /**
+   * Transition modes.
+   * `out-in`: Current element transitions out first, then when complete, the new element transitions in.
+   * `in-out: New element transitions in first, then when complete, the current element transitions out.`
+   *
+   * @type {'out-in'|'in-out'}
+   */
+  mode: _propTypes.default.oneOf([modes.in, modes.out]),
+
+  /**
+   * Any `Transition` or `CSSTransition` component
+   */
+  children: _propTypes.default.oneOfType([_propTypes.default.element.isRequired])
+} : {};
+SwitchTransition.defaultProps = {
+  mode: modes.out
+};
+var _default = SwitchTransition;
+exports.default = _default;
+},{"@babel/runtime/helpers/esm/inheritsLoose":"../node_modules/@babel/runtime/helpers/esm/inheritsLoose.js","react":"../node_modules/react/index.js","prop-types":"../node_modules/prop-types/index.js","./Transition":"../node_modules/react-transition-group/esm/Transition.js","./TransitionGroupContext":"../node_modules/react-transition-group/esm/TransitionGroupContext.js"}],"../node_modules/react-transition-group/esm/index.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+Object.defineProperty(exports, "CSSTransition", {
+  enumerable: true,
+  get: function () {
+    return _CSSTransition.default;
+  }
+});
+Object.defineProperty(exports, "ReplaceTransition", {
+  enumerable: true,
+  get: function () {
+    return _ReplaceTransition.default;
+  }
+});
+Object.defineProperty(exports, "SwitchTransition", {
+  enumerable: true,
+  get: function () {
+    return _SwitchTransition.default;
+  }
+});
+Object.defineProperty(exports, "TransitionGroup", {
+  enumerable: true,
+  get: function () {
+    return _TransitionGroup.default;
+  }
+});
+Object.defineProperty(exports, "Transition", {
+  enumerable: true,
+  get: function () {
+    return _Transition.default;
+  }
+});
+Object.defineProperty(exports, "config", {
+  enumerable: true,
+  get: function () {
+    return _config.default;
+  }
+});
+
+var _CSSTransition = _interopRequireDefault(require("./CSSTransition"));
+
+var _ReplaceTransition = _interopRequireDefault(require("./ReplaceTransition"));
+
+var _SwitchTransition = _interopRequireDefault(require("./SwitchTransition"));
+
+var _TransitionGroup = _interopRequireDefault(require("./TransitionGroup"));
+
+var _Transition = _interopRequireDefault(require("./Transition"));
+
+var _config = _interopRequireDefault(require("./config"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+},{"./CSSTransition":"../node_modules/react-transition-group/esm/CSSTransition.js","./ReplaceTransition":"../node_modules/react-transition-group/esm/ReplaceTransition.js","./SwitchTransition":"../node_modules/react-transition-group/esm/SwitchTransition.js","./TransitionGroup":"../node_modules/react-transition-group/esm/TransitionGroup.js","./Transition":"../node_modules/react-transition-group/esm/Transition.js","./config":"../node_modules/react-transition-group/esm/config.js"}],"../node_modules/@material-ui/core/esm/ButtonBase/Ripple.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var _react = _interopRequireDefault(require("react"));
+
+var _propTypes = _interopRequireDefault(require("prop-types"));
+
+var _clsx = _interopRequireDefault(require("clsx"));
+
+var _useEventCallback = _interopRequireDefault(require("../utils/useEventCallback"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var useEnhancedEffect = typeof window === 'undefined' ? _react.default.useEffect : _react.default.useLayoutEffect;
+/**
+ * @ignore - internal component.
+ */
+
+function Ripple(props) {
+  var classes = props.classes,
+      _props$pulsate = props.pulsate,
+      pulsate = _props$pulsate === void 0 ? false : _props$pulsate,
+      rippleX = props.rippleX,
+      rippleY = props.rippleY,
+      rippleSize = props.rippleSize,
+      inProp = props.in,
+      _props$onExited = props.onExited,
+      onExited = _props$onExited === void 0 ? function () {} : _props$onExited,
+      timeout = props.timeout;
+
+  var _React$useState = _react.default.useState(false),
+      leaving = _React$useState[0],
+      setLeaving = _React$useState[1];
+
+  var rippleClassName = (0, _clsx.default)(classes.ripple, classes.rippleVisible, pulsate && classes.ripplePulsate);
+  var rippleStyles = {
+    width: rippleSize,
+    height: rippleSize,
+    top: -(rippleSize / 2) + rippleY,
+    left: -(rippleSize / 2) + rippleX
+  };
+  var childClassName = (0, _clsx.default)(classes.child, leaving && classes.childLeaving, pulsate && classes.childPulsate);
+  var handleExited = (0, _useEventCallback.default)(onExited); // Ripple is used for user feedback (e.g. click or press) so we want to apply styles with the highest priority
+
+  useEnhancedEffect(function () {
+    if (!inProp) {
+      // react-transition-group#onExit
+      setLeaving(true); // react-transition-group#onExited
+
+      var timeoutId = setTimeout(handleExited, timeout);
+      return function () {
+        clearTimeout(timeoutId);
+      };
+    }
+
+    return undefined;
+  }, [handleExited, inProp, timeout]);
+  return _react.default.createElement("span", {
+    className: rippleClassName,
+    style: rippleStyles
+  }, _react.default.createElement("span", {
+    className: childClassName
+  }));
+}
+
+"development" !== "production" ? Ripple.propTypes = {
+  /**
+   * Override or extend the styles applied to the component.
+   * See [CSS API](#css) below for more details.
+   */
+  classes: _propTypes.default.object.isRequired,
+
+  /**
+   * @ignore - injected from TransitionGroup
+   */
+  in: _propTypes.default.bool,
+
+  /**
+   * @ignore - injected from TransitionGroup
+   */
+  onExited: _propTypes.default.func,
+
+  /**
+   * If `true`, the ripple pulsates, typically indicating the keyboard focus state of an element.
+   */
+  pulsate: _propTypes.default.bool,
+
+  /**
+   * Diameter of the ripple.
+   */
+  rippleSize: _propTypes.default.number,
+
+  /**
+   * Horizontal position of the ripple center.
+   */
+  rippleX: _propTypes.default.number,
+
+  /**
+   * Vertical position of the ripple center.
+   */
+  rippleY: _propTypes.default.number,
+
+  /**
+   * exit delay
+   */
+  timeout: _propTypes.default.number.isRequired
+} : void 0;
+var _default = Ripple;
+exports.default = _default;
+},{"react":"../node_modules/react/index.js","prop-types":"../node_modules/prop-types/index.js","clsx":"../node_modules/clsx/dist/clsx.m.js","../utils/useEventCallback":"../node_modules/@material-ui/core/esm/utils/useEventCallback.js"}],"../node_modules/@material-ui/core/esm/ButtonBase/TouchRipple.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = exports.styles = exports.DELAY_RIPPLE = void 0;
+
+var _extends2 = _interopRequireDefault(require("@babel/runtime/helpers/esm/extends"));
+
+var _toConsumableArray2 = _interopRequireDefault(require("@babel/runtime/helpers/esm/toConsumableArray"));
+
+var _objectWithoutProperties2 = _interopRequireDefault(require("@babel/runtime/helpers/esm/objectWithoutProperties"));
+
+var _react = _interopRequireDefault(require("react"));
+
+var _propTypes = _interopRequireDefault(require("prop-types"));
+
+var _reactTransitionGroup = require("react-transition-group");
+
+var _clsx = _interopRequireDefault(require("clsx"));
+
+var _withStyles = _interopRequireDefault(require("../styles/withStyles"));
+
+var _Ripple = _interopRequireDefault(require("./Ripple"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var DURATION = 550;
+var DELAY_RIPPLE = 80;
+exports.DELAY_RIPPLE = DELAY_RIPPLE;
+
+var styles = function styles(theme) {
+  return {
+    /* Styles applied to the root element. */
+    root: {
+      overflow: 'hidden',
+      pointerEvents: 'none',
+      position: 'absolute',
+      zIndex: 0,
+      top: 0,
+      right: 0,
+      bottom: 0,
+      left: 0,
+      borderRadius: 'inherit'
+    },
+
+    /* Styles applied to the internal `Ripple` components `ripple` class. */
+    ripple: {
+      opacity: 0,
+      position: 'absolute'
+    },
+
+    /* Styles applied to the internal `Ripple` components `rippleVisible` class. */
+    rippleVisible: {
+      opacity: 0.3,
+      transform: 'scale(1)',
+      animation: "$enter ".concat(DURATION, "ms ").concat(theme.transitions.easing.easeInOut)
+    },
+
+    /* Styles applied to the internal `Ripple` components `ripplePulsate` class. */
+    ripplePulsate: {
+      animationDuration: "".concat(theme.transitions.duration.shorter, "ms")
+    },
+
+    /* Styles applied to the internal `Ripple` components `child` class. */
+    child: {
+      opacity: 1,
+      display: 'block',
+      width: '100%',
+      height: '100%',
+      borderRadius: '50%',
+      backgroundColor: 'currentColor'
+    },
+
+    /* Styles applied to the internal `Ripple` components `childLeaving` class. */
+    childLeaving: {
+      opacity: 0,
+      animation: "$exit ".concat(DURATION, "ms ").concat(theme.transitions.easing.easeInOut)
+    },
+
+    /* Styles applied to the internal `Ripple` components `childPulsate` class. */
+    childPulsate: {
+      position: 'absolute',
+      left: 0,
+      top: 0,
+      animation: "$pulsate 2500ms ".concat(theme.transitions.easing.easeInOut, " 200ms infinite")
+    },
+    '@keyframes enter': {
+      '0%': {
+        transform: 'scale(0)',
+        opacity: 0.1
+      },
+      '100%': {
+        transform: 'scale(1)',
+        opacity: 0.3
+      }
+    },
+    '@keyframes exit': {
+      '0%': {
+        opacity: 1
+      },
+      '100%': {
+        opacity: 0
+      }
+    },
+    '@keyframes pulsate': {
+      '0%': {
+        transform: 'scale(1)'
+      },
+      '50%': {
+        transform: 'scale(0.92)'
+      },
+      '100%': {
+        transform: 'scale(1)'
+      }
+    }
+  };
+}; // TODO v5: Make private
+
+
+exports.styles = styles;
+
+var TouchRipple = _react.default.forwardRef(function TouchRipple(props, ref) {
+  var _props$center = props.center,
+      centerProp = _props$center === void 0 ? false : _props$center,
+      classes = props.classes,
+      className = props.className,
+      other = (0, _objectWithoutProperties2.default)(props, ["center", "classes", "className"]);
+
+  var _React$useState = _react.default.useState([]),
+      ripples = _React$useState[0],
+      setRipples = _React$useState[1];
+
+  var nextKey = _react.default.useRef(0);
+
+  var rippleCallback = _react.default.useRef(null);
+
+  _react.default.useEffect(function () {
+    if (rippleCallback.current) {
+      rippleCallback.current();
+      rippleCallback.current = null;
+    }
+  }, [ripples]); // Used to filter out mouse emulated events on mobile.
+
+
+  var ignoringMouseDown = _react.default.useRef(false); // We use a timer in order to only show the ripples for touch "click" like events.
+  // We don't want to display the ripple for touch scroll events.
+
+
+  var startTimer = _react.default.useRef(null); // This is the hook called once the previous timeout is ready.
+
+
+  var startTimerCommit = _react.default.useRef(null);
+
+  var container = _react.default.useRef(null);
+
+  _react.default.useEffect(function () {
+    return function () {
+      clearTimeout(startTimer.current);
+    };
+  }, []);
+
+  var startCommit = _react.default.useCallback(function (params) {
+    var pulsate = params.pulsate,
+        rippleX = params.rippleX,
+        rippleY = params.rippleY,
+        rippleSize = params.rippleSize,
+        cb = params.cb;
+    setRipples(function (oldRipples) {
+      return [].concat((0, _toConsumableArray2.default)(oldRipples), [_react.default.createElement(_Ripple.default, {
+        key: nextKey.current,
+        classes: classes,
+        timeout: DURATION,
+        pulsate: pulsate,
+        rippleX: rippleX,
+        rippleY: rippleY,
+        rippleSize: rippleSize
+      })]);
+    });
+    nextKey.current += 1;
+    rippleCallback.current = cb;
+  }, [classes]);
+
+  var start = _react.default.useCallback(function () {
+    var event = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+    var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+    var cb = arguments.length > 2 ? arguments[2] : undefined;
+    var _options$pulsate = options.pulsate,
+        pulsate = _options$pulsate === void 0 ? false : _options$pulsate,
+        _options$center = options.center,
+        center = _options$center === void 0 ? centerProp || options.pulsate : _options$center,
+        _options$fakeElement = options.fakeElement,
+        fakeElement = _options$fakeElement === void 0 ? false : _options$fakeElement;
+
+    if (event.type === 'mousedown' && ignoringMouseDown.current) {
+      ignoringMouseDown.current = false;
+      return;
+    }
+
+    if (event.type === 'touchstart') {
+      ignoringMouseDown.current = true;
+    }
+
+    var element = fakeElement ? null : container.current;
+    var rect = element ? element.getBoundingClientRect() : {
+      width: 0,
+      height: 0,
+      left: 0,
+      top: 0
+    }; // Get the size of the ripple
+
+    var rippleX;
+    var rippleY;
+    var rippleSize;
+
+    if (center || event.clientX === 0 && event.clientY === 0 || !event.clientX && !event.touches) {
+      rippleX = Math.round(rect.width / 2);
+      rippleY = Math.round(rect.height / 2);
+    } else {
+      var clientX = event.clientX ? event.clientX : event.touches[0].clientX;
+      var clientY = event.clientY ? event.clientY : event.touches[0].clientY;
+      rippleX = Math.round(clientX - rect.left);
+      rippleY = Math.round(clientY - rect.top);
+    }
+
+    if (center) {
+      rippleSize = Math.sqrt((2 * Math.pow(rect.width, 2) + Math.pow(rect.height, 2)) / 3); // For some reason the animation is broken on Mobile Chrome if the size if even.
+
+      if (rippleSize % 2 === 0) {
+        rippleSize += 1;
+      }
+    } else {
+      var sizeX = Math.max(Math.abs((element ? element.clientWidth : 0) - rippleX), rippleX) * 2 + 2;
+      var sizeY = Math.max(Math.abs((element ? element.clientHeight : 0) - rippleY), rippleY) * 2 + 2;
+      rippleSize = Math.sqrt(Math.pow(sizeX, 2) + Math.pow(sizeY, 2));
+    } // Touche devices
+
+
+    if (event.touches) {
+      // Prepare the ripple effect.
+      startTimerCommit.current = function () {
+        startCommit({
+          pulsate: pulsate,
+          rippleX: rippleX,
+          rippleY: rippleY,
+          rippleSize: rippleSize,
+          cb: cb
+        });
+      }; // Delay the execution of the ripple effect.
+
+
+      startTimer.current = setTimeout(function () {
+        if (startTimerCommit.current) {
+          startTimerCommit.current();
+          startTimerCommit.current = null;
+        }
+      }, DELAY_RIPPLE); // We have to make a tradeoff with this value.
+    } else {
+      startCommit({
+        pulsate: pulsate,
+        rippleX: rippleX,
+        rippleY: rippleY,
+        rippleSize: rippleSize,
+        cb: cb
+      });
+    }
+  }, [centerProp, startCommit]);
+
+  var pulsate = _react.default.useCallback(function () {
+    start({}, {
+      pulsate: true
+    });
+  }, [start]);
+
+  var stop = _react.default.useCallback(function (event, cb) {
+    clearTimeout(startTimer.current); // The touch interaction occurs too quickly.
+    // We still want to show ripple effect.
+
+    if (event.type === 'touchend' && startTimerCommit.current) {
+      event.persist();
+      startTimerCommit.current();
+      startTimerCommit.current = null;
+      startTimer.current = setTimeout(function () {
+        stop(event, cb);
+      });
+      return;
+    }
+
+    startTimerCommit.current = null;
+    setRipples(function (oldRipples) {
+      if (oldRipples.length > 0) {
+        return oldRipples.slice(1);
+      }
+
+      return oldRipples;
+    });
+    rippleCallback.current = cb;
+  }, []);
+
+  _react.default.useImperativeHandle(ref, function () {
+    return {
+      pulsate: pulsate,
+      start: start,
+      stop: stop
+    };
+  }, [pulsate, start, stop]);
+
+  return _react.default.createElement("span", (0, _extends2.default)({
+    className: (0, _clsx.default)(classes.root, className),
+    ref: container
+  }, other), _react.default.createElement(_reactTransitionGroup.TransitionGroup, {
+    component: null,
+    exit: true
+  }, ripples));
+}); // TODO cleanup after https://github.com/reactjs/react-docgen/pull/378 is released
+
+
+function withMuiName(Component) {
+  Component.muiName = 'MuiTouchRipple';
+  return Component;
+}
+
+"development" !== "production" ? TouchRipple.propTypes = {
+  /**
+   * If `true`, the ripple starts at the center of the component
+   * rather than at the point of interaction.
+   */
+  center: _propTypes.default.bool,
+
+  /**
+   * Override or extend the styles applied to the component.
+   * See [CSS API](#css) below for more details.
+   */
+  classes: _propTypes.default.object.isRequired,
+
+  /**
+   * @ignore
+   */
+  className: _propTypes.default.string
+} : void 0;
+
+var _default = (0, _withStyles.default)(styles, {
+  flip: false,
+  name: 'MuiTouchRipple'
+})(withMuiName(_react.default.memo(TouchRipple)));
+
+exports.default = _default;
+},{"@babel/runtime/helpers/esm/extends":"../node_modules/@babel/runtime/helpers/esm/extends.js","@babel/runtime/helpers/esm/toConsumableArray":"../node_modules/@babel/runtime/helpers/esm/toConsumableArray.js","@babel/runtime/helpers/esm/objectWithoutProperties":"../node_modules/@babel/runtime/helpers/esm/objectWithoutProperties.js","react":"../node_modules/react/index.js","prop-types":"../node_modules/prop-types/index.js","react-transition-group":"../node_modules/react-transition-group/esm/index.js","clsx":"../node_modules/clsx/dist/clsx.m.js","../styles/withStyles":"../node_modules/@material-ui/core/esm/styles/withStyles.js","./Ripple":"../node_modules/@material-ui/core/esm/ButtonBase/Ripple.js"}],"../node_modules/@material-ui/core/esm/ButtonBase/ButtonBase.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = exports.styles = void 0;
+
+var _extends2 = _interopRequireDefault(require("@babel/runtime/helpers/esm/extends"));
+
+var _objectWithoutProperties2 = _interopRequireDefault(require("@babel/runtime/helpers/esm/objectWithoutProperties"));
+
+var _react = _interopRequireDefault(require("react"));
+
+var _propTypes = _interopRequireDefault(require("prop-types"));
+
+var _reactDom = _interopRequireDefault(require("react-dom"));
+
+var _clsx = _interopRequireDefault(require("clsx"));
+
+var _utils = require("@material-ui/utils");
+
+var _reactHelpers = require("../utils/reactHelpers");
+
+var _useEventCallback = _interopRequireDefault(require("../utils/useEventCallback"));
+
+var _withStyles = _interopRequireDefault(require("../styles/withStyles"));
+
+var _NoSsr = _interopRequireDefault(require("../NoSsr"));
+
+var _focusVisible = require("../utils/focusVisible");
+
+var _TouchRipple = _interopRequireDefault(require("./TouchRipple"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var styles = {
+  /* Styles applied to the root element. */
+  root: {
+    display: 'inline-flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    position: 'relative',
+    // Remove grey highlight
+    WebkitTapHighlightColor: 'transparent',
+    backgroundColor: 'transparent',
+    // Reset default value
+    // We disable the focus ring for mouse, touch and keyboard users.
+    outline: 0,
+    border: 0,
+    margin: 0,
+    // Remove the margin in Safari
+    borderRadius: 0,
+    padding: 0,
+    // Remove the padding in Firefox
+    cursor: 'pointer',
+    userSelect: 'none',
+    verticalAlign: 'middle',
+    '-moz-appearance': 'none',
+    // Reset
+    '-webkit-appearance': 'none',
+    // Reset
+    textDecoration: 'none',
+    // So we take precedent over the style of a native <a /> element.
+    color: 'inherit',
+    '&::-moz-focus-inner': {
+      borderStyle: 'none' // Remove Firefox dotted outline.
+
+    },
+    '&$disabled': {
+      pointerEvents: 'none',
+      // Disable link interactions
+      cursor: 'default'
+    }
+  },
+
+  /* Pseudo-class applied to the root element if `disabled={true}`. */
+  disabled: {},
+
+  /* Pseudo-class applied to the root element if keyboard focused. */
+  focusVisible: {}
+};
+/**
+ * `ButtonBase` contains as few styles as possible.
+ * It aims to be a simple building block for creating a button.
+ * It contains a load of style reset and some focus/ripple logic.
+ */
+
+exports.styles = styles;
+
+var ButtonBase = _react.default.forwardRef(function ButtonBase(props, ref) {
+  var action = props.action,
+      buttonRefProp = props.buttonRef,
+      _props$centerRipple = props.centerRipple,
+      centerRipple = _props$centerRipple === void 0 ? false : _props$centerRipple,
+      children = props.children,
+      classes = props.classes,
+      className = props.className,
+      _props$component = props.component,
+      component = _props$component === void 0 ? 'button' : _props$component,
+      _props$disabled = props.disabled,
+      disabled = _props$disabled === void 0 ? false : _props$disabled,
+      _props$disableRipple = props.disableRipple,
+      disableRipple = _props$disableRipple === void 0 ? false : _props$disableRipple,
+      _props$disableTouchRi = props.disableTouchRipple,
+      disableTouchRipple = _props$disableTouchRi === void 0 ? false : _props$disableTouchRi,
+      _props$focusRipple = props.focusRipple,
+      focusRipple = _props$focusRipple === void 0 ? false : _props$focusRipple,
+      focusVisibleClassName = props.focusVisibleClassName,
+      onBlur = props.onBlur,
+      onClick = props.onClick,
+      onFocus = props.onFocus,
+      onFocusVisible = props.onFocusVisible,
+      onKeyDown = props.onKeyDown,
+      onKeyUp = props.onKeyUp,
+      onMouseDown = props.onMouseDown,
+      onMouseLeave = props.onMouseLeave,
+      onMouseUp = props.onMouseUp,
+      onTouchEnd = props.onTouchEnd,
+      onTouchMove = props.onTouchMove,
+      onTouchStart = props.onTouchStart,
+      onDragLeave = props.onDragLeave,
+      _props$tabIndex = props.tabIndex,
+      tabIndex = _props$tabIndex === void 0 ? 0 : _props$tabIndex,
+      TouchRippleProps = props.TouchRippleProps,
+      _props$type = props.type,
+      type = _props$type === void 0 ? 'button' : _props$type,
+      other = (0, _objectWithoutProperties2.default)(props, ["action", "buttonRef", "centerRipple", "children", "classes", "className", "component", "disabled", "disableRipple", "disableTouchRipple", "focusRipple", "focusVisibleClassName", "onBlur", "onClick", "onFocus", "onFocusVisible", "onKeyDown", "onKeyUp", "onMouseDown", "onMouseLeave", "onMouseUp", "onTouchEnd", "onTouchMove", "onTouchStart", "onDragLeave", "tabIndex", "TouchRippleProps", "type"]);
+
+  var buttonRef = _react.default.useRef(null);
+
+  function getButtonNode() {
+    // #StrictMode ready
+    return _reactDom.default.findDOMNode(buttonRef.current);
+  }
+
+  var rippleRef = _react.default.useRef(null);
+
+  var _React$useState = _react.default.useState(false),
+      focusVisible = _React$useState[0],
+      setFocusVisible = _React$useState[1];
+
+  if (disabled && focusVisible) {
+    setFocusVisible(false);
+  }
+
+  var _useIsFocusVisible = (0, _focusVisible.useIsFocusVisible)(),
+      isFocusVisible = _useIsFocusVisible.isFocusVisible,
+      onBlurVisible = _useIsFocusVisible.onBlurVisible,
+      focusVisibleRef = _useIsFocusVisible.ref;
+
+  _react.default.useImperativeHandle(action, function () {
+    return {
+      focusVisible: function focusVisible() {
+        setFocusVisible(true);
+        buttonRef.current.focus();
+      }
+    };
+  }, []);
+
+  _react.default.useEffect(function () {
+    if (focusVisible && focusRipple && !disableRipple) {
+      rippleRef.current.pulsate();
+    }
+  }, [disableRipple, focusRipple, focusVisible]);
+
+  function useRippleHandler(rippleAction, eventCallback) {
+    var skipRippleAction = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : disableTouchRipple;
+    return (0, _useEventCallback.default)(function (event) {
+      if (eventCallback) {
+        eventCallback(event);
+      }
+
+      var ignore = event.defaultPrevented || skipRippleAction;
+
+      if (!ignore && rippleRef.current) {
+        rippleRef.current[rippleAction](event);
+      }
+
+      return true;
+    });
+  }
+
+  var handleMouseDown = useRippleHandler('start', onMouseDown);
+  var handleDragLeave = useRippleHandler('stop', onDragLeave);
+  var handleMouseUp = useRippleHandler('stop', onMouseUp);
+  var handleMouseLeave = useRippleHandler('stop', function (event) {
+    if (focusVisible) {
+      event.preventDefault();
+    }
+
+    if (onMouseLeave) {
+      onMouseLeave(event);
+    }
+  });
+  var handleTouchStart = useRippleHandler('start', onTouchStart);
+  var handleTouchEnd = useRippleHandler('stop', onTouchEnd);
+  var handleTouchMove = useRippleHandler('stop', onTouchMove);
+  var handleBlur = useRippleHandler('stop', function (event) {
+    if (focusVisible) {
+      onBlurVisible(event);
+      setFocusVisible(false);
+    }
+
+    if (onBlur) {
+      onBlur(event);
+    }
+  }, false);
+  var handleFocus = (0, _useEventCallback.default)(function (event) {
+    if (disabled) {
+      return;
+    } // Fix for https://github.com/facebook/react/issues/7769
+
+
+    if (!buttonRef.current) {
+      buttonRef.current = event.currentTarget;
+    }
+
+    if (isFocusVisible(event)) {
+      setFocusVisible(true);
+
+      if (onFocusVisible) {
+        onFocusVisible(event);
+      }
+    }
+
+    if (onFocus) {
+      onFocus(event);
+    }
+  });
+  /**
+   * IE 11 shim for https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent/repeat
+   */
+
+  var keydownRef = _react.default.useRef(false);
+
+  var handleKeyDown = (0, _useEventCallback.default)(function (event) {
+    // Check if key is already down to avoid repeats being counted as multiple activations
+    if (focusRipple && !keydownRef.current && focusVisible && rippleRef.current && event.key === ' ') {
+      keydownRef.current = true;
+      event.persist();
+      rippleRef.current.stop(event, function () {
+        rippleRef.current.start(event);
+      });
+    }
+
+    if (onKeyDown) {
+      onKeyDown(event);
+    }
+
+    var button = getButtonNode(); // Keyboard accessibility for non interactive elements
+
+    if (event.target === event.currentTarget && component && component !== 'button' && (event.key === ' ' || event.key === 'Enter') && !(button.tagName === 'A' && button.href)) {
+      event.preventDefault();
+
+      if (onClick) {
+        onClick(event);
+      }
+    }
+  });
+  var handleKeyUp = (0, _useEventCallback.default)(function (event) {
+    if (focusRipple && event.key === ' ' && rippleRef.current && focusVisible) {
+      keydownRef.current = false;
+      event.persist();
+      rippleRef.current.stop(event, function () {
+        rippleRef.current.pulsate(event);
+      });
+    }
+
+    if (onKeyUp) {
+      onKeyUp(event);
+    }
+  });
+  var ComponentProp = component;
+
+  if (ComponentProp === 'button' && other.href) {
+    ComponentProp = 'a';
+  }
+
+  var buttonProps = {};
+
+  if (ComponentProp === 'button') {
+    buttonProps.type = type;
+    buttonProps.disabled = disabled;
+  } else {
+    if (ComponentProp !== 'a' || !other.href) {
+      buttonProps.role = 'button';
+    }
+
+    buttonProps['aria-disabled'] = disabled;
+  }
+
+  var handleUserRef = (0, _reactHelpers.useForkRef)(buttonRefProp, ref);
+  var handleOwnRef = (0, _reactHelpers.useForkRef)(focusVisibleRef, buttonRef);
+  var handleRef = (0, _reactHelpers.useForkRef)(handleUserRef, handleOwnRef);
+  return _react.default.createElement(ComponentProp, (0, _extends2.default)({
+    className: (0, _clsx.default)(classes.root, className, focusVisible && [classes.focusVisible, focusVisibleClassName], disabled && classes.disabled),
+    onBlur: handleBlur,
+    onClick: onClick,
+    onFocus: handleFocus,
+    onKeyDown: handleKeyDown,
+    onKeyUp: handleKeyUp,
+    onMouseDown: handleMouseDown,
+    onMouseLeave: handleMouseLeave,
+    onMouseUp: handleMouseUp,
+    onDragLeave: handleDragLeave,
+    onTouchEnd: handleTouchEnd,
+    onTouchMove: handleTouchMove,
+    onTouchStart: handleTouchStart,
+    ref: handleRef,
+    tabIndex: disabled ? -1 : tabIndex
+  }, buttonProps, other), children, !disableRipple && !disabled ? _react.default.createElement(_NoSsr.default, null, _react.default.createElement(_TouchRipple.default, (0, _extends2.default)({
+    ref: rippleRef,
+    center: centerRipple
+  }, TouchRippleProps))) : null);
+});
+
+"development" !== "production" ? ButtonBase.propTypes = {
+  /**
+   * A ref for imperative actions.
+   * It currently only supports `focusVisible()` action.
+   */
+  action: _utils.refType,
+
+  /**
+   * Use that prop to pass a ref to the native button component.
+   * @deprecated Use `ref` instead.
+   */
+  buttonRef: _utils.refType,
+
+  /**
+   * If `true`, the ripples will be centered.
+   * They won't start at the cursor interaction position.
+   */
+  centerRipple: _propTypes.default.bool,
+
+  /**
+   * The content of the component.
+   */
+  children: _propTypes.default.node,
+
+  /**
+   * Override or extend the styles applied to the component.
+   * See [CSS API](#css) below for more details.
+   */
+  classes: _propTypes.default.object.isRequired,
+
+  /**
+   * @ignore
+   */
+  className: _propTypes.default.string,
+
+  /**
+   * The component used for the root node.
+   * Either a string to use a DOM element or a component.
+   */
+  component: _utils.elementTypeAcceptingRef,
+
+  /**
+   * If `true`, the base button will be disabled.
+   */
+  disabled: _propTypes.default.bool,
+
+  /**
+   * If `true`, the ripple effect will be disabled.
+   *
+   * ⚠️ Without a ripple there is no styling for :focus-visible by default. Be sure
+   * to highlight the element by applying separate styles with the `focusVisibleClassName`.
+   */
+  disableRipple: _propTypes.default.bool,
+
+  /**
+   * If `true`, the touch ripple effect will be disabled.
+   */
+  disableTouchRipple: _propTypes.default.bool,
+
+  /**
+   * If `true`, the base button will have a keyboard focus ripple.
+   * `disableRipple` must also be `false`.
+   */
+  focusRipple: _propTypes.default.bool,
+
+  /**
+   * This prop can help a person know which element has the keyboard focus.
+   * The class name will be applied when the element gain the focus through a keyboard interaction.
+   * It's a polyfill for the [CSS :focus-visible selector](https://drafts.csswg.org/selectors-4/#the-focus-visible-pseudo).
+   * The rationale for using this feature [is explained here](https://github.com/WICG/focus-visible/blob/master/explainer.md).
+   * A [polyfill can be used](https://github.com/WICG/focus-visible) to apply a `focus-visible` class to other components
+   * if needed.
+   */
+  focusVisibleClassName: _propTypes.default.string,
+
+  /**
+   * @ignore
+   */
+  onBlur: _propTypes.default.func,
+
+  /**
+   * @ignore
+   */
+  onClick: _propTypes.default.func,
+
+  /**
+   * @ignore
+   */
+  onDragLeave: _propTypes.default.func,
+
+  /**
+   * @ignore
+   */
+  onFocus: _propTypes.default.func,
+
+  /**
+   * Callback fired when the component is focused with a keyboard.
+   * We trigger a `onFocus` callback too.
+   */
+  onFocusVisible: _propTypes.default.func,
+
+  /**
+   * @ignore
+   */
+  onKeyDown: _propTypes.default.func,
+
+  /**
+   * @ignore
+   */
+  onKeyUp: _propTypes.default.func,
+
+  /**
+   * @ignore
+   */
+  onMouseDown: _propTypes.default.func,
+
+  /**
+   * @ignore
+   */
+  onMouseLeave: _propTypes.default.func,
+
+  /**
+   * @ignore
+   */
+  onMouseUp: _propTypes.default.func,
+
+  /**
+   * @ignore
+   */
+  onTouchEnd: _propTypes.default.func,
+
+  /**
+   * @ignore
+   */
+  onTouchMove: _propTypes.default.func,
+
+  /**
+   * @ignore
+   */
+  onTouchStart: _propTypes.default.func,
+
+  /**
+   * @ignore
+   */
+  role: _propTypes.default.string,
+
+  /**
+   * @ignore
+   */
+  tabIndex: _propTypes.default.oneOfType([_propTypes.default.number, _propTypes.default.string]),
+
+  /**
+   * Props applied to the `TouchRipple` element.
+   */
+  TouchRippleProps: _propTypes.default.object,
+
+  /**
+   * Used to control the button's purpose.
+   * This prop passes the value to the `type` attribute of the native button component.
+   */
+  type: _propTypes.default.oneOf(['submit', 'reset', 'button'])
+} : void 0;
+
+var _default = (0, _withStyles.default)(styles, {
+  name: 'MuiButtonBase'
+})(ButtonBase);
+
+exports.default = _default;
+},{"@babel/runtime/helpers/esm/extends":"../node_modules/@babel/runtime/helpers/esm/extends.js","@babel/runtime/helpers/esm/objectWithoutProperties":"../node_modules/@babel/runtime/helpers/esm/objectWithoutProperties.js","react":"../node_modules/react/index.js","prop-types":"../node_modules/prop-types/index.js","react-dom":"../node_modules/react-dom/index.js","clsx":"../node_modules/clsx/dist/clsx.m.js","@material-ui/utils":"../node_modules/@material-ui/utils/esm/index.js","../utils/reactHelpers":"../node_modules/@material-ui/core/esm/utils/reactHelpers.js","../utils/useEventCallback":"../node_modules/@material-ui/core/esm/utils/useEventCallback.js","../styles/withStyles":"../node_modules/@material-ui/core/esm/styles/withStyles.js","../NoSsr":"../node_modules/@material-ui/core/esm/NoSsr/index.js","../utils/focusVisible":"../node_modules/@material-ui/core/esm/utils/focusVisible.js","./TouchRipple":"../node_modules/@material-ui/core/esm/ButtonBase/TouchRipple.js"}],"../node_modules/@material-ui/core/esm/ButtonBase/index.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+Object.defineProperty(exports, "default", {
+  enumerable: true,
+  get: function () {
+    return _ButtonBase.default;
+  }
+});
+
+var _ButtonBase = _interopRequireDefault(require("./ButtonBase"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+},{"./ButtonBase":"../node_modules/@material-ui/core/esm/ButtonBase/ButtonBase.js"}],"../node_modules/@material-ui/core/esm/Tabs/TabScrollButton.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = exports.styles = void 0;
+
+var _extends2 = _interopRequireDefault(require("@babel/runtime/helpers/esm/extends"));
+
+var _objectWithoutProperties2 = _interopRequireDefault(require("@babel/runtime/helpers/esm/objectWithoutProperties"));
+
+var _react = _interopRequireDefault(require("react"));
+
+var _propTypes = _interopRequireDefault(require("prop-types"));
+
+var _clsx = _interopRequireDefault(require("clsx"));
+
+var _KeyboardArrowLeft = _interopRequireDefault(require("../internal/svg-icons/KeyboardArrowLeft"));
+
+var _KeyboardArrowRight = _interopRequireDefault(require("../internal/svg-icons/KeyboardArrowRight"));
+
+var _withStyles = _interopRequireDefault(require("../styles/withStyles"));
+
+var _ButtonBase = _interopRequireDefault(require("../ButtonBase"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+/* eslint-disable jsx-a11y/aria-role */
+var styles = {
+  root: {
+    width: 40,
+    flexShrink: 0
+  },
+  vertical: {
+    width: '100%',
+    height: 40,
+    '& svg': {
+      transform: 'rotate(90deg)'
+    }
+  }
+};
+/**
+ * @ignore - internal component.
+ */
+
+exports.styles = styles;
+
+var _ref = _react.default.createElement(_KeyboardArrowLeft.default, {
+  fontSize: "small"
+});
+
+var _ref2 = _react.default.createElement(_KeyboardArrowRight.default, {
+  fontSize: "small"
+});
+
+var TabScrollButton = _react.default.forwardRef(function TabScrollButton(props, ref) {
+  var classes = props.classes,
+      classNameProp = props.className,
+      direction = props.direction,
+      orientation = props.orientation,
+      visible = props.visible,
+      other = (0, _objectWithoutProperties2.default)(props, ["classes", "className", "direction", "orientation", "visible"]);
+  var className = (0, _clsx.default)(classes.root, classNameProp, {
+    vertical: classes.vertical
+  }[orientation]);
+
+  if (!visible) {
+    return _react.default.createElement("div", {
+      className: className
+    });
+  }
+
+  return _react.default.createElement(_ButtonBase.default, (0, _extends2.default)({
+    component: "div",
+    className: className,
+    ref: ref,
+    role: null,
+    tabIndex: null
+  }, other), direction === 'left' ? _ref : _ref2);
+});
+
+"development" !== "production" ? TabScrollButton.propTypes = {
+  /**
+   * Override or extend the styles applied to the component.
+   * See [CSS API](#css) below for more details.
+   */
+  classes: _propTypes.default.object.isRequired,
+
+  /**
+   * @ignore
+   */
+  className: _propTypes.default.string,
+
+  /**
+   * Which direction should the button indicate?
+   */
+  direction: _propTypes.default.oneOf(['left', 'right']).isRequired,
+
+  /**
+   * The tabs orientation (layout flow direction).
+   */
+  orientation: _propTypes.default.oneOf(['horizontal', 'vertical']).isRequired,
+
+  /**
+   * Should the button be present or just consume space.
+   */
+  visible: _propTypes.default.bool.isRequired
+} : void 0;
+
+var _default = (0, _withStyles.default)(styles, {
+  name: 'PrivateTabScrollButton'
+})(TabScrollButton);
+
+exports.default = _default;
+},{"@babel/runtime/helpers/esm/extends":"../node_modules/@babel/runtime/helpers/esm/extends.js","@babel/runtime/helpers/esm/objectWithoutProperties":"../node_modules/@babel/runtime/helpers/esm/objectWithoutProperties.js","react":"../node_modules/react/index.js","prop-types":"../node_modules/prop-types/index.js","clsx":"../node_modules/clsx/dist/clsx.m.js","../internal/svg-icons/KeyboardArrowLeft":"../node_modules/@material-ui/core/esm/internal/svg-icons/KeyboardArrowLeft.js","../internal/svg-icons/KeyboardArrowRight":"../node_modules/@material-ui/core/esm/internal/svg-icons/KeyboardArrowRight.js","../styles/withStyles":"../node_modules/@material-ui/core/esm/styles/withStyles.js","../ButtonBase":"../node_modules/@material-ui/core/esm/ButtonBase/index.js"}],"../node_modules/@material-ui/core/esm/styles/useTheme.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = useTheme;
+
+var _styles = require("@material-ui/styles");
+
+var _defaultTheme = _interopRequireDefault(require("./defaultTheme"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function useTheme() {
+  return (0, _styles.useTheme)() || _defaultTheme.default;
+}
+},{"@material-ui/styles":"../node_modules/@material-ui/styles/esm/index.js","./defaultTheme":"../node_modules/@material-ui/core/esm/styles/defaultTheme.js"}],"../node_modules/@material-ui/core/esm/Tabs/Tabs.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = exports.styles = void 0;
+
+var _extends2 = _interopRequireDefault(require("@babel/runtime/helpers/esm/extends"));
+
+var _objectWithoutProperties2 = _interopRequireDefault(require("@babel/runtime/helpers/esm/objectWithoutProperties"));
+
+var _defineProperty2 = _interopRequireDefault(require("@babel/runtime/helpers/esm/defineProperty"));
+
+var _react = _interopRequireDefault(require("react"));
+
+var _propTypes = _interopRequireDefault(require("prop-types"));
+
+var _clsx = _interopRequireDefault(require("clsx"));
+
+var _utils = require("@material-ui/utils");
+
+var _debounce = _interopRequireDefault(require("../utils/debounce"));
+
+var _ownerWindow = _interopRequireDefault(require("../utils/ownerWindow"));
+
+var _normalizeScrollLeft = require("normalize-scroll-left");
+
+var _animate = _interopRequireDefault(require("../internal/animate"));
+
+var _ScrollbarSize = _interopRequireDefault(require("./ScrollbarSize"));
+
+var _withStyles = _interopRequireDefault(require("../styles/withStyles"));
+
+var _TabIndicator = _interopRequireDefault(require("./TabIndicator"));
+
+var _TabScrollButton = _interopRequireDefault(require("./TabScrollButton"));
+
+var _useEventCallback = _interopRequireDefault(require("../utils/useEventCallback"));
+
+var _useTheme = _interopRequireDefault(require("../styles/useTheme"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+/* eslint-disable no-restricted-globals */
+var styles = function styles(theme) {
+  return {
+    /* Styles applied to the root element. */
+    root: {
+      overflow: 'hidden',
+      minHeight: 48,
+      WebkitOverflowScrolling: 'touch',
+      // Add iOS momentum scrolling.
+      display: 'flex'
+    },
+
+    /* Styles applied to the root element if `orientation="vertical"`. */
+    vertical: {
+      flexDirection: 'column'
+    },
+
+    /* Styles applied to the flex container element. */
+    flexContainer: {
+      display: 'flex'
+    },
+
+    /* Styles applied to the flex container element if `orientation="vertical"`. */
+    flexContainerVertical: {
+      flexDirection: 'column'
+    },
+
+    /* Styles applied to the flex container element if `centered={true}` & `!variant="scrollable"`. */
+    centered: {
+      justifyContent: 'center'
+    },
+
+    /* Styles applied to the tablist element. */
+    scroller: {
+      position: 'relative',
+      display: 'inline-block',
+      flex: '1 1 auto',
+      whiteSpace: 'nowrap'
+    },
+
+    /* Styles applied to the tablist element if `!variant="scrollable"`. */
+    fixed: {
+      overflowX: 'hidden',
+      width: '100%'
+    },
+
+    /* Styles applied to the tablist element if `variant="scrollable"`. */
+    scrollable: {
+      overflowX: 'scroll',
+      // Hide dimensionless scrollbar on MacOS
+      scrollbarWidth: 'none',
+      // Firefox
+      '&::-webkit-scrollbar': {
+        display: 'none' // Safari + Chrome
+
+      }
+    },
+
+    /* Styles applied to the `ScrollButtonComponent` component. */
+    scrollButtons: {},
+
+    /* Styles applied to the `ScrollButtonComponent` component if `scrollButtons="auto"` or scrollButtons="desktop"`. */
+    scrollButtonsDesktop: (0, _defineProperty2.default)({}, theme.breakpoints.down('xs'), {
+      display: 'none'
+    }),
+
+    /* Styles applied to the `TabIndicator` component. */
+    indicator: {}
+  };
+};
+
+exports.styles = styles;
+
+var Tabs = _react.default.forwardRef(function Tabs(props, ref) {
+  var action = props.action,
+      _props$centered = props.centered,
+      centered = _props$centered === void 0 ? false : _props$centered,
+      childrenProp = props.children,
+      classes = props.classes,
+      className = props.className,
+      _props$component = props.component,
+      Component = _props$component === void 0 ? 'div' : _props$component,
+      _props$indicatorColor = props.indicatorColor,
+      indicatorColor = _props$indicatorColor === void 0 ? 'secondary' : _props$indicatorColor,
+      onChange = props.onChange,
+      _props$orientation = props.orientation,
+      orientation = _props$orientation === void 0 ? 'horizontal' : _props$orientation,
+      _props$ScrollButtonCo = props.ScrollButtonComponent,
+      ScrollButtonComponent = _props$ScrollButtonCo === void 0 ? _TabScrollButton.default : _props$ScrollButtonCo,
+      _props$scrollButtons = props.scrollButtons,
+      scrollButtons = _props$scrollButtons === void 0 ? 'auto' : _props$scrollButtons,
+      _props$TabIndicatorPr = props.TabIndicatorProps,
+      TabIndicatorProps = _props$TabIndicatorPr === void 0 ? {} : _props$TabIndicatorPr,
+      _props$textColor = props.textColor,
+      textColor = _props$textColor === void 0 ? 'inherit' : _props$textColor,
+      value = props.value,
+      _props$variant = props.variant,
+      variant = _props$variant === void 0 ? 'standard' : _props$variant,
+      other = (0, _objectWithoutProperties2.default)(props, ["action", "centered", "children", "classes", "className", "component", "indicatorColor", "onChange", "orientation", "ScrollButtonComponent", "scrollButtons", "TabIndicatorProps", "textColor", "value", "variant"]);
+  var theme = (0, _useTheme.default)();
+  var scrollable = variant === 'scrollable';
+  var isRtl = theme.direction === 'rtl';
+  var vertical = orientation === 'vertical';
+  var scrollStart = vertical ? 'scrollTop' : 'scrollLeft';
+  var start = vertical ? 'top' : 'left';
+  var end = vertical ? 'bottom' : 'right';
+  var clientSize = vertical ? 'clientHeight' : 'clientWidth';
+  var size = vertical ? 'height' : 'width';
+
+  if ("development" !== 'production') {
+    if (centered && scrollable) {
+      console.error('Material-UI: you can not use the `centered={true}` and `variant="scrollable"` properties ' + 'at the same time on a `Tabs` component.');
+    }
+  }
+
+  var _React$useState = _react.default.useState(false),
+      mounted = _React$useState[0],
+      setMounted = _React$useState[1];
+
+  var _React$useState2 = _react.default.useState({}),
+      indicatorStyle = _React$useState2[0],
+      setIndicatorStyle = _React$useState2[1];
+
+  var _React$useState3 = _react.default.useState({
+    start: false,
+    end: false
+  }),
+      displayScroll = _React$useState3[0],
+      setDisplayScroll = _React$useState3[1];
+
+  var _React$useState4 = _react.default.useState({
+    overflow: 'hidden',
+    marginBottom: null
+  }),
+      scrollerStyle = _React$useState4[0],
+      setScrollerStyle = _React$useState4[1];
+
+  var valueToIndex = new Map();
+
+  var tabsRef = _react.default.useRef(null);
+
+  var childrenWrapperRef = _react.default.useRef(null);
+
+  var getTabsMeta = function getTabsMeta() {
+    var tabsNode = tabsRef.current;
+    var tabsMeta;
+
+    if (tabsNode) {
+      var rect = tabsNode.getBoundingClientRect(); // create a new object with ClientRect class props + scrollLeft
+
+      tabsMeta = {
+        clientWidth: tabsNode.clientWidth,
+        scrollLeft: tabsNode.scrollLeft,
+        scrollTop: tabsNode.scrollTop,
+        scrollLeftNormalized: (0, _normalizeScrollLeft.getNormalizedScrollLeft)(tabsNode, theme.direction),
+        scrollWidth: tabsNode.scrollWidth,
+        top: rect.top,
+        bottom: rect.bottom,
+        left: rect.left,
+        right: rect.right
+      };
+    }
+
+    var tabMeta;
+
+    if (tabsNode && value !== false) {
+      var _children = childrenWrapperRef.current.children;
+
+      if (_children.length > 0) {
+        var tab = _children[valueToIndex.get(value)];
+
+        if ("development" !== 'production') {
+          if (!tab) {
+            console.error(["Material-UI: the value provided `".concat(value, "` to the Tabs component is invalid."), 'None of the Tabs children have this value.', valueToIndex.keys ? "You can provide one of the following values: ".concat(Array.from(valueToIndex.keys()).join(', '), ".") : null].join('\n'));
+          }
+        }
+
+        tabMeta = tab ? tab.getBoundingClientRect() : null;
+      }
+    }
+
+    return {
+      tabsMeta: tabsMeta,
+      tabMeta: tabMeta
+    };
+  };
+
+  var updateIndicatorState = (0, _useEventCallback.default)(function () {
+    var _newIndicatorStyle;
+
+    var _getTabsMeta = getTabsMeta(),
+        tabsMeta = _getTabsMeta.tabsMeta,
+        tabMeta = _getTabsMeta.tabMeta;
+
+    var startValue = 0;
+
+    if (tabMeta && tabsMeta) {
+      if (vertical) {
+        startValue = tabMeta.top - tabsMeta.top + tabsMeta.scrollTop;
+      } else {
+        var correction = isRtl ? tabsMeta.scrollLeftNormalized + tabsMeta.clientWidth - tabsMeta.scrollWidth : tabsMeta.scrollLeft;
+        startValue = tabMeta.left - tabsMeta.left + correction;
+      }
+    }
+
+    var newIndicatorStyle = (_newIndicatorStyle = {}, (0, _defineProperty2.default)(_newIndicatorStyle, start, startValue), (0, _defineProperty2.default)(_newIndicatorStyle, size, tabMeta ? tabMeta[size] : 0), _newIndicatorStyle);
+
+    if (isNaN(indicatorStyle[start]) || isNaN(indicatorStyle[size])) {
+      setIndicatorStyle(newIndicatorStyle);
+    } else {
+      var dStart = Math.abs(indicatorStyle[start] - newIndicatorStyle[start]);
+      var dSize = Math.abs(indicatorStyle[size] - newIndicatorStyle[size]);
+
+      if (dStart >= 1 || dSize >= 1) {
+        setIndicatorStyle(newIndicatorStyle);
+      }
+    }
+  });
+
+  var scroll = function scroll(scrollValue) {
+    (0, _animate.default)(scrollStart, tabsRef.current, scrollValue);
+  };
+
+  var moveTabsScroll = function moveTabsScroll(delta) {
+    var scrollValue = tabsRef.current[scrollStart];
+
+    if (vertical) {
+      scrollValue += delta;
+    } else {
+      scrollValue += delta * (isRtl ? -1 : 1); // Fix for Edge
+
+      scrollValue *= isRtl && (0, _normalizeScrollLeft.detectScrollType)() === 'reverse' ? -1 : 1;
+    }
+
+    scroll(scrollValue);
+  };
+
+  var handleStartScrollClick = function handleStartScrollClick() {
+    moveTabsScroll(-tabsRef.current[clientSize]);
+  };
+
+  var handleEndScrollClick = function handleEndScrollClick() {
+    moveTabsScroll(tabsRef.current[clientSize]);
+  };
+
+  var handleScrollbarSizeChange = _react.default.useCallback(function (scrollbarHeight) {
+    setScrollerStyle({
+      overflow: null,
+      marginBottom: -scrollbarHeight
+    });
+  }, []);
+
+  var getConditionalElements = function getConditionalElements() {
+    var conditionalElements = {};
+    conditionalElements.scrollbarSizeListener = scrollable ? _react.default.createElement(_ScrollbarSize.default, {
+      className: classes.scrollable,
+      onChange: handleScrollbarSizeChange
+    }) : null;
+    var scrollButtonsActive = displayScroll.start || displayScroll.end;
+    var showScrollButtons = scrollable && (scrollButtons === 'auto' && scrollButtonsActive || scrollButtons === 'desktop' || scrollButtons === 'on');
+    conditionalElements.scrollButtonStart = showScrollButtons ? _react.default.createElement(ScrollButtonComponent, {
+      orientation: orientation,
+      direction: isRtl ? 'right' : 'left',
+      onClick: handleStartScrollClick,
+      visible: displayScroll.start,
+      className: (0, _clsx.default)(classes.scrollButtons, scrollButtons !== 'on' && classes.scrollButtonsDesktop)
+    }) : null;
+    conditionalElements.scrollButtonEnd = showScrollButtons ? _react.default.createElement(ScrollButtonComponent, {
+      orientation: orientation,
+      direction: isRtl ? 'left' : 'right',
+      onClick: handleEndScrollClick,
+      visible: displayScroll.end,
+      className: (0, _clsx.default)(classes.scrollButtons, scrollButtons !== 'on' && classes.scrollButtonsDesktop)
+    }) : null;
+    return conditionalElements;
+  };
+
+  var scrollSelectedIntoView = (0, _useEventCallback.default)(function () {
+    var _getTabsMeta2 = getTabsMeta(),
+        tabsMeta = _getTabsMeta2.tabsMeta,
+        tabMeta = _getTabsMeta2.tabMeta;
+
+    if (!tabMeta || !tabsMeta) {
+      return;
+    }
+
+    if (tabMeta[start] < tabsMeta[start]) {
+      // left side of button is out of view
+      var nextScrollStart = tabsMeta[scrollStart] + (tabMeta[start] - tabsMeta[start]);
+      scroll(nextScrollStart);
+    } else if (tabMeta[end] > tabsMeta[end]) {
+      // right side of button is out of view
+      var _nextScrollStart = tabsMeta[scrollStart] + (tabMeta[end] - tabsMeta[end]);
+
+      scroll(_nextScrollStart);
+    }
+  });
+  var updateScrollButtonState = (0, _useEventCallback.default)(function () {
+    if (scrollable && scrollButtons !== 'off') {
+      var _tabsRef$current = tabsRef.current,
+          scrollTop = _tabsRef$current.scrollTop,
+          scrollHeight = _tabsRef$current.scrollHeight,
+          clientHeight = _tabsRef$current.clientHeight,
+          scrollWidth = _tabsRef$current.scrollWidth,
+          clientWidth = _tabsRef$current.clientWidth;
+      var showStartScroll;
+      var showEndScroll;
+
+      if (vertical) {
+        showStartScroll = scrollTop > 1;
+        showEndScroll = scrollTop < scrollHeight - clientHeight - 1;
+      } else {
+        var scrollLeft = (0, _normalizeScrollLeft.getNormalizedScrollLeft)(tabsRef.current, theme.direction); // use 1 for the potential rounding error with browser zooms.
+
+        showStartScroll = isRtl ? scrollLeft < scrollWidth - clientWidth - 1 : scrollLeft > 1;
+        showEndScroll = !isRtl ? scrollLeft < scrollWidth - clientWidth - 1 : scrollLeft > 1;
+      }
+
+      if (showStartScroll !== displayScroll.start || showEndScroll !== displayScroll.end) {
+        setDisplayScroll({
+          start: showStartScroll,
+          end: showEndScroll
+        });
+      }
+    }
+  });
+
+  _react.default.useEffect(function () {
+    var handleResize = (0, _debounce.default)(function () {
+      updateIndicatorState();
+      updateScrollButtonState();
+    });
+    var win = (0, _ownerWindow.default)(tabsRef.current);
+    win.addEventListener('resize', handleResize);
+    return function () {
+      handleResize.clear();
+      win.removeEventListener('resize', handleResize);
+    };
+  }, [updateIndicatorState, updateScrollButtonState]);
+
+  var handleTabsScroll = _react.default.useCallback((0, _debounce.default)(function () {
+    updateScrollButtonState();
+  }));
+
+  _react.default.useEffect(function () {
+    return function () {
+      handleTabsScroll.clear();
+    };
+  }, [handleTabsScroll]);
+
+  _react.default.useEffect(function () {
+    setMounted(true);
+  }, []);
+
+  _react.default.useEffect(function () {
+    updateIndicatorState();
+    updateScrollButtonState();
+  });
+
+  _react.default.useEffect(function () {
+    scrollSelectedIntoView();
+  }, [scrollSelectedIntoView, indicatorStyle]);
+
+  _react.default.useImperativeHandle(action, function () {
+    return {
+      updateIndicator: updateIndicatorState
+    };
+  }, [updateIndicatorState]);
+
+  var indicator = _react.default.createElement(_TabIndicator.default, (0, _extends2.default)({
+    className: classes.indicator,
+    orientation: orientation,
+    color: indicatorColor
+  }, TabIndicatorProps, {
+    style: (0, _extends2.default)({}, indicatorStyle, {}, TabIndicatorProps.style)
+  }));
+
+  var childIndex = 0;
+
+  var children = _react.default.Children.map(childrenProp, function (child) {
+    if (!_react.default.isValidElement(child)) {
+      return null;
+    }
+
+    if ("development" !== 'production') {
+      if (child.type === _react.default.Fragment) {
+        console.error(["Material-UI: the Tabs component doesn't accept a Fragment as a child.", 'Consider providing an array instead.'].join('\n'));
+      }
+    }
+
+    var childValue = child.props.value === undefined ? childIndex : child.props.value;
+    valueToIndex.set(childValue, childIndex);
+    var selected = childValue === value;
+    childIndex += 1;
+    return _react.default.cloneElement(child, {
+      fullWidth: variant === 'fullWidth',
+      indicator: selected && !mounted && indicator,
+      selected: selected,
+      onChange: onChange,
+      textColor: textColor,
+      value: childValue
+    });
+  });
+
+  var conditionalElements = getConditionalElements();
+  return _react.default.createElement(Component, (0, _extends2.default)({
+    className: (0, _clsx.default)(classes.root, className, vertical && classes.vertical),
+    ref: ref
+  }, other), conditionalElements.scrollButtonStart, conditionalElements.scrollbarSizeListener, _react.default.createElement("div", {
+    className: (0, _clsx.default)(classes.scroller, scrollable ? classes.scrollable : classes.fixed),
+    style: scrollerStyle,
+    ref: tabsRef,
+    onScroll: handleTabsScroll
+  }, _react.default.createElement("div", {
+    className: (0, _clsx.default)(classes.flexContainer, vertical && classes.flexContainerVertical, centered && !scrollable && classes.centered),
+    ref: childrenWrapperRef,
+    role: "tablist"
+  }, children), mounted && indicator), conditionalElements.scrollButtonEnd);
+});
+
+"development" !== "production" ? Tabs.propTypes = {
+  /**
+   * Callback fired when the component mounts.
+   * This is useful when you want to trigger an action programmatically.
+   * It currently only supports `updateIndicator()` action.
+   *
+   * @param {object} actions This object contains all possible actions
+   * that can be triggered programmatically.
+   */
+  action: _utils.refType,
+
+  /**
+   * If `true`, the tabs will be centered.
+   * This property is intended for large views.
+   */
+  centered: _propTypes.default.bool,
+
+  /**
+   * The content of the component.
+   */
+  children: _propTypes.default.node,
+
+  /**
+   * Override or extend the styles applied to the component.
+   * See [CSS API](#css) below for more details.
+   */
+  classes: _propTypes.default.object.isRequired,
+
+  /**
+   * @ignore
+   */
+  className: _propTypes.default.string,
+
+  /**
+   * The component used for the root node.
+   * Either a string to use a DOM element or a component.
+   */
+  component: _propTypes.default.elementType,
+
+  /**
+   * Determines the color of the indicator.
+   */
+  indicatorColor: _propTypes.default.oneOf(['secondary', 'primary']),
+
+  /**
+   * Callback fired when the value changes.
+   *
+   * @param {object} event The event source of the callback
+   * @param {any} value We default to the index of the child (number)
+   */
+  onChange: _propTypes.default.func,
+
+  /**
+   * The tabs orientation (layout flow direction).
+   */
+  orientation: _propTypes.default.oneOf(['horizontal', 'vertical']),
+
+  /**
+   * The component used to render the scroll buttons.
+   */
+  ScrollButtonComponent: _propTypes.default.elementType,
+
+  /**
+   * Determine behavior of scroll buttons when tabs are set to scroll:
+   *
+   * - `auto` will only present them when not all the items are visible.
+   * - `desktop` will only present them on medium and larger viewports.
+   * - `on` will always present them.
+   * - `off` will never present them.
+   */
+  scrollButtons: _propTypes.default.oneOf(['auto', 'desktop', 'on', 'off']),
+
+  /**
+   * Props applied to the tab indicator element.
+   */
+  TabIndicatorProps: _propTypes.default.object,
+
+  /**
+   * Determines the color of the `Tab`.
+   */
+  textColor: _propTypes.default.oneOf(['secondary', 'primary', 'inherit']),
+
+  /**
+   * The value of the currently selected `Tab`.
+   * If you don't want any selected `Tab`, you can set this property to `false`.
+   */
+  value: _propTypes.default.any,
+
+  /**
+   *  Determines additional display behavior of the tabs:
+   *
+   *  - `scrollable` will invoke scrolling properties and allow for horizontally
+   *  scrolling (or swiping) of the tab bar.
+   *  -`fullWidth` will make the tabs grow to use all the available space,
+   *  which should be used for small views, like on mobile.
+   *  - `standard` will render the default state.
+   */
+  variant: _propTypes.default.oneOf(['standard', 'scrollable', 'fullWidth'])
+} : void 0;
+
+var _default = (0, _withStyles.default)(styles, {
+  name: 'MuiTabs'
+})(Tabs);
+
+exports.default = _default;
+},{"@babel/runtime/helpers/esm/extends":"../node_modules/@babel/runtime/helpers/esm/extends.js","@babel/runtime/helpers/esm/objectWithoutProperties":"../node_modules/@babel/runtime/helpers/esm/objectWithoutProperties.js","@babel/runtime/helpers/esm/defineProperty":"../node_modules/@babel/runtime/helpers/esm/defineProperty.js","react":"../node_modules/react/index.js","prop-types":"../node_modules/prop-types/index.js","clsx":"../node_modules/clsx/dist/clsx.m.js","@material-ui/utils":"../node_modules/@material-ui/utils/esm/index.js","../utils/debounce":"../node_modules/@material-ui/core/esm/utils/debounce.js","../utils/ownerWindow":"../node_modules/@material-ui/core/esm/utils/ownerWindow.js","normalize-scroll-left":"../node_modules/normalize-scroll-left/esm/main.js","../internal/animate":"../node_modules/@material-ui/core/esm/internal/animate.js","./ScrollbarSize":"../node_modules/@material-ui/core/esm/Tabs/ScrollbarSize.js","../styles/withStyles":"../node_modules/@material-ui/core/esm/styles/withStyles.js","./TabIndicator":"../node_modules/@material-ui/core/esm/Tabs/TabIndicator.js","./TabScrollButton":"../node_modules/@material-ui/core/esm/Tabs/TabScrollButton.js","../utils/useEventCallback":"../node_modules/@material-ui/core/esm/utils/useEventCallback.js","../styles/useTheme":"../node_modules/@material-ui/core/esm/styles/useTheme.js"}],"../node_modules/@material-ui/core/esm/Tabs/index.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+Object.defineProperty(exports, "default", {
+  enumerable: true,
+  get: function () {
+    return _Tabs.default;
+  }
+});
+
+var _Tabs = _interopRequireDefault(require("./Tabs"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+},{"./Tabs":"../node_modules/@material-ui/core/esm/Tabs/Tabs.js"}],"../node_modules/@material-ui/core/esm/utils/unsupportedProp.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+function unsupportedProp(props, propName, componentName, location, propFullName) {
+  if ("development" === 'production') {
+    return null;
+  }
+
+  var propFullNameSafe = propFullName || propName;
+
+  if (typeof props[propName] !== 'undefined') {
+    return new Error("The prop `".concat(propFullNameSafe, "` is not supported. Please remove it."));
+  }
+
+  return null;
+}
+
+var _default = unsupportedProp;
+exports.default = _default;
+},{}],"../node_modules/@material-ui/core/esm/Tab/Tab.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = exports.styles = void 0;
+
+var _objectWithoutProperties2 = _interopRequireDefault(require("@babel/runtime/helpers/esm/objectWithoutProperties"));
+
+var _defineProperty2 = _interopRequireDefault(require("@babel/runtime/helpers/esm/defineProperty"));
+
+var _extends3 = _interopRequireDefault(require("@babel/runtime/helpers/esm/extends"));
+
+var _react = _interopRequireDefault(require("react"));
+
+var _propTypes = _interopRequireDefault(require("prop-types"));
+
+var _clsx = _interopRequireDefault(require("clsx"));
+
+var _withStyles = _interopRequireDefault(require("../styles/withStyles"));
+
+var _ButtonBase = _interopRequireDefault(require("../ButtonBase"));
+
+var _helpers = require("../utils/helpers");
+
+var _unsupportedProp = _interopRequireDefault(require("../utils/unsupportedProp"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var styles = function styles(theme) {
+  var _extends2;
+
+  return {
+    /* Styles applied to the root element. */
+    root: (0, _extends3.default)({}, theme.typography.button, (_extends2 = {
+      maxWidth: 264,
+      minWidth: 72,
+      position: 'relative',
+      boxSizing: 'border-box',
+      minHeight: 48,
+      flexShrink: 0,
+      padding: '6px 12px'
+    }, (0, _defineProperty2.default)(_extends2, theme.breakpoints.up('sm'), {
+      padding: '6px 24px'
+    }), (0, _defineProperty2.default)(_extends2, "overflow", 'hidden'), (0, _defineProperty2.default)(_extends2, "whiteSpace", 'normal'), (0, _defineProperty2.default)(_extends2, "textAlign", 'center'), (0, _defineProperty2.default)(_extends2, theme.breakpoints.up('sm'), {
+      fontSize: theme.typography.pxToRem(13),
+      minWidth: 160
+    }), _extends2)),
+
+    /* Styles applied to the root element if both `icon` and `label` are provided. */
+    labelIcon: {
+      minHeight: 72,
+      paddingTop: 9,
+      '& $wrapper > *:first-child': {
+        marginBottom: 6
+      }
+    },
+
+    /* Styles applied to the root element if the parent [`Tabs`](/api/tabs/) has `textColor="inherit"`. */
+    textColorInherit: {
+      color: 'inherit',
+      opacity: 0.7,
+      '&$selected': {
+        opacity: 1
+      },
+      '&$disabled': {
+        opacity: 0.4
+      }
+    },
+
+    /* Styles applied to the root element if the parent [`Tabs`](/api/tabs/) has `textColor="primary"`. */
+    textColorPrimary: {
+      color: theme.palette.text.secondary,
+      '&$selected': {
+        color: theme.palette.primary.main
+      },
+      '&$disabled': {
+        color: theme.palette.text.disabled
+      }
+    },
+
+    /* Styles applied to the root element if the parent [`Tabs`](/api/tabs/) has `textColor="secondary"`. */
+    textColorSecondary: {
+      color: theme.palette.text.secondary,
+      '&$selected': {
+        color: theme.palette.secondary.main
+      },
+      '&$disabled': {
+        color: theme.palette.text.disabled
+      }
+    },
+
+    /* Pseudo-class applied to the root element if `selected={true}` (controlled by the Tabs component). */
+    selected: {},
+
+    /* Pseudo-class applied to the root element if `disabled={true}` (controlled by the Tabs component). */
+    disabled: {},
+
+    /* Styles applied to the root element if `fullWidth={true}` (controlled by the Tabs component). */
+    fullWidth: {
+      flexShrink: 1,
+      flexGrow: 1,
+      flexBasis: 0,
+      maxWidth: 'none'
+    },
+
+    /* Styles applied to the root element if `wrapped={true}`. */
+    wrapped: {
+      fontSize: theme.typography.pxToRem(12),
+      lineHeight: 1.5
+    },
+
+    /* Styles applied to the `icon` and `label`'s wrapper element. */
+    wrapper: {
+      display: 'inline-flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      width: '100%',
+      flexDirection: 'column'
+    }
+  };
+};
+
+exports.styles = styles;
+
+var Tab = _react.default.forwardRef(function Tab(props, ref) {
+  var classes = props.classes,
+      className = props.className,
+      _props$disabled = props.disabled,
+      disabled = _props$disabled === void 0 ? false : _props$disabled,
+      _props$disableFocusRi = props.disableFocusRipple,
+      disableFocusRipple = _props$disableFocusRi === void 0 ? false : _props$disableFocusRi,
+      fullWidth = props.fullWidth,
+      icon = props.icon,
+      indicator = props.indicator,
+      label = props.label,
+      onChange = props.onChange,
+      onClick = props.onClick,
+      selected = props.selected,
+      _props$textColor = props.textColor,
+      textColor = _props$textColor === void 0 ? 'inherit' : _props$textColor,
+      value = props.value,
+      _props$wrapped = props.wrapped,
+      wrapped = _props$wrapped === void 0 ? false : _props$wrapped,
+      other = (0, _objectWithoutProperties2.default)(props, ["classes", "className", "disabled", "disableFocusRipple", "fullWidth", "icon", "indicator", "label", "onChange", "onClick", "selected", "textColor", "value", "wrapped"]);
+
+  var handleChange = function handleChange(event) {
+    if (onChange) {
+      onChange(event, value);
+    }
+
+    if (onClick) {
+      onClick(event);
+    }
+  };
+
+  return _react.default.createElement(_ButtonBase.default, (0, _extends3.default)({
+    focusRipple: !disableFocusRipple,
+    className: (0, _clsx.default)(classes.root, classes["textColor".concat((0, _helpers.capitalize)(textColor))], className, disabled && classes.disabled, selected && classes.selected, label && icon && classes.labelIcon, fullWidth && classes.fullWidth, wrapped && classes.wrapped),
+    ref: ref,
+    role: "tab",
+    "aria-selected": selected,
+    disabled: disabled,
+    onClick: handleChange
+  }, other), _react.default.createElement("span", {
+    className: classes.wrapper
+  }, icon, label), indicator);
+});
+
+"development" !== "production" ? Tab.propTypes = {
+  /**
+   * This prop isn't supported.
+   * Use the `component` prop if you need to change the children structure.
+   */
+  children: _unsupportedProp.default,
+
+  /**
+   * Override or extend the styles applied to the component.
+   * See [CSS API](#css) below for more details.
+   */
+  classes: _propTypes.default.object.isRequired,
+
+  /**
+   * @ignore
+   */
+  className: _propTypes.default.string,
+
+  /**
+   * If `true`, the tab will be disabled.
+   */
+  disabled: _propTypes.default.bool,
+
+  /**
+   * If `true`, the  keyboard focus ripple will be disabled.
+   * `disableRipple` must also be true.
+   */
+  disableFocusRipple: _propTypes.default.bool,
+
+  /**
+   * If `true`, the ripple effect will be disabled.
+   */
+  disableRipple: _propTypes.default.bool,
+
+  /**
+   * @ignore
+   */
+  fullWidth: _propTypes.default.bool,
+
+  /**
+   * The icon element.
+   */
+  icon: _propTypes.default.node,
+
+  /**
+   * @ignore
+   * For server-side rendering consideration, we let the selected tab
+   * render the indicator.
+   */
+  indicator: _propTypes.default.node,
+
+  /**
+   * The label element.
+   */
+  label: _propTypes.default.node,
+
+  /**
+   * @ignore
+   */
+  onChange: _propTypes.default.func,
+
+  /**
+   * @ignore
+   */
+  onClick: _propTypes.default.func,
+
+  /**
+   * @ignore
+   */
+  selected: _propTypes.default.bool,
+
+  /**
+   * @ignore
+   */
+  textColor: _propTypes.default.oneOf(['secondary', 'primary', 'inherit']),
+
+  /**
+   * You can provide your own value. Otherwise, we fallback to the child position index.
+   */
+  value: _propTypes.default.any,
+
+  /**
+   * Tab labels appear in a single row.
+   * They can use a second line if needed.
+   */
+  wrapped: _propTypes.default.bool
+} : void 0;
+
+var _default = (0, _withStyles.default)(styles, {
+  name: 'MuiTab'
+})(Tab);
+
+exports.default = _default;
+},{"@babel/runtime/helpers/esm/objectWithoutProperties":"../node_modules/@babel/runtime/helpers/esm/objectWithoutProperties.js","@babel/runtime/helpers/esm/defineProperty":"../node_modules/@babel/runtime/helpers/esm/defineProperty.js","@babel/runtime/helpers/esm/extends":"../node_modules/@babel/runtime/helpers/esm/extends.js","react":"../node_modules/react/index.js","prop-types":"../node_modules/prop-types/index.js","clsx":"../node_modules/clsx/dist/clsx.m.js","../styles/withStyles":"../node_modules/@material-ui/core/esm/styles/withStyles.js","../ButtonBase":"../node_modules/@material-ui/core/esm/ButtonBase/index.js","../utils/helpers":"../node_modules/@material-ui/core/esm/utils/helpers.js","../utils/unsupportedProp":"../node_modules/@material-ui/core/esm/utils/unsupportedProp.js"}],"../node_modules/@material-ui/core/esm/Tab/index.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+Object.defineProperty(exports, "default", {
+  enumerable: true,
+  get: function () {
+    return _Tab.default;
+  }
+});
+
+var _Tab = _interopRequireDefault(require("./Tab"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+},{"./Tab":"../node_modules/@material-ui/core/esm/Tab/Tab.js"}],"../node_modules/@material-ui/core/esm/Typography/Typography.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -43316,7 +44535,7 @@ var _default = (0, _withStyles.default)(styles, {
 })(Typography);
 
 exports.default = _default;
-},{"@babel/runtime/helpers/esm/extends":"../node_modules/@material-ui/core/node_modules/@babel/runtime/helpers/esm/extends.js","@babel/runtime/helpers/esm/objectWithoutProperties":"../node_modules/@material-ui/core/node_modules/@babel/runtime/helpers/esm/objectWithoutProperties.js","react":"../node_modules/react/index.js","prop-types":"../node_modules/prop-types/index.js","clsx":"../node_modules/clsx/dist/clsx.m.js","../styles/withStyles":"../node_modules/@material-ui/core/esm/styles/withStyles.js","../utils/helpers":"../node_modules/@material-ui/core/esm/utils/helpers.js"}],"../node_modules/@material-ui/core/esm/Typography/index.js":[function(require,module,exports) {
+},{"@babel/runtime/helpers/esm/extends":"../node_modules/@babel/runtime/helpers/esm/extends.js","@babel/runtime/helpers/esm/objectWithoutProperties":"../node_modules/@babel/runtime/helpers/esm/objectWithoutProperties.js","react":"../node_modules/react/index.js","prop-types":"../node_modules/prop-types/index.js","clsx":"../node_modules/clsx/dist/clsx.m.js","../styles/withStyles":"../node_modules/@material-ui/core/esm/styles/withStyles.js","../utils/helpers":"../node_modules/@material-ui/core/esm/utils/helpers.js"}],"../node_modules/@material-ui/core/esm/Typography/index.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -43332,7 +44551,1658 @@ Object.defineProperty(exports, "default", {
 var _Typography = _interopRequireDefault(require("./Typography"));
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-},{"./Typography":"../node_modules/@material-ui/core/esm/Typography/Typography.js"}],"components/PlayBox.jsx":[function(require,module,exports) {
+},{"./Typography":"../node_modules/@material-ui/core/esm/Typography/Typography.js"}],"../node_modules/@material-ui/system/esm/responsivePropType.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var _propTypes = _interopRequireDefault(require("prop-types"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var responsivePropType = "development" !== 'production' ? _propTypes.default.oneOfType([_propTypes.default.number, _propTypes.default.string, _propTypes.default.object, _propTypes.default.array]) : {};
+var _default = responsivePropType;
+exports.default = _default;
+},{"prop-types":"../node_modules/prop-types/index.js"}],"../node_modules/@material-ui/system/esm/merge.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var _deepmerge = _interopRequireDefault(require("deepmerge"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+// < 1kb payload overhead when lodash/merge is > 3kb.
+function merge(acc, item) {
+  if (!item) {
+    return acc;
+  }
+
+  return (0, _deepmerge.default)(acc, item, {
+    clone: false // No need to clone deep, it's way faster.
+
+  });
+}
+
+var _default = merge;
+exports.default = _default;
+},{"deepmerge":"../node_modules/deepmerge/dist/cjs.js"}],"../node_modules/@material-ui/system/esm/breakpoints.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.handleBreakpoints = handleBreakpoints;
+exports.default = void 0;
+
+var _toConsumableArray2 = _interopRequireDefault(require("@babel/runtime/helpers/esm/toConsumableArray"));
+
+var _extends2 = _interopRequireDefault(require("@babel/runtime/helpers/esm/extends"));
+
+var _typeof2 = _interopRequireDefault(require("@babel/runtime/helpers/esm/typeof"));
+
+var _propTypes = _interopRequireDefault(require("prop-types"));
+
+var _merge = _interopRequireDefault(require("./merge"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+// The breakpoint **start** at this value.
+// For instance with the first breakpoint xs: [xs, sm[.
+var values = {
+  xs: 0,
+  sm: 600,
+  md: 960,
+  lg: 1280,
+  xl: 1920
+};
+var defaultBreakpoints = {
+  // Sorted ASC by size. That's important.
+  // It can't be configured as it's used statically for propTypes.
+  keys: ['xs', 'sm', 'md', 'lg', 'xl'],
+  up: function up(key) {
+    return "@media (min-width:".concat(values[key], "px)");
+  }
+};
+
+function handleBreakpoints(props, propValue, styleFromPropValue) {
+  if ("development" !== 'production') {
+    if (!props.theme) {
+      console.error('@material-ui/system: you are calling a style function without a theme value.');
+    }
+  }
+
+  if (Array.isArray(propValue)) {
+    var themeBreakpoints = props.theme.breakpoints || defaultBreakpoints;
+    return propValue.reduce(function (acc, item, index) {
+      acc[themeBreakpoints.up(themeBreakpoints.keys[index])] = styleFromPropValue(propValue[index]);
+      return acc;
+    }, {});
+  }
+
+  if ((0, _typeof2.default)(propValue) === 'object') {
+    var _themeBreakpoints = props.theme.breakpoints || defaultBreakpoints;
+
+    return Object.keys(propValue).reduce(function (acc, breakpoint) {
+      acc[_themeBreakpoints.up(breakpoint)] = styleFromPropValue(propValue[breakpoint]);
+      return acc;
+    }, {});
+  }
+
+  var output = styleFromPropValue(propValue);
+  return output;
+}
+
+function breakpoints(styleFunction) {
+  var newStyleFunction = function newStyleFunction(props) {
+    var base = styleFunction(props);
+    var themeBreakpoints = props.theme.breakpoints || defaultBreakpoints;
+    var extended = themeBreakpoints.keys.reduce(function (acc, key) {
+      if (props[key]) {
+        acc = acc || {};
+        acc[themeBreakpoints.up(key)] = styleFunction((0, _extends2.default)({
+          theme: props.theme
+        }, props[key]));
+      }
+
+      return acc;
+    }, null);
+    return (0, _merge.default)(base, extended);
+  };
+
+  newStyleFunction.propTypes = "development" !== 'production' ? (0, _extends2.default)({}, styleFunction.propTypes, {
+    xs: _propTypes.default.object,
+    sm: _propTypes.default.object,
+    md: _propTypes.default.object,
+    lg: _propTypes.default.object,
+    xl: _propTypes.default.object
+  }) : {};
+  newStyleFunction.filterProps = ['xs', 'sm', 'md', 'lg', 'xl'].concat((0, _toConsumableArray2.default)(styleFunction.filterProps));
+  return newStyleFunction;
+}
+
+var _default = breakpoints;
+exports.default = _default;
+},{"@babel/runtime/helpers/esm/toConsumableArray":"../node_modules/@babel/runtime/helpers/esm/toConsumableArray.js","@babel/runtime/helpers/esm/extends":"../node_modules/@babel/runtime/helpers/esm/extends.js","@babel/runtime/helpers/esm/typeof":"../node_modules/@babel/runtime/helpers/esm/typeof.js","prop-types":"../node_modules/prop-types/index.js","./merge":"../node_modules/@material-ui/system/esm/merge.js"}],"../node_modules/@material-ui/system/esm/style.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var _defineProperty2 = _interopRequireDefault(require("@babel/runtime/helpers/esm/defineProperty"));
+
+var _responsivePropType = _interopRequireDefault(require("./responsivePropType"));
+
+var _breakpoints = require("./breakpoints");
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function getPath(obj, path) {
+  if (!path || typeof path !== 'string') {
+    return null;
+  }
+
+  return path.split('.').reduce(function (acc, item) {
+    return acc && acc[item] ? acc[item] : null;
+  }, obj);
+}
+
+function style(options) {
+  var prop = options.prop,
+      _options$cssProperty = options.cssProperty,
+      cssProperty = _options$cssProperty === void 0 ? options.prop : _options$cssProperty,
+      themeKey = options.themeKey,
+      transform = options.transform;
+
+  var fn = function fn(props) {
+    if (props[prop] == null) {
+      return null;
+    }
+
+    var propValue = props[prop];
+    var theme = props.theme;
+    var themeMapping = getPath(theme, themeKey) || {};
+
+    var styleFromPropValue = function styleFromPropValue(propValueFinal) {
+      var value;
+
+      if (typeof themeMapping === 'function') {
+        value = themeMapping(propValueFinal);
+      } else if (Array.isArray(themeMapping)) {
+        value = themeMapping[propValueFinal];
+      } else {
+        value = getPath(themeMapping, propValueFinal) || propValueFinal;
+
+        if (transform) {
+          value = transform(value);
+        }
+      }
+
+      if (cssProperty === false) {
+        return value;
+      }
+
+      return (0, _defineProperty2.default)({}, cssProperty, value);
+    };
+
+    return (0, _breakpoints.handleBreakpoints)(props, propValue, styleFromPropValue);
+  };
+
+  fn.propTypes = "development" !== 'production' ? (0, _defineProperty2.default)({}, prop, _responsivePropType.default) : {};
+  fn.filterProps = [prop];
+  return fn;
+}
+
+var _default = style;
+exports.default = _default;
+},{"@babel/runtime/helpers/esm/defineProperty":"../node_modules/@babel/runtime/helpers/esm/defineProperty.js","./responsivePropType":"../node_modules/@material-ui/system/esm/responsivePropType.js","./breakpoints":"../node_modules/@material-ui/system/esm/breakpoints.js"}],"../node_modules/@material-ui/system/esm/compose.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var _extends2 = _interopRequireDefault(require("@babel/runtime/helpers/esm/extends"));
+
+var _merge = _interopRequireDefault(require("./merge"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function compose() {
+  for (var _len = arguments.length, styles = new Array(_len), _key = 0; _key < _len; _key++) {
+    styles[_key] = arguments[_key];
+  }
+
+  var fn = function fn(props) {
+    return styles.reduce(function (acc, style) {
+      var output = style(props);
+
+      if (output) {
+        return (0, _merge.default)(acc, output);
+      }
+
+      return acc;
+    }, {});
+  }; // Alternative approach that doesn't yield any performance gain.
+  // const handlers = styles.reduce((acc, style) => {
+  //   style.filterProps.forEach(prop => {
+  //     acc[prop] = style;
+  //   });
+  //   return acc;
+  // }, {});
+  // const fn = props => {
+  //   return Object.keys(props).reduce((acc, prop) => {
+  //     if (handlers[prop]) {
+  //       return merge(acc, handlers[prop](props));
+  //     }
+  //     return acc;
+  //   }, {});
+  // };
+
+
+  fn.propTypes = "development" !== 'production' ? styles.reduce(function (acc, style) {
+    return (0, _extends2.default)(acc, style.propTypes);
+  }, {}) : {};
+  fn.filterProps = styles.reduce(function (acc, style) {
+    return acc.concat(style.filterProps);
+  }, []);
+  return fn;
+}
+
+var _default = compose;
+exports.default = _default;
+},{"@babel/runtime/helpers/esm/extends":"../node_modules/@babel/runtime/helpers/esm/extends.js","./merge":"../node_modules/@material-ui/system/esm/merge.js"}],"../node_modules/@material-ui/system/esm/borders.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = exports.borderRadius = exports.borderColor = exports.borderLeft = exports.borderBottom = exports.borderRight = exports.borderTop = exports.border = void 0;
+
+var _style = _interopRequireDefault(require("./style"));
+
+var _compose = _interopRequireDefault(require("./compose"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function getBorder(value) {
+  if (typeof value !== 'number') {
+    return value;
+  }
+
+  return "".concat(value, "px solid");
+}
+
+var border = (0, _style.default)({
+  prop: 'border',
+  themeKey: 'borders',
+  transform: getBorder
+});
+exports.border = border;
+var borderTop = (0, _style.default)({
+  prop: 'borderTop',
+  themeKey: 'borders',
+  transform: getBorder
+});
+exports.borderTop = borderTop;
+var borderRight = (0, _style.default)({
+  prop: 'borderRight',
+  themeKey: 'borders',
+  transform: getBorder
+});
+exports.borderRight = borderRight;
+var borderBottom = (0, _style.default)({
+  prop: 'borderBottom',
+  themeKey: 'borders',
+  transform: getBorder
+});
+exports.borderBottom = borderBottom;
+var borderLeft = (0, _style.default)({
+  prop: 'borderLeft',
+  themeKey: 'borders',
+  transform: getBorder
+});
+exports.borderLeft = borderLeft;
+var borderColor = (0, _style.default)({
+  prop: 'borderColor',
+  themeKey: 'palette'
+});
+exports.borderColor = borderColor;
+var borderRadius = (0, _style.default)({
+  prop: 'borderRadius',
+  themeKey: 'shape'
+});
+exports.borderRadius = borderRadius;
+var borders = (0, _compose.default)(border, borderTop, borderRight, borderBottom, borderLeft, borderColor, borderRadius);
+var _default = borders;
+exports.default = _default;
+},{"./style":"../node_modules/@material-ui/system/esm/style.js","./compose":"../node_modules/@material-ui/system/esm/compose.js"}],"../node_modules/@material-ui/system/esm/css.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var _toConsumableArray2 = _interopRequireDefault(require("@babel/runtime/helpers/esm/toConsumableArray"));
+
+var _extends2 = _interopRequireDefault(require("@babel/runtime/helpers/esm/extends"));
+
+var _propTypes = _interopRequireDefault(require("prop-types"));
+
+var _merge = _interopRequireDefault(require("./merge"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function omit(input, fields) {
+  var output = {};
+  Object.keys(input).forEach(function (prop) {
+    if (fields.indexOf(prop) === -1) {
+      output[prop] = input[prop];
+    }
+  });
+  return output;
+}
+
+function css(styleFunction) {
+  var newStyleFunction = function newStyleFunction(props) {
+    var output = styleFunction(props);
+
+    if (props.css) {
+      return (0, _extends2.default)({}, (0, _merge.default)(output, styleFunction((0, _extends2.default)({
+        theme: props.theme
+      }, props.css))), {}, omit(props.css, [styleFunction.filterProps]));
+    }
+
+    return output;
+  };
+
+  newStyleFunction.propTypes = "development" !== 'production' ? (0, _extends2.default)({}, styleFunction.propTypes, {
+    css: _propTypes.default.object
+  }) : {};
+  newStyleFunction.filterProps = ['css'].concat((0, _toConsumableArray2.default)(styleFunction.filterProps));
+  return newStyleFunction;
+}
+
+var _default = css;
+exports.default = _default;
+},{"@babel/runtime/helpers/esm/toConsumableArray":"../node_modules/@babel/runtime/helpers/esm/toConsumableArray.js","@babel/runtime/helpers/esm/extends":"../node_modules/@babel/runtime/helpers/esm/extends.js","prop-types":"../node_modules/prop-types/index.js","./merge":"../node_modules/@material-ui/system/esm/merge.js"}],"../node_modules/@material-ui/system/esm/display.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = exports.whiteSpace = exports.visibility = exports.textOverflow = exports.overflow = exports.displayRaw = exports.displayPrint = void 0;
+
+var _style = _interopRequireDefault(require("./style"));
+
+var _compose = _interopRequireDefault(require("./compose"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var displayPrint = (0, _style.default)({
+  prop: 'displayPrint',
+  cssProperty: false,
+  transform: function transform(value) {
+    return {
+      '@media print': {
+        display: value
+      }
+    };
+  }
+});
+exports.displayPrint = displayPrint;
+var displayRaw = (0, _style.default)({
+  prop: 'display'
+});
+exports.displayRaw = displayRaw;
+var overflow = (0, _style.default)({
+  prop: 'overflow'
+});
+exports.overflow = overflow;
+var textOverflow = (0, _style.default)({
+  prop: 'textOverflow'
+});
+exports.textOverflow = textOverflow;
+var visibility = (0, _style.default)({
+  prop: 'visibility'
+});
+exports.visibility = visibility;
+var whiteSpace = (0, _style.default)({
+  prop: 'whiteSpace'
+});
+exports.whiteSpace = whiteSpace;
+
+var _default = (0, _compose.default)(displayPrint, displayRaw, overflow, textOverflow, visibility, whiteSpace);
+
+exports.default = _default;
+},{"./style":"../node_modules/@material-ui/system/esm/style.js","./compose":"../node_modules/@material-ui/system/esm/compose.js"}],"../node_modules/@material-ui/system/esm/flexbox.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = exports.justifySelf = exports.justifyItems = exports.alignSelf = exports.flexShrink = exports.flexGrow = exports.flex = exports.order = exports.alignContent = exports.alignItems = exports.justifyContent = exports.flexWrap = exports.flexDirection = exports.flexBasis = void 0;
+
+var _style = _interopRequireDefault(require("./style"));
+
+var _compose = _interopRequireDefault(require("./compose"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var flexBasis = (0, _style.default)({
+  prop: 'flexBasis'
+});
+exports.flexBasis = flexBasis;
+var flexDirection = (0, _style.default)({
+  prop: 'flexDirection'
+});
+exports.flexDirection = flexDirection;
+var flexWrap = (0, _style.default)({
+  prop: 'flexWrap'
+});
+exports.flexWrap = flexWrap;
+var justifyContent = (0, _style.default)({
+  prop: 'justifyContent'
+});
+exports.justifyContent = justifyContent;
+var alignItems = (0, _style.default)({
+  prop: 'alignItems'
+});
+exports.alignItems = alignItems;
+var alignContent = (0, _style.default)({
+  prop: 'alignContent'
+});
+exports.alignContent = alignContent;
+var order = (0, _style.default)({
+  prop: 'order'
+});
+exports.order = order;
+var flex = (0, _style.default)({
+  prop: 'flex'
+});
+exports.flex = flex;
+var flexGrow = (0, _style.default)({
+  prop: 'flexGrow'
+});
+exports.flexGrow = flexGrow;
+var flexShrink = (0, _style.default)({
+  prop: 'flexShrink'
+});
+exports.flexShrink = flexShrink;
+var alignSelf = (0, _style.default)({
+  prop: 'alignSelf'
+});
+exports.alignSelf = alignSelf;
+var justifyItems = (0, _style.default)({
+  prop: 'justifyItems'
+});
+exports.justifyItems = justifyItems;
+var justifySelf = (0, _style.default)({
+  prop: 'justifySelf'
+});
+exports.justifySelf = justifySelf;
+var flexbox = (0, _compose.default)(flexBasis, flexDirection, flexWrap, justifyContent, alignItems, alignContent, order, flex, flexGrow, flexShrink, alignSelf, justifyItems, justifySelf);
+var _default = flexbox;
+exports.default = _default;
+},{"./style":"../node_modules/@material-ui/system/esm/style.js","./compose":"../node_modules/@material-ui/system/esm/compose.js"}],"../node_modules/@material-ui/system/esm/palette.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = exports.bgcolor = exports.color = void 0;
+
+var _style = _interopRequireDefault(require("./style"));
+
+var _compose = _interopRequireDefault(require("./compose"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var color = (0, _style.default)({
+  prop: 'color',
+  themeKey: 'palette'
+});
+exports.color = color;
+var bgcolor = (0, _style.default)({
+  prop: 'bgcolor',
+  cssProperty: 'backgroundColor',
+  themeKey: 'palette'
+});
+exports.bgcolor = bgcolor;
+var palette = (0, _compose.default)(color, bgcolor);
+var _default = palette;
+exports.default = _default;
+},{"./style":"../node_modules/@material-ui/system/esm/style.js","./compose":"../node_modules/@material-ui/system/esm/compose.js"}],"../node_modules/@material-ui/system/esm/positions.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = exports.left = exports.bottom = exports.right = exports.top = exports.zIndex = exports.position = void 0;
+
+var _style = _interopRequireDefault(require("./style"));
+
+var _compose = _interopRequireDefault(require("./compose"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var position = (0, _style.default)({
+  prop: 'position'
+});
+exports.position = position;
+var zIndex = (0, _style.default)({
+  prop: 'zIndex',
+  themeKey: 'zIndex'
+});
+exports.zIndex = zIndex;
+var top = (0, _style.default)({
+  prop: 'top'
+});
+exports.top = top;
+var right = (0, _style.default)({
+  prop: 'right'
+});
+exports.right = right;
+var bottom = (0, _style.default)({
+  prop: 'bottom'
+});
+exports.bottom = bottom;
+var left = (0, _style.default)({
+  prop: 'left'
+});
+exports.left = left;
+
+var _default = (0, _compose.default)(position, zIndex, top, right, bottom, left);
+
+exports.default = _default;
+},{"./style":"../node_modules/@material-ui/system/esm/style.js","./compose":"../node_modules/@material-ui/system/esm/compose.js"}],"../node_modules/@material-ui/system/esm/shadows.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var _style = _interopRequireDefault(require("./style"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var boxShadow = (0, _style.default)({
+  prop: 'boxShadow',
+  themeKey: 'shadows'
+});
+var _default = boxShadow;
+exports.default = _default;
+},{"./style":"../node_modules/@material-ui/system/esm/style.js"}],"../node_modules/@material-ui/system/esm/sizing.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = exports.sizeHeight = exports.sizeWidth = exports.minHeight = exports.maxHeight = exports.height = exports.minWidth = exports.maxWidth = exports.width = void 0;
+
+var _style = _interopRequireDefault(require("./style"));
+
+var _compose = _interopRequireDefault(require("./compose"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function transform(value) {
+  return value <= 1 ? "".concat(value * 100, "%") : value;
+}
+
+var width = (0, _style.default)({
+  prop: 'width',
+  transform: transform
+});
+exports.width = width;
+var maxWidth = (0, _style.default)({
+  prop: 'maxWidth',
+  transform: transform
+});
+exports.maxWidth = maxWidth;
+var minWidth = (0, _style.default)({
+  prop: 'minWidth',
+  transform: transform
+});
+exports.minWidth = minWidth;
+var height = (0, _style.default)({
+  prop: 'height',
+  transform: transform
+});
+exports.height = height;
+var maxHeight = (0, _style.default)({
+  prop: 'maxHeight',
+  transform: transform
+});
+exports.maxHeight = maxHeight;
+var minHeight = (0, _style.default)({
+  prop: 'minHeight',
+  transform: transform
+});
+exports.minHeight = minHeight;
+var sizeWidth = (0, _style.default)({
+  prop: 'size',
+  cssProperty: 'width',
+  transform: transform
+});
+exports.sizeWidth = sizeWidth;
+var sizeHeight = (0, _style.default)({
+  prop: 'size',
+  cssProperty: 'height',
+  transform: transform
+});
+exports.sizeHeight = sizeHeight;
+var sizing = (0, _compose.default)(width, maxWidth, minWidth, height, maxHeight, minHeight);
+var _default = sizing;
+exports.default = _default;
+},{"./style":"../node_modules/@material-ui/system/esm/style.js","./compose":"../node_modules/@material-ui/system/esm/compose.js"}],"../node_modules/@babel/runtime/helpers/esm/arrayWithHoles.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = _arrayWithHoles;
+
+function _arrayWithHoles(arr) {
+  if (Array.isArray(arr)) return arr;
+}
+},{}],"../node_modules/@babel/runtime/helpers/esm/iterableToArrayLimit.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = _iterableToArrayLimit;
+
+function _iterableToArrayLimit(arr, i) {
+  if (!(Symbol.iterator in Object(arr) || Object.prototype.toString.call(arr) === "[object Arguments]")) {
+    return;
+  }
+
+  var _arr = [];
+  var _n = true;
+  var _d = false;
+  var _e = undefined;
+
+  try {
+    for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) {
+      _arr.push(_s.value);
+
+      if (i && _arr.length === i) break;
+    }
+  } catch (err) {
+    _d = true;
+    _e = err;
+  } finally {
+    try {
+      if (!_n && _i["return"] != null) _i["return"]();
+    } finally {
+      if (_d) throw _e;
+    }
+  }
+
+  return _arr;
+}
+},{}],"../node_modules/@babel/runtime/helpers/esm/nonIterableRest.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = _nonIterableRest;
+
+function _nonIterableRest() {
+  throw new TypeError("Invalid attempt to destructure non-iterable instance");
+}
+},{}],"../node_modules/@babel/runtime/helpers/esm/slicedToArray.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = _slicedToArray;
+
+var _arrayWithHoles = _interopRequireDefault(require("./arrayWithHoles"));
+
+var _iterableToArrayLimit = _interopRequireDefault(require("./iterableToArrayLimit"));
+
+var _nonIterableRest = _interopRequireDefault(require("./nonIterableRest"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _slicedToArray(arr, i) {
+  return (0, _arrayWithHoles.default)(arr) || (0, _iterableToArrayLimit.default)(arr, i) || (0, _nonIterableRest.default)();
+}
+},{"./arrayWithHoles":"../node_modules/@babel/runtime/helpers/esm/arrayWithHoles.js","./iterableToArrayLimit":"../node_modules/@babel/runtime/helpers/esm/iterableToArrayLimit.js","./nonIterableRest":"../node_modules/@babel/runtime/helpers/esm/nonIterableRest.js"}],"../node_modules/@material-ui/system/esm/memoize.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = memoize;
+
+function memoize(fn) {
+  var cache = {};
+  return function (arg) {
+    if (cache[arg] === undefined) {
+      cache[arg] = fn(arg);
+    }
+
+    return cache[arg];
+  };
+}
+},{}],"../node_modules/@material-ui/system/esm/spacing.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var _slicedToArray2 = _interopRequireDefault(require("@babel/runtime/helpers/esm/slicedToArray"));
+
+var _responsivePropType = _interopRequireDefault(require("./responsivePropType"));
+
+var _breakpoints = require("./breakpoints");
+
+var _merge = _interopRequireDefault(require("./merge"));
+
+var _memoize = _interopRequireDefault(require("./memoize"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var properties = {
+  m: 'margin',
+  p: 'padding'
+};
+var directions = {
+  t: 'Top',
+  r: 'Right',
+  b: 'Bottom',
+  l: 'Left',
+  x: ['Left', 'Right'],
+  y: ['Top', 'Bottom']
+};
+var aliases = {
+  marginX: 'mx',
+  marginY: 'my',
+  paddingX: 'px',
+  paddingY: 'py'
+}; // memoize() impact:
+// From 300,000 ops/sec
+// To 350,000 ops/sec
+
+var getCssProperties = (0, _memoize.default)(function (prop) {
+  // It's not a shorthand notation.
+  if (prop.length > 2) {
+    if (aliases[prop]) {
+      prop = aliases[prop];
+    } else {
+      return [prop];
+    }
+  }
+
+  var _prop$split = prop.split(''),
+      _prop$split2 = (0, _slicedToArray2.default)(_prop$split, 2),
+      a = _prop$split2[0],
+      b = _prop$split2[1];
+
+  var property = properties[a];
+  var direction = directions[b] || '';
+  return Array.isArray(direction) ? direction.map(function (dir) {
+    return property + dir;
+  }) : [property + direction];
+});
+var spacingKeys = ['m', 'mt', 'mr', 'mb', 'ml', 'mx', 'my', 'p', 'pt', 'pr', 'pb', 'pl', 'px', 'py', 'margin', 'marginTop', 'marginRight', 'marginBottom', 'marginLeft', 'marginX', 'marginY', 'padding', 'paddingTop', 'paddingRight', 'paddingBottom', 'paddingLeft', 'paddingX', 'paddingY'];
+
+function getTransformer(theme) {
+  var themeSpacing = theme.spacing || 8;
+
+  if (typeof themeSpacing === 'number') {
+    return function (abs) {
+      return themeSpacing * abs;
+    };
+  }
+
+  if (Array.isArray(themeSpacing)) {
+    return function (abs) {
+      if ("development" !== 'production') {
+        if (abs > themeSpacing.length - 1) {
+          console.error(["@material-ui/system: the value provided (".concat(abs, ") overflows."), "The supported values are: ".concat(JSON.stringify(themeSpacing), "."), "".concat(abs, " > ").concat(themeSpacing.length - 1, ", you need to add the missing values.")].join('\n'));
+        }
+      }
+
+      return themeSpacing[abs];
+    };
+  }
+
+  if (typeof themeSpacing === 'function') {
+    return themeSpacing;
+  }
+
+  if ("development" !== 'production') {
+    console.error(["@material-ui/system: the `theme.spacing` value (".concat(themeSpacing, ") is invalid."), 'It should be a number, an array or a function.'].join('\n'));
+  }
+
+  return function () {
+    return undefined;
+  };
+}
+
+function getValue(transformer, propValue) {
+  if (typeof propValue === 'string') {
+    return propValue;
+  }
+
+  var abs = Math.abs(propValue);
+  var transformed = transformer(abs);
+
+  if (propValue >= 0) {
+    return transformed;
+  }
+
+  if (typeof transformed === 'number') {
+    return -transformed;
+  }
+
+  return "-".concat(transformed);
+}
+
+function getStyleFromPropValue(cssProperties, transformer) {
+  return function (propValue) {
+    return cssProperties.reduce(function (acc, cssProperty) {
+      acc[cssProperty] = getValue(transformer, propValue);
+      return acc;
+    }, {});
+  };
+}
+
+function spacing(props) {
+  var theme = props.theme;
+  var transformer = getTransformer(theme);
+  return Object.keys(props).map(function (prop) {
+    // Using a hash computation over an array iteration could be faster, but with only 28 items,
+    // it's doesn't worth the bundle size.
+    if (spacingKeys.indexOf(prop) === -1) {
+      return null;
+    }
+
+    var cssProperties = getCssProperties(prop);
+    var styleFromPropValue = getStyleFromPropValue(cssProperties, transformer);
+    var propValue = props[prop];
+    return (0, _breakpoints.handleBreakpoints)(props, propValue, styleFromPropValue);
+  }).reduce(_merge.default, {});
+}
+
+spacing.propTypes = "development" !== 'production' ? spacingKeys.reduce(function (obj, key) {
+  obj[key] = _responsivePropType.default;
+  return obj;
+}, {}) : {};
+spacing.filterProps = spacingKeys;
+var _default = spacing;
+exports.default = _default;
+},{"@babel/runtime/helpers/esm/slicedToArray":"../node_modules/@babel/runtime/helpers/esm/slicedToArray.js","./responsivePropType":"../node_modules/@material-ui/system/esm/responsivePropType.js","./breakpoints":"../node_modules/@material-ui/system/esm/breakpoints.js","./merge":"../node_modules/@material-ui/system/esm/merge.js","./memoize":"../node_modules/@material-ui/system/esm/memoize.js"}],"../node_modules/@material-ui/system/esm/typography.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = exports.textAlign = exports.lineHeight = exports.letterSpacing = exports.fontWeight = exports.fontStyle = exports.fontSize = exports.fontFamily = void 0;
+
+var _style = _interopRequireDefault(require("./style"));
+
+var _compose = _interopRequireDefault(require("./compose"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var fontFamily = (0, _style.default)({
+  prop: 'fontFamily',
+  themeKey: 'typography'
+});
+exports.fontFamily = fontFamily;
+var fontSize = (0, _style.default)({
+  prop: 'fontSize',
+  themeKey: 'typography'
+});
+exports.fontSize = fontSize;
+var fontStyle = (0, _style.default)({
+  prop: 'fontStyle',
+  themeKey: 'typography'
+});
+exports.fontStyle = fontStyle;
+var fontWeight = (0, _style.default)({
+  prop: 'fontWeight',
+  themeKey: 'typography'
+});
+exports.fontWeight = fontWeight;
+var letterSpacing = (0, _style.default)({
+  prop: 'letterSpacing'
+});
+exports.letterSpacing = letterSpacing;
+var lineHeight = (0, _style.default)({
+  prop: 'lineHeight'
+});
+exports.lineHeight = lineHeight;
+var textAlign = (0, _style.default)({
+  prop: 'textAlign'
+});
+exports.textAlign = textAlign;
+var typography = (0, _compose.default)(fontFamily, fontSize, fontStyle, fontWeight, letterSpacing, lineHeight, textAlign);
+var _default = typography;
+exports.default = _default;
+},{"./style":"../node_modules/@material-ui/system/esm/style.js","./compose":"../node_modules/@material-ui/system/esm/compose.js"}],"../node_modules/@material-ui/system/esm/index.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+var _exportNames = {
+  borders: true,
+  breakpoints: true,
+  compose: true,
+  css: true,
+  display: true,
+  flexbox: true,
+  palette: true,
+  positions: true,
+  shadows: true,
+  sizing: true,
+  spacing: true,
+  style: true,
+  typography: true
+};
+Object.defineProperty(exports, "borders", {
+  enumerable: true,
+  get: function () {
+    return _borders.default;
+  }
+});
+Object.defineProperty(exports, "breakpoints", {
+  enumerable: true,
+  get: function () {
+    return _breakpoints.default;
+  }
+});
+Object.defineProperty(exports, "compose", {
+  enumerable: true,
+  get: function () {
+    return _compose.default;
+  }
+});
+Object.defineProperty(exports, "css", {
+  enumerable: true,
+  get: function () {
+    return _css.default;
+  }
+});
+Object.defineProperty(exports, "display", {
+  enumerable: true,
+  get: function () {
+    return _display.default;
+  }
+});
+Object.defineProperty(exports, "flexbox", {
+  enumerable: true,
+  get: function () {
+    return _flexbox.default;
+  }
+});
+Object.defineProperty(exports, "palette", {
+  enumerable: true,
+  get: function () {
+    return _palette.default;
+  }
+});
+Object.defineProperty(exports, "positions", {
+  enumerable: true,
+  get: function () {
+    return _positions.default;
+  }
+});
+Object.defineProperty(exports, "shadows", {
+  enumerable: true,
+  get: function () {
+    return _shadows.default;
+  }
+});
+Object.defineProperty(exports, "sizing", {
+  enumerable: true,
+  get: function () {
+    return _sizing.default;
+  }
+});
+Object.defineProperty(exports, "spacing", {
+  enumerable: true,
+  get: function () {
+    return _spacing.default;
+  }
+});
+Object.defineProperty(exports, "style", {
+  enumerable: true,
+  get: function () {
+    return _style.default;
+  }
+});
+Object.defineProperty(exports, "typography", {
+  enumerable: true,
+  get: function () {
+    return _typography.default;
+  }
+});
+
+var _borders = _interopRequireWildcard(require("./borders"));
+
+Object.keys(_borders).forEach(function (key) {
+  if (key === "default" || key === "__esModule") return;
+  if (Object.prototype.hasOwnProperty.call(_exportNames, key)) return;
+  Object.defineProperty(exports, key, {
+    enumerable: true,
+    get: function () {
+      return _borders[key];
+    }
+  });
+});
+
+var _breakpoints = _interopRequireDefault(require("./breakpoints"));
+
+var _compose = _interopRequireDefault(require("./compose"));
+
+var _css = _interopRequireDefault(require("./css"));
+
+var _display = _interopRequireDefault(require("./display"));
+
+var _flexbox = _interopRequireWildcard(require("./flexbox"));
+
+Object.keys(_flexbox).forEach(function (key) {
+  if (key === "default" || key === "__esModule") return;
+  if (Object.prototype.hasOwnProperty.call(_exportNames, key)) return;
+  Object.defineProperty(exports, key, {
+    enumerable: true,
+    get: function () {
+      return _flexbox[key];
+    }
+  });
+});
+
+var _palette = _interopRequireWildcard(require("./palette"));
+
+Object.keys(_palette).forEach(function (key) {
+  if (key === "default" || key === "__esModule") return;
+  if (Object.prototype.hasOwnProperty.call(_exportNames, key)) return;
+  Object.defineProperty(exports, key, {
+    enumerable: true,
+    get: function () {
+      return _palette[key];
+    }
+  });
+});
+
+var _positions = _interopRequireWildcard(require("./positions"));
+
+Object.keys(_positions).forEach(function (key) {
+  if (key === "default" || key === "__esModule") return;
+  if (Object.prototype.hasOwnProperty.call(_exportNames, key)) return;
+  Object.defineProperty(exports, key, {
+    enumerable: true,
+    get: function () {
+      return _positions[key];
+    }
+  });
+});
+
+var _shadows = _interopRequireDefault(require("./shadows"));
+
+var _sizing = _interopRequireWildcard(require("./sizing"));
+
+Object.keys(_sizing).forEach(function (key) {
+  if (key === "default" || key === "__esModule") return;
+  if (Object.prototype.hasOwnProperty.call(_exportNames, key)) return;
+  Object.defineProperty(exports, key, {
+    enumerable: true,
+    get: function () {
+      return _sizing[key];
+    }
+  });
+});
+
+var _spacing = _interopRequireDefault(require("./spacing"));
+
+var _style = _interopRequireDefault(require("./style"));
+
+var _typography = _interopRequireWildcard(require("./typography"));
+
+Object.keys(_typography).forEach(function (key) {
+  if (key === "default" || key === "__esModule") return;
+  if (Object.prototype.hasOwnProperty.call(_exportNames, key)) return;
+  Object.defineProperty(exports, key, {
+    enumerable: true,
+    get: function () {
+      return _typography[key];
+    }
+  });
+});
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _getRequireWildcardCache() { if (typeof WeakMap !== "function") return null; var cache = new WeakMap(); _getRequireWildcardCache = function () { return cache; }; return cache; }
+
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } var cache = _getRequireWildcardCache(); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; if (obj != null) { var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } } newObj.default = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
+},{"./borders":"../node_modules/@material-ui/system/esm/borders.js","./breakpoints":"../node_modules/@material-ui/system/esm/breakpoints.js","./compose":"../node_modules/@material-ui/system/esm/compose.js","./css":"../node_modules/@material-ui/system/esm/css.js","./display":"../node_modules/@material-ui/system/esm/display.js","./flexbox":"../node_modules/@material-ui/system/esm/flexbox.js","./palette":"../node_modules/@material-ui/system/esm/palette.js","./positions":"../node_modules/@material-ui/system/esm/positions.js","./shadows":"../node_modules/@material-ui/system/esm/shadows.js","./sizing":"../node_modules/@material-ui/system/esm/sizing.js","./spacing":"../node_modules/@material-ui/system/esm/spacing.js","./style":"../node_modules/@material-ui/system/esm/style.js","./typography":"../node_modules/@material-ui/system/esm/typography.js"}],"../node_modules/@material-ui/core/esm/styles/styled.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var _extends2 = _interopRequireDefault(require("@babel/runtime/helpers/esm/extends"));
+
+var _styles = require("@material-ui/styles");
+
+var _defaultTheme = _interopRequireDefault(require("./defaultTheme"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var styled = function styled(Component) {
+  var componentCreator = (0, _styles.styled)(Component);
+  return function (style, options) {
+    return componentCreator(style, (0, _extends2.default)({
+      defaultTheme: _defaultTheme.default
+    }, options));
+  };
+};
+
+var _default = styled;
+exports.default = _default;
+},{"@babel/runtime/helpers/esm/extends":"../node_modules/@babel/runtime/helpers/esm/extends.js","@material-ui/styles":"../node_modules/@material-ui/styles/esm/index.js","./defaultTheme":"../node_modules/@material-ui/core/esm/styles/defaultTheme.js"}],"../node_modules/@material-ui/core/esm/Box/Box.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = exports.styleFunction = void 0;
+
+var _system = require("@material-ui/system");
+
+var _styled = _interopRequireDefault(require("../styles/styled"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var styleFunction = (0, _system.css)((0, _system.compose)(_system.borders, _system.display, _system.flexbox, _system.positions, _system.palette, _system.shadows, _system.sizing, _system.spacing, _system.typography));
+/**
+ * @ignore - do not document.
+ */
+
+exports.styleFunction = styleFunction;
+var Box = (0, _styled.default)('div')(styleFunction, {
+  name: 'MuiBox'
+});
+var _default = Box;
+exports.default = _default;
+},{"@material-ui/system":"../node_modules/@material-ui/system/esm/index.js","../styles/styled":"../node_modules/@material-ui/core/esm/styles/styled.js"}],"../node_modules/@material-ui/core/esm/Box/index.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+Object.defineProperty(exports, "default", {
+  enumerable: true,
+  get: function () {
+    return _Box.default;
+  }
+});
+Object.defineProperty(exports, "styleFunction", {
+  enumerable: true,
+  get: function () {
+    return _Box.styleFunction;
+  }
+});
+
+var _Box = _interopRequireWildcard(require("./Box"));
+
+function _getRequireWildcardCache() { if (typeof WeakMap !== "function") return null; var cache = new WeakMap(); _getRequireWildcardCache = function () { return cache; }; return cache; }
+
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } var cache = _getRequireWildcardCache(); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; if (obj != null) { var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } } newObj.default = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
+},{"./Box":"../node_modules/@material-ui/core/esm/Box/Box.js"}],"../node_modules/@material-ui/core/esm/styles/createStyles.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = createStyles;
+
+var _styles = require("@material-ui/styles");
+
+// let warnOnce = false;
+// To remove in v5
+function createStyles(styles) {
+  // warning(
+  //   warnOnce,
+  //   [
+  //     'Material-UI: createStyles from @material-ui/core/styles is deprecated.',
+  //     'Please use @material-ui/styles/createStyles',
+  //   ].join('\n'),
+  // );
+  // warnOnce = true;
+  return (0, _styles.createStyles)(styles);
+}
+},{"@material-ui/styles":"../node_modules/@material-ui/styles/esm/index.js"}],"../node_modules/@material-ui/core/esm/styles/makeStyles.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var _extends2 = _interopRequireDefault(require("@babel/runtime/helpers/esm/extends"));
+
+var _styles = require("@material-ui/styles");
+
+var _defaultTheme = _interopRequireDefault(require("./defaultTheme"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function makeStyles(stylesOrCreator) {
+  var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+  return (0, _styles.makeStyles)(stylesOrCreator, (0, _extends2.default)({
+    defaultTheme: _defaultTheme.default
+  }, options));
+}
+
+var _default = makeStyles;
+exports.default = _default;
+},{"@babel/runtime/helpers/esm/extends":"../node_modules/@babel/runtime/helpers/esm/extends.js","@material-ui/styles":"../node_modules/@material-ui/styles/esm/index.js","./defaultTheme":"../node_modules/@material-ui/core/esm/styles/defaultTheme.js"}],"../node_modules/@material-ui/core/esm/styles/MuiThemeProvider.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var _styles = require("@material-ui/styles");
+
+/**
+ * @ignore - do not document.
+ */
+var _default = _styles.ThemeProvider;
+exports.default = _default;
+},{"@material-ui/styles":"../node_modules/@material-ui/styles/esm/index.js"}],"../node_modules/convert-css-length/dist/index.esm.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = _default;
+
+var e = function (e) {
+  return parseFloat(e);
+};
+
+function _default(r) {
+  return null == r && (r = r), function (n, t, i, f) {
+    null == i && (i = r), null == f && (f = i);
+    var l = String(n).match(/[\d.\-\+]*\s*(.*)/)[1] || "";
+    if (l === t) return n;
+    var u = e(n);
+    if ("px" !== l) if ("em" === l) u = e(n) * e(i);else if ("rem" === l) u = e(n) * e(r);else {
+      if ("ex" !== l) return n;
+      u = e(n) * e(i) * 2;
+    }
+    var a = u;
+    if ("px" !== t) if ("em" === t) a = u / e(f);else if ("rem" === t) a = u / e(r);else {
+      if ("ex" !== t) return n;
+      a = u / e(f) / 2;
+    }
+    return parseFloat(a.toFixed(5)) + t;
+  };
+}
+},{}],"../node_modules/@material-ui/core/esm/styles/cssUtils.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.alignProperty = alignProperty;
+exports.fontGrid = fontGrid;
+exports.responsiveProperty = responsiveProperty;
+
+var _defineProperty2 = _interopRequireDefault(require("@babel/runtime/helpers/esm/defineProperty"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function alignProperty(_ref) {
+  var size = _ref.size,
+      grid = _ref.grid;
+  var sizeBelow = size - size % grid;
+  var sizeAbove = sizeBelow + grid;
+  return size - sizeBelow < sizeAbove - size ? sizeBelow : sizeAbove;
+} // fontGrid finds a minimal grid (in rem) for the fontSize values so that the
+// lineHeight falls under a x pixels grid, 4px in the case of Material Design,
+// without changing the relative line height
+
+
+function fontGrid(_ref2) {
+  var lineHeight = _ref2.lineHeight,
+      pixels = _ref2.pixels,
+      htmlFontSize = _ref2.htmlFontSize;
+  return pixels / (lineHeight * htmlFontSize);
+}
+/**
+ * generate a responsive version of a given CSS property
+ * @example
+ * responsiveProperty({
+ *   cssProperty: 'fontSize',
+ *   min: 15,
+ *   max: 20,
+ *   unit: 'px',
+ *   breakpoints: [300, 600],
+ * })
+ *
+ * // this returns
+ *
+ * {
+ *   fontSize: '15px',
+ *   '@media (min-width:300px)': {
+ *     fontSize: '17.5px',
+ *   },
+ *   '@media (min-width:600px)': {
+ *     fontSize: '20px',
+ *   },
+ * }
+ *
+ * @param {Object} params
+ * @param {string} params.cssProperty - The CSS property to be made responsive
+ * @param {number} params.min - The smallest value of the CSS property
+ * @param {number} params.max - The largest value of the CSS property
+ * @param {string} [params.unit] - The unit to be used for the CSS property
+ * @param {Array.number} [params.breakpoints]  - An array of breakpoints
+ * @param {number} [params.alignStep] - Round scaled value to fall under this grid
+ * @returns {Object} responsive styles for {params.cssProperty}
+ */
+
+
+function responsiveProperty(_ref3) {
+  var cssProperty = _ref3.cssProperty,
+      min = _ref3.min,
+      max = _ref3.max,
+      _ref3$unit = _ref3.unit,
+      unit = _ref3$unit === void 0 ? 'rem' : _ref3$unit,
+      _ref3$breakpoints = _ref3.breakpoints,
+      breakpoints = _ref3$breakpoints === void 0 ? [600, 960, 1280] : _ref3$breakpoints,
+      _ref3$transform = _ref3.transform,
+      transform = _ref3$transform === void 0 ? null : _ref3$transform;
+  var output = (0, _defineProperty2.default)({}, cssProperty, "".concat(min).concat(unit));
+  var factor = (max - min) / breakpoints[breakpoints.length - 1];
+  breakpoints.forEach(function (breakpoint) {
+    var value = min + factor * breakpoint;
+
+    if (transform !== null) {
+      value = transform(value);
+    }
+
+    output["@media (min-width:".concat(breakpoint, "px)")] = (0, _defineProperty2.default)({}, cssProperty, "".concat(Math.round(value * 10000) / 10000).concat(unit));
+  });
+  return output;
+}
+},{"@babel/runtime/helpers/esm/defineProperty":"../node_modules/@babel/runtime/helpers/esm/defineProperty.js"}],"../node_modules/@material-ui/core/esm/styles/responsiveFontSizes.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = responsiveFontSizes;
+
+var _extends2 = _interopRequireDefault(require("@babel/runtime/helpers/esm/extends"));
+
+var _convertCssLength = _interopRequireDefault(require("convert-css-length"));
+
+var _cssUtils = require("./cssUtils");
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function isUnitless(value) {
+  return String(parseFloat(value)).length === String(value).length;
+}
+
+function responsiveFontSizes(themeInput) {
+  var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+  var _options$breakpoints = options.breakpoints,
+      breakpoints = _options$breakpoints === void 0 ? ['sm', 'md', 'lg'] : _options$breakpoints,
+      _options$disableAlign = options.disableAlign,
+      disableAlign = _options$disableAlign === void 0 ? false : _options$disableAlign,
+      _options$factor = options.factor,
+      factor = _options$factor === void 0 ? 2 : _options$factor,
+      _options$variants = options.variants,
+      variants = _options$variants === void 0 ? ['h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'subtitle1', 'subtitle2', 'body1', 'body2', 'caption', 'button', 'overline'] : _options$variants;
+  var theme = (0, _extends2.default)({}, themeInput);
+  theme.typography = (0, _extends2.default)({}, theme.typography);
+  var typography = theme.typography; // Convert between css lengths e.g. em->px or px->rem
+  // Set the baseFontSize for your project. Defaults to 16px (also the browser default).
+
+  var convert = (0, _convertCssLength.default)(typography.htmlFontSize);
+  var breakpointValues = breakpoints.map(function (x) {
+    return theme.breakpoints.values[x];
+  });
+  variants.forEach(function (variant) {
+    var style = typography[variant];
+    var remFontSize = parseFloat(convert(style.fontSize, 'rem'));
+
+    if (remFontSize <= 1) {
+      return;
+    }
+
+    var maxFontSize = remFontSize;
+    var minFontSize = 1 + (maxFontSize - 1) / factor;
+    var lineHeight = style.lineHeight;
+
+    if (!isUnitless(lineHeight) && !disableAlign) {
+      throw new Error(["Material-UI: unsupported non-unitless line height with grid alignment.", 'Use unitless line heights instead.'].join('\n'));
+    }
+
+    if (!isUnitless(lineHeight)) {
+      // make it unitless
+      lineHeight = parseFloat(convert(lineHeight, 'rem')) / parseFloat(remFontSize);
+    }
+
+    var transform = null;
+
+    if (!disableAlign) {
+      transform = function transform(value) {
+        return (0, _cssUtils.alignProperty)({
+          size: value,
+          grid: (0, _cssUtils.fontGrid)({
+            pixels: 4,
+            lineHeight: lineHeight,
+            htmlFontSize: typography.htmlFontSize
+          })
+        });
+      };
+    }
+
+    typography[variant] = (0, _extends2.default)({}, style, {}, (0, _cssUtils.responsiveProperty)({
+      cssProperty: 'fontSize',
+      min: minFontSize,
+      max: maxFontSize,
+      unit: 'rem',
+      breakpoints: breakpointValues,
+      transform: transform
+    }));
+  });
+  return theme;
+}
+},{"@babel/runtime/helpers/esm/extends":"../node_modules/@babel/runtime/helpers/esm/extends.js","convert-css-length":"../node_modules/convert-css-length/dist/index.esm.js","./cssUtils":"../node_modules/@material-ui/core/esm/styles/cssUtils.js"}],"../node_modules/@material-ui/core/esm/styles/withTheme.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var _styles = require("@material-ui/styles");
+
+var _defaultTheme = _interopRequireDefault(require("./defaultTheme"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var withTheme = (0, _styles.withThemeCreator)({
+  defaultTheme: _defaultTheme.default
+});
+var _default = withTheme;
+exports.default = _default;
+},{"@material-ui/styles":"../node_modules/@material-ui/styles/esm/index.js","./defaultTheme":"../node_modules/@material-ui/core/esm/styles/defaultTheme.js"}],"../node_modules/@material-ui/core/esm/styles/index.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+var _exportNames = {
+  createMuiTheme: true,
+  createStyles: true,
+  makeStyles: true,
+  MuiThemeProvider: true,
+  responsiveFontSizes: true,
+  styled: true,
+  useTheme: true,
+  withStyles: true,
+  withTheme: true
+};
+Object.defineProperty(exports, "createMuiTheme", {
+  enumerable: true,
+  get: function () {
+    return _createMuiTheme.default;
+  }
+});
+Object.defineProperty(exports, "createStyles", {
+  enumerable: true,
+  get: function () {
+    return _createStyles.default;
+  }
+});
+Object.defineProperty(exports, "makeStyles", {
+  enumerable: true,
+  get: function () {
+    return _makeStyles.default;
+  }
+});
+Object.defineProperty(exports, "MuiThemeProvider", {
+  enumerable: true,
+  get: function () {
+    return _MuiThemeProvider.default;
+  }
+});
+Object.defineProperty(exports, "responsiveFontSizes", {
+  enumerable: true,
+  get: function () {
+    return _responsiveFontSizes.default;
+  }
+});
+Object.defineProperty(exports, "styled", {
+  enumerable: true,
+  get: function () {
+    return _styled.default;
+  }
+});
+Object.defineProperty(exports, "useTheme", {
+  enumerable: true,
+  get: function () {
+    return _useTheme.default;
+  }
+});
+Object.defineProperty(exports, "withStyles", {
+  enumerable: true,
+  get: function () {
+    return _withStyles.default;
+  }
+});
+Object.defineProperty(exports, "withTheme", {
+  enumerable: true,
+  get: function () {
+    return _withTheme.default;
+  }
+});
+
+var _colorManipulator = require("./colorManipulator");
+
+Object.keys(_colorManipulator).forEach(function (key) {
+  if (key === "default" || key === "__esModule") return;
+  if (Object.prototype.hasOwnProperty.call(_exportNames, key)) return;
+  Object.defineProperty(exports, key, {
+    enumerable: true,
+    get: function () {
+      return _colorManipulator[key];
+    }
+  });
+});
+
+var _createMuiTheme = _interopRequireDefault(require("./createMuiTheme"));
+
+var _createStyles = _interopRequireDefault(require("./createStyles"));
+
+var _makeStyles = _interopRequireDefault(require("./makeStyles"));
+
+var _MuiThemeProvider = _interopRequireDefault(require("./MuiThemeProvider"));
+
+var _responsiveFontSizes = _interopRequireDefault(require("./responsiveFontSizes"));
+
+var _styled = _interopRequireDefault(require("./styled"));
+
+var _transitions = require("./transitions");
+
+Object.keys(_transitions).forEach(function (key) {
+  if (key === "default" || key === "__esModule") return;
+  if (Object.prototype.hasOwnProperty.call(_exportNames, key)) return;
+  Object.defineProperty(exports, key, {
+    enumerable: true,
+    get: function () {
+      return _transitions[key];
+    }
+  });
+});
+
+var _useTheme = _interopRequireDefault(require("./useTheme"));
+
+var _withStyles = _interopRequireDefault(require("./withStyles"));
+
+var _withTheme = _interopRequireDefault(require("./withTheme"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+},{"./colorManipulator":"../node_modules/@material-ui/core/esm/styles/colorManipulator.js","./createMuiTheme":"../node_modules/@material-ui/core/esm/styles/createMuiTheme.js","./createStyles":"../node_modules/@material-ui/core/esm/styles/createStyles.js","./makeStyles":"../node_modules/@material-ui/core/esm/styles/makeStyles.js","./MuiThemeProvider":"../node_modules/@material-ui/core/esm/styles/MuiThemeProvider.js","./responsiveFontSizes":"../node_modules/@material-ui/core/esm/styles/responsiveFontSizes.js","./styled":"../node_modules/@material-ui/core/esm/styles/styled.js","./transitions":"../node_modules/@material-ui/core/esm/styles/transitions.js","./useTheme":"../node_modules/@material-ui/core/esm/styles/useTheme.js","./withStyles":"../node_modules/@material-ui/core/esm/styles/withStyles.js","./withTheme":"../node_modules/@material-ui/core/esm/styles/withTheme.js"}],"../node_modules/@material-ui/core/colors/blueGrey.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+var blueGrey = {
+  50: '#eceff1',
+  100: '#cfd8dc',
+  200: '#b0bec5',
+  300: '#90a4ae',
+  400: '#78909c',
+  500: '#607d8b',
+  600: '#546e7a',
+  700: '#455a64',
+  800: '#37474f',
+  900: '#263238',
+  A100: '#cfd8dc',
+  A200: '#b0bec5',
+  A400: '#78909c',
+  A700: '#455a64'
+};
+var _default = blueGrey;
+exports.default = _default;
+},{}],"components/common/PlayBox.jsx":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -43344,12 +46214,16 @@ var _react = _interopRequireDefault(require("react"));
 
 var _propTypes = _interopRequireDefault(require("prop-types"));
 
+var _Box = _interopRequireDefault(require("@material-ui/core/Box"));
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 var PlayBox = function PlayBox(_ref) {
   var id = _ref.id,
       value = _ref.value;
-  return _react.default.createElement("div", {
+  return _react.default.createElement(_Box.default, {
+    p: 2
+  }, _react.default.createElement("div", {
     className: "playBox",
     id: id
   }, _react.default.createElement("textarea", {
@@ -43363,7 +46237,7 @@ var PlayBox = function PlayBox(_ref) {
   }, "Start"), _react.default.createElement("button", {
     type: "button",
     id: "Stop"
-  }, "Stop"));
+  }, "Stop")));
 };
 
 PlayBox.propTypes = {
@@ -43372,7 +46246,7 @@ PlayBox.propTypes = {
 };
 var _default = PlayBox;
 exports.default = _default;
-},{"react":"../node_modules/react/index.js","prop-types":"../node_modules/prop-types/index.js"}],"components/tutorial/Tutorial.jsx":[function(require,module,exports) {
+},{"react":"../node_modules/react/index.js","prop-types":"../node_modules/prop-types/index.js","@material-ui/core/Box":"../node_modules/@material-ui/core/esm/Box/index.js"}],"components/tutorial/Tutorial.jsx":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -43392,7 +46266,7 @@ var _Box = _interopRequireDefault(require("@material-ui/core/Box"));
 
 var _Typography = _interopRequireDefault(require("@material-ui/core/Typography"));
 
-var _PlayBox = _interopRequireDefault(require("../PlayBox"));
+var _PlayBox = _interopRequireDefault(require("../common/PlayBox"));
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -43426,48 +46300,36 @@ var Tutorial = function Tutorial() {
     css: {
       maxWidth: 500
     }
-  }, _react.default.createElement(_Box.default, {
-    display: "flex",
-    flexWrap: "wrap",
-    justifyContent: "flex-start",
-    alignContent: "flex-start",
-    fontFamily: "Helvetica",
-    bgcolor: "primary.main",
-    fontSize: "48px",
-    css: {
-      width: 500
-    }
-  }, _react.default.createElement(_Box.default, {
-    p: 1,
-    bgcolor: "primary.dark",
-    css: {
-      width: 500,
-      height: 10
-    }
-  }), "Tutorial for SICKO MODE"), "To start playing, simply create a sequence of notes and send it to an instrument. A note is any letter between 'a' and 'g'. This sequence can then be played on an instrument by writing '>>' followed by the instrument name as seen below:", _react.default.createElement("br", null), _react.default.createElement(_PlayBox.default, {
+  }, "To start playing, simply create a sequence of notes and send it to an instrument. A note is any letter between 'a' and 'g'. This sequence can then be played on an instrument by writing '>>' followed by the instrument name as seen below:", _react.default.createElement("br", null), _react.default.createElement(_PlayBox.default, {
     id: "firtsTutBox",
     value: "\"c e g\" >> soft"
-  }), _react.default.createElement("br", null), _react.default.createElement("br", null), _react.default.createElement("br", null), "Both the notes and the entire sequence of notes can be edited. You make a note sharp or flat by adding a '#' or 'b' respectively to the end of the note. The octave of a note defaults to 4, but can be changed either by specifying an octave (e.g. 'a5' sets the octave to 5) or by using +/- to raise and lower this value (e.g. 'a+' sets the octave to 5).", _react.default.createElement("br", null), _react.default.createElement(_PlayBox.default, {
+  }), _react.default.createElement("br", null), _react.default.createElement("br", null), _react.default.createElement("br", null), "Notes can be modified before you play them. You make a note sharp or flat by adding a '#' or 'b' respectively to the end of the note. The octave of a note defaults to 4, but can be changed either by specifying an octave (e.g. 'a5' sets the octave to 5) or by using +/- to raise and lower this value (e.g. 'a+' sets the octave to 5).", _react.default.createElement("br", null), _react.default.createElement(_PlayBox.default, {
     id: "secondTutBox",
-    value: "\"c# eb g+\" >> triangle"
-  }), _react.default.createElement("br", null), _react.default.createElement("br", null), _react.default.createElement("br", null), "Entire sequences can be modified using the '>>' followed by the modification. The modifiers are currently \"octave,\" \"pitch,\" and \"duration\". Octave takes either an integer or a series of +/- symbols. The +/- move the value from the default of 4 (e.g. \">> octave +6\" and \">> octave ++\" both set the octave to 6). Pitch takes either a series of +/- or a signed integer for the amount to move the pitch up or down (e.g. \">> pitch --\" and \">> pitch -2\" both move the pitch down by 2). Duration sets the time for each note in the sequence. It takes either a fraction or a decimal (e.g. \">> duration .5\" and \">> duration 1/2\" do the same thing). Examples are seen below:", _react.default.createElement("br", null), _react.default.createElement(_PlayBox.default, {
+    value: "\"f# Bb c#+\" >> triangle"
+  }), _react.default.createElement("br", null), _react.default.createElement("br", null), _react.default.createElement("br", null), "In addition to notes, you can also put rests in a sequence by using the '_' character. You can also make notes longer by putting any number of '~'s after them. Each '~' will take the length of a normal note.", _react.default.createElement("br", null), _react.default.createElement(_PlayBox.default, {
+    id: "eighthTutBox",
+    value: "\"f# ~ Bb c#+ _\" >> triangle"
+  }), _react.default.createElement("br", null), _react.default.createElement("br", null), _react.default.createElement("br", null), "Entire sequences can also be modified using the '>>' followed by the modification. The modifiers are currently \"octave,\" \"pitch,\" and \"duration\". Octave and Pitch can be followed by either a series of +/- symbols or a sign and an integer. Using a series of +/- symbols will increase or decrease the octave or pitch by the number of symbols put. Using a sign and an integer will increase or decrease the ocatave or pitch by the integer after the sign. For example, \">> octave +2\" and \">> octave ++\" both move the sequence up two octaves, and \">> pitch --\" and \">> pitch -2\" both move the pitch down by 2 half-steps. Duration can be followed by a decimal or a fraction, and multiplies the length of each note in the sequence by that value (e.g. \">> duration .5\" and \">> duration 1/2\" do the same thing). Examples are seen below:", _react.default.createElement("br", null), _react.default.createElement(_PlayBox.default, {
     id: "modTutBox",
     value: "\"c e g\" >> octave +2 >> pitch -- >> duration .25 >> triangle"
-  }), _react.default.createElement("br", null), _react.default.createElement("br", null), _react.default.createElement("br", null), "You can play the same notes with multiple instruments as well. See below we play 'c e g' on both a triangle and a soft synth", _react.default.createElement("br", null), _react.default.createElement(_PlayBox.default, {
+  }), _react.default.createElement("br", null), _react.default.createElement("br", null), _react.default.createElement("br", null), "In addition to notes, you can also play drums! Just use o (bass drum), s (snare drum), - (high hat), and -- (open high hat) instead of note names. Drums can be played with any instrument, but it will not change their sound.", _react.default.createElement("br", null), _react.default.createElement(_PlayBox.default, {
+    id: "seventhTutBox",
+    value: "\"o x -- x\" >> play\n\"-\" >> duration .5 >> triangle"
+  }), _react.default.createElement("br", null), _react.default.createElement("br", null), _react.default.createElement("br", null), "You can play the same notes with multiple instruments as well. You can even modify the notes between the instruments. Below we play 'c e f g' on the soft instrument, increase the pitch, then play the sequence on the triangle synth.", _react.default.createElement("br", null), _react.default.createElement(_PlayBox.default, {
     id: "fourthTutBox",
-    value: "\"c e g\" >> triangle >> soft"
+    value: "\"c e f g\" >> soft >> pitch +7 >> triangle"
   }), _react.default.createElement("br", null), _react.default.createElement("br", null), _react.default.createElement("br", null), "Make multiple patterns!", _react.default.createElement("br", null), _react.default.createElement(_PlayBox.default, {
     id: "fifthTutBox",
-    value: "\"c e g\" >> triangle >> saw\n\"g b d+\" >> soft"
+    value: "\"c e f g\" >> soft >> pitch +7 >> triangle\n\"c e g\" >> duration 1/2 >> octave + >> saw"
   }), _react.default.createElement("br", null), _react.default.createElement("br", null), _react.default.createElement("br", null), "Feel free to combine anything you've used!", _react.default.createElement("br", null), _react.default.createElement(_PlayBox.default, {
     id: "sixthTutBox",
-    value: "\"c# e g5\" >> octave++ >> triangle"
+    value: "\"ab f db eb\" >> duration 2 >> octave - >> soft >> pitch +7 >> soft\n\"o _ x _\" >> duration .5 >> play\n\"c+ ab g ab c+ ab g ab db ab g ab bb ab g ab\" >> duration .5 >> triangle\n\"ab _ _ eb _ _ c _ _ eb _ _ ab _ _ f _ _ db _ f _ ab _ bb _ _ ab _ _ g _\" >> octave >> duration 1/4 >> saw\n\"ab ab eb+\" >> duration 1/4 >> triangle\n\"ab _ _ eb _ _ f ab ~ _ _ g _ _ ab bb\" >> octave ++ >> duration .5 >> triangle & > pingpong .25\n\"- - - - -- - - -\" >> duration .5 >> play"
   }), _react.default.createElement("br", null), _react.default.createElement("br", null), _react.default.createElement("br", null))));
 };
 
 var _default = Tutorial;
 exports.default = _default;
-},{"react":"../node_modules/react/index.js","@material-ui/core/styles":"../node_modules/@material-ui/core/esm/styles/index.js","@material-ui/core/colors/blueGrey":"../node_modules/@material-ui/core/colors/blueGrey.js","@material-ui/styles":"../node_modules/@material-ui/styles/esm/index.js","@material-ui/core/Box":"../node_modules/@material-ui/core/esm/Box/index.js","@material-ui/core/Typography":"../node_modules/@material-ui/core/esm/Typography/index.js","../PlayBox":"components/PlayBox.jsx"}],"components/playground/Playground.jsx":[function(require,module,exports) {
+},{"react":"../node_modules/react/index.js","@material-ui/core/styles":"../node_modules/@material-ui/core/esm/styles/index.js","@material-ui/core/colors/blueGrey":"../node_modules/@material-ui/core/colors/blueGrey.js","@material-ui/styles":"../node_modules/@material-ui/styles/esm/index.js","@material-ui/core/Box":"../node_modules/@material-ui/core/esm/Box/index.js","@material-ui/core/Typography":"../node_modules/@material-ui/core/esm/Typography/index.js","../common/PlayBox":"components/common/PlayBox.jsx"}],"components/playground/Playground.jsx":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -43477,26 +46339,8737 @@ exports.default = void 0;
 
 var _react = _interopRequireDefault(require("react"));
 
-var _PlayBox = _interopRequireDefault(require("../PlayBox"));
+var _PlayBox = _interopRequireDefault(require("../common/PlayBox"));
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 var Playground = function Playground() {
-  return _react.default.createElement("div", null, _react.default.createElement(_PlayBox.default, {
-    id: "firstBox",
-    value: "\"ab f db eb\" >> duration 2 >> octave - >> soft >> pitch +7 >> soft"
-  }), _react.default.createElement(_PlayBox.default, {
-    id: "secondBox",
-    value: "\"o _ x _\" >> duration .5 >> play"
-  }), _react.default.createElement(_PlayBox.default, {
-    id: "fullBox",
-    value: "\r \"ab f db eb\" >> duration 2 >> octave - >> saw >> pitch +7 >> soft\r \"o _ x _\" >> duration .5 >> play\r \"c+ ab g ab c+ ab g ab db ab g ab bb ab g ab\" >> duration .5 >> triangle\r \"ab _ _ eb _ _ c _ _ eb _ _ ab _ _ f _ _ db _ f _ ab _ bb _ _ ab _ _ g _\" >> octave >> duration 1/4 >> triangle\r \"ab ab eb+\" >> duration 1/4 >> triangle\r \"ab _ _ eb _ _ f ab ~ _ _ g _ _ ab bb\" >> octave ++ >> duration .5 >> triangle & > pingpong .25\r \"- - - - -- - - -\" >> duration .5 >> play\r "
-  }));
+  return _react.default.createElement(_PlayBox.default, {
+    id: "fullBox"
+  });
 };
 
 var _default = Playground;
 exports.default = _default;
-},{"react":"../node_modules/react/index.js","../PlayBox":"components/PlayBox.jsx"}],"components/Homepage.jsx":[function(require,module,exports) {
+},{"react":"../node_modules/react/index.js","../common/PlayBox":"components/common/PlayBox.jsx"}],"../node_modules/xtend/immutable.js":[function(require,module,exports) {
+module.exports = extend;
+var hasOwnProperty = Object.prototype.hasOwnProperty;
+
+function extend() {
+  var target = {};
+
+  for (var i = 0; i < arguments.length; i++) {
+    var source = arguments[i];
+
+    for (var key in source) {
+      if (hasOwnProperty.call(source, key)) {
+        target[key] = source[key];
+      }
+    }
+  }
+
+  return target;
+}
+},{}],"../node_modules/extend/index.js":[function(require,module,exports) {
+'use strict';
+
+var hasOwn = Object.prototype.hasOwnProperty;
+var toStr = Object.prototype.toString;
+var defineProperty = Object.defineProperty;
+var gOPD = Object.getOwnPropertyDescriptor;
+
+var isArray = function isArray(arr) {
+	if (typeof Array.isArray === 'function') {
+		return Array.isArray(arr);
+	}
+
+	return toStr.call(arr) === '[object Array]';
+};
+
+var isPlainObject = function isPlainObject(obj) {
+	if (!obj || toStr.call(obj) !== '[object Object]') {
+		return false;
+	}
+
+	var hasOwnConstructor = hasOwn.call(obj, 'constructor');
+	var hasIsPrototypeOf = obj.constructor && obj.constructor.prototype && hasOwn.call(obj.constructor.prototype, 'isPrototypeOf');
+	// Not own constructor property must be Object
+	if (obj.constructor && !hasOwnConstructor && !hasIsPrototypeOf) {
+		return false;
+	}
+
+	// Own properties are enumerated firstly, so to speed up,
+	// if last one is own, then all properties are own.
+	var key;
+	for (key in obj) { /**/ }
+
+	return typeof key === 'undefined' || hasOwn.call(obj, key);
+};
+
+// If name is '__proto__', and Object.defineProperty is available, define __proto__ as an own property on target
+var setProperty = function setProperty(target, options) {
+	if (defineProperty && options.name === '__proto__') {
+		defineProperty(target, options.name, {
+			enumerable: true,
+			configurable: true,
+			value: options.newValue,
+			writable: true
+		});
+	} else {
+		target[options.name] = options.newValue;
+	}
+};
+
+// Return undefined instead of __proto__ if '__proto__' is not an own property
+var getProperty = function getProperty(obj, name) {
+	if (name === '__proto__') {
+		if (!hasOwn.call(obj, name)) {
+			return void 0;
+		} else if (gOPD) {
+			// In early versions of node, obj['__proto__'] is buggy when obj has
+			// __proto__ as an own property. Object.getOwnPropertyDescriptor() works.
+			return gOPD(obj, name).value;
+		}
+	}
+
+	return obj[name];
+};
+
+module.exports = function extend() {
+	var options, name, src, copy, copyIsArray, clone;
+	var target = arguments[0];
+	var i = 1;
+	var length = arguments.length;
+	var deep = false;
+
+	// Handle a deep copy situation
+	if (typeof target === 'boolean') {
+		deep = target;
+		target = arguments[1] || {};
+		// skip the boolean and the target
+		i = 2;
+	}
+	if (target == null || (typeof target !== 'object' && typeof target !== 'function')) {
+		target = {};
+	}
+
+	for (; i < length; ++i) {
+		options = arguments[i];
+		// Only deal with non-null/undefined values
+		if (options != null) {
+			// Extend the base object
+			for (name in options) {
+				src = getProperty(target, name);
+				copy = getProperty(options, name);
+
+				// Prevent never-ending loop
+				if (target !== copy) {
+					// Recurse if we're merging plain objects or arrays
+					if (deep && copy && (isPlainObject(copy) || (copyIsArray = isArray(copy)))) {
+						if (copyIsArray) {
+							copyIsArray = false;
+							clone = src && isArray(src) ? src : [];
+						} else {
+							clone = src && isPlainObject(src) ? src : {};
+						}
+
+						// Never move original objects, clone them
+						setProperty(target, { name: name, newValue: extend(deep, clone, copy) });
+
+					// Don't bring in undefined values
+					} else if (typeof copy !== 'undefined') {
+						setProperty(target, { name: name, newValue: copy });
+					}
+				}
+			}
+		}
+	}
+
+	// Return the modified object
+	return target;
+};
+
+},{}],"../node_modules/bail/index.js":[function(require,module,exports) {
+'use strict'
+
+module.exports = bail
+
+function bail(err) {
+  if (err) {
+    throw err
+  }
+}
+
+},{}],"../node_modules/unist-util-stringify-position/index.js":[function(require,module,exports) {
+'use strict'
+
+var own = {}.hasOwnProperty
+
+module.exports = stringify
+
+function stringify(value) {
+  /* Nothing. */
+  if (!value || typeof value !== 'object') {
+    return null
+  }
+
+  /* Node. */
+  if (own.call(value, 'position') || own.call(value, 'type')) {
+    return position(value.position)
+  }
+
+  /* Position. */
+  if (own.call(value, 'start') || own.call(value, 'end')) {
+    return position(value)
+  }
+
+  /* Point. */
+  if (own.call(value, 'line') || own.call(value, 'column')) {
+    return point(value)
+  }
+
+  /* ? */
+  return null
+}
+
+function point(point) {
+  if (!point || typeof point !== 'object') {
+    point = {}
+  }
+
+  return index(point.line) + ':' + index(point.column)
+}
+
+function position(pos) {
+  if (!pos || typeof pos !== 'object') {
+    pos = {}
+  }
+
+  return point(pos.start) + '-' + point(pos.end)
+}
+
+function index(value) {
+  return value && typeof value === 'number' ? value : 1
+}
+
+},{}],"../node_modules/vfile-message/index.js":[function(require,module,exports) {
+'use strict'
+
+var stringify = require('unist-util-stringify-position')
+
+module.exports = VMessage
+
+// Inherit from `Error#`.
+function VMessagePrototype() {}
+VMessagePrototype.prototype = Error.prototype
+VMessage.prototype = new VMessagePrototype()
+
+// Message properties.
+var proto = VMessage.prototype
+
+proto.file = ''
+proto.name = ''
+proto.reason = ''
+proto.message = ''
+proto.stack = ''
+proto.fatal = null
+proto.column = null
+proto.line = null
+
+// Construct a new VMessage.
+//
+// Note: We cannot invoke `Error` on the created context, as that adds readonly
+// `line` and `column` attributes on Safari 9, thus throwing and failing the
+// data.
+function VMessage(reason, position, origin) {
+  var parts
+  var range
+  var location
+
+  if (typeof position === 'string') {
+    origin = position
+    position = null
+  }
+
+  parts = parseOrigin(origin)
+  range = stringify(position) || '1:1'
+
+  location = {
+    start: {line: null, column: null},
+    end: {line: null, column: null}
+  }
+
+  // Node.
+  if (position && position.position) {
+    position = position.position
+  }
+
+  if (position) {
+    // Position.
+    if (position.start) {
+      location = position
+      position = position.start
+    } else {
+      // Point.
+      location.start = position
+    }
+  }
+
+  if (reason.stack) {
+    this.stack = reason.stack
+    reason = reason.message
+  }
+
+  this.message = reason
+  this.name = range
+  this.reason = reason
+  this.line = position ? position.line : null
+  this.column = position ? position.column : null
+  this.location = location
+  this.source = parts[0]
+  this.ruleId = parts[1]
+}
+
+function parseOrigin(origin) {
+  var result = [null, null]
+  var index
+
+  if (typeof origin === 'string') {
+    index = origin.indexOf(':')
+
+    if (index === -1) {
+      result[1] = origin
+    } else {
+      result[0] = origin.slice(0, index)
+      result[1] = origin.slice(index + 1)
+    }
+  }
+
+  return result
+}
+
+},{"unist-util-stringify-position":"../node_modules/unist-util-stringify-position/index.js"}],"../node_modules/process/browser.js":[function(require,module,exports) {
+
+// shim for using process in browser
+var process = module.exports = {}; // cached from whatever global is present so that test runners that stub it
+// don't break things.  But we need to wrap it in a try catch in case it is
+// wrapped in strict mode code which doesn't define any globals.  It's inside a
+// function because try/catches deoptimize in certain engines.
+
+var cachedSetTimeout;
+var cachedClearTimeout;
+
+function defaultSetTimout() {
+  throw new Error('setTimeout has not been defined');
+}
+
+function defaultClearTimeout() {
+  throw new Error('clearTimeout has not been defined');
+}
+
+(function () {
+  try {
+    if (typeof setTimeout === 'function') {
+      cachedSetTimeout = setTimeout;
+    } else {
+      cachedSetTimeout = defaultSetTimout;
+    }
+  } catch (e) {
+    cachedSetTimeout = defaultSetTimout;
+  }
+
+  try {
+    if (typeof clearTimeout === 'function') {
+      cachedClearTimeout = clearTimeout;
+    } else {
+      cachedClearTimeout = defaultClearTimeout;
+    }
+  } catch (e) {
+    cachedClearTimeout = defaultClearTimeout;
+  }
+})();
+
+function runTimeout(fun) {
+  if (cachedSetTimeout === setTimeout) {
+    //normal enviroments in sane situations
+    return setTimeout(fun, 0);
+  } // if setTimeout wasn't available but was latter defined
+
+
+  if ((cachedSetTimeout === defaultSetTimout || !cachedSetTimeout) && setTimeout) {
+    cachedSetTimeout = setTimeout;
+    return setTimeout(fun, 0);
+  }
+
+  try {
+    // when when somebody has screwed with setTimeout but no I.E. maddness
+    return cachedSetTimeout(fun, 0);
+  } catch (e) {
+    try {
+      // When we are in I.E. but the script has been evaled so I.E. doesn't trust the global object when called normally
+      return cachedSetTimeout.call(null, fun, 0);
+    } catch (e) {
+      // same as above but when it's a version of I.E. that must have the global object for 'this', hopfully our context correct otherwise it will throw a global error
+      return cachedSetTimeout.call(this, fun, 0);
+    }
+  }
+}
+
+function runClearTimeout(marker) {
+  if (cachedClearTimeout === clearTimeout) {
+    //normal enviroments in sane situations
+    return clearTimeout(marker);
+  } // if clearTimeout wasn't available but was latter defined
+
+
+  if ((cachedClearTimeout === defaultClearTimeout || !cachedClearTimeout) && clearTimeout) {
+    cachedClearTimeout = clearTimeout;
+    return clearTimeout(marker);
+  }
+
+  try {
+    // when when somebody has screwed with setTimeout but no I.E. maddness
+    return cachedClearTimeout(marker);
+  } catch (e) {
+    try {
+      // When we are in I.E. but the script has been evaled so I.E. doesn't  trust the global object when called normally
+      return cachedClearTimeout.call(null, marker);
+    } catch (e) {
+      // same as above but when it's a version of I.E. that must have the global object for 'this', hopfully our context correct otherwise it will throw a global error.
+      // Some versions of I.E. have different rules for clearTimeout vs setTimeout
+      return cachedClearTimeout.call(this, marker);
+    }
+  }
+}
+
+var queue = [];
+var draining = false;
+var currentQueue;
+var queueIndex = -1;
+
+function cleanUpNextTick() {
+  if (!draining || !currentQueue) {
+    return;
+  }
+
+  draining = false;
+
+  if (currentQueue.length) {
+    queue = currentQueue.concat(queue);
+  } else {
+    queueIndex = -1;
+  }
+
+  if (queue.length) {
+    drainQueue();
+  }
+}
+
+function drainQueue() {
+  if (draining) {
+    return;
+  }
+
+  var timeout = runTimeout(cleanUpNextTick);
+  draining = true;
+  var len = queue.length;
+
+  while (len) {
+    currentQueue = queue;
+    queue = [];
+
+    while (++queueIndex < len) {
+      if (currentQueue) {
+        currentQueue[queueIndex].run();
+      }
+    }
+
+    queueIndex = -1;
+    len = queue.length;
+  }
+
+  currentQueue = null;
+  draining = false;
+  runClearTimeout(timeout);
+}
+
+process.nextTick = function (fun) {
+  var args = new Array(arguments.length - 1);
+
+  if (arguments.length > 1) {
+    for (var i = 1; i < arguments.length; i++) {
+      args[i - 1] = arguments[i];
+    }
+  }
+
+  queue.push(new Item(fun, args));
+
+  if (queue.length === 1 && !draining) {
+    runTimeout(drainQueue);
+  }
+}; // v8 likes predictible objects
+
+
+function Item(fun, array) {
+  this.fun = fun;
+  this.array = array;
+}
+
+Item.prototype.run = function () {
+  this.fun.apply(null, this.array);
+};
+
+process.title = 'browser';
+process.env = {};
+process.argv = [];
+process.version = ''; // empty string to avoid regexp issues
+
+process.versions = {};
+
+function noop() {}
+
+process.on = noop;
+process.addListener = noop;
+process.once = noop;
+process.off = noop;
+process.removeListener = noop;
+process.removeAllListeners = noop;
+process.emit = noop;
+process.prependListener = noop;
+process.prependOnceListener = noop;
+
+process.listeners = function (name) {
+  return [];
+};
+
+process.binding = function (name) {
+  throw new Error('process.binding is not supported');
+};
+
+process.cwd = function () {
+  return '/';
+};
+
+process.chdir = function (dir) {
+  throw new Error('process.chdir is not supported');
+};
+
+process.umask = function () {
+  return 0;
+};
+},{}],"../node_modules/path-browserify/index.js":[function(require,module,exports) {
+var process = require("process");
+// .dirname, .basename, and .extname methods are extracted from Node.js v8.11.1,
+// backported and transplited with Babel, with backwards-compat fixes
+
+// Copyright Joyent, Inc. and other Node contributors.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a
+// copy of this software and associated documentation files (the
+// "Software"), to deal in the Software without restriction, including
+// without limitation the rights to use, copy, modify, merge, publish,
+// distribute, sublicense, and/or sell copies of the Software, and to permit
+// persons to whom the Software is furnished to do so, subject to the
+// following conditions:
+//
+// The above copyright notice and this permission notice shall be included
+// in all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN
+// NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+// DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
+// OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
+// USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+// resolves . and .. elements in a path array with directory names there
+// must be no slashes, empty elements, or device names (c:\) in the array
+// (so also no leading and trailing slashes - it does not distinguish
+// relative and absolute paths)
+function normalizeArray(parts, allowAboveRoot) {
+  // if the path tries to go above the root, `up` ends up > 0
+  var up = 0;
+  for (var i = parts.length - 1; i >= 0; i--) {
+    var last = parts[i];
+    if (last === '.') {
+      parts.splice(i, 1);
+    } else if (last === '..') {
+      parts.splice(i, 1);
+      up++;
+    } else if (up) {
+      parts.splice(i, 1);
+      up--;
+    }
+  }
+
+  // if the path is allowed to go above the root, restore leading ..s
+  if (allowAboveRoot) {
+    for (; up--; up) {
+      parts.unshift('..');
+    }
+  }
+
+  return parts;
+}
+
+// path.resolve([from ...], to)
+// posix version
+exports.resolve = function() {
+  var resolvedPath = '',
+      resolvedAbsolute = false;
+
+  for (var i = arguments.length - 1; i >= -1 && !resolvedAbsolute; i--) {
+    var path = (i >= 0) ? arguments[i] : process.cwd();
+
+    // Skip empty and invalid entries
+    if (typeof path !== 'string') {
+      throw new TypeError('Arguments to path.resolve must be strings');
+    } else if (!path) {
+      continue;
+    }
+
+    resolvedPath = path + '/' + resolvedPath;
+    resolvedAbsolute = path.charAt(0) === '/';
+  }
+
+  // At this point the path should be resolved to a full absolute path, but
+  // handle relative paths to be safe (might happen when process.cwd() fails)
+
+  // Normalize the path
+  resolvedPath = normalizeArray(filter(resolvedPath.split('/'), function(p) {
+    return !!p;
+  }), !resolvedAbsolute).join('/');
+
+  return ((resolvedAbsolute ? '/' : '') + resolvedPath) || '.';
+};
+
+// path.normalize(path)
+// posix version
+exports.normalize = function(path) {
+  var isAbsolute = exports.isAbsolute(path),
+      trailingSlash = substr(path, -1) === '/';
+
+  // Normalize the path
+  path = normalizeArray(filter(path.split('/'), function(p) {
+    return !!p;
+  }), !isAbsolute).join('/');
+
+  if (!path && !isAbsolute) {
+    path = '.';
+  }
+  if (path && trailingSlash) {
+    path += '/';
+  }
+
+  return (isAbsolute ? '/' : '') + path;
+};
+
+// posix version
+exports.isAbsolute = function(path) {
+  return path.charAt(0) === '/';
+};
+
+// posix version
+exports.join = function() {
+  var paths = Array.prototype.slice.call(arguments, 0);
+  return exports.normalize(filter(paths, function(p, index) {
+    if (typeof p !== 'string') {
+      throw new TypeError('Arguments to path.join must be strings');
+    }
+    return p;
+  }).join('/'));
+};
+
+
+// path.relative(from, to)
+// posix version
+exports.relative = function(from, to) {
+  from = exports.resolve(from).substr(1);
+  to = exports.resolve(to).substr(1);
+
+  function trim(arr) {
+    var start = 0;
+    for (; start < arr.length; start++) {
+      if (arr[start] !== '') break;
+    }
+
+    var end = arr.length - 1;
+    for (; end >= 0; end--) {
+      if (arr[end] !== '') break;
+    }
+
+    if (start > end) return [];
+    return arr.slice(start, end - start + 1);
+  }
+
+  var fromParts = trim(from.split('/'));
+  var toParts = trim(to.split('/'));
+
+  var length = Math.min(fromParts.length, toParts.length);
+  var samePartsLength = length;
+  for (var i = 0; i < length; i++) {
+    if (fromParts[i] !== toParts[i]) {
+      samePartsLength = i;
+      break;
+    }
+  }
+
+  var outputParts = [];
+  for (var i = samePartsLength; i < fromParts.length; i++) {
+    outputParts.push('..');
+  }
+
+  outputParts = outputParts.concat(toParts.slice(samePartsLength));
+
+  return outputParts.join('/');
+};
+
+exports.sep = '/';
+exports.delimiter = ':';
+
+exports.dirname = function (path) {
+  if (typeof path !== 'string') path = path + '';
+  if (path.length === 0) return '.';
+  var code = path.charCodeAt(0);
+  var hasRoot = code === 47 /*/*/;
+  var end = -1;
+  var matchedSlash = true;
+  for (var i = path.length - 1; i >= 1; --i) {
+    code = path.charCodeAt(i);
+    if (code === 47 /*/*/) {
+        if (!matchedSlash) {
+          end = i;
+          break;
+        }
+      } else {
+      // We saw the first non-path separator
+      matchedSlash = false;
+    }
+  }
+
+  if (end === -1) return hasRoot ? '/' : '.';
+  if (hasRoot && end === 1) {
+    // return '//';
+    // Backwards-compat fix:
+    return '/';
+  }
+  return path.slice(0, end);
+};
+
+function basename(path) {
+  if (typeof path !== 'string') path = path + '';
+
+  var start = 0;
+  var end = -1;
+  var matchedSlash = true;
+  var i;
+
+  for (i = path.length - 1; i >= 0; --i) {
+    if (path.charCodeAt(i) === 47 /*/*/) {
+        // If we reached a path separator that was not part of a set of path
+        // separators at the end of the string, stop now
+        if (!matchedSlash) {
+          start = i + 1;
+          break;
+        }
+      } else if (end === -1) {
+      // We saw the first non-path separator, mark this as the end of our
+      // path component
+      matchedSlash = false;
+      end = i + 1;
+    }
+  }
+
+  if (end === -1) return '';
+  return path.slice(start, end);
+}
+
+// Uses a mixed approach for backwards-compatibility, as ext behavior changed
+// in new Node.js versions, so only basename() above is backported here
+exports.basename = function (path, ext) {
+  var f = basename(path);
+  if (ext && f.substr(-1 * ext.length) === ext) {
+    f = f.substr(0, f.length - ext.length);
+  }
+  return f;
+};
+
+exports.extname = function (path) {
+  if (typeof path !== 'string') path = path + '';
+  var startDot = -1;
+  var startPart = 0;
+  var end = -1;
+  var matchedSlash = true;
+  // Track the state of characters (if any) we see before our first dot and
+  // after any path separator we find
+  var preDotState = 0;
+  for (var i = path.length - 1; i >= 0; --i) {
+    var code = path.charCodeAt(i);
+    if (code === 47 /*/*/) {
+        // If we reached a path separator that was not part of a set of path
+        // separators at the end of the string, stop now
+        if (!matchedSlash) {
+          startPart = i + 1;
+          break;
+        }
+        continue;
+      }
+    if (end === -1) {
+      // We saw the first non-path separator, mark this as the end of our
+      // extension
+      matchedSlash = false;
+      end = i + 1;
+    }
+    if (code === 46 /*.*/) {
+        // If this is our first dot, mark it as the start of our extension
+        if (startDot === -1)
+          startDot = i;
+        else if (preDotState !== 1)
+          preDotState = 1;
+    } else if (startDot !== -1) {
+      // We saw a non-dot and non-path separator before our dot, so we should
+      // have a good chance at having a non-empty extension
+      preDotState = -1;
+    }
+  }
+
+  if (startDot === -1 || end === -1 ||
+      // We saw a non-dot character immediately before the dot
+      preDotState === 0 ||
+      // The (right-most) trimmed path component is exactly '..'
+      preDotState === 1 && startDot === end - 1 && startDot === startPart + 1) {
+    return '';
+  }
+  return path.slice(startDot, end);
+};
+
+function filter (xs, f) {
+    if (xs.filter) return xs.filter(f);
+    var res = [];
+    for (var i = 0; i < xs.length; i++) {
+        if (f(xs[i], i, xs)) res.push(xs[i]);
+    }
+    return res;
+}
+
+// String.prototype.substr - negative index don't work in IE8
+var substr = 'ab'.substr(-1) === 'b'
+    ? function (str, start, len) { return str.substr(start, len) }
+    : function (str, start, len) {
+        if (start < 0) start = str.length + start;
+        return str.substr(start, len);
+    }
+;
+
+},{"process":"../node_modules/process/browser.js"}],"../node_modules/replace-ext/index.js":[function(require,module,exports) {
+'use strict';
+
+var path = require('path');
+
+function replaceExt(npath, ext) {
+  if (typeof npath !== 'string') {
+    return npath;
+  }
+
+  if (npath.length === 0) {
+    return npath;
+  }
+
+  var nFileName = path.basename(npath, path.extname(npath)) + ext;
+  return path.join(path.dirname(npath), nFileName);
+}
+
+module.exports = replaceExt;
+},{"path":"../node_modules/path-browserify/index.js"}],"../node_modules/is-buffer/index.js":[function(require,module,exports) {
+/*!
+ * Determine if an object is a Buffer
+ *
+ * @author   Feross Aboukhadijeh <https://feross.org>
+ * @license  MIT
+ */
+
+// The _isBuffer check is for Safari 5-7 support, because it's missing
+// Object.prototype.constructor. Remove this eventually
+module.exports = function (obj) {
+  return obj != null && (isBuffer(obj) || isSlowBuffer(obj) || !!obj._isBuffer)
+}
+
+function isBuffer (obj) {
+  return !!obj.constructor && typeof obj.constructor.isBuffer === 'function' && obj.constructor.isBuffer(obj)
+}
+
+// For Node v0.10 support. Remove this eventually.
+function isSlowBuffer (obj) {
+  return typeof obj.readFloatLE === 'function' && typeof obj.slice === 'function' && isBuffer(obj.slice(0, 0))
+}
+
+},{}],"../node_modules/vfile/core.js":[function(require,module,exports) {
+var process = require("process");
+'use strict';
+
+var path = require('path');
+var replace = require('replace-ext');
+var buffer = require('is-buffer');
+
+module.exports = VFile;
+
+var own = {}.hasOwnProperty;
+var proto = VFile.prototype;
+
+proto.toString = toString;
+
+/* Order of setting (least specific to most), we need this because
+ * otherwise `{stem: 'a', path: '~/b.js'}` would throw, as a path
+ * is needed before a stem can be set. */
+var order = [
+  'history',
+  'path',
+  'basename',
+  'stem',
+  'extname',
+  'dirname'
+];
+
+/* Construct a new file. */
+function VFile(options) {
+  var prop;
+  var index;
+  var length;
+
+  if (!options) {
+    options = {};
+  } else if (typeof options === 'string' || buffer(options)) {
+    options = {contents: options};
+  } else if ('message' in options && 'messages' in options) {
+    return options;
+  }
+
+  if (!(this instanceof VFile)) {
+    return new VFile(options);
+  }
+
+  this.data = {};
+  this.messages = [];
+  this.history = [];
+  this.cwd = process.cwd();
+
+  /* Set path related properties in the correct order. */
+  index = -1;
+  length = order.length;
+
+  while (++index < length) {
+    prop = order[index];
+
+    if (own.call(options, prop)) {
+      this[prop] = options[prop];
+    }
+  }
+
+  /* Set non-path related properties. */
+  for (prop in options) {
+    if (order.indexOf(prop) === -1) {
+      this[prop] = options[prop];
+    }
+  }
+}
+
+/* Access full path (`~/index.min.js`). */
+Object.defineProperty(proto, 'path', {
+  get: function () {
+    return this.history[this.history.length - 1];
+  },
+  set: function (path) {
+    assertNonEmpty(path, 'path');
+
+    if (path !== this.path) {
+      this.history.push(path);
+    }
+  }
+});
+
+/* Access parent path (`~`). */
+Object.defineProperty(proto, 'dirname', {
+  get: function () {
+    return typeof this.path === 'string' ? path.dirname(this.path) : undefined;
+  },
+  set: function (dirname) {
+    assertPath(this.path, 'dirname');
+    this.path = path.join(dirname || '', this.basename);
+  }
+});
+
+/* Access basename (`index.min.js`). */
+Object.defineProperty(proto, 'basename', {
+  get: function () {
+    return typeof this.path === 'string' ? path.basename(this.path) : undefined;
+  },
+  set: function (basename) {
+    assertNonEmpty(basename, 'basename');
+    assertPart(basename, 'basename');
+    this.path = path.join(this.dirname || '', basename);
+  }
+});
+
+/* Access extname (`.js`). */
+Object.defineProperty(proto, 'extname', {
+  get: function () {
+    return typeof this.path === 'string' ? path.extname(this.path) : undefined;
+  },
+  set: function (extname) {
+    var ext = extname || '';
+
+    assertPart(ext, 'extname');
+    assertPath(this.path, 'extname');
+
+    if (ext) {
+      if (ext.charAt(0) !== '.') {
+        throw new Error('`extname` must start with `.`');
+      }
+
+      if (ext.indexOf('.', 1) !== -1) {
+        throw new Error('`extname` cannot contain multiple dots');
+      }
+    }
+
+    this.path = replace(this.path, ext);
+  }
+});
+
+/* Access stem (`index.min`). */
+Object.defineProperty(proto, 'stem', {
+  get: function () {
+    return typeof this.path === 'string' ? path.basename(this.path, this.extname) : undefined;
+  },
+  set: function (stem) {
+    assertNonEmpty(stem, 'stem');
+    assertPart(stem, 'stem');
+    this.path = path.join(this.dirname || '', stem + (this.extname || ''));
+  }
+});
+
+/* Get the value of the file. */
+function toString(encoding) {
+  var value = this.contents || '';
+  return buffer(value) ? value.toString(encoding) : String(value);
+}
+
+/* Assert that `part` is not a path (i.e., does
+ * not contain `path.sep`). */
+function assertPart(part, name) {
+  if (part.indexOf(path.sep) !== -1) {
+    throw new Error('`' + name + '` cannot be a path: did not expect `' + path.sep + '`');
+  }
+}
+
+/* Assert that `part` is not empty. */
+function assertNonEmpty(part, name) {
+  if (!part) {
+    throw new Error('`' + name + '` cannot be empty');
+  }
+}
+
+/* Assert `path` exists. */
+function assertPath(path, name) {
+  if (!path) {
+    throw new Error('Setting `' + name + '` requires `path` to be set too');
+  }
+}
+
+},{"path":"../node_modules/path-browserify/index.js","replace-ext":"../node_modules/replace-ext/index.js","is-buffer":"../node_modules/is-buffer/index.js","process":"../node_modules/process/browser.js"}],"../node_modules/vfile/index.js":[function(require,module,exports) {
+'use strict';
+
+var VMessage = require('vfile-message');
+var VFile = require('./core.js');
+
+module.exports = VFile;
+
+var proto = VFile.prototype;
+
+proto.message = message;
+proto.info = info;
+proto.fail = fail;
+
+/* Slight backwards compatibility.  Remove in the future. */
+proto.warn = message;
+
+/* Create a message with `reason` at `position`.
+ * When an error is passed in as `reason`, copies the stack. */
+function message(reason, position, origin) {
+  var filePath = this.path;
+  var message = new VMessage(reason, position, origin);
+
+  if (filePath) {
+    message.name = filePath + ':' + message.name;
+    message.file = filePath;
+  }
+
+  message.fatal = false;
+
+  this.messages.push(message);
+
+  return message;
+}
+
+/* Fail. Creates a vmessage, associates it with the file,
+ * and throws it. */
+function fail() {
+  var message = this.message.apply(this, arguments);
+
+  message.fatal = true;
+
+  throw message;
+}
+
+/* Info. Creates a vmessage, associates it with the file,
+ * and marks the fatality as null. */
+function info() {
+  var message = this.message.apply(this, arguments);
+
+  message.fatal = null;
+
+  return message;
+}
+
+},{"vfile-message":"../node_modules/vfile-message/index.js","./core.js":"../node_modules/vfile/core.js"}],"../node_modules/trough/wrap.js":[function(require,module,exports) {
+'use strict'
+
+var slice = [].slice
+
+module.exports = wrap
+
+// Wrap `fn`.
+// Can be sync or async; return a promise, receive a completion handler, return
+// new values and errors.
+function wrap(fn, callback) {
+  var invoked
+
+  return wrapped
+
+  function wrapped() {
+    var params = slice.call(arguments, 0)
+    var callback = fn.length > params.length
+    var result
+
+    if (callback) {
+      params.push(done)
+    }
+
+    try {
+      result = fn.apply(null, params)
+    } catch (error) {
+      // Well, this is quite the pickle.
+      // `fn` received a callback and invoked it (thus continuing the pipeline),
+      // but later also threw an error.
+      // We’re not about to restart the pipeline again, so the only thing left
+      // to do is to throw the thing instead.
+      if (callback && invoked) {
+        throw error
+      }
+
+      return done(error)
+    }
+
+    if (!callback) {
+      if (result && typeof result.then === 'function') {
+        result.then(then, done)
+      } else if (result instanceof Error) {
+        done(result)
+      } else {
+        then(result)
+      }
+    }
+  }
+
+  // Invoke `next`, only once.
+  function done() {
+    if (!invoked) {
+      invoked = true
+
+      callback.apply(null, arguments)
+    }
+  }
+
+  // Invoke `done` with one value.
+  // Tracks if an error is passed, too.
+  function then(value) {
+    done(null, value)
+  }
+}
+
+},{}],"../node_modules/trough/index.js":[function(require,module,exports) {
+'use strict'
+
+var wrap = require('./wrap.js')
+
+module.exports = trough
+
+trough.wrap = wrap
+
+var slice = [].slice
+
+// Create new middleware.
+function trough() {
+  var fns = []
+  var middleware = {}
+
+  middleware.run = run
+  middleware.use = use
+
+  return middleware
+
+  // Run `fns`.  Last argument must be a completion handler.
+  function run() {
+    var index = -1
+    var input = slice.call(arguments, 0, -1)
+    var done = arguments[arguments.length - 1]
+
+    if (typeof done !== 'function') {
+      throw new Error('Expected function as last argument, not ' + done)
+    }
+
+    next.apply(null, [null].concat(input))
+
+    // Run the next `fn`, if any.
+    function next(err) {
+      var fn = fns[++index]
+      var params = slice.call(arguments, 0)
+      var values = params.slice(1)
+      var length = input.length
+      var pos = -1
+
+      if (err) {
+        done(err)
+        return
+      }
+
+      // Copy non-nully input into values.
+      while (++pos < length) {
+        if (values[pos] === null || values[pos] === undefined) {
+          values[pos] = input[pos]
+        }
+      }
+
+      input = values
+
+      // Next or done.
+      if (fn) {
+        wrap(fn, next).apply(null, input)
+      } else {
+        done.apply(null, [null].concat(input))
+      }
+    }
+  }
+
+  // Add `fn` to the list.
+  function use(fn) {
+    if (typeof fn !== 'function') {
+      throw new Error('Expected `fn` to be a function, not ' + fn)
+    }
+
+    fns.push(fn)
+
+    return middleware
+  }
+}
+
+},{"./wrap.js":"../node_modules/trough/wrap.js"}],"../node_modules/x-is-string/index.js":[function(require,module,exports) {
+var toString = Object.prototype.toString
+
+module.exports = isString
+
+function isString(obj) {
+    return toString.call(obj) === "[object String]"
+}
+
+},{}],"../node_modules/is-plain-obj/index.js":[function(require,module,exports) {
+'use strict';
+
+var toString = Object.prototype.toString;
+
+module.exports = function (x) {
+  var prototype;
+  return toString.call(x) === '[object Object]' && (prototype = Object.getPrototypeOf(x), prototype === null || prototype === Object.getPrototypeOf({}));
+};
+},{}],"../node_modules/unified/index.js":[function(require,module,exports) {
+var process = require("process");
+'use strict'
+
+/* Dependencies. */
+var extend = require('extend')
+var bail = require('bail')
+var vfile = require('vfile')
+var trough = require('trough')
+var string = require('x-is-string')
+var plain = require('is-plain-obj')
+
+/* Expose a frozen processor. */
+module.exports = unified().freeze()
+
+var slice = [].slice
+var own = {}.hasOwnProperty
+
+/* Process pipeline. */
+var pipeline = trough()
+  .use(pipelineParse)
+  .use(pipelineRun)
+  .use(pipelineStringify)
+
+function pipelineParse(p, ctx) {
+  ctx.tree = p.parse(ctx.file)
+}
+
+function pipelineRun(p, ctx, next) {
+  p.run(ctx.tree, ctx.file, done)
+
+  function done(err, tree, file) {
+    if (err) {
+      next(err)
+    } else {
+      ctx.tree = tree
+      ctx.file = file
+      next()
+    }
+  }
+}
+
+function pipelineStringify(p, ctx) {
+  ctx.file.contents = p.stringify(ctx.tree, ctx.file)
+}
+
+/* Function to create the first processor. */
+function unified() {
+  var attachers = []
+  var transformers = trough()
+  var namespace = {}
+  var frozen = false
+  var freezeIndex = -1
+
+  /* Data management. */
+  processor.data = data
+
+  /* Lock. */
+  processor.freeze = freeze
+
+  /* Plug-ins. */
+  processor.attachers = attachers
+  processor.use = use
+
+  /* API. */
+  processor.parse = parse
+  processor.stringify = stringify
+  processor.run = run
+  processor.runSync = runSync
+  processor.process = process
+  processor.processSync = processSync
+
+  /* Expose. */
+  return processor
+
+  /* Create a new processor based on the processor
+   * in the current scope. */
+  function processor() {
+    var destination = unified()
+    var length = attachers.length
+    var index = -1
+
+    while (++index < length) {
+      destination.use.apply(null, attachers[index])
+    }
+
+    destination.data(extend(true, {}, namespace))
+
+    return destination
+  }
+
+  /* Freeze: used to signal a processor that has finished
+   * configuration.
+   *
+   * For example, take unified itself.  It’s frozen.
+   * Plug-ins should not be added to it.  Rather, it should
+   * be extended, by invoking it, before modifying it.
+   *
+   * In essence, always invoke this when exporting a
+   * processor. */
+  function freeze() {
+    var values
+    var plugin
+    var options
+    var transformer
+
+    if (frozen) {
+      return processor
+    }
+
+    while (++freezeIndex < attachers.length) {
+      values = attachers[freezeIndex]
+      plugin = values[0]
+      options = values[1]
+      transformer = null
+
+      if (options === false) {
+        continue
+      }
+
+      if (options === true) {
+        values[1] = undefined
+      }
+
+      transformer = plugin.apply(processor, values.slice(1))
+
+      if (typeof transformer === 'function') {
+        transformers.use(transformer)
+      }
+    }
+
+    frozen = true
+    freezeIndex = Infinity
+
+    return processor
+  }
+
+  /* Data management.
+   * Getter / setter for processor-specific informtion. */
+  function data(key, value) {
+    if (string(key)) {
+      /* Set `key`. */
+      if (arguments.length === 2) {
+        assertUnfrozen('data', frozen)
+
+        namespace[key] = value
+
+        return processor
+      }
+
+      /* Get `key`. */
+      return (own.call(namespace, key) && namespace[key]) || null
+    }
+
+    /* Set space. */
+    if (key) {
+      assertUnfrozen('data', frozen)
+      namespace = key
+      return processor
+    }
+
+    /* Get space. */
+    return namespace
+  }
+
+  /* Plug-in management.
+   *
+   * Pass it:
+   * *   an attacher and options,
+   * *   a preset,
+   * *   a list of presets, attachers, and arguments (list
+   *     of attachers and options). */
+  function use(value) {
+    var settings
+
+    assertUnfrozen('use', frozen)
+
+    if (value === null || value === undefined) {
+      /* Empty */
+    } else if (typeof value === 'function') {
+      addPlugin.apply(null, arguments)
+    } else if (typeof value === 'object') {
+      if ('length' in value) {
+        addList(value)
+      } else {
+        addPreset(value)
+      }
+    } else {
+      throw new Error('Expected usable value, not `' + value + '`')
+    }
+
+    if (settings) {
+      namespace.settings = extend(namespace.settings || {}, settings)
+    }
+
+    return processor
+
+    function addPreset(result) {
+      addList(result.plugins)
+
+      if (result.settings) {
+        settings = extend(settings || {}, result.settings)
+      }
+    }
+
+    function add(value) {
+      if (typeof value === 'function') {
+        addPlugin(value)
+      } else if (typeof value === 'object') {
+        if ('length' in value) {
+          addPlugin.apply(null, value)
+        } else {
+          addPreset(value)
+        }
+      } else {
+        throw new Error('Expected usable value, not `' + value + '`')
+      }
+    }
+
+    function addList(plugins) {
+      var length
+      var index
+
+      if (plugins === null || plugins === undefined) {
+        /* Empty */
+      } else if (typeof plugins === 'object' && 'length' in plugins) {
+        length = plugins.length
+        index = -1
+
+        while (++index < length) {
+          add(plugins[index])
+        }
+      } else {
+        throw new Error('Expected a list of plugins, not `' + plugins + '`')
+      }
+    }
+
+    function addPlugin(plugin, value) {
+      var entry = find(plugin)
+
+      if (entry) {
+        if (plain(entry[1]) && plain(value)) {
+          value = extend(entry[1], value)
+        }
+
+        entry[1] = value
+      } else {
+        attachers.push(slice.call(arguments))
+      }
+    }
+  }
+
+  function find(plugin) {
+    var length = attachers.length
+    var index = -1
+    var entry
+
+    while (++index < length) {
+      entry = attachers[index]
+
+      if (entry[0] === plugin) {
+        return entry
+      }
+    }
+  }
+
+  /* Parse a file (in string or VFile representation)
+   * into a Unist node using the `Parser` on the
+   * processor. */
+  function parse(doc) {
+    var file = vfile(doc)
+    var Parser
+
+    freeze()
+    Parser = processor.Parser
+    assertParser('parse', Parser)
+
+    if (newable(Parser)) {
+      return new Parser(String(file), file).parse()
+    }
+
+    return Parser(String(file), file) // eslint-disable-line new-cap
+  }
+
+  /* Run transforms on a Unist node representation of a file
+   * (in string or VFile representation), async. */
+  function run(node, file, cb) {
+    assertNode(node)
+    freeze()
+
+    if (!cb && typeof file === 'function') {
+      cb = file
+      file = null
+    }
+
+    if (!cb) {
+      return new Promise(executor)
+    }
+
+    executor(null, cb)
+
+    function executor(resolve, reject) {
+      transformers.run(node, vfile(file), done)
+
+      function done(err, tree, file) {
+        tree = tree || node
+        if (err) {
+          reject(err)
+        } else if (resolve) {
+          resolve(tree)
+        } else {
+          cb(null, tree, file)
+        }
+      }
+    }
+  }
+
+  /* Run transforms on a Unist node representation of a file
+   * (in string or VFile representation), sync. */
+  function runSync(node, file) {
+    var complete = false
+    var result
+
+    run(node, file, done)
+
+    assertDone('runSync', 'run', complete)
+
+    return result
+
+    function done(err, tree) {
+      complete = true
+      bail(err)
+      result = tree
+    }
+  }
+
+  /* Stringify a Unist node representation of a file
+   * (in string or VFile representation) into a string
+   * using the `Compiler` on the processor. */
+  function stringify(node, doc) {
+    var file = vfile(doc)
+    var Compiler
+
+    freeze()
+    Compiler = processor.Compiler
+    assertCompiler('stringify', Compiler)
+    assertNode(node)
+
+    if (newable(Compiler)) {
+      return new Compiler(node, file).compile()
+    }
+
+    return Compiler(node, file) // eslint-disable-line new-cap
+  }
+
+  /* Parse a file (in string or VFile representation)
+   * into a Unist node using the `Parser` on the processor,
+   * then run transforms on that node, and compile the
+   * resulting node using the `Compiler` on the processor,
+   * and store that result on the VFile. */
+  function process(doc, cb) {
+    freeze()
+    assertParser('process', processor.Parser)
+    assertCompiler('process', processor.Compiler)
+
+    if (!cb) {
+      return new Promise(executor)
+    }
+
+    executor(null, cb)
+
+    function executor(resolve, reject) {
+      var file = vfile(doc)
+
+      pipeline.run(processor, {file: file}, done)
+
+      function done(err) {
+        if (err) {
+          reject(err)
+        } else if (resolve) {
+          resolve(file)
+        } else {
+          cb(null, file)
+        }
+      }
+    }
+  }
+
+  /* Process the given document (in string or VFile
+   * representation), sync. */
+  function processSync(doc) {
+    var complete = false
+    var file
+
+    freeze()
+    assertParser('processSync', processor.Parser)
+    assertCompiler('processSync', processor.Compiler)
+    file = vfile(doc)
+
+    process(file, done)
+
+    assertDone('processSync', 'process', complete)
+
+    return file
+
+    function done(err) {
+      complete = true
+      bail(err)
+    }
+  }
+}
+
+/* Check if `func` is a constructor. */
+function newable(value) {
+  return typeof value === 'function' && keys(value.prototype)
+}
+
+/* Check if `value` is an object with keys. */
+function keys(value) {
+  var key
+  for (key in value) {
+    return true
+  }
+  return false
+}
+
+/* Assert a parser is available. */
+function assertParser(name, Parser) {
+  if (typeof Parser !== 'function') {
+    throw new Error('Cannot `' + name + '` without `Parser`')
+  }
+}
+
+/* Assert a compiler is available. */
+function assertCompiler(name, Compiler) {
+  if (typeof Compiler !== 'function') {
+    throw new Error('Cannot `' + name + '` without `Compiler`')
+  }
+}
+
+/* Assert the processor is not frozen. */
+function assertUnfrozen(name, frozen) {
+  if (frozen) {
+    throw new Error(
+      [
+        'Cannot invoke `' + name + '` on a frozen processor.\nCreate a new ',
+        'processor first, by invoking it: use `processor()` instead of ',
+        '`processor`.'
+      ].join('')
+    )
+  }
+}
+
+/* Assert `node` is a Unist node. */
+function assertNode(node) {
+  if (!node || !string(node.type)) {
+    throw new Error('Expected node, got `' + node + '`')
+  }
+}
+
+/* Assert that `complete` is `true`. */
+function assertDone(name, asyncName, complete) {
+  if (!complete) {
+    throw new Error(
+      '`' + name + '` finished async. Use `' + asyncName + '` instead'
+    )
+  }
+}
+
+},{"extend":"../node_modules/extend/index.js","bail":"../node_modules/bail/index.js","vfile":"../node_modules/vfile/index.js","trough":"../node_modules/trough/index.js","x-is-string":"../node_modules/x-is-string/index.js","is-plain-obj":"../node_modules/is-plain-obj/index.js","process":"../node_modules/process/browser.js"}],"../node_modules/inherits/inherits_browser.js":[function(require,module,exports) {
+if (typeof Object.create === 'function') {
+  // implementation from standard node.js 'util' module
+  module.exports = function inherits(ctor, superCtor) {
+    if (superCtor) {
+      ctor.super_ = superCtor
+      ctor.prototype = Object.create(superCtor.prototype, {
+        constructor: {
+          value: ctor,
+          enumerable: false,
+          writable: true,
+          configurable: true
+        }
+      })
+    }
+  };
+} else {
+  // old school shim for old browsers
+  module.exports = function inherits(ctor, superCtor) {
+    if (superCtor) {
+      ctor.super_ = superCtor
+      var TempCtor = function () {}
+      TempCtor.prototype = superCtor.prototype
+      ctor.prototype = new TempCtor()
+      ctor.prototype.constructor = ctor
+    }
+  }
+}
+
+},{}],"../node_modules/unherit/index.js":[function(require,module,exports) {
+'use strict'
+
+var xtend = require('xtend')
+var inherits = require('inherits')
+
+module.exports = unherit
+
+// Create a custom constructor which can be modified without affecting the
+// original class.
+function unherit(Super) {
+  var result
+  var key
+  var value
+
+  inherits(Of, Super)
+  inherits(From, Of)
+
+  // Clone values.
+  result = Of.prototype
+
+  for (key in result) {
+    value = result[key]
+
+    if (value && typeof value === 'object') {
+      result[key] = 'concat' in value ? value.concat() : xtend(value)
+    }
+  }
+
+  return Of
+
+  // Constructor accepting a single argument, which itself is an `arguments`
+  // object.
+  function From(parameters) {
+    return Super.apply(this, parameters)
+  }
+
+  // Constructor accepting variadic arguments.
+  function Of() {
+    if (!(this instanceof Of)) {
+      return new From(arguments)
+    }
+
+    return Super.apply(this, arguments)
+  }
+}
+
+},{"xtend":"../node_modules/xtend/immutable.js","inherits":"../node_modules/inherits/inherits_browser.js"}],"../node_modules/state-toggle/index.js":[function(require,module,exports) {
+'use strict'
+
+module.exports = factory
+
+// Construct a state `toggler`: a function which inverses `property` in context
+// based on its current value.
+// The by `toggler` returned function restores that value.
+function factory(key, state, ctx) {
+  return enter
+
+  function enter() {
+    var context = ctx || this
+    var current = context[key]
+
+    context[key] = !state
+
+    return exit
+
+    function exit() {
+      context[key] = current
+    }
+  }
+}
+
+},{}],"../node_modules/vfile-location/index.js":[function(require,module,exports) {
+'use strict'
+
+module.exports = factory
+
+function factory(file) {
+  var contents = indices(String(file))
+
+  return {
+    toPosition: offsetToPositionFactory(contents),
+    toOffset: positionToOffsetFactory(contents)
+  }
+}
+
+// Factory to get the line and column-based `position` for `offset` in the bound
+// indices.
+function offsetToPositionFactory(indices) {
+  return offsetToPosition
+
+  // Get the line and column-based `position` for `offset` in the bound indices.
+  function offsetToPosition(offset) {
+    var index = -1
+    var length = indices.length
+
+    if (offset < 0) {
+      return {}
+    }
+
+    while (++index < length) {
+      if (indices[index] > offset) {
+        return {
+          line: index + 1,
+          column: offset - (indices[index - 1] || 0) + 1,
+          offset: offset
+        }
+      }
+    }
+
+    return {}
+  }
+}
+
+// Factory to get the `offset` for a line and column-based `position` in the
+// bound indices.
+function positionToOffsetFactory(indices) {
+  return positionToOffset
+
+  // Get the `offset` for a line and column-based `position` in the bound
+  // indices.
+  function positionToOffset(position) {
+    var line = position && position.line
+    var column = position && position.column
+
+    if (!isNaN(line) && !isNaN(column) && line - 1 in indices) {
+      return (indices[line - 2] || 0) + column - 1 || 0
+    }
+
+    return -1
+  }
+}
+
+// Get indices of line-breaks in `value`.
+function indices(value) {
+  var result = []
+  var index = value.indexOf('\n')
+
+  while (index !== -1) {
+    result.push(index + 1)
+    index = value.indexOf('\n', index + 1)
+  }
+
+  result.push(value.length + 1)
+
+  return result
+}
+
+},{}],"../node_modules/remark-parse/lib/unescape.js":[function(require,module,exports) {
+'use strict';
+
+module.exports = factory;
+
+/* Factory to de-escape a value, based on a list at `key`
+ * in `ctx`. */
+function factory(ctx, key) {
+  return unescape;
+
+  /* De-escape a string using the expression at `key`
+   * in `ctx`. */
+  function unescape(value) {
+    var prev = 0;
+    var index = value.indexOf('\\');
+    var escape = ctx[key];
+    var queue = [];
+    var character;
+
+    while (index !== -1) {
+      queue.push(value.slice(prev, index));
+      prev = index + 1;
+      character = value.charAt(prev);
+
+      /* If the following character is not a valid escape,
+       * add the slash. */
+      if (!character || escape.indexOf(character) === -1) {
+        queue.push('\\');
+      }
+
+      index = value.indexOf('\\', prev);
+    }
+
+    queue.push(value.slice(prev));
+
+    return queue.join('');
+  }
+}
+
+},{}],"../node_modules/character-entities-legacy/index.json":[function(require,module,exports) {
+module.exports = {
+  "AElig": "Æ",
+  "AMP": "&",
+  "Aacute": "Á",
+  "Acirc": "Â",
+  "Agrave": "À",
+  "Aring": "Å",
+  "Atilde": "Ã",
+  "Auml": "Ä",
+  "COPY": "©",
+  "Ccedil": "Ç",
+  "ETH": "Ð",
+  "Eacute": "É",
+  "Ecirc": "Ê",
+  "Egrave": "È",
+  "Euml": "Ë",
+  "GT": ">",
+  "Iacute": "Í",
+  "Icirc": "Î",
+  "Igrave": "Ì",
+  "Iuml": "Ï",
+  "LT": "<",
+  "Ntilde": "Ñ",
+  "Oacute": "Ó",
+  "Ocirc": "Ô",
+  "Ograve": "Ò",
+  "Oslash": "Ø",
+  "Otilde": "Õ",
+  "Ouml": "Ö",
+  "QUOT": "\"",
+  "REG": "®",
+  "THORN": "Þ",
+  "Uacute": "Ú",
+  "Ucirc": "Û",
+  "Ugrave": "Ù",
+  "Uuml": "Ü",
+  "Yacute": "Ý",
+  "aacute": "á",
+  "acirc": "â",
+  "acute": "´",
+  "aelig": "æ",
+  "agrave": "à",
+  "amp": "&",
+  "aring": "å",
+  "atilde": "ã",
+  "auml": "ä",
+  "brvbar": "¦",
+  "ccedil": "ç",
+  "cedil": "¸",
+  "cent": "¢",
+  "copy": "©",
+  "curren": "¤",
+  "deg": "°",
+  "divide": "÷",
+  "eacute": "é",
+  "ecirc": "ê",
+  "egrave": "è",
+  "eth": "ð",
+  "euml": "ë",
+  "frac12": "½",
+  "frac14": "¼",
+  "frac34": "¾",
+  "gt": ">",
+  "iacute": "í",
+  "icirc": "î",
+  "iexcl": "¡",
+  "igrave": "ì",
+  "iquest": "¿",
+  "iuml": "ï",
+  "laquo": "«",
+  "lt": "<",
+  "macr": "¯",
+  "micro": "µ",
+  "middot": "·",
+  "nbsp": " ",
+  "not": "¬",
+  "ntilde": "ñ",
+  "oacute": "ó",
+  "ocirc": "ô",
+  "ograve": "ò",
+  "ordf": "ª",
+  "ordm": "º",
+  "oslash": "ø",
+  "otilde": "õ",
+  "ouml": "ö",
+  "para": "¶",
+  "plusmn": "±",
+  "pound": "£",
+  "quot": "\"",
+  "raquo": "»",
+  "reg": "®",
+  "sect": "§",
+  "shy": "­",
+  "sup1": "¹",
+  "sup2": "²",
+  "sup3": "³",
+  "szlig": "ß",
+  "thorn": "þ",
+  "times": "×",
+  "uacute": "ú",
+  "ucirc": "û",
+  "ugrave": "ù",
+  "uml": "¨",
+  "uuml": "ü",
+  "yacute": "ý",
+  "yen": "¥",
+  "yuml": "ÿ"
+}
+;
+},{}],"../node_modules/character-reference-invalid/index.json":[function(require,module,exports) {
+module.exports = {
+  "0": "�",
+  "128": "€",
+  "130": "‚",
+  "131": "ƒ",
+  "132": "„",
+  "133": "…",
+  "134": "†",
+  "135": "‡",
+  "136": "ˆ",
+  "137": "‰",
+  "138": "Š",
+  "139": "‹",
+  "140": "Œ",
+  "142": "Ž",
+  "145": "‘",
+  "146": "’",
+  "147": "“",
+  "148": "”",
+  "149": "•",
+  "150": "–",
+  "151": "—",
+  "152": "˜",
+  "153": "™",
+  "154": "š",
+  "155": "›",
+  "156": "œ",
+  "158": "ž",
+  "159": "Ÿ"
+}
+;
+},{}],"../node_modules/is-decimal/index.js":[function(require,module,exports) {
+'use strict'
+
+module.exports = decimal
+
+// Check if the given character code, or the character code at the first
+// character, is decimal.
+function decimal(character) {
+  var code = typeof character === 'string' ? character.charCodeAt(0) : character
+
+  return code >= 48 && code <= 57 /* 0-9 */
+}
+
+},{}],"../node_modules/is-hexadecimal/index.js":[function(require,module,exports) {
+'use strict'
+
+module.exports = hexadecimal
+
+// Check if the given character code, or the character code at the first
+// character, is hexadecimal.
+function hexadecimal(character) {
+  var code = typeof character === 'string' ? character.charCodeAt(0) : character
+
+  return (
+    (code >= 97 /* a */ && code <= 102) /* z */ ||
+    (code >= 65 /* A */ && code <= 70) /* Z */ ||
+    (code >= 48 /* A */ && code <= 57) /* Z */
+  )
+}
+
+},{}],"../node_modules/is-alphabetical/index.js":[function(require,module,exports) {
+'use strict'
+
+module.exports = alphabetical
+
+// Check if the given character code, or the character code at the first
+// character, is alphabetical.
+function alphabetical(character) {
+  var code = typeof character === 'string' ? character.charCodeAt(0) : character
+
+  return (
+    (code >= 97 && code <= 122) /* a-z */ ||
+    (code >= 65 && code <= 90) /* A-Z */
+  )
+}
+
+},{}],"../node_modules/is-alphanumerical/index.js":[function(require,module,exports) {
+'use strict'
+
+var alphabetical = require('is-alphabetical')
+var decimal = require('is-decimal')
+
+module.exports = alphanumerical
+
+// Check if the given character code, or the character code at the first
+// character, is alphanumerical.
+function alphanumerical(character) {
+  return alphabetical(character) || decimal(character)
+}
+
+},{"is-alphabetical":"../node_modules/is-alphabetical/index.js","is-decimal":"../node_modules/is-decimal/index.js"}],"../node_modules/parse-entities/decode-entity.browser.js":[function(require,module,exports) {
+'use strict'
+
+/* eslint-env browser */
+
+var el
+
+var semicolon = 59 //  ';'
+
+module.exports = decodeEntity
+
+function decodeEntity(characters) {
+  var entity = '&' + characters + ';'
+  var char
+
+  el = el || document.createElement('i')
+  el.innerHTML = entity
+  char = el.textContent
+
+  // Some entities do not require the closing semicolon (`&not` - for instance),
+  // which leads to situations where parsing the assumed entity of &notit; will
+  // result in the string `¬it;`.  When we encounter a trailing semicolon after
+  // parsing and the entity to decode was not a semicolon (`&semi;`), we can
+  // assume that the matching was incomplete
+  if (char.charCodeAt(char.length - 1) === semicolon && characters !== 'semi') {
+    return false
+  }
+
+  // If the decoded string is equal to the input, the entity was not valid
+  return char === entity ? false : char
+}
+
+},{}],"../node_modules/parse-entities/index.js":[function(require,module,exports) {
+'use strict'
+
+var legacy = require('character-entities-legacy')
+var invalid = require('character-reference-invalid')
+var decimal = require('is-decimal')
+var hexadecimal = require('is-hexadecimal')
+var alphanumerical = require('is-alphanumerical')
+var decodeEntity = require('./decode-entity')
+
+module.exports = parseEntities
+
+var own = {}.hasOwnProperty
+var fromCharCode = String.fromCharCode
+var noop = Function.prototype
+
+// Default settings.
+var defaults = {
+  warning: null,
+  reference: null,
+  text: null,
+  warningContext: null,
+  referenceContext: null,
+  textContext: null,
+  position: {},
+  additional: null,
+  attribute: false,
+  nonTerminated: true
+}
+
+// Characters.
+var tab = 9 // '\t'
+var lineFeed = 10 // '\n'
+var formFeed = 12 //  '\f'
+var space = 32 // ' '
+var ampersand = 38 //  '&'
+var semicolon = 59 //  ';'
+var lessThan = 60 //  '<'
+var equalsTo = 61 //  '='
+var numberSign = 35 //  '#'
+var uppercaseX = 88 //  'X'
+var lowercaseX = 120 //  'x'
+var replacementCharacter = 65533 // '�'
+
+// Reference types.
+var name = 'named'
+var hexa = 'hexadecimal'
+var deci = 'decimal'
+
+// Map of bases.
+var bases = {}
+
+bases[hexa] = 16
+bases[deci] = 10
+
+// Map of types to tests.
+// Each type of character reference accepts different characters.
+// This test is used to detect whether a reference has ended (as the semicolon
+// is not strictly needed).
+var tests = {}
+
+tests[name] = alphanumerical
+tests[deci] = decimal
+tests[hexa] = hexadecimal
+
+// Warning types.
+var namedNotTerminated = 1
+var numericNotTerminated = 2
+var namedEmpty = 3
+var numericEmpty = 4
+var namedUnknown = 5
+var numericDisallowed = 6
+var numericProhibited = 7
+
+// Warning messages.
+var messages = {}
+
+messages[namedNotTerminated] =
+  'Named character references must be terminated by a semicolon'
+messages[numericNotTerminated] =
+  'Numeric character references must be terminated by a semicolon'
+messages[namedEmpty] = 'Named character references cannot be empty'
+messages[numericEmpty] = 'Numeric character references cannot be empty'
+messages[namedUnknown] = 'Named character references must be known'
+messages[numericDisallowed] =
+  'Numeric character references cannot be disallowed'
+messages[numericProhibited] =
+  'Numeric character references cannot be outside the permissible Unicode range'
+
+// Wrap to ensure clean parameters are given to `parse`.
+function parseEntities(value, options) {
+  var settings = {}
+  var option
+  var key
+
+  if (!options) {
+    options = {}
+  }
+
+  for (key in defaults) {
+    option = options[key]
+    settings[key] =
+      option === null || option === undefined ? defaults[key] : option
+  }
+
+  if (settings.position.indent || settings.position.start) {
+    settings.indent = settings.position.indent || []
+    settings.position = settings.position.start
+  }
+
+  return parse(value, settings)
+}
+
+// Parse entities.
+// eslint-disable-next-line complexity
+function parse(value, settings) {
+  var additional = settings.additional
+  var nonTerminated = settings.nonTerminated
+  var handleText = settings.text
+  var handleReference = settings.reference
+  var handleWarning = settings.warning
+  var textContext = settings.textContext
+  var referenceContext = settings.referenceContext
+  var warningContext = settings.warningContext
+  var pos = settings.position
+  var indent = settings.indent || []
+  var length = value.length
+  var index = 0
+  var lines = -1
+  var column = pos.column || 1
+  var line = pos.line || 1
+  var queue = ''
+  var result = []
+  var entityCharacters
+  var namedEntity
+  var terminated
+  var characters
+  var character
+  var reference
+  var following
+  var warning
+  var reason
+  var output
+  var entity
+  var begin
+  var start
+  var type
+  var test
+  var prev
+  var next
+  var diff
+  var end
+
+  if (typeof additional === 'string') {
+    additional = additional.charCodeAt(0)
+  }
+
+  // Cache the current point.
+  prev = now()
+
+  // Wrap `handleWarning`.
+  warning = handleWarning ? parseError : noop
+
+  // Ensure the algorithm walks over the first character and the end (inclusive).
+  index--
+  length++
+
+  while (++index < length) {
+    // If the previous character was a newline.
+    if (character === lineFeed) {
+      column = indent[lines] || 1
+    }
+
+    character = value.charCodeAt(index)
+
+    if (character === ampersand) {
+      following = value.charCodeAt(index + 1)
+
+      // The behaviour depends on the identity of the next character.
+      if (
+        following === tab ||
+        following === lineFeed ||
+        following === formFeed ||
+        following === space ||
+        following === ampersand ||
+        following === lessThan ||
+        following !== following ||
+        (additional && following === additional)
+      ) {
+        // Not a character reference.
+        // No characters are consumed, and nothing is returned.
+        // This is not an error, either.
+        queue += fromCharCode(character)
+        column++
+
+        continue
+      }
+
+      start = index + 1
+      begin = start
+      end = start
+
+      if (following === numberSign) {
+        // Numerical entity.
+        end = ++begin
+
+        // The behaviour further depends on the next character.
+        following = value.charCodeAt(end)
+
+        if (following === uppercaseX || following === lowercaseX) {
+          // ASCII hex digits.
+          type = hexa
+          end = ++begin
+        } else {
+          // ASCII digits.
+          type = deci
+        }
+      } else {
+        // Named entity.
+        type = name
+      }
+
+      entityCharacters = ''
+      entity = ''
+      characters = ''
+      test = tests[type]
+      end--
+
+      while (++end < length) {
+        following = value.charCodeAt(end)
+
+        if (!test(following)) {
+          break
+        }
+
+        characters += fromCharCode(following)
+
+        // Check if we can match a legacy named reference.
+        // If so, we cache that as the last viable named reference.
+        // This ensures we do not need to walk backwards later.
+        if (type === name && own.call(legacy, characters)) {
+          entityCharacters = characters
+          entity = legacy[characters]
+        }
+      }
+
+      terminated = value.charCodeAt(end) === semicolon
+
+      if (terminated) {
+        end++
+
+        namedEntity = type === name ? decodeEntity(characters) : false
+
+        if (namedEntity) {
+          entityCharacters = characters
+          entity = namedEntity
+        }
+      }
+
+      diff = 1 + end - start
+
+      if (!terminated && !nonTerminated) {
+        // Empty.
+      } else if (!characters) {
+        // An empty (possible) entity is valid, unless it’s numeric (thus an
+        // ampersand followed by an octothorp).
+        if (type !== name) {
+          warning(numericEmpty, diff)
+        }
+      } else if (type === name) {
+        // An ampersand followed by anything unknown, and not terminated, is
+        // invalid.
+        if (terminated && !entity) {
+          warning(namedUnknown, 1)
+        } else {
+          // If theres something after an entity name which is not known, cap
+          // the reference.
+          if (entityCharacters !== characters) {
+            end = begin + entityCharacters.length
+            diff = 1 + end - begin
+            terminated = false
+          }
+
+          // If the reference is not terminated, warn.
+          if (!terminated) {
+            reason = entityCharacters ? namedNotTerminated : namedEmpty
+
+            if (settings.attribute) {
+              following = value.charCodeAt(end)
+
+              if (following === equalsTo) {
+                warning(reason, diff)
+                entity = null
+              } else if (alphanumerical(following)) {
+                entity = null
+              } else {
+                warning(reason, diff)
+              }
+            } else {
+              warning(reason, diff)
+            }
+          }
+        }
+
+        reference = entity
+      } else {
+        if (!terminated) {
+          // All non-terminated numeric entities are not rendered, and trigger a
+          // warning.
+          warning(numericNotTerminated, diff)
+        }
+
+        // When terminated and number, parse as either hexadecimal or decimal.
+        reference = parseInt(characters, bases[type])
+
+        // Trigger a warning when the parsed number is prohibited, and replace
+        // with replacement character.
+        if (prohibited(reference)) {
+          warning(numericProhibited, diff)
+          reference = fromCharCode(replacementCharacter)
+        } else if (reference in invalid) {
+          // Trigger a warning when the parsed number is disallowed, and replace
+          // by an alternative.
+          warning(numericDisallowed, diff)
+          reference = invalid[reference]
+        } else {
+          // Parse the number.
+          output = ''
+
+          // Trigger a warning when the parsed number should not be used.
+          if (disallowed(reference)) {
+            warning(numericDisallowed, diff)
+          }
+
+          // Stringify the number.
+          if (reference > 0xffff) {
+            reference -= 0x10000
+            output += fromCharCode((reference >>> (10 & 0x3ff)) | 0xd800)
+            reference = 0xdc00 | (reference & 0x3ff)
+          }
+
+          reference = output + fromCharCode(reference)
+        }
+      }
+
+      // Found it!
+      // First eat the queued characters as normal text, then eat an entity.
+      if (reference) {
+        flush()
+
+        prev = now()
+        index = end - 1
+        column += end - start + 1
+        result.push(reference)
+        next = now()
+        next.offset++
+
+        if (handleReference) {
+          handleReference.call(
+            referenceContext,
+            reference,
+            {start: prev, end: next},
+            value.slice(start - 1, end)
+          )
+        }
+
+        prev = next
+      } else {
+        // If we could not find a reference, queue the checked characters (as
+        // normal characters), and move the pointer to their end.
+        // This is possible because we can be certain neither newlines nor
+        // ampersands are included.
+        characters = value.slice(start - 1, end)
+        queue += characters
+        column += characters.length
+        index = end - 1
+      }
+    } else {
+      // Handle anything other than an ampersand, including newlines and EOF.
+      if (
+        character === 10 // Line feed
+      ) {
+        line++
+        lines++
+        column = 0
+      }
+
+      if (character === character) {
+        queue += fromCharCode(character)
+        column++
+      } else {
+        flush()
+      }
+    }
+  }
+
+  // Return the reduced nodes, and any possible warnings.
+  return result.join('')
+
+  // Get current position.
+  function now() {
+    return {
+      line: line,
+      column: column,
+      offset: index + (pos.offset || 0)
+    }
+  }
+
+  // “Throw” a parse-error: a warning.
+  function parseError(code, offset) {
+    var position = now()
+
+    position.column += offset
+    position.offset += offset
+
+    handleWarning.call(warningContext, messages[code], position, code)
+  }
+
+  // Flush `queue` (normal text).
+  // Macro invoked before each entity and at the end of `value`.
+  // Does nothing when `queue` is empty.
+  function flush() {
+    if (queue) {
+      result.push(queue)
+
+      if (handleText) {
+        handleText.call(textContext, queue, {start: prev, end: now()})
+      }
+
+      queue = ''
+    }
+  }
+}
+
+// Check if `character` is outside the permissible unicode range.
+function prohibited(code) {
+  return (code >= 0xd800 && code <= 0xdfff) || code > 0x10ffff
+}
+
+// Check if `character` is disallowed.
+function disallowed(code) {
+  return (
+    (code >= 0x0001 && code <= 0x0008) ||
+    code === 0x000b ||
+    (code >= 0x000d && code <= 0x001f) ||
+    (code >= 0x007f && code <= 0x009f) ||
+    (code >= 0xfdd0 && code <= 0xfdef) ||
+    (code & 0xffff) === 0xffff ||
+    (code & 0xffff) === 0xfffe
+  )
+}
+
+},{"character-entities-legacy":"../node_modules/character-entities-legacy/index.json","character-reference-invalid":"../node_modules/character-reference-invalid/index.json","is-decimal":"../node_modules/is-decimal/index.js","is-hexadecimal":"../node_modules/is-hexadecimal/index.js","is-alphanumerical":"../node_modules/is-alphanumerical/index.js","./decode-entity":"../node_modules/parse-entities/decode-entity.browser.js"}],"../node_modules/remark-parse/lib/decode.js":[function(require,module,exports) {
+'use strict';
+
+var xtend = require('xtend');
+var entities = require('parse-entities');
+
+module.exports = factory;
+
+/* Factory to create an entity decoder. */
+function factory(ctx) {
+  decoder.raw = decodeRaw;
+
+  return decoder;
+
+  /* Normalize `position` to add an `indent`. */
+  function normalize(position) {
+    var offsets = ctx.offset;
+    var line = position.line;
+    var result = [];
+
+    while (++line) {
+      if (!(line in offsets)) {
+        break;
+      }
+
+      result.push((offsets[line] || 0) + 1);
+    }
+
+    return {
+      start: position,
+      indent: result
+    };
+  }
+
+  /* Handle a warning.
+   * See https://github.com/wooorm/parse-entities
+   * for the warnings. */
+  function handleWarning(reason, position, code) {
+    if (code === 3) {
+      return;
+    }
+
+    ctx.file.message(reason, position);
+  }
+
+  /* Decode `value` (at `position`) into text-nodes. */
+  function decoder(value, position, handler) {
+    entities(value, {
+      position: normalize(position),
+      warning: handleWarning,
+      text: handler,
+      reference: handler,
+      textContext: ctx,
+      referenceContext: ctx
+    });
+  }
+
+  /* Decode `value` (at `position`) into a string. */
+  function decodeRaw(value, position, options) {
+    return entities(value, xtend(options, {
+      position: normalize(position),
+      warning: handleWarning
+    }));
+  }
+}
+
+},{"xtend":"../node_modules/xtend/immutable.js","parse-entities":"../node_modules/parse-entities/index.js"}],"../node_modules/remark-parse/lib/tokenizer.js":[function(require,module,exports) {
+'use strict';
+
+module.exports = factory;
+
+var MERGEABLE_NODES = {
+  text: mergeText,
+  blockquote: mergeBlockquote
+};
+
+/* Check whether a node is mergeable with adjacent nodes. */
+function mergeable(node) {
+  var start;
+  var end;
+
+  if (node.type !== 'text' || !node.position) {
+    return true;
+  }
+
+  start = node.position.start;
+  end = node.position.end;
+
+  /* Only merge nodes which occupy the same size as their
+   * `value`. */
+  return start.line !== end.line ||
+      end.column - start.column === node.value.length;
+}
+
+/* Merge two text nodes: `node` into `prev`. */
+function mergeText(prev, node) {
+  prev.value += node.value;
+
+  return prev;
+}
+
+/* Merge two blockquotes: `node` into `prev`, unless in
+ * CommonMark mode. */
+function mergeBlockquote(prev, node) {
+  if (this.options.commonmark) {
+    return node;
+  }
+
+  prev.children = prev.children.concat(node.children);
+
+  return prev;
+}
+
+/* Construct a tokenizer.  This creates both
+ * `tokenizeInline` and `tokenizeBlock`. */
+function factory(type) {
+  return tokenize;
+
+  /* Tokenizer for a bound `type`. */
+  function tokenize(value, location) {
+    var self = this;
+    var offset = self.offset;
+    var tokens = [];
+    var methods = self[type + 'Methods'];
+    var tokenizers = self[type + 'Tokenizers'];
+    var line = location.line;
+    var column = location.column;
+    var index;
+    var length;
+    var method;
+    var name;
+    var matched;
+    var valueLength;
+
+    /* Trim white space only lines. */
+    if (!value) {
+      return tokens;
+    }
+
+    /* Expose on `eat`. */
+    eat.now = now;
+    eat.file = self.file;
+
+    /* Sync initial offset. */
+    updatePosition('');
+
+    /* Iterate over `value`, and iterate over all
+     * tokenizers.  When one eats something, re-iterate
+     * with the remaining value.  If no tokenizer eats,
+     * something failed (should not happen) and an
+     * exception is thrown. */
+    while (value) {
+      index = -1;
+      length = methods.length;
+      matched = false;
+
+      while (++index < length) {
+        name = methods[index];
+        method = tokenizers[name];
+
+        if (
+          method &&
+          /* istanbul ignore next */ (!method.onlyAtStart || self.atStart) &&
+          (!method.notInList || !self.inList) &&
+          (!method.notInBlock || !self.inBlock) &&
+          (!method.notInLink || !self.inLink)
+        ) {
+          valueLength = value.length;
+
+          method.apply(self, [eat, value]);
+
+          matched = valueLength !== value.length;
+
+          if (matched) {
+            break;
+          }
+        }
+      }
+
+      /* istanbul ignore if */
+      if (!matched) {
+        self.file.fail(new Error('Infinite loop'), eat.now());
+      }
+    }
+
+    self.eof = now();
+
+    return tokens;
+
+    /* Update line, column, and offset based on
+     * `value`. */
+    function updatePosition(subvalue) {
+      var lastIndex = -1;
+      var index = subvalue.indexOf('\n');
+
+      while (index !== -1) {
+        line++;
+        lastIndex = index;
+        index = subvalue.indexOf('\n', index + 1);
+      }
+
+      if (lastIndex === -1) {
+        column += subvalue.length;
+      } else {
+        column = subvalue.length - lastIndex;
+      }
+
+      if (line in offset) {
+        if (lastIndex !== -1) {
+          column += offset[line];
+        } else if (column <= offset[line]) {
+          column = offset[line] + 1;
+        }
+      }
+    }
+
+    /* Get offset.  Called before the first character is
+     * eaten to retrieve the range's offsets. */
+    function getOffset() {
+      var indentation = [];
+      var pos = line + 1;
+
+      /* Done.  Called when the last character is
+       * eaten to retrieve the range’s offsets. */
+      return function () {
+        var last = line + 1;
+
+        while (pos < last) {
+          indentation.push((offset[pos] || 0) + 1);
+
+          pos++;
+        }
+
+        return indentation;
+      };
+    }
+
+    /* Get the current position. */
+    function now() {
+      var pos = {line: line, column: column};
+
+      pos.offset = self.toOffset(pos);
+
+      return pos;
+    }
+
+    /* Store position information for a node. */
+    function Position(start) {
+      this.start = start;
+      this.end = now();
+    }
+
+    /* Throw when a value is incorrectly eaten.
+     * This shouldn’t happen but will throw on new,
+     * incorrect rules. */
+    function validateEat(subvalue) {
+      /* istanbul ignore if */
+      if (value.substring(0, subvalue.length) !== subvalue) {
+        /* Capture stack-trace. */
+        self.file.fail(
+          new Error(
+            'Incorrectly eaten value: please report this ' +
+            'warning on http://git.io/vg5Ft'
+          ),
+          now()
+        );
+      }
+    }
+
+    /* Mark position and patch `node.position`. */
+    function position() {
+      var before = now();
+
+      return update;
+
+      /* Add the position to a node. */
+      function update(node, indent) {
+        var prev = node.position;
+        var start = prev ? prev.start : before;
+        var combined = [];
+        var n = prev && prev.end.line;
+        var l = before.line;
+
+        node.position = new Position(start);
+
+        /* If there was already a `position`, this
+         * node was merged.  Fixing `start` wasn’t
+         * hard, but the indent is different.
+         * Especially because some information, the
+         * indent between `n` and `l` wasn’t
+         * tracked.  Luckily, that space is
+         * (should be?) empty, so we can safely
+         * check for it now. */
+        if (prev && indent && prev.indent) {
+          combined = prev.indent;
+
+          if (n < l) {
+            while (++n < l) {
+              combined.push((offset[n] || 0) + 1);
+            }
+
+            combined.push(before.column);
+          }
+
+          indent = combined.concat(indent);
+        }
+
+        node.position.indent = indent || [];
+
+        return node;
+      }
+    }
+
+    /* Add `node` to `parent`s children or to `tokens`.
+     * Performs merges where possible. */
+    function add(node, parent) {
+      var children = parent ? parent.children : tokens;
+      var prev = children[children.length - 1];
+
+      if (
+        prev &&
+        node.type === prev.type &&
+        node.type in MERGEABLE_NODES &&
+        mergeable(prev) &&
+        mergeable(node)
+      ) {
+        node = MERGEABLE_NODES[node.type].call(self, prev, node);
+      }
+
+      if (node !== prev) {
+        children.push(node);
+      }
+
+      if (self.atStart && tokens.length !== 0) {
+        self.exitStart();
+      }
+
+      return node;
+    }
+
+    /* Remove `subvalue` from `value`.
+     * `subvalue` must be at the start of `value`. */
+    function eat(subvalue) {
+      var indent = getOffset();
+      var pos = position();
+      var current = now();
+
+      validateEat(subvalue);
+
+      apply.reset = reset;
+      reset.test = test;
+      apply.test = test;
+
+      value = value.substring(subvalue.length);
+
+      updatePosition(subvalue);
+
+      indent = indent();
+
+      return apply;
+
+      /* Add the given arguments, add `position` to
+       * the returned node, and return the node. */
+      function apply(node, parent) {
+        return pos(add(pos(node), parent), indent);
+      }
+
+      /* Functions just like apply, but resets the
+       * content:  the line and column are reversed,
+       * and the eaten value is re-added.
+       * This is useful for nodes with a single
+       * type of content, such as lists and tables.
+       * See `apply` above for what parameters are
+       * expected. */
+      function reset() {
+        var node = apply.apply(null, arguments);
+
+        line = current.line;
+        column = current.column;
+        value = subvalue + value;
+
+        return node;
+      }
+
+      /* Test the position, after eating, and reverse
+       * to a not-eaten state. */
+      function test() {
+        var result = pos({});
+
+        line = current.line;
+        column = current.column;
+        value = subvalue + value;
+
+        return result.position;
+      }
+    }
+  }
+}
+
+},{}],"../node_modules/markdown-escapes/index.js":[function(require,module,exports) {
+'use strict'
+
+module.exports = escapes
+
+var defaults = [
+  '\\',
+  '`',
+  '*',
+  '{',
+  '}',
+  '[',
+  ']',
+  '(',
+  ')',
+  '#',
+  '+',
+  '-',
+  '.',
+  '!',
+  '_',
+  '>'
+]
+
+var gfm = defaults.concat(['~', '|'])
+
+var commonmark = gfm.concat([
+  '\n',
+  '"',
+  '$',
+  '%',
+  '&',
+  "'",
+  ',',
+  '/',
+  ':',
+  ';',
+  '<',
+  '=',
+  '?',
+  '@',
+  '^'
+])
+
+escapes.default = defaults
+escapes.gfm = gfm
+escapes.commonmark = commonmark
+
+// Get markdown escapes.
+function escapes(options) {
+  var settings = options || {}
+
+  if (settings.commonmark) {
+    return commonmark
+  }
+
+  return settings.gfm ? gfm : defaults
+}
+
+},{}],"../node_modules/remark-parse/lib/block-elements.json":[function(require,module,exports) {
+module.exports = [
+  "address",
+  "article",
+  "aside",
+  "base",
+  "basefont",
+  "blockquote",
+  "body",
+  "caption",
+  "center",
+  "col",
+  "colgroup",
+  "dd",
+  "details",
+  "dialog",
+  "dir",
+  "div",
+  "dl",
+  "dt",
+  "fieldset",
+  "figcaption",
+  "figure",
+  "footer",
+  "form",
+  "frame",
+  "frameset",
+  "h1",
+  "h2",
+  "h3",
+  "h4",
+  "h5",
+  "h6",
+  "head",
+  "header",
+  "hgroup",
+  "hr",
+  "html",
+  "iframe",
+  "legend",
+  "li",
+  "link",
+  "main",
+  "menu",
+  "menuitem",
+  "meta",
+  "nav",
+  "noframes",
+  "ol",
+  "optgroup",
+  "option",
+  "p",
+  "param",
+  "pre",
+  "section",
+  "source",
+  "title",
+  "summary",
+  "table",
+  "tbody",
+  "td",
+  "tfoot",
+  "th",
+  "thead",
+  "title",
+  "tr",
+  "track",
+  "ul"
+]
+;
+},{}],"../node_modules/remark-parse/lib/defaults.js":[function(require,module,exports) {
+'use strict';
+
+module.exports = {
+  position: true,
+  gfm: true,
+  commonmark: false,
+  footnotes: false,
+  pedantic: false,
+  blocks: require('./block-elements.json')
+};
+
+},{"./block-elements.json":"../node_modules/remark-parse/lib/block-elements.json"}],"../node_modules/remark-parse/lib/set-options.js":[function(require,module,exports) {
+'use strict';
+
+var xtend = require('xtend');
+var escapes = require('markdown-escapes');
+var defaults = require('./defaults');
+
+module.exports = setOptions;
+
+function setOptions(options) {
+  var self = this;
+  var current = self.options;
+  var key;
+  var value;
+
+  if (options == null) {
+    options = {};
+  } else if (typeof options === 'object') {
+    options = xtend(options);
+  } else {
+    throw new Error(
+      'Invalid value `' + options + '` ' +
+      'for setting `options`'
+    );
+  }
+
+  for (key in defaults) {
+    value = options[key];
+
+    if (value == null) {
+      value = current[key];
+    }
+
+    if (
+      (key !== 'blocks' && typeof value !== 'boolean') ||
+      (key === 'blocks' && typeof value !== 'object')
+    ) {
+      throw new Error('Invalid value `' + value + '` for setting `options.' + key + '`');
+    }
+
+    options[key] = value;
+  }
+
+  self.options = options;
+  self.escape = escapes(options);
+
+  return self;
+}
+
+},{"xtend":"../node_modules/xtend/immutable.js","markdown-escapes":"../node_modules/markdown-escapes/index.js","./defaults":"../node_modules/remark-parse/lib/defaults.js"}],"../node_modules/unist-util-is/convert.js":[function(require,module,exports) {
+'use strict'
+
+module.exports = convert
+
+function convert(test) {
+  if (typeof test === 'string') {
+    return typeFactory(test)
+  }
+
+  if (test === null || test === undefined) {
+    return ok
+  }
+
+  if (typeof test === 'object') {
+    return ('length' in test ? anyFactory : matchesFactory)(test)
+  }
+
+  if (typeof test === 'function') {
+    return test
+  }
+
+  throw new Error('Expected function, string, or object as test')
+}
+
+function convertAll(tests) {
+  var results = []
+  var length = tests.length
+  var index = -1
+
+  while (++index < length) {
+    results[index] = convert(tests[index])
+  }
+
+  return results
+}
+
+// Utility assert each property in `test` is represented in `node`, and each
+// values are strictly equal.
+function matchesFactory(test) {
+  return matches
+
+  function matches(node) {
+    var key
+
+    for (key in test) {
+      if (node[key] !== test[key]) {
+        return false
+      }
+    }
+
+    return true
+  }
+}
+
+function anyFactory(tests) {
+  var checks = convertAll(tests)
+  var length = checks.length
+
+  return matches
+
+  function matches() {
+    var index = -1
+
+    while (++index < length) {
+      if (checks[index].apply(this, arguments)) {
+        return true
+      }
+    }
+
+    return false
+  }
+}
+
+// Utility to convert a string into a function which checks a given node’s type
+// for said string.
+function typeFactory(test) {
+  return type
+
+  function type(node) {
+    return Boolean(node && node.type === test)
+  }
+}
+
+// Utility to return true.
+function ok() {
+  return true
+}
+
+},{}],"../node_modules/unist-util-visit/node_modules/unist-util-visit-parents/index.js":[function(require,module,exports) {
+'use strict'
+
+module.exports = visitParents
+
+var convert = require('unist-util-is/convert')
+
+var CONTINUE = true
+var SKIP = 'skip'
+var EXIT = false
+
+visitParents.CONTINUE = CONTINUE
+visitParents.SKIP = SKIP
+visitParents.EXIT = EXIT
+
+function visitParents(tree, test, visitor, reverse) {
+  var is
+
+  if (typeof test === 'function' && typeof visitor !== 'function') {
+    reverse = visitor
+    visitor = test
+    test = null
+  }
+
+  is = convert(test)
+
+  one(tree, null, [])
+
+  // Visit a single node.
+  function one(node, index, parents) {
+    var result = []
+    var subresult
+
+    if (!test || is(node, index, parents[parents.length - 1] || null)) {
+      result = toResult(visitor(node, parents))
+
+      if (result[0] === EXIT) {
+        return result
+      }
+    }
+
+    if (node.children && result[0] !== SKIP) {
+      subresult = toResult(all(node.children, parents.concat(node)))
+      return subresult[0] === EXIT ? subresult : result
+    }
+
+    return result
+  }
+
+  // Visit children in `parent`.
+  function all(children, parents) {
+    var min = -1
+    var step = reverse ? -1 : 1
+    var index = (reverse ? children.length : min) + step
+    var result
+
+    while (index > min && index < children.length) {
+      result = one(children[index], index, parents)
+
+      if (result[0] === EXIT) {
+        return result
+      }
+
+      index = typeof result[1] === 'number' ? result[1] : index + step
+    }
+  }
+}
+
+function toResult(value) {
+  if (value !== null && typeof value === 'object' && 'length' in value) {
+    return value
+  }
+
+  if (typeof value === 'number') {
+    return [CONTINUE, value]
+  }
+
+  return [value]
+}
+
+},{"unist-util-is/convert":"../node_modules/unist-util-is/convert.js"}],"../node_modules/unist-util-visit/index.js":[function(require,module,exports) {
+'use strict'
+
+module.exports = visit
+
+var visitParents = require('unist-util-visit-parents')
+
+var CONTINUE = visitParents.CONTINUE
+var SKIP = visitParents.SKIP
+var EXIT = visitParents.EXIT
+
+visit.CONTINUE = CONTINUE
+visit.SKIP = SKIP
+visit.EXIT = EXIT
+
+function visit(tree, test, visitor, reverse) {
+  if (typeof test === 'function' && typeof visitor !== 'function') {
+    reverse = visitor
+    visitor = test
+    test = null
+  }
+
+  visitParents(tree, test, overload, reverse)
+
+  function overload(node, parents) {
+    var parent = parents[parents.length - 1]
+    var index = parent ? parent.children.indexOf(node) : null
+    return visitor(node, index, parent)
+  }
+}
+
+},{"unist-util-visit-parents":"../node_modules/unist-util-visit/node_modules/unist-util-visit-parents/index.js"}],"../node_modules/unist-util-remove-position/index.js":[function(require,module,exports) {
+'use strict'
+
+var visit = require('unist-util-visit')
+
+module.exports = removePosition
+
+function removePosition(node, force) {
+  visit(node, force ? hard : soft)
+  return node
+}
+
+function hard(node) {
+  delete node.position
+}
+
+function soft(node) {
+  node.position = undefined
+}
+
+},{"unist-util-visit":"../node_modules/unist-util-visit/index.js"}],"../node_modules/remark-parse/lib/parse.js":[function(require,module,exports) {
+'use strict';
+
+var xtend = require('xtend');
+var removePosition = require('unist-util-remove-position');
+
+module.exports = parse;
+
+var C_NEWLINE = '\n';
+var EXPRESSION_LINE_BREAKS = /\r\n|\r/g;
+
+/* Parse the bound file. */
+function parse() {
+  var self = this;
+  var value = String(self.file);
+  var start = {line: 1, column: 1, offset: 0};
+  var content = xtend(start);
+  var node;
+
+  /* Clean non-unix newlines: `\r\n` and `\r` are all
+   * changed to `\n`.  This should not affect positional
+   * information. */
+  value = value.replace(EXPRESSION_LINE_BREAKS, C_NEWLINE);
+
+  if (value.charCodeAt(0) === 0xFEFF) {
+    value = value.slice(1);
+
+    content.column++;
+    content.offset++;
+  }
+
+  node = {
+    type: 'root',
+    children: self.tokenizeBlock(value, content),
+    position: {
+      start: start,
+      end: self.eof || xtend(start)
+    }
+  };
+
+  if (!self.options.position) {
+    removePosition(node, true);
+  }
+
+  return node;
+}
+
+},{"xtend":"../node_modules/xtend/immutable.js","unist-util-remove-position":"../node_modules/unist-util-remove-position/index.js"}],"../node_modules/is-whitespace-character/index.js":[function(require,module,exports) {
+'use strict'
+
+module.exports = whitespace
+
+var fromCode = String.fromCharCode
+var re = /\s/
+
+// Check if the given character code, or the character code at the first
+// character, is a whitespace character.
+function whitespace(character) {
+  return re.test(
+    typeof character === 'number' ? fromCode(character) : character.charAt(0)
+  )
+}
+
+},{}],"../node_modules/remark-parse/lib/tokenize/newline.js":[function(require,module,exports) {
+'use strict';
+
+var whitespace = require('is-whitespace-character');
+
+module.exports = newline;
+
+/* Tokenise newline. */
+function newline(eat, value, silent) {
+  var character = value.charAt(0);
+  var length;
+  var subvalue;
+  var queue;
+  var index;
+
+  if (character !== '\n') {
+    return;
+  }
+
+  /* istanbul ignore if - never used (yet) */
+  if (silent) {
+    return true;
+  }
+
+  index = 1;
+  length = value.length;
+  subvalue = character;
+  queue = '';
+
+  while (index < length) {
+    character = value.charAt(index);
+
+    if (!whitespace(character)) {
+      break;
+    }
+
+    queue += character;
+
+    if (character === '\n') {
+      subvalue += queue;
+      queue = '';
+    }
+
+    index++;
+  }
+
+  eat(subvalue);
+}
+
+},{"is-whitespace-character":"../node_modules/is-whitespace-character/index.js"}],"../node_modules/repeat-string/index.js":[function(require,module,exports) {
+/*!
+ * repeat-string <https://github.com/jonschlinkert/repeat-string>
+ *
+ * Copyright (c) 2014-2015, Jon Schlinkert.
+ * Licensed under the MIT License.
+ */
+'use strict';
+/**
+ * Results cache
+ */
+
+var res = '';
+var cache;
+/**
+ * Expose `repeat`
+ */
+
+module.exports = repeat;
+/**
+ * Repeat the given `string` the specified `number`
+ * of times.
+ *
+ * **Example:**
+ *
+ * ```js
+ * var repeat = require('repeat-string');
+ * repeat('A', 5);
+ * //=> AAAAA
+ * ```
+ *
+ * @param {String} `string` The string to repeat
+ * @param {Number} `number` The number of times to repeat the string
+ * @return {String} Repeated string
+ * @api public
+ */
+
+function repeat(str, num) {
+  if (typeof str !== 'string') {
+    throw new TypeError('expected a string');
+  } // cover common, quick use cases
+
+
+  if (num === 1) return str;
+  if (num === 2) return str + str;
+  var max = str.length * num;
+
+  if (cache !== str || typeof cache === 'undefined') {
+    cache = str;
+    res = '';
+  } else if (res.length >= max) {
+    return res.substr(0, max);
+  }
+
+  while (max > res.length && num > 1) {
+    if (num & 1) {
+      res += str;
+    }
+
+    num >>= 1;
+    str += str;
+  }
+
+  res += str;
+  res = res.substr(0, max);
+  return res;
+}
+},{}],"../node_modules/trim-trailing-lines/index.js":[function(require,module,exports) {
+'use strict'
+
+module.exports = trimTrailingLines
+
+var line = '\n'
+
+// Remove final newline characters from `value`.
+function trimTrailingLines(value) {
+  var val = String(value)
+  var index = val.length
+
+  while (val.charAt(--index) === line) {
+    // Empty
+  }
+
+  return val.slice(0, index + 1)
+}
+
+},{}],"../node_modules/remark-parse/lib/tokenize/code-indented.js":[function(require,module,exports) {
+'use strict';
+
+var repeat = require('repeat-string');
+var trim = require('trim-trailing-lines');
+
+module.exports = indentedCode;
+
+var C_NEWLINE = '\n';
+var C_TAB = '\t';
+var C_SPACE = ' ';
+
+var CODE_INDENT_COUNT = 4;
+var CODE_INDENT = repeat(C_SPACE, CODE_INDENT_COUNT);
+
+/* Tokenise indented code. */
+function indentedCode(eat, value, silent) {
+  var index = -1;
+  var length = value.length;
+  var subvalue = '';
+  var content = '';
+  var subvalueQueue = '';
+  var contentQueue = '';
+  var character;
+  var blankQueue;
+  var indent;
+
+  while (++index < length) {
+    character = value.charAt(index);
+
+    if (indent) {
+      indent = false;
+
+      subvalue += subvalueQueue;
+      content += contentQueue;
+      subvalueQueue = '';
+      contentQueue = '';
+
+      if (character === C_NEWLINE) {
+        subvalueQueue = character;
+        contentQueue = character;
+      } else {
+        subvalue += character;
+        content += character;
+
+        while (++index < length) {
+          character = value.charAt(index);
+
+          if (!character || character === C_NEWLINE) {
+            contentQueue = character;
+            subvalueQueue = character;
+            break;
+          }
+
+          subvalue += character;
+          content += character;
+        }
+      }
+    } else if (
+      character === C_SPACE &&
+      value.charAt(index + 1) === character &&
+      value.charAt(index + 2) === character &&
+      value.charAt(index + 3) === character
+    ) {
+      subvalueQueue += CODE_INDENT;
+      index += 3;
+      indent = true;
+    } else if (character === C_TAB) {
+      subvalueQueue += character;
+      indent = true;
+    } else {
+      blankQueue = '';
+
+      while (character === C_TAB || character === C_SPACE) {
+        blankQueue += character;
+        character = value.charAt(++index);
+      }
+
+      if (character !== C_NEWLINE) {
+        break;
+      }
+
+      subvalueQueue += blankQueue + character;
+      contentQueue += character;
+    }
+  }
+
+  if (content) {
+    if (silent) {
+      return true;
+    }
+
+    return eat(subvalue)({
+      type: 'code',
+      lang: null,
+      value: trim(content)
+    });
+  }
+}
+
+},{"repeat-string":"../node_modules/repeat-string/index.js","trim-trailing-lines":"../node_modules/trim-trailing-lines/index.js"}],"../node_modules/remark-parse/lib/tokenize/code-fenced.js":[function(require,module,exports) {
+'use strict';
+
+var trim = require('trim-trailing-lines');
+
+module.exports = fencedCode;
+
+var C_NEWLINE = '\n';
+var C_TAB = '\t';
+var C_SPACE = ' ';
+var C_TILDE = '~';
+var C_TICK = '`';
+
+var MIN_FENCE_COUNT = 3;
+var CODE_INDENT_COUNT = 4;
+
+function fencedCode(eat, value, silent) {
+  var self = this;
+  var settings = self.options;
+  var length = value.length + 1;
+  var index = 0;
+  var subvalue = '';
+  var fenceCount;
+  var marker;
+  var character;
+  var flag;
+  var queue;
+  var content;
+  var exdentedContent;
+  var closing;
+  var exdentedClosing;
+  var indent;
+  var now;
+
+  if (!settings.gfm) {
+    return;
+  }
+
+  /* Eat initial spacing. */
+  while (index < length) {
+    character = value.charAt(index);
+
+    if (character !== C_SPACE && character !== C_TAB) {
+      break;
+    }
+
+    subvalue += character;
+    index++;
+  }
+
+  indent = index;
+
+  /* Eat the fence. */
+  character = value.charAt(index);
+
+  if (character !== C_TILDE && character !== C_TICK) {
+    return;
+  }
+
+  index++;
+  marker = character;
+  fenceCount = 1;
+  subvalue += character;
+
+  while (index < length) {
+    character = value.charAt(index);
+
+    if (character !== marker) {
+      break;
+    }
+
+    subvalue += character;
+    fenceCount++;
+    index++;
+  }
+
+  if (fenceCount < MIN_FENCE_COUNT) {
+    return;
+  }
+
+  /* Eat spacing before flag. */
+  while (index < length) {
+    character = value.charAt(index);
+
+    if (character !== C_SPACE && character !== C_TAB) {
+      break;
+    }
+
+    subvalue += character;
+    index++;
+  }
+
+  /* Eat flag. */
+  flag = '';
+  queue = '';
+
+  while (index < length) {
+    character = value.charAt(index);
+
+    if (
+      character === C_NEWLINE ||
+      character === C_TILDE ||
+      character === C_TICK
+    ) {
+      break;
+    }
+
+    if (character === C_SPACE || character === C_TAB) {
+      queue += character;
+    } else {
+      flag += queue + character;
+      queue = '';
+    }
+
+    index++;
+  }
+
+  character = value.charAt(index);
+
+  if (character && character !== C_NEWLINE) {
+    return;
+  }
+
+  if (silent) {
+    return true;
+  }
+
+  now = eat.now();
+  now.column += subvalue.length;
+  now.offset += subvalue.length;
+
+  subvalue += flag;
+  flag = self.decode.raw(self.unescape(flag), now);
+
+  if (queue) {
+    subvalue += queue;
+  }
+
+  queue = '';
+  closing = '';
+  exdentedClosing = '';
+  content = '';
+  exdentedContent = '';
+
+  /* Eat content. */
+  while (index < length) {
+    character = value.charAt(index);
+    content += closing;
+    exdentedContent += exdentedClosing;
+    closing = '';
+    exdentedClosing = '';
+
+    if (character !== C_NEWLINE) {
+      content += character;
+      exdentedClosing += character;
+      index++;
+      continue;
+    }
+
+    /* Add the newline to `subvalue` if its the first
+     * character.  Otherwise, add it to the `closing`
+     * queue. */
+    if (content) {
+      closing += character;
+      exdentedClosing += character;
+    } else {
+      subvalue += character;
+    }
+
+    queue = '';
+    index++;
+
+    while (index < length) {
+      character = value.charAt(index);
+
+      if (character !== C_SPACE) {
+        break;
+      }
+
+      queue += character;
+      index++;
+    }
+
+    closing += queue;
+    exdentedClosing += queue.slice(indent);
+
+    if (queue.length >= CODE_INDENT_COUNT) {
+      continue;
+    }
+
+    queue = '';
+
+    while (index < length) {
+      character = value.charAt(index);
+
+      if (character !== marker) {
+        break;
+      }
+
+      queue += character;
+      index++;
+    }
+
+    closing += queue;
+    exdentedClosing += queue;
+
+    if (queue.length < fenceCount) {
+      continue;
+    }
+
+    queue = '';
+
+    while (index < length) {
+      character = value.charAt(index);
+
+      if (character !== C_SPACE && character !== C_TAB) {
+        break;
+      }
+
+      closing += character;
+      exdentedClosing += character;
+      index++;
+    }
+
+    if (!character || character === C_NEWLINE) {
+      break;
+    }
+  }
+
+  subvalue += content + closing;
+
+  return eat(subvalue)({
+    type: 'code',
+    lang: flag || null,
+    value: trim(exdentedContent)
+  });
+}
+
+},{"trim-trailing-lines":"../node_modules/trim-trailing-lines/index.js"}],"../node_modules/trim/index.js":[function(require,module,exports) {
+
+exports = module.exports = trim;
+
+function trim(str){
+  return str.replace(/^\s*|\s*$/g, '');
+}
+
+exports.left = function(str){
+  return str.replace(/^\s*/, '');
+};
+
+exports.right = function(str){
+  return str.replace(/\s*$/, '');
+};
+
+},{}],"../node_modules/remark-parse/lib/util/interrupt.js":[function(require,module,exports) {
+'use strict';
+
+module.exports = interrupt;
+
+function interrupt(interruptors, tokenizers, ctx, params) {
+  var bools = ['pedantic', 'commonmark'];
+  var count = bools.length;
+  var length = interruptors.length;
+  var index = -1;
+  var interruptor;
+  var config;
+  var fn;
+  var offset;
+  var bool;
+  var ignore;
+
+  while (++index < length) {
+    interruptor = interruptors[index];
+    config = interruptor[1] || {};
+    fn = interruptor[0];
+    offset = -1;
+    ignore = false;
+
+    while (++offset < count) {
+      bool = bools[offset];
+
+      if (config[bool] !== undefined && config[bool] !== ctx.options[bool]) {
+        ignore = true;
+        break;
+      }
+    }
+
+    if (ignore) {
+      continue;
+    }
+
+    if (tokenizers[fn].apply(ctx, params)) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
+},{}],"../node_modules/remark-parse/lib/tokenize/blockquote.js":[function(require,module,exports) {
+'use strict';
+
+var trim = require('trim');
+var interrupt = require('../util/interrupt');
+
+module.exports = blockquote;
+
+var C_NEWLINE = '\n';
+var C_TAB = '\t';
+var C_SPACE = ' ';
+var C_GT = '>';
+
+/* Tokenise a blockquote. */
+function blockquote(eat, value, silent) {
+  var self = this;
+  var offsets = self.offset;
+  var tokenizers = self.blockTokenizers;
+  var interruptors = self.interruptBlockquote;
+  var now = eat.now();
+  var currentLine = now.line;
+  var length = value.length;
+  var values = [];
+  var contents = [];
+  var indents = [];
+  var add;
+  var index = 0;
+  var character;
+  var rest;
+  var nextIndex;
+  var content;
+  var line;
+  var startIndex;
+  var prefixed;
+  var exit;
+
+  while (index < length) {
+    character = value.charAt(index);
+
+    if (character !== C_SPACE && character !== C_TAB) {
+      break;
+    }
+
+    index++;
+  }
+
+  if (value.charAt(index) !== C_GT) {
+    return;
+  }
+
+  if (silent) {
+    return true;
+  }
+
+  index = 0;
+
+  while (index < length) {
+    nextIndex = value.indexOf(C_NEWLINE, index);
+    startIndex = index;
+    prefixed = false;
+
+    if (nextIndex === -1) {
+      nextIndex = length;
+    }
+
+    while (index < length) {
+      character = value.charAt(index);
+
+      if (character !== C_SPACE && character !== C_TAB) {
+        break;
+      }
+
+      index++;
+    }
+
+    if (value.charAt(index) === C_GT) {
+      index++;
+      prefixed = true;
+
+      if (value.charAt(index) === C_SPACE) {
+        index++;
+      }
+    } else {
+      index = startIndex;
+    }
+
+    content = value.slice(index, nextIndex);
+
+    if (!prefixed && !trim(content)) {
+      index = startIndex;
+      break;
+    }
+
+    if (!prefixed) {
+      rest = value.slice(index);
+
+      /* Check if the following code contains a possible
+       * block. */
+      if (interrupt(interruptors, tokenizers, self, [eat, rest, true])) {
+        break;
+      }
+    }
+
+    line = startIndex === index ? content : value.slice(startIndex, nextIndex);
+
+    indents.push(index - startIndex);
+    values.push(line);
+    contents.push(content);
+
+    index = nextIndex + 1;
+  }
+
+  index = -1;
+  length = indents.length;
+  add = eat(values.join(C_NEWLINE));
+
+  while (++index < length) {
+    offsets[currentLine] = (offsets[currentLine] || 0) + indents[index];
+    currentLine++;
+  }
+
+  exit = self.enterBlock();
+  contents = self.tokenizeBlock(contents.join(C_NEWLINE), now);
+  exit();
+
+  return add({
+    type: 'blockquote',
+    children: contents
+  });
+}
+
+},{"trim":"../node_modules/trim/index.js","../util/interrupt":"../node_modules/remark-parse/lib/util/interrupt.js"}],"../node_modules/remark-parse/lib/tokenize/heading-atx.js":[function(require,module,exports) {
+'use strict';
+
+module.exports = atxHeading;
+
+var C_NEWLINE = '\n';
+var C_TAB = '\t';
+var C_SPACE = ' ';
+var C_HASH = '#';
+
+var MAX_ATX_COUNT = 6;
+
+function atxHeading(eat, value, silent) {
+  var self = this;
+  var settings = self.options;
+  var length = value.length + 1;
+  var index = -1;
+  var now = eat.now();
+  var subvalue = '';
+  var content = '';
+  var character;
+  var queue;
+  var depth;
+
+  /* Eat initial spacing. */
+  while (++index < length) {
+    character = value.charAt(index);
+
+    if (character !== C_SPACE && character !== C_TAB) {
+      index--;
+      break;
+    }
+
+    subvalue += character;
+  }
+
+  /* Eat hashes. */
+  depth = 0;
+
+  while (++index <= length) {
+    character = value.charAt(index);
+
+    if (character !== C_HASH) {
+      index--;
+      break;
+    }
+
+    subvalue += character;
+    depth++;
+  }
+
+  if (depth > MAX_ATX_COUNT) {
+    return;
+  }
+
+  if (
+    !depth ||
+    (!settings.pedantic && value.charAt(index + 1) === C_HASH)
+  ) {
+    return;
+  }
+
+  length = value.length + 1;
+
+  /* Eat intermediate white-space. */
+  queue = '';
+
+  while (++index < length) {
+    character = value.charAt(index);
+
+    if (character !== C_SPACE && character !== C_TAB) {
+      index--;
+      break;
+    }
+
+    queue += character;
+  }
+
+  /* Exit when not in pedantic mode without spacing. */
+  if (
+    !settings.pedantic &&
+    queue.length === 0 &&
+    character &&
+    character !== C_NEWLINE
+  ) {
+    return;
+  }
+
+  if (silent) {
+    return true;
+  }
+
+  /* Eat content. */
+  subvalue += queue;
+  queue = '';
+  content = '';
+
+  while (++index < length) {
+    character = value.charAt(index);
+
+    if (!character || character === C_NEWLINE) {
+      break;
+    }
+
+    if (
+      character !== C_SPACE &&
+      character !== C_TAB &&
+      character !== C_HASH
+    ) {
+      content += queue + character;
+      queue = '';
+      continue;
+    }
+
+    while (character === C_SPACE || character === C_TAB) {
+      queue += character;
+      character = value.charAt(++index);
+    }
+
+    while (character === C_HASH) {
+      queue += character;
+      character = value.charAt(++index);
+    }
+
+    while (character === C_SPACE || character === C_TAB) {
+      queue += character;
+      character = value.charAt(++index);
+    }
+
+    index--;
+  }
+
+  now.column += subvalue.length;
+  now.offset += subvalue.length;
+  subvalue += content + queue;
+
+  return eat(subvalue)({
+    type: 'heading',
+    depth: depth,
+    children: self.tokenizeInline(content, now)
+  });
+}
+
+},{}],"../node_modules/remark-parse/lib/tokenize/thematic-break.js":[function(require,module,exports) {
+'use strict';
+
+module.exports = thematicBreak;
+
+var C_NEWLINE = '\n';
+var C_TAB = '\t';
+var C_SPACE = ' ';
+var C_ASTERISK = '*';
+var C_UNDERSCORE = '_';
+var C_DASH = '-';
+
+var THEMATIC_BREAK_MARKER_COUNT = 3;
+
+function thematicBreak(eat, value, silent) {
+  var index = -1;
+  var length = value.length + 1;
+  var subvalue = '';
+  var character;
+  var marker;
+  var markerCount;
+  var queue;
+
+  while (++index < length) {
+    character = value.charAt(index);
+
+    if (character !== C_TAB && character !== C_SPACE) {
+      break;
+    }
+
+    subvalue += character;
+  }
+
+  if (
+    character !== C_ASTERISK &&
+    character !== C_DASH &&
+    character !== C_UNDERSCORE
+  ) {
+    return;
+  }
+
+  marker = character;
+  subvalue += character;
+  markerCount = 1;
+  queue = '';
+
+  while (++index < length) {
+    character = value.charAt(index);
+
+    if (character === marker) {
+      markerCount++;
+      subvalue += queue + marker;
+      queue = '';
+    } else if (character === C_SPACE) {
+      queue += character;
+    } else if (
+      markerCount >= THEMATIC_BREAK_MARKER_COUNT &&
+      (!character || character === C_NEWLINE)
+    ) {
+      subvalue += queue;
+
+      if (silent) {
+        return true;
+      }
+
+      return eat(subvalue)({type: 'thematicBreak'});
+    } else {
+      return;
+    }
+  }
+}
+
+},{}],"../node_modules/remark-parse/lib/util/get-indentation.js":[function(require,module,exports) {
+'use strict';
+
+module.exports = indentation;
+
+/* Map of characters, and their column length,
+ * which can be used as indentation. */
+var characters = {' ': 1, '\t': 4};
+
+/* Gets indentation information for a line. */
+function indentation(value) {
+  var index = 0;
+  var indent = 0;
+  var character = value.charAt(index);
+  var stops = {};
+  var size;
+
+  while (character in characters) {
+    size = characters[character];
+
+    indent += size;
+
+    if (size > 1) {
+      indent = Math.floor(indent / size) * size;
+    }
+
+    stops[indent] = index;
+
+    character = value.charAt(++index);
+  }
+
+  return {indent: indent, stops: stops};
+}
+
+},{}],"../node_modules/remark-parse/lib/util/remove-indentation.js":[function(require,module,exports) {
+'use strict';
+
+var trim = require('trim');
+var repeat = require('repeat-string');
+var getIndent = require('./get-indentation');
+
+module.exports = indentation;
+
+var C_SPACE = ' ';
+var C_NEWLINE = '\n';
+var C_TAB = '\t';
+
+/* Remove the minimum indent from every line in `value`.
+ * Supports both tab, spaced, and mixed indentation (as
+ * well as possible). */
+function indentation(value, maximum) {
+  var values = value.split(C_NEWLINE);
+  var position = values.length + 1;
+  var minIndent = Infinity;
+  var matrix = [];
+  var index;
+  var indentation;
+  var stops;
+  var padding;
+
+  values.unshift(repeat(C_SPACE, maximum) + '!');
+
+  while (position--) {
+    indentation = getIndent(values[position]);
+
+    matrix[position] = indentation.stops;
+
+    if (trim(values[position]).length === 0) {
+      continue;
+    }
+
+    if (indentation.indent) {
+      if (indentation.indent > 0 && indentation.indent < minIndent) {
+        minIndent = indentation.indent;
+      }
+    } else {
+      minIndent = Infinity;
+
+      break;
+    }
+  }
+
+  if (minIndent !== Infinity) {
+    position = values.length;
+
+    while (position--) {
+      stops = matrix[position];
+      index = minIndent;
+
+      while (index && !(index in stops)) {
+        index--;
+      }
+
+      if (
+        trim(values[position]).length !== 0 &&
+        minIndent &&
+        index !== minIndent
+      ) {
+        padding = C_TAB;
+      } else {
+        padding = '';
+      }
+
+      values[position] = padding + values[position].slice(
+        index in stops ? stops[index] + 1 : 0
+      );
+    }
+  }
+
+  values.shift();
+
+  return values.join(C_NEWLINE);
+}
+
+},{"trim":"../node_modules/trim/index.js","repeat-string":"../node_modules/repeat-string/index.js","./get-indentation":"../node_modules/remark-parse/lib/util/get-indentation.js"}],"../node_modules/remark-parse/lib/tokenize/list.js":[function(require,module,exports) {
+'use strict';
+
+/* eslint-disable max-params */
+
+var trim = require('trim');
+var repeat = require('repeat-string');
+var decimal = require('is-decimal');
+var getIndent = require('../util/get-indentation');
+var removeIndent = require('../util/remove-indentation');
+var interrupt = require('../util/interrupt');
+
+module.exports = list;
+
+var C_ASTERISK = '*';
+var C_UNDERSCORE = '_';
+var C_PLUS = '+';
+var C_DASH = '-';
+var C_DOT = '.';
+var C_SPACE = ' ';
+var C_NEWLINE = '\n';
+var C_TAB = '\t';
+var C_PAREN_CLOSE = ')';
+var C_X_LOWER = 'x';
+
+var TAB_SIZE = 4;
+var EXPRESSION_LOOSE_LIST_ITEM = /\n\n(?!\s*$)/;
+var EXPRESSION_TASK_ITEM = /^\[([ \t]|x|X)][ \t]/;
+var EXPRESSION_BULLET = /^([ \t]*)([*+-]|\d+[.)])( {1,4}(?! )| |\t|$|(?=\n))([^\n]*)/;
+var EXPRESSION_PEDANTIC_BULLET = /^([ \t]*)([*+-]|\d+[.)])([ \t]+)/;
+var EXPRESSION_INITIAL_INDENT = /^( {1,4}|\t)?/gm;
+
+/* Map of characters which can be used to mark
+ * list-items. */
+var LIST_UNORDERED_MARKERS = {};
+
+LIST_UNORDERED_MARKERS[C_ASTERISK] = true;
+LIST_UNORDERED_MARKERS[C_PLUS] = true;
+LIST_UNORDERED_MARKERS[C_DASH] = true;
+
+/* Map of characters which can be used to mark
+ * list-items after a digit. */
+var LIST_ORDERED_MARKERS = {};
+
+LIST_ORDERED_MARKERS[C_DOT] = true;
+
+/* Map of characters which can be used to mark
+ * list-items after a digit. */
+var LIST_ORDERED_COMMONMARK_MARKERS = {};
+
+LIST_ORDERED_COMMONMARK_MARKERS[C_DOT] = true;
+LIST_ORDERED_COMMONMARK_MARKERS[C_PAREN_CLOSE] = true;
+
+function list(eat, value, silent) {
+  var self = this;
+  var commonmark = self.options.commonmark;
+  var pedantic = self.options.pedantic;
+  var tokenizers = self.blockTokenizers;
+  var interuptors = self.interruptList;
+  var markers;
+  var index = 0;
+  var length = value.length;
+  var start = null;
+  var size = 0;
+  var queue;
+  var ordered;
+  var character;
+  var marker;
+  var nextIndex;
+  var startIndex;
+  var prefixed;
+  var currentMarker;
+  var content;
+  var line;
+  var prevEmpty;
+  var empty;
+  var items;
+  var allLines;
+  var emptyLines;
+  var item;
+  var enterTop;
+  var exitBlockquote;
+  var isLoose;
+  var node;
+  var now;
+  var end;
+  var indented;
+
+  while (index < length) {
+    character = value.charAt(index);
+
+    if (character === C_TAB) {
+      size += TAB_SIZE - (size % TAB_SIZE);
+    } else if (character === C_SPACE) {
+      size++;
+    } else {
+      break;
+    }
+
+    index++;
+  }
+
+  if (size >= TAB_SIZE) {
+    return;
+  }
+
+  character = value.charAt(index);
+
+  markers = commonmark ?
+    LIST_ORDERED_COMMONMARK_MARKERS :
+    LIST_ORDERED_MARKERS;
+
+  if (LIST_UNORDERED_MARKERS[character] === true) {
+    marker = character;
+    ordered = false;
+  } else {
+    ordered = true;
+    queue = '';
+
+    while (index < length) {
+      character = value.charAt(index);
+
+      if (!decimal(character)) {
+        break;
+      }
+
+      queue += character;
+      index++;
+    }
+
+    character = value.charAt(index);
+
+    if (!queue || markers[character] !== true) {
+      return;
+    }
+
+    start = parseInt(queue, 10);
+    marker = character;
+  }
+
+  character = value.charAt(++index);
+
+  if (character !== C_SPACE && character !== C_TAB) {
+    return;
+  }
+
+  if (silent) {
+    return true;
+  }
+
+  index = 0;
+  items = [];
+  allLines = [];
+  emptyLines = [];
+
+  while (index < length) {
+    nextIndex = value.indexOf(C_NEWLINE, index);
+    startIndex = index;
+    prefixed = false;
+    indented = false;
+
+    if (nextIndex === -1) {
+      nextIndex = length;
+    }
+
+    end = index + TAB_SIZE;
+    size = 0;
+
+    while (index < length) {
+      character = value.charAt(index);
+
+      if (character === C_TAB) {
+        size += TAB_SIZE - (size % TAB_SIZE);
+      } else if (character === C_SPACE) {
+        size++;
+      } else {
+        break;
+      }
+
+      index++;
+    }
+
+    if (size >= TAB_SIZE) {
+      indented = true;
+    }
+
+    if (item && size >= item.indent) {
+      indented = true;
+    }
+
+    character = value.charAt(index);
+    currentMarker = null;
+
+    if (!indented) {
+      if (LIST_UNORDERED_MARKERS[character] === true) {
+        currentMarker = character;
+        index++;
+        size++;
+      } else {
+        queue = '';
+
+        while (index < length) {
+          character = value.charAt(index);
+
+          if (!decimal(character)) {
+            break;
+          }
+
+          queue += character;
+          index++;
+        }
+
+        character = value.charAt(index);
+        index++;
+
+        if (queue && markers[character] === true) {
+          currentMarker = character;
+          size += queue.length + 1;
+        }
+      }
+
+      if (currentMarker) {
+        character = value.charAt(index);
+
+        if (character === C_TAB) {
+          size += TAB_SIZE - (size % TAB_SIZE);
+          index++;
+        } else if (character === C_SPACE) {
+          end = index + TAB_SIZE;
+
+          while (index < end) {
+            if (value.charAt(index) !== C_SPACE) {
+              break;
+            }
+
+            index++;
+            size++;
+          }
+
+          if (index === end && value.charAt(index) === C_SPACE) {
+            index -= TAB_SIZE - 1;
+            size -= TAB_SIZE - 1;
+          }
+        } else if (character !== C_NEWLINE && character !== '') {
+          currentMarker = null;
+        }
+      }
+    }
+
+    if (currentMarker) {
+      if (!pedantic && marker !== currentMarker) {
+        break;
+      }
+
+      prefixed = true;
+    } else {
+      if (!commonmark && !indented && value.charAt(startIndex) === C_SPACE) {
+        indented = true;
+      } else if (commonmark && item) {
+        indented = size >= item.indent || size > TAB_SIZE;
+      }
+
+      prefixed = false;
+      index = startIndex;
+    }
+
+    line = value.slice(startIndex, nextIndex);
+    content = startIndex === index ? line : value.slice(index, nextIndex);
+
+    if (
+      currentMarker === C_ASTERISK ||
+      currentMarker === C_UNDERSCORE ||
+      currentMarker === C_DASH
+    ) {
+      if (tokenizers.thematicBreak.call(self, eat, line, true)) {
+        break;
+      }
+    }
+
+    prevEmpty = empty;
+    empty = !trim(content).length;
+
+    if (indented && item) {
+      item.value = item.value.concat(emptyLines, line);
+      allLines = allLines.concat(emptyLines, line);
+      emptyLines = [];
+    } else if (prefixed) {
+      if (emptyLines.length !== 0) {
+        item.value.push('');
+        item.trail = emptyLines.concat();
+      }
+
+      item = {
+        value: [line],
+        indent: size,
+        trail: []
+      };
+
+      items.push(item);
+      allLines = allLines.concat(emptyLines, line);
+      emptyLines = [];
+    } else if (empty) {
+      if (prevEmpty) {
+        break;
+      }
+
+      emptyLines.push(line);
+    } else {
+      if (prevEmpty) {
+        break;
+      }
+
+      if (interrupt(interuptors, tokenizers, self, [eat, line, true])) {
+        break;
+      }
+
+      item.value = item.value.concat(emptyLines, line);
+      allLines = allLines.concat(emptyLines, line);
+      emptyLines = [];
+    }
+
+    index = nextIndex + 1;
+  }
+
+  node = eat(allLines.join(C_NEWLINE)).reset({
+    type: 'list',
+    ordered: ordered,
+    start: start,
+    loose: null,
+    children: []
+  });
+
+  enterTop = self.enterList();
+  exitBlockquote = self.enterBlock();
+  isLoose = false;
+  index = -1;
+  length = items.length;
+
+  while (++index < length) {
+    item = items[index].value.join(C_NEWLINE);
+    now = eat.now();
+
+    item = eat(item)(listItem(self, item, now), node);
+
+    if (item.loose) {
+      isLoose = true;
+    }
+
+    item = items[index].trail.join(C_NEWLINE);
+
+    if (index !== length - 1) {
+      item += C_NEWLINE;
+    }
+
+    eat(item);
+  }
+
+  enterTop();
+  exitBlockquote();
+
+  node.loose = isLoose;
+
+  return node;
+}
+
+function listItem(ctx, value, position) {
+  var offsets = ctx.offset;
+  var fn = ctx.options.pedantic ? pedanticListItem : normalListItem;
+  var checked = null;
+  var task;
+  var indent;
+
+  value = fn.apply(null, arguments);
+
+  if (ctx.options.gfm) {
+    task = value.match(EXPRESSION_TASK_ITEM);
+
+    if (task) {
+      indent = task[0].length;
+      checked = task[1].toLowerCase() === C_X_LOWER;
+      offsets[position.line] += indent;
+      value = value.slice(indent);
+    }
+  }
+
+  return {
+    type: 'listItem',
+    loose: EXPRESSION_LOOSE_LIST_ITEM.test(value) ||
+      value.charAt(value.length - 1) === C_NEWLINE,
+    checked: checked,
+    children: ctx.tokenizeBlock(value, position)
+  };
+}
+
+/* Create a list-item using overly simple mechanics. */
+function pedanticListItem(ctx, value, position) {
+  var offsets = ctx.offset;
+  var line = position.line;
+
+  /* Remove the list-item’s bullet. */
+  value = value.replace(EXPRESSION_PEDANTIC_BULLET, replacer);
+
+  /* The initial line was also matched by the below, so
+   * we reset the `line`. */
+  line = position.line;
+
+  return value.replace(EXPRESSION_INITIAL_INDENT, replacer);
+
+  /* A simple replacer which removed all matches,
+   * and adds their length to `offset`. */
+  function replacer($0) {
+    offsets[line] = (offsets[line] || 0) + $0.length;
+    line++;
+
+    return '';
+  }
+}
+
+/* Create a list-item using sane mechanics. */
+function normalListItem(ctx, value, position) {
+  var offsets = ctx.offset;
+  var line = position.line;
+  var max;
+  var bullet;
+  var rest;
+  var lines;
+  var trimmedLines;
+  var index;
+  var length;
+
+  /* Remove the list-item’s bullet. */
+  value = value.replace(EXPRESSION_BULLET, replacer);
+
+  lines = value.split(C_NEWLINE);
+
+  trimmedLines = removeIndent(value, getIndent(max).indent).split(C_NEWLINE);
+
+  /* We replaced the initial bullet with something
+   * else above, which was used to trick
+   * `removeIndentation` into removing some more
+   * characters when possible.  However, that could
+   * result in the initial line to be stripped more
+   * than it should be. */
+  trimmedLines[0] = rest;
+
+  offsets[line] = (offsets[line] || 0) + bullet.length;
+  line++;
+
+  index = 0;
+  length = lines.length;
+
+  while (++index < length) {
+    offsets[line] = (offsets[line] || 0) +
+      lines[index].length - trimmedLines[index].length;
+    line++;
+  }
+
+  return trimmedLines.join(C_NEWLINE);
+
+  function replacer($0, $1, $2, $3, $4) {
+    bullet = $1 + $2 + $3;
+    rest = $4;
+
+    /* Make sure that the first nine numbered list items
+     * can indent with an extra space.  That is, when
+     * the bullet did not receive an extra final space. */
+    if (Number($2) < 10 && bullet.length % 2 === 1) {
+      $2 = C_SPACE + $2;
+    }
+
+    max = $1 + repeat(C_SPACE, $2.length) + $3;
+
+    return max + rest;
+  }
+}
+
+},{"trim":"../node_modules/trim/index.js","repeat-string":"../node_modules/repeat-string/index.js","is-decimal":"../node_modules/is-decimal/index.js","../util/get-indentation":"../node_modules/remark-parse/lib/util/get-indentation.js","../util/remove-indentation":"../node_modules/remark-parse/lib/util/remove-indentation.js","../util/interrupt":"../node_modules/remark-parse/lib/util/interrupt.js"}],"../node_modules/remark-parse/lib/tokenize/heading-setext.js":[function(require,module,exports) {
+'use strict';
+
+module.exports = setextHeading;
+
+var C_NEWLINE = '\n';
+var C_TAB = '\t';
+var C_SPACE = ' ';
+var C_EQUALS = '=';
+var C_DASH = '-';
+
+var MAX_HEADING_INDENT = 3;
+
+/* Map of characters which can be used to mark setext
+ * headers, mapping to their corresponding depth. */
+var SETEXT_MARKERS = {};
+
+SETEXT_MARKERS[C_EQUALS] = 1;
+SETEXT_MARKERS[C_DASH] = 2;
+
+function setextHeading(eat, value, silent) {
+  var self = this;
+  var now = eat.now();
+  var length = value.length;
+  var index = -1;
+  var subvalue = '';
+  var content;
+  var queue;
+  var character;
+  var marker;
+  var depth;
+
+  /* Eat initial indentation. */
+  while (++index < length) {
+    character = value.charAt(index);
+
+    if (character !== C_SPACE || index >= MAX_HEADING_INDENT) {
+      index--;
+      break;
+    }
+
+    subvalue += character;
+  }
+
+  /* Eat content. */
+  content = '';
+  queue = '';
+
+  while (++index < length) {
+    character = value.charAt(index);
+
+    if (character === C_NEWLINE) {
+      index--;
+      break;
+    }
+
+    if (character === C_SPACE || character === C_TAB) {
+      queue += character;
+    } else {
+      content += queue + character;
+      queue = '';
+    }
+  }
+
+  now.column += subvalue.length;
+  now.offset += subvalue.length;
+  subvalue += content + queue;
+
+  /* Ensure the content is followed by a newline and a
+   * valid marker. */
+  character = value.charAt(++index);
+  marker = value.charAt(++index);
+
+  if (character !== C_NEWLINE || !SETEXT_MARKERS[marker]) {
+    return;
+  }
+
+  subvalue += character;
+
+  /* Eat Setext-line. */
+  queue = marker;
+  depth = SETEXT_MARKERS[marker];
+
+  while (++index < length) {
+    character = value.charAt(index);
+
+    if (character !== marker) {
+      if (character !== C_NEWLINE) {
+        return;
+      }
+
+      index--;
+      break;
+    }
+
+    queue += character;
+  }
+
+  if (silent) {
+    return true;
+  }
+
+  return eat(subvalue + queue)({
+    type: 'heading',
+    depth: depth,
+    children: self.tokenizeInline(content, now)
+  });
+}
+
+},{}],"../node_modules/remark-parse/lib/util/html.js":[function(require,module,exports) {
+'use strict';
+
+var attributeName = '[a-zA-Z_:][a-zA-Z0-9:._-]*';
+var unquoted = '[^"\'=<>`\\u0000-\\u0020]+';
+var singleQuoted = '\'[^\']*\'';
+var doubleQuoted = '"[^"]*"';
+var attributeValue = '(?:' + unquoted + '|' + singleQuoted + '|' + doubleQuoted + ')';
+var attribute = '(?:\\s+' + attributeName + '(?:\\s*=\\s*' + attributeValue + ')?)';
+var openTag = '<[A-Za-z][A-Za-z0-9\\-]*' + attribute + '*\\s*\\/?>';
+var closeTag = '<\\/[A-Za-z][A-Za-z0-9\\-]*\\s*>';
+var comment = '<!---->|<!--(?:-?[^>-])(?:-?[^-])*-->';
+var processing = '<[?].*?[?]>';
+var declaration = '<![A-Za-z]+\\s+[^>]*>';
+var cdata = '<!\\[CDATA\\[[\\s\\S]*?\\]\\]>';
+
+exports.openCloseTag = new RegExp('^(?:' + openTag + '|' + closeTag + ')');
+
+exports.tag = new RegExp('^(?:' +
+  openTag + '|' +
+  closeTag + '|' +
+  comment + '|' +
+  processing + '|' +
+  declaration + '|' +
+  cdata +
+')');
+
+},{}],"../node_modules/remark-parse/lib/tokenize/html-block.js":[function(require,module,exports) {
+'use strict';
+
+var openCloseTag = require('../util/html').openCloseTag;
+
+module.exports = blockHTML;
+
+var C_TAB = '\t';
+var C_SPACE = ' ';
+var C_NEWLINE = '\n';
+var C_LT = '<';
+
+function blockHTML(eat, value, silent) {
+  var self = this;
+  var blocks = self.options.blocks;
+  var length = value.length;
+  var index = 0;
+  var next;
+  var line;
+  var offset;
+  var character;
+  var count;
+  var sequence;
+  var subvalue;
+
+  var sequences = [
+    [/^<(script|pre|style)(?=(\s|>|$))/i, /<\/(script|pre|style)>/i, true],
+    [/^<!--/, /-->/, true],
+    [/^<\?/, /\?>/, true],
+    [/^<![A-Za-z]/, />/, true],
+    [/^<!\[CDATA\[/, /\]\]>/, true],
+    [new RegExp('^</?(' + blocks.join('|') + ')(?=(\\s|/?>|$))', 'i'), /^$/, true],
+    [new RegExp(openCloseTag.source + '\\s*$'), /^$/, false]
+  ];
+
+  /* Eat initial spacing. */
+  while (index < length) {
+    character = value.charAt(index);
+
+    if (character !== C_TAB && character !== C_SPACE) {
+      break;
+    }
+
+    index++;
+  }
+
+  if (value.charAt(index) !== C_LT) {
+    return;
+  }
+
+  next = value.indexOf(C_NEWLINE, index + 1);
+  next = next === -1 ? length : next;
+  line = value.slice(index, next);
+  offset = -1;
+  count = sequences.length;
+
+  while (++offset < count) {
+    if (sequences[offset][0].test(line)) {
+      sequence = sequences[offset];
+      break;
+    }
+  }
+
+  if (!sequence) {
+    return;
+  }
+
+  if (silent) {
+    return sequence[2];
+  }
+
+  index = next;
+
+  if (!sequence[1].test(line)) {
+    while (index < length) {
+      next = value.indexOf(C_NEWLINE, index + 1);
+      next = next === -1 ? length : next;
+      line = value.slice(index + 1, next);
+
+      if (sequence[1].test(line)) {
+        if (line) {
+          index = next;
+        }
+
+        break;
+      }
+
+      index = next;
+    }
+  }
+
+  subvalue = value.slice(0, index);
+
+  return eat(subvalue)({type: 'html', value: subvalue});
+}
+
+},{"../util/html":"../node_modules/remark-parse/lib/util/html.js"}],"../node_modules/collapse-white-space/index.js":[function(require,module,exports) {
+'use strict'
+
+module.exports = collapse
+
+// `collapse(' \t\nbar \nbaz\t') // ' bar baz '`
+function collapse(value) {
+  return String(value).replace(/\s+/g, ' ')
+}
+
+},{}],"../node_modules/remark-parse/lib/util/normalize.js":[function(require,module,exports) {
+'use strict';
+
+var collapseWhiteSpace = require('collapse-white-space');
+
+module.exports = normalize;
+
+/* Normalize an identifier.  Collapses multiple white space
+ * characters into a single space, and removes casing. */
+function normalize(value) {
+  return collapseWhiteSpace(value).toLowerCase();
+}
+
+},{"collapse-white-space":"../node_modules/collapse-white-space/index.js"}],"../node_modules/remark-parse/lib/tokenize/footnote-definition.js":[function(require,module,exports) {
+'use strict';
+
+var whitespace = require('is-whitespace-character');
+var normalize = require('../util/normalize');
+
+module.exports = footnoteDefinition;
+footnoteDefinition.notInList = true;
+footnoteDefinition.notInBlock = true;
+
+var C_BACKSLASH = '\\';
+var C_NEWLINE = '\n';
+var C_TAB = '\t';
+var C_SPACE = ' ';
+var C_BRACKET_OPEN = '[';
+var C_BRACKET_CLOSE = ']';
+var C_CARET = '^';
+var C_COLON = ':';
+
+var EXPRESSION_INITIAL_TAB = /^( {4}|\t)?/gm;
+
+function footnoteDefinition(eat, value, silent) {
+  var self = this;
+  var offsets = self.offset;
+  var index;
+  var length;
+  var subvalue;
+  var now;
+  var currentLine;
+  var content;
+  var queue;
+  var subqueue;
+  var character;
+  var identifier;
+  var add;
+  var exit;
+
+  if (!self.options.footnotes) {
+    return;
+  }
+
+  index = 0;
+  length = value.length;
+  subvalue = '';
+  now = eat.now();
+  currentLine = now.line;
+
+  while (index < length) {
+    character = value.charAt(index);
+
+    if (!whitespace(character)) {
+      break;
+    }
+
+    subvalue += character;
+    index++;
+  }
+
+  if (
+    value.charAt(index) !== C_BRACKET_OPEN ||
+    value.charAt(index + 1) !== C_CARET
+  ) {
+    return;
+  }
+
+  subvalue += C_BRACKET_OPEN + C_CARET;
+  index = subvalue.length;
+  queue = '';
+
+  while (index < length) {
+    character = value.charAt(index);
+
+    if (character === C_BRACKET_CLOSE) {
+      break;
+    } else if (character === C_BACKSLASH) {
+      queue += character;
+      index++;
+      character = value.charAt(index);
+    }
+
+    queue += character;
+    index++;
+  }
+
+  if (
+    !queue ||
+    value.charAt(index) !== C_BRACKET_CLOSE ||
+    value.charAt(index + 1) !== C_COLON
+  ) {
+    return;
+  }
+
+  if (silent) {
+    return true;
+  }
+
+  identifier = normalize(queue);
+  subvalue += queue + C_BRACKET_CLOSE + C_COLON;
+  index = subvalue.length;
+
+  while (index < length) {
+    character = value.charAt(index);
+
+    if (character !== C_TAB && character !== C_SPACE) {
+      break;
+    }
+
+    subvalue += character;
+    index++;
+  }
+
+  now.column += subvalue.length;
+  now.offset += subvalue.length;
+  queue = '';
+  content = '';
+  subqueue = '';
+
+  while (index < length) {
+    character = value.charAt(index);
+
+    if (character === C_NEWLINE) {
+      subqueue = character;
+      index++;
+
+      while (index < length) {
+        character = value.charAt(index);
+
+        if (character !== C_NEWLINE) {
+          break;
+        }
+
+        subqueue += character;
+        index++;
+      }
+
+      queue += subqueue;
+      subqueue = '';
+
+      while (index < length) {
+        character = value.charAt(index);
+
+        if (character !== C_SPACE) {
+          break;
+        }
+
+        subqueue += character;
+        index++;
+      }
+
+      if (subqueue.length === 0) {
+        break;
+      }
+
+      queue += subqueue;
+    }
+
+    if (queue) {
+      content += queue;
+      queue = '';
+    }
+
+    content += character;
+    index++;
+  }
+
+  subvalue += content;
+
+  content = content.replace(EXPRESSION_INITIAL_TAB, function (line) {
+    offsets[currentLine] = (offsets[currentLine] || 0) + line.length;
+    currentLine++;
+
+    return '';
+  });
+
+  add = eat(subvalue);
+
+  exit = self.enterBlock();
+  content = self.tokenizeBlock(content, now);
+  exit();
+
+  return add({
+    type: 'footnoteDefinition',
+    identifier: identifier,
+    children: content
+  });
+}
+
+},{"is-whitespace-character":"../node_modules/is-whitespace-character/index.js","../util/normalize":"../node_modules/remark-parse/lib/util/normalize.js"}],"../node_modules/remark-parse/lib/tokenize/definition.js":[function(require,module,exports) {
+'use strict';
+
+var whitespace = require('is-whitespace-character');
+var normalize = require('../util/normalize');
+
+module.exports = definition;
+definition.notInList = true;
+definition.notInBlock = true;
+
+var C_DOUBLE_QUOTE = '"';
+var C_SINGLE_QUOTE = '\'';
+var C_BACKSLASH = '\\';
+var C_NEWLINE = '\n';
+var C_TAB = '\t';
+var C_SPACE = ' ';
+var C_BRACKET_OPEN = '[';
+var C_BRACKET_CLOSE = ']';
+var C_PAREN_OPEN = '(';
+var C_PAREN_CLOSE = ')';
+var C_COLON = ':';
+var C_LT = '<';
+var C_GT = '>';
+
+function definition(eat, value, silent) {
+  var self = this;
+  var commonmark = self.options.commonmark;
+  var index = 0;
+  var length = value.length;
+  var subvalue = '';
+  var beforeURL;
+  var beforeTitle;
+  var queue;
+  var character;
+  var test;
+  var identifier;
+  var url;
+  var title;
+
+  while (index < length) {
+    character = value.charAt(index);
+
+    if (character !== C_SPACE && character !== C_TAB) {
+      break;
+    }
+
+    subvalue += character;
+    index++;
+  }
+
+  character = value.charAt(index);
+
+  if (character !== C_BRACKET_OPEN) {
+    return;
+  }
+
+  index++;
+  subvalue += character;
+  queue = '';
+
+  while (index < length) {
+    character = value.charAt(index);
+
+    if (character === C_BRACKET_CLOSE) {
+      break;
+    } else if (character === C_BACKSLASH) {
+      queue += character;
+      index++;
+      character = value.charAt(index);
+    }
+
+    queue += character;
+    index++;
+  }
+
+  if (
+    !queue ||
+    value.charAt(index) !== C_BRACKET_CLOSE ||
+    value.charAt(index + 1) !== C_COLON
+  ) {
+    return;
+  }
+
+  identifier = queue;
+  subvalue += queue + C_BRACKET_CLOSE + C_COLON;
+  index = subvalue.length;
+  queue = '';
+
+  while (index < length) {
+    character = value.charAt(index);
+
+    if (
+      character !== C_TAB &&
+      character !== C_SPACE &&
+      character !== C_NEWLINE
+    ) {
+      break;
+    }
+
+    subvalue += character;
+    index++;
+  }
+
+  character = value.charAt(index);
+  queue = '';
+  beforeURL = subvalue;
+
+  if (character === C_LT) {
+    index++;
+
+    while (index < length) {
+      character = value.charAt(index);
+
+      if (!isEnclosedURLCharacter(character)) {
+        break;
+      }
+
+      queue += character;
+      index++;
+    }
+
+    character = value.charAt(index);
+
+    if (character === isEnclosedURLCharacter.delimiter) {
+      subvalue += C_LT + queue + character;
+      index++;
+    } else {
+      if (commonmark) {
+        return;
+      }
+
+      index -= queue.length + 1;
+      queue = '';
+    }
+  }
+
+  if (!queue) {
+    while (index < length) {
+      character = value.charAt(index);
+
+      if (!isUnclosedURLCharacter(character)) {
+        break;
+      }
+
+      queue += character;
+      index++;
+    }
+
+    subvalue += queue;
+  }
+
+  if (!queue) {
+    return;
+  }
+
+  url = queue;
+  queue = '';
+
+  while (index < length) {
+    character = value.charAt(index);
+
+    if (
+      character !== C_TAB &&
+      character !== C_SPACE &&
+      character !== C_NEWLINE
+    ) {
+      break;
+    }
+
+    queue += character;
+    index++;
+  }
+
+  character = value.charAt(index);
+  test = null;
+
+  if (character === C_DOUBLE_QUOTE) {
+    test = C_DOUBLE_QUOTE;
+  } else if (character === C_SINGLE_QUOTE) {
+    test = C_SINGLE_QUOTE;
+  } else if (character === C_PAREN_OPEN) {
+    test = C_PAREN_CLOSE;
+  }
+
+  if (!test) {
+    queue = '';
+    index = subvalue.length;
+  } else if (queue) {
+    subvalue += queue + character;
+    index = subvalue.length;
+    queue = '';
+
+    while (index < length) {
+      character = value.charAt(index);
+
+      if (character === test) {
+        break;
+      }
+
+      if (character === C_NEWLINE) {
+        index++;
+        character = value.charAt(index);
+
+        if (character === C_NEWLINE || character === test) {
+          return;
+        }
+
+        queue += C_NEWLINE;
+      }
+
+      queue += character;
+      index++;
+    }
+
+    character = value.charAt(index);
+
+    if (character !== test) {
+      return;
+    }
+
+    beforeTitle = subvalue;
+    subvalue += queue + character;
+    index++;
+    title = queue;
+    queue = '';
+  } else {
+    return;
+  }
+
+  while (index < length) {
+    character = value.charAt(index);
+
+    if (character !== C_TAB && character !== C_SPACE) {
+      break;
+    }
+
+    subvalue += character;
+    index++;
+  }
+
+  character = value.charAt(index);
+
+  if (!character || character === C_NEWLINE) {
+    if (silent) {
+      return true;
+    }
+
+    beforeURL = eat(beforeURL).test().end;
+    url = self.decode.raw(self.unescape(url), beforeURL, {nonTerminated: false});
+
+    if (title) {
+      beforeTitle = eat(beforeTitle).test().end;
+      title = self.decode.raw(self.unescape(title), beforeTitle);
+    }
+
+    return eat(subvalue)({
+      type: 'definition',
+      identifier: normalize(identifier),
+      title: title || null,
+      url: url
+    });
+  }
+}
+
+/* Check if `character` can be inside an enclosed URI. */
+function isEnclosedURLCharacter(character) {
+  return character !== C_GT &&
+    character !== C_BRACKET_OPEN &&
+    character !== C_BRACKET_CLOSE;
+}
+
+isEnclosedURLCharacter.delimiter = C_GT;
+
+/* Check if `character` can be inside an unclosed URI. */
+function isUnclosedURLCharacter(character) {
+  return character !== C_BRACKET_OPEN &&
+    character !== C_BRACKET_CLOSE &&
+    !whitespace(character);
+}
+
+},{"is-whitespace-character":"../node_modules/is-whitespace-character/index.js","../util/normalize":"../node_modules/remark-parse/lib/util/normalize.js"}],"../node_modules/remark-parse/lib/tokenize/table.js":[function(require,module,exports) {
+'use strict';
+
+var whitespace = require('is-whitespace-character');
+
+module.exports = table;
+
+var C_BACKSLASH = '\\';
+var C_TICK = '`';
+var C_DASH = '-';
+var C_PIPE = '|';
+var C_COLON = ':';
+var C_SPACE = ' ';
+var C_NEWLINE = '\n';
+var C_TAB = '\t';
+
+var MIN_TABLE_COLUMNS = 1;
+var MIN_TABLE_ROWS = 2;
+
+var TABLE_ALIGN_LEFT = 'left';
+var TABLE_ALIGN_CENTER = 'center';
+var TABLE_ALIGN_RIGHT = 'right';
+var TABLE_ALIGN_NONE = null;
+
+function table(eat, value, silent) {
+  var self = this;
+  var index;
+  var alignments;
+  var alignment;
+  var subvalue;
+  var row;
+  var length;
+  var lines;
+  var queue;
+  var character;
+  var hasDash;
+  var align;
+  var cell;
+  var preamble;
+  var count;
+  var opening;
+  var now;
+  var position;
+  var lineCount;
+  var line;
+  var rows;
+  var table;
+  var lineIndex;
+  var pipeIndex;
+  var first;
+
+  /* Exit when not in gfm-mode. */
+  if (!self.options.gfm) {
+    return;
+  }
+
+  /* Get the rows.
+   * Detecting tables soon is hard, so there are some
+   * checks for performance here, such as the minimum
+   * number of rows, and allowed characters in the
+   * alignment row. */
+  index = 0;
+  lineCount = 0;
+  length = value.length + 1;
+  lines = [];
+
+  while (index < length) {
+    lineIndex = value.indexOf(C_NEWLINE, index);
+    pipeIndex = value.indexOf(C_PIPE, index + 1);
+
+    if (lineIndex === -1) {
+      lineIndex = value.length;
+    }
+
+    if (pipeIndex === -1 || pipeIndex > lineIndex) {
+      if (lineCount < MIN_TABLE_ROWS) {
+        return;
+      }
+
+      break;
+    }
+
+    lines.push(value.slice(index, lineIndex));
+    lineCount++;
+    index = lineIndex + 1;
+  }
+
+  /* Parse the alignment row. */
+  subvalue = lines.join(C_NEWLINE);
+  alignments = lines.splice(1, 1)[0] || [];
+  index = 0;
+  length = alignments.length;
+  lineCount--;
+  alignment = false;
+  align = [];
+
+  while (index < length) {
+    character = alignments.charAt(index);
+
+    if (character === C_PIPE) {
+      hasDash = null;
+
+      if (alignment === false) {
+        if (first === false) {
+          return;
+        }
+      } else {
+        align.push(alignment);
+        alignment = false;
+      }
+
+      first = false;
+    } else if (character === C_DASH) {
+      hasDash = true;
+      alignment = alignment || TABLE_ALIGN_NONE;
+    } else if (character === C_COLON) {
+      if (alignment === TABLE_ALIGN_LEFT) {
+        alignment = TABLE_ALIGN_CENTER;
+      } else if (hasDash && alignment === TABLE_ALIGN_NONE) {
+        alignment = TABLE_ALIGN_RIGHT;
+      } else {
+        alignment = TABLE_ALIGN_LEFT;
+      }
+    } else if (!whitespace(character)) {
+      return;
+    }
+
+    index++;
+  }
+
+  if (alignment !== false) {
+    align.push(alignment);
+  }
+
+  /* Exit when without enough columns. */
+  if (align.length < MIN_TABLE_COLUMNS) {
+    return;
+  }
+
+  /* istanbul ignore if - never used (yet) */
+  if (silent) {
+    return true;
+  }
+
+  /* Parse the rows. */
+  position = -1;
+  rows = [];
+
+  table = eat(subvalue).reset({
+    type: 'table',
+    align: align,
+    children: rows
+  });
+
+  while (++position < lineCount) {
+    line = lines[position];
+    row = {type: 'tableRow', children: []};
+
+    /* Eat a newline character when this is not the
+     * first row. */
+    if (position) {
+      eat(C_NEWLINE);
+    }
+
+    /* Eat the row. */
+    eat(line).reset(row, table);
+
+    length = line.length + 1;
+    index = 0;
+    queue = '';
+    cell = '';
+    preamble = true;
+    count = null;
+    opening = null;
+
+    while (index < length) {
+      character = line.charAt(index);
+
+      if (character === C_TAB || character === C_SPACE) {
+        if (cell) {
+          queue += character;
+        } else {
+          eat(character);
+        }
+
+        index++;
+        continue;
+      }
+
+      if (character === '' || character === C_PIPE) {
+        if (preamble) {
+          eat(character);
+        } else {
+          if (character && opening) {
+            queue += character;
+            index++;
+            continue;
+          }
+
+          if ((cell || character) && !preamble) {
+            subvalue = cell;
+
+            if (queue.length > 1) {
+              if (character) {
+                subvalue += queue.slice(0, queue.length - 1);
+                queue = queue.charAt(queue.length - 1);
+              } else {
+                subvalue += queue;
+                queue = '';
+              }
+            }
+
+            now = eat.now();
+
+            eat(subvalue)({
+              type: 'tableCell',
+              children: self.tokenizeInline(cell, now)
+            }, row);
+          }
+
+          eat(queue + character);
+
+          queue = '';
+          cell = '';
+        }
+      } else {
+        if (queue) {
+          cell += queue;
+          queue = '';
+        }
+
+        cell += character;
+
+        if (character === C_BACKSLASH && index !== length - 2) {
+          cell += line.charAt(index + 1);
+          index++;
+        }
+
+        if (character === C_TICK) {
+          count = 1;
+
+          while (line.charAt(index + 1) === character) {
+            cell += character;
+            index++;
+            count++;
+          }
+
+          if (!opening) {
+            opening = count;
+          } else if (count >= opening) {
+            opening = 0;
+          }
+        }
+      }
+
+      preamble = false;
+      index++;
+    }
+
+    /* Eat the alignment row. */
+    if (!position) {
+      eat(C_NEWLINE + alignments);
+    }
+  }
+
+  return table;
+}
+
+},{"is-whitespace-character":"../node_modules/is-whitespace-character/index.js"}],"../node_modules/remark-parse/lib/tokenize/paragraph.js":[function(require,module,exports) {
+'use strict';
+
+var trim = require('trim');
+var decimal = require('is-decimal');
+var trimTrailingLines = require('trim-trailing-lines');
+var interrupt = require('../util/interrupt');
+
+module.exports = paragraph;
+
+var C_NEWLINE = '\n';
+var C_TAB = '\t';
+var C_SPACE = ' ';
+
+var TAB_SIZE = 4;
+
+/* Tokenise paragraph. */
+function paragraph(eat, value, silent) {
+  var self = this;
+  var settings = self.options;
+  var commonmark = settings.commonmark;
+  var gfm = settings.gfm;
+  var tokenizers = self.blockTokenizers;
+  var interruptors = self.interruptParagraph;
+  var index = value.indexOf(C_NEWLINE);
+  var length = value.length;
+  var position;
+  var subvalue;
+  var character;
+  var size;
+  var now;
+
+  while (index < length) {
+    /* Eat everything if there’s no following newline. */
+    if (index === -1) {
+      index = length;
+      break;
+    }
+
+    /* Stop if the next character is NEWLINE. */
+    if (value.charAt(index + 1) === C_NEWLINE) {
+      break;
+    }
+
+    /* In commonmark-mode, following indented lines
+     * are part of the paragraph. */
+    if (commonmark) {
+      size = 0;
+      position = index + 1;
+
+      while (position < length) {
+        character = value.charAt(position);
+
+        if (character === C_TAB) {
+          size = TAB_SIZE;
+          break;
+        } else if (character === C_SPACE) {
+          size++;
+        } else {
+          break;
+        }
+
+        position++;
+      }
+
+      if (size >= TAB_SIZE) {
+        index = value.indexOf(C_NEWLINE, index + 1);
+        continue;
+      }
+    }
+
+    subvalue = value.slice(index + 1);
+
+    /* Check if the following code contains a possible
+     * block. */
+    if (interrupt(interruptors, tokenizers, self, [eat, subvalue, true])) {
+      break;
+    }
+
+    /* Break if the following line starts a list, when
+     * already in a list, or when in commonmark, or when
+     * in gfm mode and the bullet is *not* numeric. */
+    if (
+      tokenizers.list.call(self, eat, subvalue, true) &&
+      (
+        self.inList ||
+        commonmark ||
+        (gfm && !decimal(trim.left(subvalue).charAt(0)))
+      )
+    ) {
+      break;
+    }
+
+    position = index;
+    index = value.indexOf(C_NEWLINE, index + 1);
+
+    if (index !== -1 && trim(value.slice(position, index)) === '') {
+      index = position;
+      break;
+    }
+  }
+
+  subvalue = value.slice(0, index);
+
+  if (trim(subvalue) === '') {
+    eat(subvalue);
+
+    return null;
+  }
+
+  /* istanbul ignore if - never used (yet) */
+  if (silent) {
+    return true;
+  }
+
+  now = eat.now();
+  subvalue = trimTrailingLines(subvalue);
+
+  return eat(subvalue)({
+    type: 'paragraph',
+    children: self.tokenizeInline(subvalue, now)
+  });
+}
+
+},{"trim":"../node_modules/trim/index.js","is-decimal":"../node_modules/is-decimal/index.js","trim-trailing-lines":"../node_modules/trim-trailing-lines/index.js","../util/interrupt":"../node_modules/remark-parse/lib/util/interrupt.js"}],"../node_modules/remark-parse/lib/locate/escape.js":[function(require,module,exports) {
+'use strict';
+
+module.exports = locate;
+
+function locate(value, fromIndex) {
+  return value.indexOf('\\', fromIndex);
+}
+
+},{}],"../node_modules/remark-parse/lib/tokenize/escape.js":[function(require,module,exports) {
+'use strict';
+
+var locate = require('../locate/escape');
+
+module.exports = escape;
+escape.locator = locate;
+
+function escape(eat, value, silent) {
+  var self = this;
+  var character;
+  var node;
+
+  if (value.charAt(0) === '\\') {
+    character = value.charAt(1);
+
+    if (self.escape.indexOf(character) !== -1) {
+      /* istanbul ignore if - never used (yet) */
+      if (silent) {
+        return true;
+      }
+
+      if (character === '\n') {
+        node = {type: 'break'};
+      } else {
+        node = {
+          type: 'text',
+          value: character
+        };
+      }
+
+      return eat('\\' + character)(node);
+    }
+  }
+}
+
+},{"../locate/escape":"../node_modules/remark-parse/lib/locate/escape.js"}],"../node_modules/remark-parse/lib/locate/tag.js":[function(require,module,exports) {
+'use strict';
+
+module.exports = locate;
+
+function locate(value, fromIndex) {
+  return value.indexOf('<', fromIndex);
+}
+
+},{}],"../node_modules/remark-parse/lib/tokenize/auto-link.js":[function(require,module,exports) {
+'use strict';
+
+var whitespace = require('is-whitespace-character');
+var decode = require('parse-entities');
+var locate = require('../locate/tag');
+
+module.exports = autoLink;
+autoLink.locator = locate;
+autoLink.notInLink = true;
+
+var C_LT = '<';
+var C_GT = '>';
+var C_AT_SIGN = '@';
+var C_SLASH = '/';
+var MAILTO = 'mailto:';
+var MAILTO_LENGTH = MAILTO.length;
+
+/* Tokenise a link. */
+function autoLink(eat, value, silent) {
+  var self;
+  var subvalue;
+  var length;
+  var index;
+  var queue;
+  var character;
+  var hasAtCharacter;
+  var link;
+  var now;
+  var content;
+  var tokenizers;
+  var exit;
+
+  if (value.charAt(0) !== C_LT) {
+    return;
+  }
+
+  self = this;
+  subvalue = '';
+  length = value.length;
+  index = 0;
+  queue = '';
+  hasAtCharacter = false;
+  link = '';
+
+  index++;
+  subvalue = C_LT;
+
+  while (index < length) {
+    character = value.charAt(index);
+
+    if (
+      whitespace(character) ||
+      character === C_GT ||
+      character === C_AT_SIGN ||
+      (character === ':' && value.charAt(index + 1) === C_SLASH)
+    ) {
+      break;
+    }
+
+    queue += character;
+    index++;
+  }
+
+  if (!queue) {
+    return;
+  }
+
+  link += queue;
+  queue = '';
+
+  character = value.charAt(index);
+  link += character;
+  index++;
+
+  if (character === C_AT_SIGN) {
+    hasAtCharacter = true;
+  } else {
+    if (
+      character !== ':' ||
+      value.charAt(index + 1) !== C_SLASH
+    ) {
+      return;
+    }
+
+    link += C_SLASH;
+    index++;
+  }
+
+  while (index < length) {
+    character = value.charAt(index);
+
+    if (whitespace(character) || character === C_GT) {
+      break;
+    }
+
+    queue += character;
+    index++;
+  }
+
+  character = value.charAt(index);
+
+  if (!queue || character !== C_GT) {
+    return;
+  }
+
+  /* istanbul ignore if - never used (yet) */
+  if (silent) {
+    return true;
+  }
+
+  link += queue;
+  content = link;
+  subvalue += link + character;
+  now = eat.now();
+  now.column++;
+  now.offset++;
+
+  if (hasAtCharacter) {
+    if (link.slice(0, MAILTO_LENGTH).toLowerCase() === MAILTO) {
+      content = content.substr(MAILTO_LENGTH);
+      now.column += MAILTO_LENGTH;
+      now.offset += MAILTO_LENGTH;
+    } else {
+      link = MAILTO + link;
+    }
+  }
+
+  /* Temporarily remove all tokenizers except text in autolinks. */
+  tokenizers = self.inlineTokenizers;
+  self.inlineTokenizers = {text: tokenizers.text};
+
+  exit = self.enterLink();
+
+  content = self.tokenizeInline(content, now);
+
+  self.inlineTokenizers = tokenizers;
+  exit();
+
+  return eat(subvalue)({
+    type: 'link',
+    title: null,
+    url: decode(link, {nonTerminated: false}),
+    children: content
+  });
+}
+
+},{"is-whitespace-character":"../node_modules/is-whitespace-character/index.js","parse-entities":"../node_modules/parse-entities/index.js","../locate/tag":"../node_modules/remark-parse/lib/locate/tag.js"}],"../node_modules/remark-parse/lib/locate/url.js":[function(require,module,exports) {
+'use strict';
+
+module.exports = locate;
+
+var PROTOCOLS = ['https://', 'http://', 'mailto:'];
+
+function locate(value, fromIndex) {
+  var length = PROTOCOLS.length;
+  var index = -1;
+  var min = -1;
+  var position;
+
+  if (!this.options.gfm) {
+    return -1;
+  }
+
+  while (++index < length) {
+    position = value.indexOf(PROTOCOLS[index], fromIndex);
+
+    if (position !== -1 && (position < min || min === -1)) {
+      min = position;
+    }
+  }
+
+  return min;
+}
+
+},{}],"../node_modules/remark-parse/lib/tokenize/url.js":[function(require,module,exports) {
+'use strict';
+
+var decode = require('parse-entities');
+var whitespace = require('is-whitespace-character');
+var locate = require('../locate/url');
+
+module.exports = url;
+url.locator = locate;
+url.notInLink = true;
+
+var C_BRACKET_OPEN = '[';
+var C_BRACKET_CLOSE = ']';
+var C_PAREN_OPEN = '(';
+var C_PAREN_CLOSE = ')';
+var C_LT = '<';
+var C_AT_SIGN = '@';
+
+var HTTP_PROTOCOL = 'http://';
+var HTTPS_PROTOCOL = 'https://';
+var MAILTO_PROTOCOL = 'mailto:';
+
+var PROTOCOLS = [
+  HTTP_PROTOCOL,
+  HTTPS_PROTOCOL,
+  MAILTO_PROTOCOL
+];
+
+var PROTOCOLS_LENGTH = PROTOCOLS.length;
+
+function url(eat, value, silent) {
+  var self = this;
+  var subvalue;
+  var content;
+  var character;
+  var index;
+  var position;
+  var protocol;
+  var match;
+  var length;
+  var queue;
+  var parenCount;
+  var nextCharacter;
+  var exit;
+
+  if (!self.options.gfm) {
+    return;
+  }
+
+  subvalue = '';
+  index = -1;
+  length = PROTOCOLS_LENGTH;
+
+  while (++index < length) {
+    protocol = PROTOCOLS[index];
+    match = value.slice(0, protocol.length);
+
+    if (match.toLowerCase() === protocol) {
+      subvalue = match;
+      break;
+    }
+  }
+
+  if (!subvalue) {
+    return;
+  }
+
+  index = subvalue.length;
+  length = value.length;
+  queue = '';
+  parenCount = 0;
+
+  while (index < length) {
+    character = value.charAt(index);
+
+    if (whitespace(character) || character === C_LT) {
+      break;
+    }
+
+    if (
+      character === '.' ||
+      character === ',' ||
+      character === ':' ||
+      character === ';' ||
+      character === '"' ||
+      character === '\'' ||
+      character === ')' ||
+      character === ']'
+    ) {
+      nextCharacter = value.charAt(index + 1);
+
+      if (!nextCharacter || whitespace(nextCharacter)) {
+        break;
+      }
+    }
+
+    if (character === C_PAREN_OPEN || character === C_BRACKET_OPEN) {
+      parenCount++;
+    }
+
+    if (character === C_PAREN_CLOSE || character === C_BRACKET_CLOSE) {
+      parenCount--;
+
+      if (parenCount < 0) {
+        break;
+      }
+    }
+
+    queue += character;
+    index++;
+  }
+
+  if (!queue) {
+    return;
+  }
+
+  subvalue += queue;
+  content = subvalue;
+
+  if (protocol === MAILTO_PROTOCOL) {
+    position = queue.indexOf(C_AT_SIGN);
+
+    if (position === -1 || position === length - 1) {
+      return;
+    }
+
+    content = content.substr(MAILTO_PROTOCOL.length);
+  }
+
+  /* istanbul ignore if - never used (yet) */
+  if (silent) {
+    return true;
+  }
+
+  exit = self.enterLink();
+  content = self.tokenizeInline(content, eat.now());
+  exit();
+
+  return eat(subvalue)({
+    type: 'link',
+    title: null,
+    url: decode(subvalue, {nonTerminated: false}),
+    children: content
+  });
+}
+
+},{"parse-entities":"../node_modules/parse-entities/index.js","is-whitespace-character":"../node_modules/is-whitespace-character/index.js","../locate/url":"../node_modules/remark-parse/lib/locate/url.js"}],"../node_modules/remark-parse/lib/tokenize/html-inline.js":[function(require,module,exports) {
+'use strict';
+
+var alphabetical = require('is-alphabetical');
+var locate = require('../locate/tag');
+var tag = require('../util/html').tag;
+
+module.exports = inlineHTML;
+inlineHTML.locator = locate;
+
+var EXPRESSION_HTML_LINK_OPEN = /^<a /i;
+var EXPRESSION_HTML_LINK_CLOSE = /^<\/a>/i;
+
+function inlineHTML(eat, value, silent) {
+  var self = this;
+  var length = value.length;
+  var character;
+  var subvalue;
+
+  if (value.charAt(0) !== '<' || length < 3) {
+    return;
+  }
+
+  character = value.charAt(1);
+
+  if (
+    !alphabetical(character) &&
+    character !== '?' &&
+    character !== '!' &&
+    character !== '/'
+  ) {
+    return;
+  }
+
+  subvalue = value.match(tag);
+
+  if (!subvalue) {
+    return;
+  }
+
+  /* istanbul ignore if - not used yet. */
+  if (silent) {
+    return true;
+  }
+
+  subvalue = subvalue[0];
+
+  if (!self.inLink && EXPRESSION_HTML_LINK_OPEN.test(subvalue)) {
+    self.inLink = true;
+  } else if (self.inLink && EXPRESSION_HTML_LINK_CLOSE.test(subvalue)) {
+    self.inLink = false;
+  }
+
+  return eat(subvalue)({type: 'html', value: subvalue});
+}
+
+},{"is-alphabetical":"../node_modules/is-alphabetical/index.js","../locate/tag":"../node_modules/remark-parse/lib/locate/tag.js","../util/html":"../node_modules/remark-parse/lib/util/html.js"}],"../node_modules/remark-parse/lib/locate/link.js":[function(require,module,exports) {
+'use strict';
+
+module.exports = locate;
+
+function locate(value, fromIndex) {
+  var link = value.indexOf('[', fromIndex);
+  var image = value.indexOf('![', fromIndex);
+
+  if (image === -1) {
+    return link;
+  }
+
+  /* Link can never be `-1` if an image is found, so we don’t need
+   * to check for that :) */
+  return link < image ? link : image;
+}
+
+},{}],"../node_modules/remark-parse/lib/tokenize/link.js":[function(require,module,exports) {
+'use strict';
+
+var whitespace = require('is-whitespace-character');
+var locate = require('../locate/link');
+
+module.exports = link;
+link.locator = locate;
+
+var own = {}.hasOwnProperty;
+
+var C_BACKSLASH = '\\';
+var C_BRACKET_OPEN = '[';
+var C_BRACKET_CLOSE = ']';
+var C_PAREN_OPEN = '(';
+var C_PAREN_CLOSE = ')';
+var C_LT = '<';
+var C_GT = '>';
+var C_TICK = '`';
+var C_DOUBLE_QUOTE = '"';
+var C_SINGLE_QUOTE = '\'';
+
+/* Map of characters, which can be used to mark link
+ * and image titles. */
+var LINK_MARKERS = {};
+
+LINK_MARKERS[C_DOUBLE_QUOTE] = C_DOUBLE_QUOTE;
+LINK_MARKERS[C_SINGLE_QUOTE] = C_SINGLE_QUOTE;
+
+/* Map of characters, which can be used to mark link
+ * and image titles in commonmark-mode. */
+var COMMONMARK_LINK_MARKERS = {};
+
+COMMONMARK_LINK_MARKERS[C_DOUBLE_QUOTE] = C_DOUBLE_QUOTE;
+COMMONMARK_LINK_MARKERS[C_SINGLE_QUOTE] = C_SINGLE_QUOTE;
+COMMONMARK_LINK_MARKERS[C_PAREN_OPEN] = C_PAREN_CLOSE;
+
+function link(eat, value, silent) {
+  var self = this;
+  var subvalue = '';
+  var index = 0;
+  var character = value.charAt(0);
+  var pedantic = self.options.pedantic;
+  var commonmark = self.options.commonmark;
+  var gfm = self.options.gfm;
+  var closed;
+  var count;
+  var opening;
+  var beforeURL;
+  var beforeTitle;
+  var subqueue;
+  var hasMarker;
+  var markers;
+  var isImage;
+  var content;
+  var marker;
+  var length;
+  var title;
+  var depth;
+  var queue;
+  var url;
+  var now;
+  var exit;
+  var node;
+
+  /* Detect whether this is an image. */
+  if (character === '!') {
+    isImage = true;
+    subvalue = character;
+    character = value.charAt(++index);
+  }
+
+  /* Eat the opening. */
+  if (character !== C_BRACKET_OPEN) {
+    return;
+  }
+
+  /* Exit when this is a link and we’re already inside
+   * a link. */
+  if (!isImage && self.inLink) {
+    return;
+  }
+
+  subvalue += character;
+  queue = '';
+  index++;
+
+  /* Eat the content. */
+  length = value.length;
+  now = eat.now();
+  depth = 0;
+
+  now.column += index;
+  now.offset += index;
+
+  while (index < length) {
+    character = value.charAt(index);
+    subqueue = character;
+
+    if (character === C_TICK) {
+      /* Inline-code in link content. */
+      count = 1;
+
+      while (value.charAt(index + 1) === C_TICK) {
+        subqueue += character;
+        index++;
+        count++;
+      }
+
+      if (!opening) {
+        opening = count;
+      } else if (count >= opening) {
+        opening = 0;
+      }
+    } else if (character === C_BACKSLASH) {
+      /* Allow brackets to be escaped. */
+      index++;
+      subqueue += value.charAt(index);
+    /* In GFM mode, brackets in code still count.
+     * In all other modes, they don’t.  This empty
+     * block prevents the next statements are
+     * entered. */
+    } else if ((!opening || gfm) && character === C_BRACKET_OPEN) {
+      depth++;
+    } else if ((!opening || gfm) && character === C_BRACKET_CLOSE) {
+      if (depth) {
+        depth--;
+      } else {
+        /* Allow white-space between content and
+         * url in GFM mode. */
+        if (!pedantic) {
+          while (index < length) {
+            character = value.charAt(index + 1);
+
+            if (!whitespace(character)) {
+              break;
+            }
+
+            subqueue += character;
+            index++;
+          }
+        }
+
+        if (value.charAt(index + 1) !== C_PAREN_OPEN) {
+          return;
+        }
+
+        subqueue += C_PAREN_OPEN;
+        closed = true;
+        index++;
+
+        break;
+      }
+    }
+
+    queue += subqueue;
+    subqueue = '';
+    index++;
+  }
+
+  /* Eat the content closing. */
+  if (!closed) {
+    return;
+  }
+
+  content = queue;
+  subvalue += queue + subqueue;
+  index++;
+
+  /* Eat white-space. */
+  while (index < length) {
+    character = value.charAt(index);
+
+    if (!whitespace(character)) {
+      break;
+    }
+
+    subvalue += character;
+    index++;
+  }
+
+  /* Eat the URL. */
+  character = value.charAt(index);
+  markers = commonmark ? COMMONMARK_LINK_MARKERS : LINK_MARKERS;
+  queue = '';
+  beforeURL = subvalue;
+
+  if (character === C_LT) {
+    index++;
+    beforeURL += C_LT;
+
+    while (index < length) {
+      character = value.charAt(index);
+
+      if (character === C_GT) {
+        break;
+      }
+
+      if (commonmark && character === '\n') {
+        return;
+      }
+
+      queue += character;
+      index++;
+    }
+
+    if (value.charAt(index) !== C_GT) {
+      return;
+    }
+
+    subvalue += C_LT + queue + C_GT;
+    url = queue;
+    index++;
+  } else {
+    character = null;
+    subqueue = '';
+
+    while (index < length) {
+      character = value.charAt(index);
+
+      if (subqueue && own.call(markers, character)) {
+        break;
+      }
+
+      if (whitespace(character)) {
+        if (!pedantic) {
+          break;
+        }
+
+        subqueue += character;
+      } else {
+        if (character === C_PAREN_OPEN) {
+          depth++;
+        } else if (character === C_PAREN_CLOSE) {
+          if (depth === 0) {
+            break;
+          }
+
+          depth--;
+        }
+
+        queue += subqueue;
+        subqueue = '';
+
+        if (character === C_BACKSLASH) {
+          queue += C_BACKSLASH;
+          character = value.charAt(++index);
+        }
+
+        queue += character;
+      }
+
+      index++;
+    }
+
+    subvalue += queue;
+    url = queue;
+    index = subvalue.length;
+  }
+
+  /* Eat white-space. */
+  queue = '';
+
+  while (index < length) {
+    character = value.charAt(index);
+
+    if (!whitespace(character)) {
+      break;
+    }
+
+    queue += character;
+    index++;
+  }
+
+  character = value.charAt(index);
+  subvalue += queue;
+
+  /* Eat the title. */
+  if (queue && own.call(markers, character)) {
+    index++;
+    subvalue += character;
+    queue = '';
+    marker = markers[character];
+    beforeTitle = subvalue;
+
+    /* In commonmark-mode, things are pretty easy: the
+     * marker cannot occur inside the title.
+     *
+     * Non-commonmark does, however, support nested
+     * delimiters. */
+    if (commonmark) {
+      while (index < length) {
+        character = value.charAt(index);
+
+        if (character === marker) {
+          break;
+        }
+
+        if (character === C_BACKSLASH) {
+          queue += C_BACKSLASH;
+          character = value.charAt(++index);
+        }
+
+        index++;
+        queue += character;
+      }
+
+      character = value.charAt(index);
+
+      if (character !== marker) {
+        return;
+      }
+
+      title = queue;
+      subvalue += queue + character;
+      index++;
+
+      while (index < length) {
+        character = value.charAt(index);
+
+        if (!whitespace(character)) {
+          break;
+        }
+
+        subvalue += character;
+        index++;
+      }
+    } else {
+      subqueue = '';
+
+      while (index < length) {
+        character = value.charAt(index);
+
+        if (character === marker) {
+          if (hasMarker) {
+            queue += marker + subqueue;
+            subqueue = '';
+          }
+
+          hasMarker = true;
+        } else if (!hasMarker) {
+          queue += character;
+        } else if (character === C_PAREN_CLOSE) {
+          subvalue += queue + marker + subqueue;
+          title = queue;
+          break;
+        } else if (whitespace(character)) {
+          subqueue += character;
+        } else {
+          queue += marker + subqueue + character;
+          subqueue = '';
+          hasMarker = false;
+        }
+
+        index++;
+      }
+    }
+  }
+
+  if (value.charAt(index) !== C_PAREN_CLOSE) {
+    return;
+  }
+
+  /* istanbul ignore if - never used (yet) */
+  if (silent) {
+    return true;
+  }
+
+  subvalue += C_PAREN_CLOSE;
+
+  url = self.decode.raw(self.unescape(url), eat(beforeURL).test().end, {nonTerminated: false});
+
+  if (title) {
+    beforeTitle = eat(beforeTitle).test().end;
+    title = self.decode.raw(self.unescape(title), beforeTitle);
+  }
+
+  node = {
+    type: isImage ? 'image' : 'link',
+    title: title || null,
+    url: url
+  };
+
+  if (isImage) {
+    node.alt = self.decode.raw(self.unescape(content), now) || null;
+  } else {
+    exit = self.enterLink();
+    node.children = self.tokenizeInline(content, now);
+    exit();
+  }
+
+  return eat(subvalue)(node);
+}
+
+},{"is-whitespace-character":"../node_modules/is-whitespace-character/index.js","../locate/link":"../node_modules/remark-parse/lib/locate/link.js"}],"../node_modules/remark-parse/lib/tokenize/reference.js":[function(require,module,exports) {
+'use strict';
+
+var whitespace = require('is-whitespace-character');
+var locate = require('../locate/link');
+var normalize = require('../util/normalize');
+
+module.exports = reference;
+reference.locator = locate;
+
+var T_LINK = 'link';
+var T_IMAGE = 'image';
+var T_FOOTNOTE = 'footnote';
+var REFERENCE_TYPE_SHORTCUT = 'shortcut';
+var REFERENCE_TYPE_COLLAPSED = 'collapsed';
+var REFERENCE_TYPE_FULL = 'full';
+var C_CARET = '^';
+var C_BACKSLASH = '\\';
+var C_BRACKET_OPEN = '[';
+var C_BRACKET_CLOSE = ']';
+
+function reference(eat, value, silent) {
+  var self = this;
+  var character = value.charAt(0);
+  var index = 0;
+  var length = value.length;
+  var subvalue = '';
+  var intro = '';
+  var type = T_LINK;
+  var referenceType = REFERENCE_TYPE_SHORTCUT;
+  var content;
+  var identifier;
+  var now;
+  var node;
+  var exit;
+  var queue;
+  var bracketed;
+  var depth;
+
+  /* Check whether we’re eating an image. */
+  if (character === '!') {
+    type = T_IMAGE;
+    intro = character;
+    character = value.charAt(++index);
+  }
+
+  if (character !== C_BRACKET_OPEN) {
+    return;
+  }
+
+  index++;
+  intro += character;
+  queue = '';
+
+  /* Check whether we’re eating a footnote. */
+  if (self.options.footnotes && value.charAt(index) === C_CARET) {
+    /* Exit if `![^` is found, so the `!` will be seen as text after this,
+     * and we’ll enter this function again when `[^` is found. */
+    if (type === T_IMAGE) {
+      return;
+    }
+
+    intro += C_CARET;
+    index++;
+    type = T_FOOTNOTE;
+  }
+
+  /* Eat the text. */
+  depth = 0;
+
+  while (index < length) {
+    character = value.charAt(index);
+
+    if (character === C_BRACKET_OPEN) {
+      bracketed = true;
+      depth++;
+    } else if (character === C_BRACKET_CLOSE) {
+      if (!depth) {
+        break;
+      }
+
+      depth--;
+    }
+
+    if (character === C_BACKSLASH) {
+      queue += C_BACKSLASH;
+      character = value.charAt(++index);
+    }
+
+    queue += character;
+    index++;
+  }
+
+  subvalue = queue;
+  content = queue;
+  character = value.charAt(index);
+
+  if (character !== C_BRACKET_CLOSE) {
+    return;
+  }
+
+  index++;
+  subvalue += character;
+  queue = '';
+
+  while (index < length) {
+    character = value.charAt(index);
+
+    if (!whitespace(character)) {
+      break;
+    }
+
+    queue += character;
+    index++;
+  }
+
+  character = value.charAt(index);
+
+  /* Inline footnotes cannot have an identifier. */
+  if (type !== T_FOOTNOTE && character === C_BRACKET_OPEN) {
+    identifier = '';
+    queue += character;
+    index++;
+
+    while (index < length) {
+      character = value.charAt(index);
+
+      if (character === C_BRACKET_OPEN || character === C_BRACKET_CLOSE) {
+        break;
+      }
+
+      if (character === C_BACKSLASH) {
+        identifier += C_BACKSLASH;
+        character = value.charAt(++index);
+      }
+
+      identifier += character;
+      index++;
+    }
+
+    character = value.charAt(index);
+
+    if (character === C_BRACKET_CLOSE) {
+      referenceType = identifier ? REFERENCE_TYPE_FULL : REFERENCE_TYPE_COLLAPSED;
+      queue += identifier + character;
+      index++;
+    } else {
+      identifier = '';
+    }
+
+    subvalue += queue;
+    queue = '';
+  } else {
+    if (!content) {
+      return;
+    }
+
+    identifier = content;
+  }
+
+  /* Brackets cannot be inside the identifier. */
+  if (referenceType !== REFERENCE_TYPE_FULL && bracketed) {
+    return;
+  }
+
+  subvalue = intro + subvalue;
+
+  if (type === T_LINK && self.inLink) {
+    return null;
+  }
+
+  /* istanbul ignore if - never used (yet) */
+  if (silent) {
+    return true;
+  }
+
+  if (type === T_FOOTNOTE && content.indexOf(' ') !== -1) {
+    return eat(subvalue)({
+      type: 'footnote',
+      children: this.tokenizeInline(content, eat.now())
+    });
+  }
+
+  now = eat.now();
+  now.column += intro.length;
+  now.offset += intro.length;
+  identifier = referenceType === REFERENCE_TYPE_FULL ? identifier : content;
+
+  node = {
+    type: type + 'Reference',
+    identifier: normalize(identifier)
+  };
+
+  if (type === T_LINK || type === T_IMAGE) {
+    node.referenceType = referenceType;
+  }
+
+  if (type === T_LINK) {
+    exit = self.enterLink();
+    node.children = self.tokenizeInline(content, now);
+    exit();
+  } else if (type === T_IMAGE) {
+    node.alt = self.decode.raw(self.unescape(content), now) || null;
+  }
+
+  return eat(subvalue)(node);
+}
+
+},{"is-whitespace-character":"../node_modules/is-whitespace-character/index.js","../locate/link":"../node_modules/remark-parse/lib/locate/link.js","../util/normalize":"../node_modules/remark-parse/lib/util/normalize.js"}],"../node_modules/remark-parse/lib/locate/strong.js":[function(require,module,exports) {
+'use strict';
+
+module.exports = locate;
+
+function locate(value, fromIndex) {
+  var asterisk = value.indexOf('**', fromIndex);
+  var underscore = value.indexOf('__', fromIndex);
+
+  if (underscore === -1) {
+    return asterisk;
+  }
+
+  if (asterisk === -1) {
+    return underscore;
+  }
+
+  return underscore < asterisk ? underscore : asterisk;
+}
+
+},{}],"../node_modules/remark-parse/lib/tokenize/strong.js":[function(require,module,exports) {
+'use strict';
+
+var trim = require('trim');
+var whitespace = require('is-whitespace-character');
+var locate = require('../locate/strong');
+
+module.exports = strong;
+strong.locator = locate;
+
+var C_ASTERISK = '*';
+var C_UNDERSCORE = '_';
+
+function strong(eat, value, silent) {
+  var self = this;
+  var index = 0;
+  var character = value.charAt(index);
+  var now;
+  var pedantic;
+  var marker;
+  var queue;
+  var subvalue;
+  var length;
+  var prev;
+
+  if (
+    (character !== C_ASTERISK && character !== C_UNDERSCORE) ||
+    value.charAt(++index) !== character
+  ) {
+    return;
+  }
+
+  pedantic = self.options.pedantic;
+  marker = character;
+  subvalue = marker + marker;
+  length = value.length;
+  index++;
+  queue = '';
+  character = '';
+
+  if (pedantic && whitespace(value.charAt(index))) {
+    return;
+  }
+
+  while (index < length) {
+    prev = character;
+    character = value.charAt(index);
+
+    if (
+      character === marker &&
+      value.charAt(index + 1) === marker &&
+      (!pedantic || !whitespace(prev))
+    ) {
+      character = value.charAt(index + 2);
+
+      if (character !== marker) {
+        if (!trim(queue)) {
+          return;
+        }
+
+        /* istanbul ignore if - never used (yet) */
+        if (silent) {
+          return true;
+        }
+
+        now = eat.now();
+        now.column += 2;
+        now.offset += 2;
+
+        return eat(subvalue + queue + subvalue)({
+          type: 'strong',
+          children: self.tokenizeInline(queue, now)
+        });
+      }
+    }
+
+    if (!pedantic && character === '\\') {
+      queue += character;
+      character = value.charAt(++index);
+    }
+
+    queue += character;
+    index++;
+  }
+}
+
+},{"trim":"../node_modules/trim/index.js","is-whitespace-character":"../node_modules/is-whitespace-character/index.js","../locate/strong":"../node_modules/remark-parse/lib/locate/strong.js"}],"../node_modules/is-word-character/index.js":[function(require,module,exports) {
+'use strict'
+
+module.exports = wordCharacter
+
+var fromCode = String.fromCharCode
+var re = /\w/
+
+// Check if the given character code, or the character code at the first
+// character, is a word character.
+function wordCharacter(character) {
+  return re.test(
+    typeof character === 'number' ? fromCode(character) : character.charAt(0)
+  )
+}
+
+},{}],"../node_modules/remark-parse/lib/locate/emphasis.js":[function(require,module,exports) {
+'use strict';
+
+module.exports = locate;
+
+function locate(value, fromIndex) {
+  var asterisk = value.indexOf('*', fromIndex);
+  var underscore = value.indexOf('_', fromIndex);
+
+  if (underscore === -1) {
+    return asterisk;
+  }
+
+  if (asterisk === -1) {
+    return underscore;
+  }
+
+  return underscore < asterisk ? underscore : asterisk;
+}
+
+},{}],"../node_modules/remark-parse/lib/tokenize/emphasis.js":[function(require,module,exports) {
+'use strict';
+
+var trim = require('trim');
+var word = require('is-word-character');
+var whitespace = require('is-whitespace-character');
+var locate = require('../locate/emphasis');
+
+module.exports = emphasis;
+emphasis.locator = locate;
+
+var C_ASTERISK = '*';
+var C_UNDERSCORE = '_';
+
+function emphasis(eat, value, silent) {
+  var self = this;
+  var index = 0;
+  var character = value.charAt(index);
+  var now;
+  var pedantic;
+  var marker;
+  var queue;
+  var subvalue;
+  var length;
+  var prev;
+
+  if (character !== C_ASTERISK && character !== C_UNDERSCORE) {
+    return;
+  }
+
+  pedantic = self.options.pedantic;
+  subvalue = character;
+  marker = character;
+  length = value.length;
+  index++;
+  queue = '';
+  character = '';
+
+  if (pedantic && whitespace(value.charAt(index))) {
+    return;
+  }
+
+  while (index < length) {
+    prev = character;
+    character = value.charAt(index);
+
+    if (character === marker && (!pedantic || !whitespace(prev))) {
+      character = value.charAt(++index);
+
+      if (character !== marker) {
+        if (!trim(queue) || prev === marker) {
+          return;
+        }
+
+        if (!pedantic && marker === C_UNDERSCORE && word(character)) {
+          queue += marker;
+          continue;
+        }
+
+        /* istanbul ignore if - never used (yet) */
+        if (silent) {
+          return true;
+        }
+
+        now = eat.now();
+        now.column++;
+        now.offset++;
+
+        return eat(subvalue + queue + marker)({
+          type: 'emphasis',
+          children: self.tokenizeInline(queue, now)
+        });
+      }
+
+      queue += marker;
+    }
+
+    if (!pedantic && character === '\\') {
+      queue += character;
+      character = value.charAt(++index);
+    }
+
+    queue += character;
+    index++;
+  }
+}
+
+},{"trim":"../node_modules/trim/index.js","is-word-character":"../node_modules/is-word-character/index.js","is-whitespace-character":"../node_modules/is-whitespace-character/index.js","../locate/emphasis":"../node_modules/remark-parse/lib/locate/emphasis.js"}],"../node_modules/remark-parse/lib/locate/delete.js":[function(require,module,exports) {
+'use strict';
+
+module.exports = locate;
+
+function locate(value, fromIndex) {
+  return value.indexOf('~~', fromIndex);
+}
+
+},{}],"../node_modules/remark-parse/lib/tokenize/delete.js":[function(require,module,exports) {
+'use strict';
+
+var whitespace = require('is-whitespace-character');
+var locate = require('../locate/delete');
+
+module.exports = strikethrough;
+strikethrough.locator = locate;
+
+var C_TILDE = '~';
+var DOUBLE = '~~';
+
+function strikethrough(eat, value, silent) {
+  var self = this;
+  var character = '';
+  var previous = '';
+  var preceding = '';
+  var subvalue = '';
+  var index;
+  var length;
+  var now;
+
+  if (
+    !self.options.gfm ||
+    value.charAt(0) !== C_TILDE ||
+    value.charAt(1) !== C_TILDE ||
+    whitespace(value.charAt(2))
+  ) {
+    return;
+  }
+
+  index = 1;
+  length = value.length;
+  now = eat.now();
+  now.column += 2;
+  now.offset += 2;
+
+  while (++index < length) {
+    character = value.charAt(index);
+
+    if (
+      character === C_TILDE &&
+      previous === C_TILDE &&
+      (!preceding || !whitespace(preceding))
+    ) {
+      /* istanbul ignore if - never used (yet) */
+      if (silent) {
+        return true;
+      }
+
+      return eat(DOUBLE + subvalue + DOUBLE)({
+        type: 'delete',
+        children: self.tokenizeInline(subvalue, now)
+      });
+    }
+
+    subvalue += previous;
+    preceding = previous;
+    previous = character;
+  }
+}
+
+},{"is-whitespace-character":"../node_modules/is-whitespace-character/index.js","../locate/delete":"../node_modules/remark-parse/lib/locate/delete.js"}],"../node_modules/remark-parse/lib/locate/code-inline.js":[function(require,module,exports) {
+'use strict';
+
+module.exports = locate;
+
+function locate(value, fromIndex) {
+  return value.indexOf('`', fromIndex);
+}
+
+},{}],"../node_modules/remark-parse/lib/tokenize/code-inline.js":[function(require,module,exports) {
+'use strict';
+
+var whitespace = require('is-whitespace-character');
+var locate = require('../locate/code-inline');
+
+module.exports = inlineCode;
+inlineCode.locator = locate;
+
+var C_TICK = '`';
+
+/* Tokenise inline code. */
+function inlineCode(eat, value, silent) {
+  var length = value.length;
+  var index = 0;
+  var queue = '';
+  var tickQueue = '';
+  var contentQueue;
+  var subqueue;
+  var count;
+  var openingCount;
+  var subvalue;
+  var character;
+  var found;
+  var next;
+
+  while (index < length) {
+    if (value.charAt(index) !== C_TICK) {
+      break;
+    }
+
+    queue += C_TICK;
+    index++;
+  }
+
+  if (!queue) {
+    return;
+  }
+
+  subvalue = queue;
+  openingCount = index;
+  queue = '';
+  next = value.charAt(index);
+  count = 0;
+
+  while (index < length) {
+    character = next;
+    next = value.charAt(index + 1);
+
+    if (character === C_TICK) {
+      count++;
+      tickQueue += character;
+    } else {
+      count = 0;
+      queue += character;
+    }
+
+    if (count && next !== C_TICK) {
+      if (count === openingCount) {
+        subvalue += queue + tickQueue;
+        found = true;
+        break;
+      }
+
+      queue += tickQueue;
+      tickQueue = '';
+    }
+
+    index++;
+  }
+
+  if (!found) {
+    if (openingCount % 2 !== 0) {
+      return;
+    }
+
+    queue = '';
+  }
+
+  /* istanbul ignore if - never used (yet) */
+  if (silent) {
+    return true;
+  }
+
+  contentQueue = '';
+  subqueue = '';
+  length = queue.length;
+  index = -1;
+
+  while (++index < length) {
+    character = queue.charAt(index);
+
+    if (whitespace(character)) {
+      subqueue += character;
+      continue;
+    }
+
+    if (subqueue) {
+      if (contentQueue) {
+        contentQueue += subqueue;
+      }
+
+      subqueue = '';
+    }
+
+    contentQueue += character;
+  }
+
+  return eat(subvalue)({
+    type: 'inlineCode',
+    value: contentQueue
+  });
+}
+
+},{"is-whitespace-character":"../node_modules/is-whitespace-character/index.js","../locate/code-inline":"../node_modules/remark-parse/lib/locate/code-inline.js"}],"../node_modules/remark-parse/lib/locate/break.js":[function(require,module,exports) {
+'use strict';
+
+module.exports = locate;
+
+function locate(value, fromIndex) {
+  var index = value.indexOf('\n', fromIndex);
+
+  while (index > fromIndex) {
+    if (value.charAt(index - 1) !== ' ') {
+      break;
+    }
+
+    index--;
+  }
+
+  return index;
+}
+
+},{}],"../node_modules/remark-parse/lib/tokenize/break.js":[function(require,module,exports) {
+'use strict';
+
+var locate = require('../locate/break');
+
+module.exports = hardBreak;
+hardBreak.locator = locate;
+
+var MIN_BREAK_LENGTH = 2;
+
+function hardBreak(eat, value, silent) {
+  var length = value.length;
+  var index = -1;
+  var queue = '';
+  var character;
+
+  while (++index < length) {
+    character = value.charAt(index);
+
+    if (character === '\n') {
+      if (index < MIN_BREAK_LENGTH) {
+        return;
+      }
+
+      /* istanbul ignore if - never used (yet) */
+      if (silent) {
+        return true;
+      }
+
+      queue += character;
+
+      return eat(queue)({type: 'break'});
+    }
+
+    if (character !== ' ') {
+      return;
+    }
+
+    queue += character;
+  }
+}
+
+},{"../locate/break":"../node_modules/remark-parse/lib/locate/break.js"}],"../node_modules/remark-parse/lib/tokenize/text.js":[function(require,module,exports) {
+'use strict';
+
+module.exports = text;
+
+function text(eat, value, silent) {
+  var self = this;
+  var methods;
+  var tokenizers;
+  var index;
+  var length;
+  var subvalue;
+  var position;
+  var tokenizer;
+  var name;
+  var min;
+  var now;
+
+  /* istanbul ignore if - never used (yet) */
+  if (silent) {
+    return true;
+  }
+
+  methods = self.inlineMethods;
+  length = methods.length;
+  tokenizers = self.inlineTokenizers;
+  index = -1;
+  min = value.length;
+
+  while (++index < length) {
+    name = methods[index];
+
+    if (name === 'text' || !tokenizers[name]) {
+      continue;
+    }
+
+    tokenizer = tokenizers[name].locator;
+
+    if (!tokenizer) {
+      eat.file.fail('Missing locator: `' + name + '`');
+    }
+
+    position = tokenizer.call(self, value, 1);
+
+    if (position !== -1 && position < min) {
+      min = position;
+    }
+  }
+
+  subvalue = value.slice(0, min);
+  now = eat.now();
+
+  self.decode(subvalue, now, function (content, position, source) {
+    eat(source || content)({
+      type: 'text',
+      value: content
+    });
+  });
+}
+
+},{}],"../node_modules/remark-parse/lib/parser.js":[function(require,module,exports) {
+'use strict';
+
+var xtend = require('xtend');
+var toggle = require('state-toggle');
+var vfileLocation = require('vfile-location');
+var unescape = require('./unescape');
+var decode = require('./decode');
+var tokenizer = require('./tokenizer');
+
+module.exports = Parser;
+
+function Parser(doc, file) {
+  this.file = file;
+  this.offset = {};
+  this.options = xtend(this.options);
+  this.setOptions({});
+
+  this.inList = false;
+  this.inBlock = false;
+  this.inLink = false;
+  this.atStart = true;
+
+  this.toOffset = vfileLocation(file).toOffset;
+  this.unescape = unescape(this, 'escape');
+  this.decode = decode(this);
+}
+
+var proto = Parser.prototype;
+
+/* Expose core. */
+proto.setOptions = require('./set-options');
+proto.parse = require('./parse');
+
+/* Expose `defaults`. */
+proto.options = require('./defaults');
+
+/* Enter and exit helpers. */
+proto.exitStart = toggle('atStart', true);
+proto.enterList = toggle('inList', false);
+proto.enterLink = toggle('inLink', false);
+proto.enterBlock = toggle('inBlock', false);
+
+/* Nodes that can interupt a paragraph:
+ *
+ * ```markdown
+ * A paragraph, followed by a thematic break.
+ * ___
+ * ```
+ *
+ * In the above example, the thematic break “interupts”
+ * the paragraph. */
+proto.interruptParagraph = [
+  ['thematicBreak'],
+  ['atxHeading'],
+  ['fencedCode'],
+  ['blockquote'],
+  ['html'],
+  ['setextHeading', {commonmark: false}],
+  ['definition', {commonmark: false}],
+  ['footnote', {commonmark: false}]
+];
+
+/* Nodes that can interupt a list:
+ *
+ * ```markdown
+ * - One
+ * ___
+ * ```
+ *
+ * In the above example, the thematic break “interupts”
+ * the list. */
+proto.interruptList = [
+  ['atxHeading', {pedantic: false}],
+  ['fencedCode', {pedantic: false}],
+  ['thematicBreak', {pedantic: false}],
+  ['definition', {commonmark: false}],
+  ['footnote', {commonmark: false}]
+];
+
+/* Nodes that can interupt a blockquote:
+ *
+ * ```markdown
+ * > A paragraph.
+ * ___
+ * ```
+ *
+ * In the above example, the thematic break “interupts”
+ * the blockquote. */
+proto.interruptBlockquote = [
+  ['indentedCode', {commonmark: true}],
+  ['fencedCode', {commonmark: true}],
+  ['atxHeading', {commonmark: true}],
+  ['setextHeading', {commonmark: true}],
+  ['thematicBreak', {commonmark: true}],
+  ['html', {commonmark: true}],
+  ['list', {commonmark: true}],
+  ['definition', {commonmark: false}],
+  ['footnote', {commonmark: false}]
+];
+
+/* Handlers. */
+proto.blockTokenizers = {
+  newline: require('./tokenize/newline'),
+  indentedCode: require('./tokenize/code-indented'),
+  fencedCode: require('./tokenize/code-fenced'),
+  blockquote: require('./tokenize/blockquote'),
+  atxHeading: require('./tokenize/heading-atx'),
+  thematicBreak: require('./tokenize/thematic-break'),
+  list: require('./tokenize/list'),
+  setextHeading: require('./tokenize/heading-setext'),
+  html: require('./tokenize/html-block'),
+  footnote: require('./tokenize/footnote-definition'),
+  definition: require('./tokenize/definition'),
+  table: require('./tokenize/table'),
+  paragraph: require('./tokenize/paragraph')
+};
+
+proto.inlineTokenizers = {
+  escape: require('./tokenize/escape'),
+  autoLink: require('./tokenize/auto-link'),
+  url: require('./tokenize/url'),
+  html: require('./tokenize/html-inline'),
+  link: require('./tokenize/link'),
+  reference: require('./tokenize/reference'),
+  strong: require('./tokenize/strong'),
+  emphasis: require('./tokenize/emphasis'),
+  deletion: require('./tokenize/delete'),
+  code: require('./tokenize/code-inline'),
+  break: require('./tokenize/break'),
+  text: require('./tokenize/text')
+};
+
+/* Expose precedence. */
+proto.blockMethods = keys(proto.blockTokenizers);
+proto.inlineMethods = keys(proto.inlineTokenizers);
+
+/* Tokenizers. */
+proto.tokenizeBlock = tokenizer('block');
+proto.tokenizeInline = tokenizer('inline');
+proto.tokenizeFactory = tokenizer;
+
+/* Get all keys in `value`. */
+function keys(value) {
+  var result = [];
+  var key;
+
+  for (key in value) {
+    result.push(key);
+  }
+
+  return result;
+}
+
+},{"xtend":"../node_modules/xtend/immutable.js","state-toggle":"../node_modules/state-toggle/index.js","vfile-location":"../node_modules/vfile-location/index.js","./unescape":"../node_modules/remark-parse/lib/unescape.js","./decode":"../node_modules/remark-parse/lib/decode.js","./tokenizer":"../node_modules/remark-parse/lib/tokenizer.js","./set-options":"../node_modules/remark-parse/lib/set-options.js","./parse":"../node_modules/remark-parse/lib/parse.js","./defaults":"../node_modules/remark-parse/lib/defaults.js","./tokenize/newline":"../node_modules/remark-parse/lib/tokenize/newline.js","./tokenize/code-indented":"../node_modules/remark-parse/lib/tokenize/code-indented.js","./tokenize/code-fenced":"../node_modules/remark-parse/lib/tokenize/code-fenced.js","./tokenize/blockquote":"../node_modules/remark-parse/lib/tokenize/blockquote.js","./tokenize/heading-atx":"../node_modules/remark-parse/lib/tokenize/heading-atx.js","./tokenize/thematic-break":"../node_modules/remark-parse/lib/tokenize/thematic-break.js","./tokenize/list":"../node_modules/remark-parse/lib/tokenize/list.js","./tokenize/heading-setext":"../node_modules/remark-parse/lib/tokenize/heading-setext.js","./tokenize/html-block":"../node_modules/remark-parse/lib/tokenize/html-block.js","./tokenize/footnote-definition":"../node_modules/remark-parse/lib/tokenize/footnote-definition.js","./tokenize/definition":"../node_modules/remark-parse/lib/tokenize/definition.js","./tokenize/table":"../node_modules/remark-parse/lib/tokenize/table.js","./tokenize/paragraph":"../node_modules/remark-parse/lib/tokenize/paragraph.js","./tokenize/escape":"../node_modules/remark-parse/lib/tokenize/escape.js","./tokenize/auto-link":"../node_modules/remark-parse/lib/tokenize/auto-link.js","./tokenize/url":"../node_modules/remark-parse/lib/tokenize/url.js","./tokenize/html-inline":"../node_modules/remark-parse/lib/tokenize/html-inline.js","./tokenize/link":"../node_modules/remark-parse/lib/tokenize/link.js","./tokenize/reference":"../node_modules/remark-parse/lib/tokenize/reference.js","./tokenize/strong":"../node_modules/remark-parse/lib/tokenize/strong.js","./tokenize/emphasis":"../node_modules/remark-parse/lib/tokenize/emphasis.js","./tokenize/delete":"../node_modules/remark-parse/lib/tokenize/delete.js","./tokenize/code-inline":"../node_modules/remark-parse/lib/tokenize/code-inline.js","./tokenize/break":"../node_modules/remark-parse/lib/tokenize/break.js","./tokenize/text":"../node_modules/remark-parse/lib/tokenize/text.js"}],"../node_modules/remark-parse/index.js":[function(require,module,exports) {
+'use strict';
+
+var unherit = require('unherit');
+var xtend = require('xtend');
+var Parser = require('./lib/parser.js');
+
+module.exports = parse;
+parse.Parser = Parser;
+
+function parse(options) {
+  var Local = unherit(Parser);
+  Local.prototype.options = xtend(Local.prototype.options, this.data('settings'), options);
+  this.Parser = Local;
+}
+
+},{"unherit":"../node_modules/unherit/index.js","xtend":"../node_modules/xtend/immutable.js","./lib/parser.js":"../node_modules/remark-parse/lib/parser.js"}],"../node_modules/unist-util-visit-parents/index.js":[function(require,module,exports) {
+'use strict'
+
+/* Expose. */
+module.exports = visitParents
+
+/* Visit. */
+function visitParents(tree, type, visitor) {
+  var stack = []
+
+  if (typeof type === 'function') {
+    visitor = type
+    type = null
+  }
+
+  one(tree)
+
+  /* Visit a single node. */
+  function one(node) {
+    var result
+
+    if (!type || node.type === type) {
+      result = visitor(node, stack.concat())
+    }
+
+    if (node.children && result !== false) {
+      return all(node.children, node)
+    }
+
+    return result
+  }
+
+  /* Visit children in `parent`. */
+  function all(children, parent) {
+    var length = children.length
+    var index = -1
+    var child
+
+    stack.push(parent)
+
+    while (++index < length) {
+      child = children[index]
+
+      if (child && one(child) === false) {
+        return false
+      }
+    }
+
+    stack.pop()
+
+    return true
+  }
+}
+
+},{}],"../node_modules/mdast-add-list-metadata/index.js":[function(require,module,exports) {
+var visitWithParents = require('unist-util-visit-parents');
+
+function addListMetadata() {
+  return function (ast) {
+    visitWithParents(ast, 'list', function (listNode, parents) {
+      var depth = 0, i, n;
+      for (i = 0, n = parents.length; i < n; i++) {
+        if (parents[i].type === 'list') depth += 1;
+      }
+      for (i = 0, n = listNode.children.length; i < n; i++) {
+        var child = listNode.children[i];
+        child.index = i;
+        child.ordered = listNode.ordered;
+      }
+      listNode.depth = depth;
+    });
+    return ast;
+  };
+}
+
+module.exports = addListMetadata;
+
+},{"unist-util-visit-parents":"../node_modules/unist-util-visit-parents/index.js"}],"../node_modules/react-markdown/lib/plugins/naive-html.js":[function(require,module,exports) {
+"use strict";
+
+/**
+ * Naive, simple plugin to match inline nodes without attributes
+ * This allows say <strong>foo</strong>, but not <strong class="very">foo</strong>
+ * For proper HTML support, you'll want a different plugin
+ **/
+var visit = require('unist-util-visit');
+
+var type = 'virtualHtml';
+var selfClosingRe = /^<(area|base|br|col|embed|hr|img|input|keygen|link|meta|param|source|track|wbr)\s*\/?>$/i;
+var simpleTagRe = /^<(\/?)([a-z]+)\s*>$/;
+
+module.exports = function (tree) {
+  var open;
+  var currentParent;
+  visit(tree, 'html', function (node, index, parent) {
+    if (currentParent !== parent) {
+      open = [];
+      currentParent = parent;
+    }
+
+    var selfClosing = getSelfClosing(node);
+
+    if (selfClosing) {
+      parent.children.splice(index, 1, {
+        type: type,
+        tag: selfClosing,
+        position: node.position
+      });
+      return true;
+    }
+
+    var current = getSimpleTag(node, parent);
+
+    if (!current) {
+      return true;
+    }
+
+    var matching = findAndPull(open, current.tag);
+
+    if (matching) {
+      parent.children.splice(index, 0, virtual(current, matching, parent));
+    } else if (!current.opening) {
+      open.push(current);
+    }
+
+    return true;
+  }, true // Iterate in reverse
+  );
+  return tree;
+};
+
+function findAndPull(open, matchingTag) {
+  var i = open.length;
+
+  while (i--) {
+    if (open[i].tag === matchingTag) {
+      return open.splice(i, 1)[0];
+    }
+  }
+
+  return false;
+}
+
+function getSimpleTag(node, parent) {
+  var match = node.value.match(simpleTagRe);
+  return match ? {
+    tag: match[2],
+    opening: !match[1],
+    node: node
+  } : false;
+}
+
+function getSelfClosing(node) {
+  var match = node.value.match(selfClosingRe);
+  return match ? match[1] : false;
+}
+
+function virtual(fromNode, toNode, parent) {
+  var fromIndex = parent.children.indexOf(fromNode.node);
+  var toIndex = parent.children.indexOf(toNode.node);
+  var extracted = parent.children.splice(fromIndex, toIndex - fromIndex + 1);
+  var children = extracted.slice(1, -1);
+  return {
+    type: type,
+    children: children,
+    tag: fromNode.tag,
+    position: {
+      start: fromNode.node.position.start,
+      end: toNode.node.position.end,
+      indent: []
+    }
+  };
+}
+},{"unist-util-visit":"../node_modules/unist-util-visit/index.js"}],"../node_modules/react-markdown/lib/plugins/disallow-node.js":[function(require,module,exports) {
+"use strict";
+
+var visit = require('unist-util-visit');
+
+exports.ofType = function (types, mode) {
+  return function (node) {
+    types.forEach(function (type) {
+      return visit(node, type, disallow, true);
+    });
+    return node;
+  };
+
+  function disallow(node, index, parent) {
+    if (parent) {
+      untangle(node, index, parent, mode);
+    }
+  }
+};
+
+exports.ifNotMatch = function (allowNode, mode) {
+  return function (node) {
+    visit(node, disallow, true);
+    return node;
+  };
+
+  function disallow(node, index, parent) {
+    if (parent && !allowNode(node, index, parent)) {
+      untangle(node, index, parent, mode);
+    }
+  }
+};
+
+function untangle(node, index, parent, mode) {
+  if (mode === 'remove') {
+    parent.children.splice(index, 1);
+  } else if (mode === 'unwrap') {
+    var args = [index, 1];
+
+    if (node.children) {
+      args = args.concat(node.children);
+    }
+
+    Array.prototype.splice.apply(parent.children, args);
+  }
+}
+},{"unist-util-visit":"../node_modules/unist-util-visit/index.js"}],"../node_modules/react-markdown/lib/ast-to-react.js":[function(require,module,exports) {
+'use strict';
+
+var React = require('react');
+
+var xtend = require('xtend');
+
+var ReactIs = require('react-is');
+
+var defaultNodePosition = {
+  start: {
+    line: 1,
+    column: 1,
+    offset: 0
+  },
+  end: {
+    line: 1,
+    column: 1,
+    offset: 0
+  }
+};
+
+function astToReact(node, options) {
+  var parent = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
+  var index = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : 0;
+  var renderer = options.renderers[node.type]; // nodes generated by plugins may not have position data
+  // much of the code after this point will attempt to access properties of the node.position
+  // this will set the node position to the parent node's position to prevent errors
+
+  if (node.position === undefined) {
+    node.position = parent.node && parent.node.position || defaultNodePosition;
+  }
+
+  var pos = node.position.start;
+  var key = [node.type, pos.line, pos.column, index].join('-');
+
+  if (!ReactIs.isValidElementType(renderer)) {
+    throw new Error("Renderer for type `".concat(node.type, "` not defined or is not renderable"));
+  }
+
+  var nodeProps = getNodeProps(node, key, options, renderer, parent, index);
+  return React.createElement(renderer, nodeProps, nodeProps.children || resolveChildren() || undefined);
+
+  function resolveChildren() {
+    return node.children && node.children.map(function (childNode, i) {
+      return astToReact(childNode, options, {
+        node: node,
+        props: nodeProps
+      }, i);
+    });
+  }
+} // eslint-disable-next-line max-params, complexity
+
+
+function getNodeProps(node, key, opts, renderer, parent, index) {
+  var props = {
+    key: key
+  };
+  var isTagRenderer = typeof renderer === 'string'; // `sourcePos` is true if the user wants source information (line/column info from markdown source)
+
+  if (opts.sourcePos && node.position) {
+    props['data-sourcepos'] = flattenPosition(node.position);
+  }
+
+  if (opts.rawSourcePos && !isTagRenderer) {
+    props.sourcePosition = node.position;
+  } // If `includeNodeIndex` is true, pass node index info to all non-tag renderers
+
+
+  if (opts.includeNodeIndex && parent.node && parent.node.children && !isTagRenderer) {
+    props.index = parent.node.children.indexOf(node);
+    props.parentChildCount = parent.node.children.length;
+  }
+
+  var ref = node.identifier !== null && node.identifier !== undefined ? opts.definitions[node.identifier] || {} : null;
+
+  switch (node.type) {
+    case 'root':
+      assignDefined(props, {
+        className: opts.className
+      });
+      break;
+
+    case 'text':
+      props.nodeKey = key;
+      props.children = node.value;
+      break;
+
+    case 'heading':
+      props.level = node.depth;
+      break;
+
+    case 'list':
+      props.start = node.start;
+      props.ordered = node.ordered;
+      props.tight = !node.loose;
+      props.depth = node.depth;
+      break;
+
+    case 'listItem':
+      props.checked = node.checked;
+      props.tight = !node.loose;
+      props.ordered = node.ordered;
+      props.index = node.index;
+      props.children = getListItemChildren(node, parent).map(function (childNode, i) {
+        return astToReact(childNode, opts, {
+          node: node,
+          props: props
+        }, i);
+      });
+      break;
+
+    case 'definition':
+      assignDefined(props, {
+        identifier: node.identifier,
+        title: node.title,
+        url: node.url
+      });
+      break;
+
+    case 'code':
+      assignDefined(props, {
+        language: node.lang && node.lang.split(/\s/, 1)[0]
+      });
+      break;
+
+    case 'inlineCode':
+      props.children = node.value;
+      props.inline = true;
+      break;
+
+    case 'link':
+      assignDefined(props, {
+        title: node.title || undefined,
+        target: typeof opts.linkTarget === 'function' ? opts.linkTarget(node.url, node.children, node.title) : opts.linkTarget,
+        href: opts.transformLinkUri ? opts.transformLinkUri(node.url, node.children, node.title) : node.url
+      });
+      break;
+
+    case 'image':
+      assignDefined(props, {
+        alt: node.alt || undefined,
+        title: node.title || undefined,
+        src: opts.transformImageUri ? opts.transformImageUri(node.url, node.children, node.title, node.alt) : node.url
+      });
+      break;
+
+    case 'linkReference':
+      assignDefined(props, xtend(ref, {
+        href: opts.transformLinkUri ? opts.transformLinkUri(ref.href) : ref.href
+      }));
+      break;
+
+    case 'imageReference':
+      assignDefined(props, {
+        src: opts.transformImageUri && ref.href ? opts.transformImageUri(ref.href, node.children, ref.title, node.alt) : ref.href,
+        title: ref.title || undefined,
+        alt: node.alt || undefined
+      });
+      break;
+
+    case 'table':
+    case 'tableHead':
+    case 'tableBody':
+      props.columnAlignment = node.align;
+      break;
+
+    case 'tableRow':
+      props.isHeader = parent.node.type === 'tableHead';
+      props.columnAlignment = parent.props.columnAlignment;
+      break;
+
+    case 'tableCell':
+      assignDefined(props, {
+        isHeader: parent.props.isHeader,
+        align: parent.props.columnAlignment[index]
+      });
+      break;
+
+    case 'virtualHtml':
+      props.tag = node.tag;
+      break;
+
+    case 'html':
+      // @todo find a better way than this
+      props.isBlock = node.position.start.line !== node.position.end.line;
+      props.escapeHtml = opts.escapeHtml;
+      props.skipHtml = opts.skipHtml;
+      break;
+
+    case 'parsedHtml':
+      {
+        var parsedChildren;
+
+        if (node.children) {
+          parsedChildren = node.children.map(function (child, i) {
+            return astToReact(child, opts, {
+              node: node,
+              props: props
+            }, i);
+          });
+        }
+
+        props.escapeHtml = opts.escapeHtml;
+        props.skipHtml = opts.skipHtml;
+        props.element = mergeNodeChildren(node, parsedChildren);
+        break;
+      }
+
+    default:
+      assignDefined(props, xtend(node, {
+        type: undefined,
+        position: undefined,
+        children: undefined
+      }));
+  }
+
+  if (!isTagRenderer && node.value) {
+    props.value = node.value;
+  }
+
+  return props;
+}
+
+function assignDefined(target, attrs) {
+  for (var key in attrs) {
+    if (typeof attrs[key] !== 'undefined') {
+      target[key] = attrs[key];
+    }
+  }
+}
+
+function mergeNodeChildren(node, parsedChildren) {
+  var el = node.element;
+
+  if (Array.isArray(el)) {
+    var Fragment = React.Fragment || 'div';
+    return React.createElement(Fragment, null, el);
+  }
+
+  if (el.props.children || parsedChildren) {
+    var children = React.Children.toArray(el.props.children).concat(parsedChildren);
+    return React.cloneElement(el, null, children);
+  }
+
+  return React.cloneElement(el, null);
+}
+
+function flattenPosition(pos) {
+  return [pos.start.line, ':', pos.start.column, '-', pos.end.line, ':', pos.end.column].map(String).join('');
+}
+
+function getListItemChildren(node, parent) {
+  if (node.loose) {
+    return node.children;
+  }
+
+  if (parent.node && node.index > 0 && parent.node.children[node.index - 1].loose) {
+    return node.children;
+  }
+
+  return unwrapParagraphs(node);
+}
+
+function unwrapParagraphs(node) {
+  return node.children.reduce(function (array, child) {
+    return array.concat(child.type === 'paragraph' ? child.children || [] : [child]);
+  }, []);
+}
+
+module.exports = astToReact;
+},{"react":"../node_modules/react/index.js","xtend":"../node_modules/xtend/immutable.js","react-is":"../node_modules/react-is/index.js"}],"../node_modules/react-markdown/lib/wrap-table-rows.js":[function(require,module,exports) {
+'use strict';
+
+var visit = require('unist-util-visit');
+
+module.exports = function (node) {
+  visit(node, 'table', wrap);
+  return node;
+};
+
+function wrap(table) {
+  var children = table.children;
+  table.children = [{
+    type: 'tableHead',
+    align: table.align,
+    children: [children[0]],
+    position: children[0].position
+  }];
+
+  if (children.length > 1) {
+    table.children.push({
+      type: 'tableBody',
+      align: table.align,
+      children: children.slice(1),
+      position: {
+        start: children[1].position.start,
+        end: children[children.length - 1].position.end
+      }
+    });
+  }
+}
+},{"unist-util-visit":"../node_modules/unist-util-visit/index.js"}],"../node_modules/react-markdown/lib/get-definitions.js":[function(require,module,exports) {
+'use strict';
+
+module.exports = function getDefinitions(node) {
+  var defs = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+  return (node.children || []).reduce(function (definitions, child) {
+    if (child.type === 'definition') {
+      definitions[child.identifier] = {
+        href: child.url,
+        title: child.title
+      };
+    }
+
+    return getDefinitions(child, definitions);
+  }, defs);
+};
+},{}],"../node_modules/react-markdown/lib/uri-transformer.js":[function(require,module,exports) {
+"use strict";
+
+var protocols = ['http', 'https', 'mailto', 'tel'];
+
+module.exports = function uriTransformer(uri) {
+  var url = (uri || '').trim();
+  var first = url.charAt(0);
+
+  if (first === '#' || first === '/') {
+    return url;
+  }
+
+  var colon = url.indexOf(':');
+
+  if (colon === -1) {
+    return url;
+  }
+
+  var length = protocols.length;
+  var index = -1;
+
+  while (++index < length) {
+    var protocol = protocols[index];
+
+    if (colon === protocol.length && url.slice(0, protocol.length).toLowerCase() === protocol) {
+      return url;
+    }
+  }
+
+  index = url.indexOf('?');
+
+  if (index !== -1 && colon > index) {
+    return url;
+  }
+
+  index = url.indexOf('#');
+
+  if (index !== -1 && colon > index) {
+    return url;
+  } // eslint-disable-next-line no-script-url
+
+
+  return 'javascript:void(0)';
+};
+},{}],"../node_modules/react-markdown/lib/renderers.js":[function(require,module,exports) {
+/* eslint-disable react/prop-types, react/no-multi-comp */
+'use strict';
+
+var xtend = require('xtend');
+
+var React = require('react');
+
+var supportsStringRender = parseInt((React.version || '16').slice(0, 2), 10) >= 16;
+var createElement = React.createElement;
+module.exports = {
+  break: 'br',
+  paragraph: 'p',
+  emphasis: 'em',
+  strong: 'strong',
+  thematicBreak: 'hr',
+  blockquote: 'blockquote',
+  delete: 'del',
+  link: 'a',
+  image: 'img',
+  linkReference: 'a',
+  imageReference: 'img',
+  table: SimpleRenderer.bind(null, 'table'),
+  tableHead: SimpleRenderer.bind(null, 'thead'),
+  tableBody: SimpleRenderer.bind(null, 'tbody'),
+  tableRow: SimpleRenderer.bind(null, 'tr'),
+  tableCell: TableCell,
+  root: Root,
+  text: TextRenderer,
+  list: List,
+  listItem: ListItem,
+  definition: NullRenderer,
+  heading: Heading,
+  inlineCode: InlineCode,
+  code: CodeBlock,
+  html: Html,
+  virtualHtml: VirtualHtml,
+  parsedHtml: ParsedHtml
+};
+
+function TextRenderer(props) {
+  return supportsStringRender ? props.children : createElement('span', null, props.children);
+}
+
+function Root(props) {
+  var useFragment = !props.className;
+  var root = useFragment ? React.Fragment || 'div' : 'div';
+  return createElement(root, useFragment ? null : props, props.children);
+}
+
+function SimpleRenderer(tag, props) {
+  return createElement(tag, getCoreProps(props), props.children);
+}
+
+function TableCell(props) {
+  var style = props.align ? {
+    textAlign: props.align
+  } : undefined;
+  var coreProps = getCoreProps(props);
+  return createElement(props.isHeader ? 'th' : 'td', style ? xtend({
+    style: style
+  }, coreProps) : coreProps, props.children);
+}
+
+function Heading(props) {
+  return createElement("h".concat(props.level), getCoreProps(props), props.children);
+}
+
+function List(props) {
+  var attrs = getCoreProps(props);
+
+  if (props.start !== null && props.start !== 1 && props.start !== undefined) {
+    attrs.start = props.start.toString();
+  }
+
+  return createElement(props.ordered ? 'ol' : 'ul', attrs, props.children);
+}
+
+function ListItem(props) {
+  var checkbox = null;
+
+  if (props.checked !== null && props.checked !== undefined) {
+    var checked = props.checked;
+    checkbox = createElement('input', {
+      type: 'checkbox',
+      checked: checked,
+      readOnly: true
+    });
+  }
+
+  return createElement('li', getCoreProps(props), checkbox, props.children);
+}
+
+function CodeBlock(props) {
+  var className = props.language && "language-".concat(props.language);
+  var code = createElement('code', className ? {
+    className: className
+  } : null, props.value);
+  return createElement('pre', getCoreProps(props), code);
+}
+
+function InlineCode(props) {
+  return createElement('code', getCoreProps(props), props.children);
+}
+
+function Html(props) {
+  if (props.skipHtml) {
+    return null;
+  }
+
+  var tag = props.isBlock ? 'div' : 'span';
+
+  if (props.escapeHtml) {
+    var comp = React.Fragment || tag;
+    return createElement(comp, null, props.value);
+  }
+
+  var nodeProps = {
+    dangerouslySetInnerHTML: {
+      __html: props.value
+    }
+  };
+  return createElement(tag, nodeProps);
+}
+
+function ParsedHtml(props) {
+  return props['data-sourcepos'] ? React.cloneElement(props.element, {
+    'data-sourcepos': props['data-sourcepos']
+  }) : props.element;
+}
+
+function VirtualHtml(props) {
+  return createElement(props.tag, getCoreProps(props), props.children);
+}
+
+function NullRenderer() {
+  return null;
+}
+
+function getCoreProps(props) {
+  return props['data-sourcepos'] ? {
+    'data-sourcepos': props['data-sourcepos']
+  } : {};
+}
+},{"xtend":"../node_modules/xtend/immutable.js","react":"../node_modules/react/index.js"}],"../node_modules/react-markdown/lib/symbols.js":[function(require,module,exports) {
+"use strict";
+
+var HtmlParser = '__RMD_HTML_PARSER__';
+exports.HtmlParser = typeof Symbol === 'undefined' ? HtmlParser : Symbol(HtmlParser);
+},{}],"../node_modules/react-markdown/lib/react-markdown.js":[function(require,module,exports) {
+'use strict';
+
+function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _nonIterableSpread(); }
+
+function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance"); }
+
+function _iterableToArray(iter) { if (Symbol.iterator in Object(iter) || Object.prototype.toString.call(iter) === "[object Arguments]") return Array.from(iter); }
+
+function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = new Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } }
+
+var xtend = require('xtend');
+
+var unified = require('unified');
+
+var parse = require('remark-parse');
+
+var PropTypes = require('prop-types');
+
+var addListMetadata = require('mdast-add-list-metadata');
+
+var naiveHtml = require('./plugins/naive-html');
+
+var disallowNode = require('./plugins/disallow-node');
+
+var astToReact = require('./ast-to-react');
+
+var wrapTableRows = require('./wrap-table-rows');
+
+var getDefinitions = require('./get-definitions');
+
+var uriTransformer = require('./uri-transformer');
+
+var defaultRenderers = require('./renderers');
+
+var symbols = require('./symbols');
+
+var allTypes = Object.keys(defaultRenderers);
+
+var ReactMarkdown = function ReactMarkdown(props) {
+  var src = props.source || props.children || '';
+  var parserOptions = props.parserOptions;
+
+  if (props.allowedTypes && props.disallowedTypes) {
+    throw new Error('Only one of `allowedTypes` and `disallowedTypes` should be defined');
+  }
+
+  var renderers = xtend(defaultRenderers, props.renderers);
+  var plugins = [[parse, parserOptions]].concat(props.plugins || []);
+  var parser = plugins.reduce(applyParserPlugin, unified());
+  var rawAst = parser.parse(src);
+  var renderProps = xtend(props, {
+    renderers: renderers,
+    definitions: getDefinitions(rawAst)
+  });
+  var astPlugins = determineAstPlugins(props); // eslint-disable-next-line no-sync
+
+  var transformedAst = parser.runSync(rawAst);
+  var ast = astPlugins.reduce(function (node, plugin) {
+    return plugin(node, renderProps);
+  }, transformedAst);
+  return astToReact(ast, renderProps);
+};
+
+function applyParserPlugin(parser, plugin) {
+  return Array.isArray(plugin) ? parser.use.apply(parser, _toConsumableArray(plugin)) : parser.use(plugin);
+}
+
+function determineAstPlugins(props) {
+  var plugins = [wrapTableRows, addListMetadata()];
+  var disallowedTypes = props.disallowedTypes;
+
+  if (props.allowedTypes) {
+    disallowedTypes = allTypes.filter(function (type) {
+      return type !== 'root' && props.allowedTypes.indexOf(type) === -1;
+    });
+  }
+
+  var removalMethod = props.unwrapDisallowed ? 'unwrap' : 'remove';
+
+  if (disallowedTypes && disallowedTypes.length > 0) {
+    plugins.push(disallowNode.ofType(disallowedTypes, removalMethod));
+  }
+
+  if (props.allowNode) {
+    plugins.push(disallowNode.ifNotMatch(props.allowNode, removalMethod));
+  }
+
+  var renderHtml = !props.escapeHtml && !props.skipHtml;
+  var hasHtmlParser = (props.astPlugins || []).some(function (item) {
+    var plugin = Array.isArray(item) ? item[0] : item;
+    return plugin.identity === symbols.HtmlParser;
+  });
+
+  if (renderHtml && !hasHtmlParser) {
+    plugins.push(naiveHtml);
+  }
+
+  return props.astPlugins ? plugins.concat(props.astPlugins) : plugins;
+}
+
+ReactMarkdown.defaultProps = {
+  renderers: {},
+  escapeHtml: true,
+  skipHtml: false,
+  sourcePos: false,
+  rawSourcePos: false,
+  transformLinkUri: uriTransformer,
+  astPlugins: [],
+  plugins: [],
+  parserOptions: {}
+};
+ReactMarkdown.propTypes = {
+  className: PropTypes.string,
+  source: PropTypes.string,
+  children: PropTypes.string,
+  sourcePos: PropTypes.bool,
+  rawSourcePos: PropTypes.bool,
+  escapeHtml: PropTypes.bool,
+  skipHtml: PropTypes.bool,
+  allowNode: PropTypes.func,
+  allowedTypes: PropTypes.arrayOf(PropTypes.oneOf(allTypes)),
+  disallowedTypes: PropTypes.arrayOf(PropTypes.oneOf(allTypes)),
+  transformLinkUri: PropTypes.oneOfType([PropTypes.func, PropTypes.bool]),
+  linkTarget: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
+  transformImageUri: PropTypes.func,
+  astPlugins: PropTypes.arrayOf(PropTypes.func),
+  unwrapDisallowed: PropTypes.bool,
+  renderers: PropTypes.object,
+  plugins: PropTypes.array,
+  parserOptions: PropTypes.object
+};
+ReactMarkdown.types = allTypes;
+ReactMarkdown.renderers = defaultRenderers;
+ReactMarkdown.uriTransformer = uriTransformer;
+module.exports = ReactMarkdown;
+},{"xtend":"../node_modules/xtend/immutable.js","unified":"../node_modules/unified/index.js","remark-parse":"../node_modules/remark-parse/index.js","prop-types":"../node_modules/prop-types/index.js","mdast-add-list-metadata":"../node_modules/mdast-add-list-metadata/index.js","./plugins/naive-html":"../node_modules/react-markdown/lib/plugins/naive-html.js","./plugins/disallow-node":"../node_modules/react-markdown/lib/plugins/disallow-node.js","./ast-to-react":"../node_modules/react-markdown/lib/ast-to-react.js","./wrap-table-rows":"../node_modules/react-markdown/lib/wrap-table-rows.js","./get-definitions":"../node_modules/react-markdown/lib/get-definitions.js","./uri-transformer":"../node_modules/react-markdown/lib/uri-transformer.js","./renderers":"../node_modules/react-markdown/lib/renderers.js","./symbols":"../node_modules/react-markdown/lib/symbols.js"}],"components/usertesting/instructions.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.instruction6 = exports.instruction5 = exports.instruction4 = exports.instruction3 = exports.instruction2 = exports.instruction1 = void 0;
+var instruction1 = 'Play three notes of your choice in the 6th octave with the `saw` instrument';
+exports.instruction1 = instruction1;
+var instruction2 = 'Play any two different sets of notes at the same time with two different instruments';
+exports.instruction2 = instruction2;
+var instruction3 = 'Play any sets of alternating notes and rests';
+exports.instruction3 = instruction3;
+var instruction4 = 'Make a sick drum beat';
+exports.instruction4 = instruction4;
+var instruction5 = 'Play the following 4 notes in the 4th octave: A flat, F, D flat, E flat with the `soft` instrument. Make the notes play faster';
+exports.instruction5 = instruction5;
+var instruction6 = "Using your code from the previous instruction, modify it so that:\n      1. The same notes are played with the same modifiers and instrument\n      2. The same notes but 7 pitches up and a duration are played with the `triangle` instrument at the same time";
+exports.instruction6 = instruction6;
+},{}],"components/usertesting/UTInstructions.jsx":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -43506,21 +55079,215 @@ exports.default = void 0;
 
 var _react = _interopRequireDefault(require("react"));
 
-var _Tutorial = _interopRequireDefault(require("./tutorial/Tutorial"));
+var _reactMarkdown = _interopRequireDefault(require("react-markdown"));
 
-var _Playground = _interopRequireDefault(require("./playground/Playground"));
+var _instructions = require("./instructions");
+
+var _PlayBox = _interopRequireDefault(require("../common/PlayBox"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var UTInstructions = function UTInstructions() {
+  return _react.default.createElement("div", null, _react.default.createElement(_reactMarkdown.default, {
+    source: _instructions.instruction1
+  }), _react.default.createElement(_PlayBox.default, {
+    id: "instruction1"
+  }), _react.default.createElement(_reactMarkdown.default, {
+    source: _instructions.instruction2
+  }), _react.default.createElement(_PlayBox.default, {
+    id: "instruction2"
+  }), _react.default.createElement(_reactMarkdown.default, {
+    source: _instructions.instruction3
+  }), _react.default.createElement(_PlayBox.default, {
+    id: "instruction3"
+  }), _react.default.createElement(_reactMarkdown.default, {
+    source: _instructions.instruction4
+  }), _react.default.createElement(_PlayBox.default, {
+    id: "instruction4"
+  }), _react.default.createElement(_reactMarkdown.default, {
+    source: _instructions.instruction5
+  }), _react.default.createElement(_PlayBox.default, {
+    id: "instruction5"
+  }), _react.default.createElement(_reactMarkdown.default, {
+    source: _instructions.instruction6
+  }), _react.default.createElement(_PlayBox.default, {
+    id: "instruction6"
+  }));
+};
+
+var _default = UTInstructions;
+exports.default = _default;
+},{"react":"../node_modules/react/index.js","react-markdown":"../node_modules/react-markdown/lib/react-markdown.js","./instructions":"components/usertesting/instructions.js","../common/PlayBox":"components/common/PlayBox.jsx"}],"components/documentation/syntax.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+var _default = "\nUser Documentation: Language Syntax\n===\n\n# Sequences\n## Groups\n### Notes\nA note is any letter between `a` and `g` corresponding to the musical notes. A note has multiple optional specifiers and modifiers that determine the pitch and octave of the note. The order in which these are applied matters, and is the following:\n  - **Accidentals**: the `#` or `b` characters can be added to the right of a note to **sharp** or **flat** it. For example, `b#` would be a `b` sharp and `bb` would be an `b` flat.\n  - **Octave number**: any positive integer can be added to the right of a note (or to the right of its accidental if it has one) to specify the octave. For example `b5` is a `b` note in the 5th octave. If no octave number is specified, the default value is 4.\n  - **Octave modifier**: any number of `-` or `+` can be added to the right of a note (plus any of its previous optional characters) to increase or decrease the octave of the note. For example `b5+++` is a `b` note in the 8th octave. `b5+++` is equivalent to writing `b5+3` or `b8`.\n\n### Numbers\nA number can be any integer, and will correspond to a note in a scale. The scale is specified with the `scale` sequence modifier.\n```\n\"1 3 5\"\n>> scale c major\n```\nThe above example is equivalent to `\"c e f\"`.\n\n### Percussion\nPercussion symbols correspond to the following predetermined sounds:\n- `sn`: snare\n- `kk`: kick\n- `kh`: kick hi\n- `kl`: kick lo\n- `th`: tom hi\n- `tl`: tom lo\n- `hh`: hi-hat\n- `cp`: clap\n\n### Group behaviors\n- **chord**: plays groups at the same time when written as `chord(e g)`\n- **step**: plays one group per loop when written as `step(c e g)`. This plays `c e g` in the time of 3 loops.\n- **random**: randomizes groups when written as `rand()`. This will play any random note. A range can also be specified as `rand(c e g)`. This will play one of the 3 notes randomly.\n- **repeat**: repeat a group a number of times when written as `c*3`. This is interpreted the same as `c c c`.\n\n## Sequence modifiers\nA sequence modifier is added after the phrase is defined as:\n```\n\"phrase\"\n  >> sequence modifier\n```\n\n### Octave\nThe `octave` modifier accepts 3 types of input:\n  - Numbers: `3`\n  - A sign and a number: `+3` or `-3`\n  - A number of signs: `+++` or `---`\n\nThe number input will set the octave corresponding to that number.\n\nThe input with signs will increase or decrease the octave relative to a previous `octave` modifier if a number was specified, or from the default value if nothing was specified before.\n```\n\"a b c\"\n  >> octave 3\n  >> octave ++\n```\nIn the example above, the sequence is in the 5th octave. But in the example below, it is in the 6th octave since the default octave is the 4th and nothing is specified before the `octave` modifier.\n```\n\"a b c\"\n  >> octave ++\n```\nBelow, the entire sequence will be changed to octave 3, since the default octave is the 4th.\n```\n\"a b c\"\n  >> octave -\n```\n\n### Pitch\nThe `pitch` modifier changes a sequence by a number of half-steps. It accepts 2 types of input:\n  - A sign and a number: `-3`\n  - A number of signs: `---`\n\nThe top-to-bottom logic is the same as for the `octave` modifier, except that the \"default\" value corresponds to the letters and their optional accidentals in the phrase.\n\n### Duration\nThe `duration` modifier defines the duration of each individual group in the phrase. This will take a fraction input, corresponding to the fraction of time of a loop for one individual group.\n\n## Sequence storage\nThe `save` command allows to save any sequence as it is when the command is reached. The `save` command will only save **sequences**, which does not include any parts or part modifiers (i.e. instruments and its modifiers).\n```\n\"a b c\"\n  >> octave 4\n  >> save abc_1\n  >> pitch ---\n  >> save abc_2\n```\nIn the example above, `abc_1` would contain the sequence and its `octave` modifier. Then, `abc_2` would contain all of that, plus the `pitch` modifier. This can be referenced later to avoid writing sequences and its modifiers multiple times:\n```\nabc_1\n  >> <any sequence modifier or part definition>\n\nabc_2\n  >> <any sequence modifier or part definition>\n```\n\n## Sequence combination\n**Saved sequences** can be combined to create new sequences, where different sections of the sequence have different modifiers defined earlier. The modifiers applied after a combination affect the entire combination.\n\n## Concatenation\nConcatenating sequences places sequences one after the next: `concat(seq1 seq2 seq3)` will create a sequence formed by `seq1`, followed by `seq2` followed by `seq3`.\nFor example, let's say we have these three sequences:\n```\n\"a b c\" >> octave -- >> save seq1\n\"d e f\" >> octave ++ >> save seq2\n\"g a b\" >> octave + >> save seq3\n```\nwhich is the same as:\n```\n\"a2 b2 c2\" >> save seq1\n\"d6 e6 f6\" >> save seq2\n\"g5 a5 b5\" >> save seq3\n```\nLet's say we then have a new sequence:\n```\nconcat(seq1 seq2 seq3)\n```\nThis will be interpreted as:\n```\n\"a2 b2 c2 d6 e6 f6 g5 a5 b5\"\n```\nand it can be treated as a regular sequence. For example, more modifiers can be added to it:\n```\nconcat(seq1 seq2 seq3)\n  >> pitch --\n```\n\n# Parts\nA part is defined once the **instrument** of a phrase has been defined in the case of notes and numbers:\n```\n\"a b c\"\n  >> octave +\n  >> piano      // this is the beginning of a part\n```\nor once the `play` command is reached in the case of a **percussion** phrase:\n```\n\"x o x o\"\n  >> play // this is the beginning of a part\n```\n\n## Part modifiers\nPart modifiers change the way an instrument or percussion element sounds. To add a part modifier:\n```\n\"a b c\"\n  >> piano\n    ^ <any part modifier>\n    ^ <any part modifier>\n  >> <any sequence modifier>\n```\nSome part modifiers take more than 1 value as input. In this case, the list of values is matched to the length of phrase of the sequence this part belongs to, and is divided equally across the phrase.\n\n### Filters\nFilters modify sound **frequencies**. Filters can be any of:\n- `distort`: adds distortion to the sound. Takes any number of values between 0 and 1.\n- `lo`: low pass filter attenuates frequencies above the cutoff. This takes as input any number of values between 0 and 1.\n- `hi`: high pass filter attenuates frequencies below the cutoff. This takes as input any number of values between 0 and 1.\n- `bandpass`: band pass filter attenuates any frequencies outside of a range. This takes as input two values between 0 and 1, corresponding to the low and high value of the range.\n\nAny of the filters follow the following syntax (with the appropriate number of inputs):\n```\n\"a b c\"\n  >> piano\n    ^ lo 0.5\n```\n\n### Effects\nEffects modify the sound with no frequency modification. Effects can be any of:\n- **pan**: moves sounds from left to right. This takes any number of values from 0 to 1 as input. 0 corresponds to left, and 1 corresponds to right.\n- **vol**: changes volume. This takes any number of values from 0 to 1.\n\nAny of the filters follow the following syntax (with the appropriate number of inputs):\n```\n\"a b c\"\n  >> piano\n    ^ vol 0.5\n```\n\n## Part storage\nA part and can be saved to be referenced in the sound visualization UI, to stop sound without affecting any sequences (in-sequence storage), or to use the same part in another phrase (global storage);\n\n### In-sequence storage\nIn-sequence storage allows a part to be saved along with the phrase it is following. This helps to visualize what is being played in the sound visualization UI, and can also make it easier to stop a sound. To store a part in-sequence:\n```\n\"a b c\"\n  >> piano as abc_1\n```\n\nIt will then be displayed in the sound visualization UI and can be stopped anywhere outside a block as: `stop abc_1`.\n\n### Global storage\nGlobal storage allows a part to be reused in multiple phrases. This will only store the part and its modifiers, and will not take into account the phrase it is used in. To store a part globally:\n```\n\"a b c\"\n  >> piano as global piano_left_distorted\n    ^ pan 0.2\n    ^ distort 2\n```\n\nPart `piano_left_distorted` can now be used in other sequences, without having to type all of the part and its modifiers again:\n```\n\"d e f\"\n  >> piano_left_distorted\n```\n\n";
+exports.default = _default;
+},{}],"components/documentation/UserDocumentation.jsx":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var _react = _interopRequireDefault(require("react"));
+
+var _reactMarkdown = _interopRequireDefault(require("react-markdown"));
+
+var _syntax = _interopRequireDefault(require("./syntax"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var UserDocumentation = function UserDocumentation() {
+  return _react.default.createElement(_reactMarkdown.default, {
+    source: _syntax.default
+  });
+};
+
+var _default = UserDocumentation;
+exports.default = _default;
+},{"react":"../node_modules/react/index.js","react-markdown":"../node_modules/react-markdown/lib/react-markdown.js","./syntax":"components/documentation/syntax.js"}],"components/usertesting/UTNavigation.jsx":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var _react = _interopRequireDefault(require("react"));
+
+var _propTypes = _interopRequireDefault(require("prop-types"));
+
+var _Paper = _interopRequireDefault(require("@material-ui/core/Paper"));
+
+var _Tabs = _interopRequireDefault(require("@material-ui/core/Tabs"));
+
+var _Tab = _interopRequireDefault(require("@material-ui/core/Tab"));
+
+var _Typography = _interopRequireDefault(require("@material-ui/core/Typography"));
+
+var _Box = _interopRequireDefault(require("@material-ui/core/Box"));
+
+var _Tutorial = _interopRequireDefault(require("../tutorial/Tutorial"));
+
+var _Playground = _interopRequireDefault(require("../playground/Playground"));
+
+var _UTInstructions = _interopRequireDefault(require("./UTInstructions"));
+
+var _UserDocumentation = _interopRequireDefault(require("../documentation/UserDocumentation"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _nonIterableRest(); }
+
+function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance"); }
+
+function _iterableToArrayLimit(arr, i) { if (!(Symbol.iterator in Object(arr) || Object.prototype.toString.call(arr) === "[object Arguments]")) { return; } var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"] != null) _i["return"](); } finally { if (_d) throw _e; } } return _arr; }
+
+function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
+
+function TabPanel(props) {
+  var children = props.children,
+      value = props.value,
+      index = props.index;
+  return _react.default.createElement(_Typography.default, {
+    hidden: value !== index
+  }, _react.default.createElement(_Box.default, null, children));
+}
+
+TabPanel.propTypes = {
+  children: _propTypes.default.node.isRequired,
+  index: _propTypes.default.number.isRequired,
+  value: _propTypes.default.number.isRequired
+};
+
+var UTNavigation = function UTNavigation() {
+  var _React$useState = _react.default.useState(0),
+      _React$useState2 = _slicedToArray(_React$useState, 2),
+      value = _React$useState2[0],
+      setValue = _React$useState2[1];
+
+  var handleChange = function handleChange(event, newValue) {
+    setValue(newValue);
+  };
+
+  return _react.default.createElement("div", null, _react.default.createElement(_Paper.default, null, _react.default.createElement(_Tabs.default, {
+    value: value,
+    onChange: handleChange
+  }, _react.default.createElement(_Tab.default, {
+    label: "Tutorial"
+  }), _react.default.createElement(_Tab.default, {
+    label: "Instructions"
+  }), _react.default.createElement(_Tab.default, {
+    label: "Get Creative"
+  }), _react.default.createElement(_Tab.default, {
+    label: "Documentation"
+  }))), _react.default.createElement(TabPanel, {
+    value: value,
+    index: 0
+  }, _react.default.createElement(_Tutorial.default, {
+    id: "tutorial",
+    value: value,
+    index: 0
+  })), _react.default.createElement(TabPanel, {
+    value: value,
+    index: 1
+  }, _react.default.createElement(_UTInstructions.default, null)), _react.default.createElement(TabPanel, {
+    value: value,
+    index: 2
+  }, _react.default.createElement(_Playground.default, null)), _react.default.createElement(TabPanel, {
+    value: value,
+    index: 3
+  }, _react.default.createElement(_UserDocumentation.default, null)));
+};
+
+var _default = UTNavigation;
+exports.default = _default;
+},{"react":"../node_modules/react/index.js","prop-types":"../node_modules/prop-types/index.js","@material-ui/core/Paper":"../node_modules/@material-ui/core/esm/Paper/index.js","@material-ui/core/Tabs":"../node_modules/@material-ui/core/esm/Tabs/index.js","@material-ui/core/Tab":"../node_modules/@material-ui/core/esm/Tab/index.js","@material-ui/core/Typography":"../node_modules/@material-ui/core/esm/Typography/index.js","@material-ui/core/Box":"../node_modules/@material-ui/core/esm/Box/index.js","../tutorial/Tutorial":"components/tutorial/Tutorial.jsx","../playground/Playground":"components/playground/Playground.jsx","./UTInstructions":"components/usertesting/UTInstructions.jsx","../documentation/UserDocumentation":"components/documentation/UserDocumentation.jsx"}],"components/usertesting/UTHomepage.jsx":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var _react = _interopRequireDefault(require("react"));
+
+var _UTNavigation = _interopRequireDefault(require("./UTNavigation"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var UTHomepage = function UTHomepage() {
+  return _react.default.createElement(_UTNavigation.default, null);
+};
+
+var _default = UTHomepage;
+exports.default = _default;
+},{"react":"../node_modules/react/index.js","./UTNavigation":"components/usertesting/UTNavigation.jsx"}],"components/common/Homepage.jsx":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var _react = _interopRequireDefault(require("react"));
+
+var _UTHomepage = _interopRequireDefault(require("../usertesting/UTHomepage"));
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 var Homepage = function Homepage() {
-  return _react.default.createElement("div", null, _react.default.createElement(_Tutorial.default, {
-    id: "theTutorial"
-  }), _react.default.createElement(_Playground.default, null));
+  return _react.default.createElement(_UTHomepage.default, null);
 };
 
 var _default = Homepage;
 exports.default = _default;
-},{"react":"../node_modules/react/index.js","./tutorial/Tutorial":"components/tutorial/Tutorial.jsx","./playground/Playground":"components/playground/Playground.jsx"}],"App.jsx":[function(require,module,exports) {
+},{"react":"../node_modules/react/index.js","../usertesting/UTHomepage":"components/usertesting/UTHomepage.jsx"}],"App.jsx":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -43530,7 +55297,7 @@ exports.default = void 0;
 
 var _react = _interopRequireDefault(require("react"));
 
-var _Homepage = _interopRequireDefault(require("./components/Homepage"));
+var _Homepage = _interopRequireDefault(require("./components/common/Homepage"));
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -43540,7 +55307,7 @@ var App = function App() {
 
 var _default = App;
 exports.default = _default;
-},{"react":"../node_modules/react/index.js","./components/Homepage":"components/Homepage.jsx"}],"index.jsx":[function(require,module,exports) {
+},{"react":"../node_modules/react/index.js","./components/common/Homepage":"components/common/Homepage.jsx"}],"index.jsx":[function(require,module,exports) {
 "use strict";
 
 var _react = _interopRequireDefault(require("react"));
@@ -43552,7 +55319,7 @@ var _App = _interopRequireDefault(require("./App"));
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 _reactDom.default.render(_react.default.createElement(_App.default, null), document.getElementById('root'));
-},{"react":"../node_modules/react/index.js","react-dom":"../node_modules/react-dom/index.js","./App":"App.jsx"}],"../node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
+},{"react":"../node_modules/react/index.js","react-dom":"../node_modules/react-dom/index.js","./App":"App.jsx"}],"../node_modules/parcel/src/builtins/hmr-runtime.js":[function(require,module,exports) {
 var global = arguments[3];
 var OVERLAY_ID = '__parcel__error__overlay__';
 var OldModule = module.bundle.Module;
@@ -43580,7 +55347,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "55025" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "41263" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};
@@ -43755,5 +55522,5 @@ function hmrAcceptRun(bundle, id) {
     return true;
   }
 }
-},{}]},{},["../node_modules/parcel-bundler/src/builtins/hmr-runtime.js","index.jsx"], null)
+},{}]},{},["../node_modules/parcel/src/builtins/hmr-runtime.js","index.jsx"], null)
 //# sourceMappingURL=/app.78399e21.js.map
