@@ -2,7 +2,7 @@ import React from 'react';
 import ReactMarkdown from 'react-markdown';
 import {
   instruction1, instruction2, instruction3, instruction4, instruction5, instruction6,
-} from './utinstructions';
+} from './instructions';
 import PlayBox from '../common/PlayBox';
 
 
