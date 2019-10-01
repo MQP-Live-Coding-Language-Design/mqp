@@ -30,23 +30,6 @@ const Tutorial = () => (
         m={1}
         css={{ maxWidth: 500 }}
       >
-        <Box
-          display="flex"
-          flexWrap="wrap"
-          justifyContent="flex-start"
-          alignContent="flex-start"
-          fontFamily="Helvetica"
-          bgcolor="primary.main"
-          fontSize="48px"
-          css={{ width: 500 }}
-        >
-          <Box
-            p={1}
-            bgcolor="primary.dark"
-            css={{ width: 500, height: 10 }}
-          />
-          Tutorial for PHAD
-        </Box>
       To start playing, simply create a sequence of notes and send it to an instrument.
       A note is any letter between 'a' and 'g'. This sequence can then be played on an instrument
       by writing '>>' followed by the instrument name as seen below:
