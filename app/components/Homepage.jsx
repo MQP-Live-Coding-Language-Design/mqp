@@ -1,12 +1,8 @@
 import React from 'react';
-import Tutorial from './tutorial/Tutorial';
-import Playground from './playground/Playground';
+import Navbar from './Navbar';
 
 const Homepage = () => (
-  <div>
-    <Tutorial id="theTutorial" />
-    <Playground />
-  </div>
+  <Navbar />
 );
 
 export default Homepage;
