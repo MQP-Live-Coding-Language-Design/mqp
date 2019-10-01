@@ -4,7 +4,7 @@ import blueGrey from '@material-ui/core/colors/blueGrey';
 import { ThemeProvider } from '@material-ui/styles';
 import Box from '@material-ui/core/Box';
 import Typography from '@material-ui/core/Typography';
-import PlayBox from '../PlayBox';
+import PlayBox from '../common/PlayBox';
 
 const theme = createMuiTheme({
   palette: {
@@ -30,23 +30,6 @@ const Tutorial = () => (
         m={1}
         css={{ maxWidth: 500 }}
       >
-        <Box
-          display="flex"
-          flexWrap="wrap"
-          justifyContent="flex-start"
-          alignContent="flex-start"
-          fontFamily="Helvetica"
-          bgcolor="primary.main"
-          fontSize="48px"
-          css={{ width: 500 }}
-        >
-          <Box
-            p={1}
-            bgcolor="primary.dark"
-            css={{ width: 500, height: 10 }}
-          />
-          Tutorial for PHAD
-        </Box>
       To start playing, simply create a sequence of notes and send it to an instrument.
       A note is any letter between 'a' and 'g'. This sequence can then be played on an instrument
       by writing '>>' followed by the instrument name as seen below:
@@ -94,8 +77,11 @@ const Tutorial = () => (
         (high hat), and -- (open high hat) instead of note names. Drums can be played with any
         instrument, but it will not change their sound.
         <br />
-        <PlayBox id="seventhTutBox" value={`"o x -- x" >> play
-"-" >> duration .5 >> triangle`} />
+        <PlayBox
+          id="seventhTutBox"
+          value={`"o x -- x" >> play
+"-" >> duration .5 >> triangle`}
+        />
         <br />
         <br />
         <br />

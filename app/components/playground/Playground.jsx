@@ -1,14 +1,9 @@
 import React from 'react';
-import PlayBox from '../PlayBox';
+import PlayBox from '../common/PlayBox';
 
 
 const Playground = () => (
-  <div>
-    <PlayBox
-      id="fullBox"
-      value=""
-    />
-  </div>
+  <PlayBox id="fullBox" />
 );
 
 export default Playground;
