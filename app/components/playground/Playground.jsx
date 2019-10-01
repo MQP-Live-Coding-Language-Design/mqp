@@ -1,5 +1,5 @@
 import React from 'react';
-import PlayBox from '../PlayBox';
+import PlayBox from '../common/PlayBox';
 
 
 const Playground = () => (

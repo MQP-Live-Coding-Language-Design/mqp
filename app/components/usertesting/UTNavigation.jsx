@@ -5,8 +5,10 @@ import Tabs from '@material-ui/core/Tabs';
 import Tab from '@material-ui/core/Tab';
 import Typography from '@material-ui/core/Typography';
 import Box from '@material-ui/core/Box';
-import Tutorial from './tutorial/Tutorial';
-import Playground from './playground/Playground';
+import Tutorial from '../tutorial/Tutorial';
+import Playground from '../playground/Playground';
+import UTInstructions from './UTInstructions';
+import UserDocumentation from '../documentation/UserDocumentation';
 
 
 function TabPanel(props) {
@@ -29,7 +31,7 @@ TabPanel.propTypes = {
   value: PropTypes.number.isRequired,
 };
 
-const Navbar = () => {
+const UTNavigation = () => {
   const [value, setValue] = React.useState(0);
 
   const handleChange = (event, newValue) => {
@@ -38,24 +40,28 @@ const Navbar = () => {
 
   return (
     <div>
-      <Paper position="static">
+      <Paper>
         <Tabs value={value} onChange={handleChange}>
           <Tab label="Tutorial" />
           <Tab label="Instructions" />
           <Tab label="Get Creative" />
+          <Tab label="Documentation" />
         </Tabs>
       </Paper>
       <TabPanel value={value} index={0}>
         <Tutorial id="tutorial" value={value} index={0} />
       </TabPanel>
       <TabPanel value={value} index={1}>
-        Instructions
+        <UTInstructions />
       </TabPanel>
       <TabPanel value={value} index={2}>
         <Playground />
+      </TabPanel>
+      <TabPanel value={value} index={3}>
+        <UserDocumentation />
       </TabPanel>
     </div>
   );
 };
 
-export default Navbar;
+export default UTNavigation;
