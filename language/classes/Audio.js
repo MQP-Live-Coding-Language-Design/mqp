@@ -10,7 +10,8 @@ const defaults = require('../defaults');
 class Audio {
   constructor(buffer) {
     this.buffer = buffer;
-    this.player = new Tone.Player(buffer).toMaster(); // Tone.Player which contains the sound
+    this.player = new Tone.Player(buffer); // Tone.Player which contains the sound
+    this.filter = null;
     this.player.volume.value = -5;
     this.gap = defaults.defaultGap; // {float} gap between a note and the next
   }
@@ -29,8 +30,13 @@ class Audio {
     return ret;
   }
 
-  trigger(par, inst, time) {
+  trigger(par, inst, filter, time) {
     const nxtTime = Tone.TransportTime(time + this.gap);
+
+    if (this.filter === null) {
+      this.filter = filter;
+      this.player.connect(filter);
+    }
 
     this.player.start(time); // tell tone.js to play the sound at the given time
 

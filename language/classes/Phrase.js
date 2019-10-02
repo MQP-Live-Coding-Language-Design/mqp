@@ -6,6 +6,7 @@ class Phrase {
   constructor(groups) {
     this.groups = groups; // list of groups forming this Phrase
     this.instrument = null;
+    this.filter = null;
     this.parent = null;
     this.next = 0; // group to be played on retrigger
   }
@@ -52,16 +53,17 @@ class Phrase {
     return new Phrase(newGroups);
   }
 
-  trigger(parent, instrument, time) {
+  trigger(parent, instrument, filter, time) {
     this.parent = parent;
     this.instrument = instrument;
+    this.filter = filter;
     this.next = 1;
-    this.groups[0].trigger(this, instrument, time);
+    this.groups[0].trigger(this, instrument, filter, time);
   }
 
   retrigger(time) {
     if (this.next < this.groups.length) {
-      this.groups[this.next].trigger(this, this.instrument, time);
+      this.groups[this.next].trigger(this, this.instrument, this.filter, time);
       this.next += 1;
     } else {
       const temp = this.parent;
