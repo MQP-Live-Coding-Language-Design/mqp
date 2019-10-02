@@ -20,8 +20,6 @@ const PlayBox = ({ id, value }) => {
   }
 
   function stop() {
-    console.log('hit stop');
-    console.log(runningParts);
     runningParts.forEach((part) => {
       part.stop();
     });
@@ -32,10 +30,8 @@ const PlayBox = ({ id, value }) => {
     stop();
     const parsedVal = peg.parse(valueGetter.current());
     setParts(parsedVal);
-    console.log('1', runningParts);
     if (Tone.context.state === 'running') {
       parsedVal.forEach((part) => { part.start(); });
-      console.log('2', runningParts);
     } else {
       console.log('unloaded');
     }

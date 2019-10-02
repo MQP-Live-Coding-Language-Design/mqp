@@ -1,6 +1,9 @@
 /* eslint-disable*/
 const samples = require('./samples.js');
 
+let loaded = false;
+Tone.Buffer.on('load', () => { loaded = true; });
+
 // To do:
 // add additional modifiers, instrments, filters, and attributes
 // add syntax for changing defaults
