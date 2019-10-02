@@ -7,7 +7,7 @@ import PlayBox from '../common/PlayBox';
 
 
 const UTInstructions = () => (
-  <div>
+  <>
     <ReactMarkdown source={instruction1} />
     <PlayBox id="instruction1" />
     <ReactMarkdown source={instruction2} />
@@ -20,7 +20,7 @@ const UTInstructions = () => (
     <PlayBox id="instruction5" />
     <ReactMarkdown source={instruction6} />
     <PlayBox id="instruction6" />
-  </div>
+  </>
 );
 
 export default UTInstructions;

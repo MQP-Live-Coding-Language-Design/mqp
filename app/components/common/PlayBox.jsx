@@ -1,30 +1,35 @@
-import React from 'react';
+import React, { useRef, useState } from 'react';
 import PropTypes from 'prop-types';
-import Box from '@material-ui/core/Box';
-import MonacoEditor from 'react-monaco-editor';
+import Editor from '@monaco-editor/react';
 
-const PlayBox = ({ id, value }) => (
-  <Box p={2}>
-    {
-      <div className="playBox" id={id}>
-        <MonacoEditor
-          width="600"
-          height="200"
-          id="input"
-          value={value}
-        />
-        <textarea
-          rows="10"
-          cols="90"
-          id="input"
-          defaultValue={value}
-        />
-        <button type="button" id="Start">Start</button>
-        <button type="button" id="Stop">Stop</button>
-      </div>
-    }
-  </Box>
-);
+const PlayBox = ({ id, value }) => {
+  const [isEditorReady, setIsEditorReady] = useState(false);
+  const [parseValue, setParseValue] = useState(value);
+  const valueGetter = useRef();
+
+  function handleEditorDidMount(_valueGetter) {
+    setIsEditorReady(true);
+    valueGetter.current = _valueGetter;
+  }
+
+  function changeValueToParse() {
+    setParseValue(valueGetter.current());
+  }
+
+  return (
+    <div className="playBox" id={id}>
+      <Editor
+        height="10vh"
+        width="50vw"
+        value={value}
+        theme="dark"
+        editorDidMount={handleEditorDidMount}
+      />
+      <button type="button" value={parseValue} onClick={changeValueToParse} disabled={!isEditorReady} id="Start">Start</button>
+      <button type="button" disabled={!isEditorReady} id="Stop">Stop</button>
+    </div>
+  );
+};
 
 PlayBox.propTypes = {
   id: PropTypes.string.isRequired,
