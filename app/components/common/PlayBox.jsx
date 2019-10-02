@@ -1,11 +1,18 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import Box from '@material-ui/core/Box';
+import MonacoEditor from 'react-monaco-editor';
 
 const PlayBox = ({ id, value }) => (
   <Box p={2}>
     {
       <div className="playBox" id={id}>
+        <MonacoEditor
+          width="600"
+          height="200"
+          id="input"
+          value={value}
+        />
         <textarea
           rows="10"
           cols="90"

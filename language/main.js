@@ -33,7 +33,9 @@ const stop = (playBox) => {
 
 const start = (playBox) => {
   stop(playBox);
-  const parts = peg.parse(playBox.querySelector('[id=input]').value);
+  console.log(playBox.querySelector('textarea'));
+  console.log(playBox.querySelector('.mtk1'));
+  const parts = peg.parse(playBox.querySelector('[id=input]').defaultValue);
   runningParts[playBox.id] = parts;
 
   if (loaded && Tone.context.state === 'running') {
