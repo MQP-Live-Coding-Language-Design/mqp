@@ -1,8 +1,8 @@
 const Tone = require('tone');
 const peg = require('./language.js');
+/* eslint-disable*/
 const samples = require('./samples.js');
 
-/* eslint-disable*/
 let runningParts = {};
 /* eslint-enable */
 
@@ -21,20 +21,20 @@ document.documentElement.addEventListener(
 let loaded = false;
 Tone.Buffer.on('load', () => { loaded = true; });
 
-const stop = (playBox) => {
-  if (playBox.id in runningParts) {
-    runningParts[playBox.id].forEach((part) => {
+const stop = (id) => {
+  if (id in runningParts) {
+    runningParts[id].forEach((part) => {
       part.stop();
     });
   }
 
-  delete runningParts[playBox.id];
+  delete runningParts[id];
 };
 
-const start = (playBox) => {
-  stop(playBox);
-  const parts = peg.parse(playBox.querySelector('[id=Start]').value);
-  runningParts[playBox.id] = parts;
+const start = (id, value) => {
+  stop(id);
+  const parts = peg.parse(value);
+  runningParts[id] = parts;
 
   if (loaded && Tone.context.state === 'running') {
     parts.forEach((part) => { part.start(); });
@@ -44,8 +44,11 @@ const start = (playBox) => {
 };
 
 document.querySelectorAll('.playBox').forEach((playBox) => {
-  playBox.querySelector('[id=Start]').addEventListener('click', () => { start(playBox); });
-  playBox.querySelector('[id=Stop]').addEventListener('click', () => { stop(playBox); });
+  const element = playBox.querySelector('[id=trigger]');
+  element.addEventListener('click', () => {
+    start(playBox.id, element.value);
+  });
+  // playBox.querySelector('[id=Stop]').addEventListener('click', () => { stop(playBox); });
 });
 
 // To do:

@@ -1,10 +1,12 @@
 import React, { useRef, useState } from 'react';
 import PropTypes from 'prop-types';
 import Editor from '@monaco-editor/react';
+import Button from '@material-ui/core/Button';
 
 const PlayBox = ({ id, value }) => {
   const [isEditorReady, setIsEditorReady] = useState(false);
   const [parseValue, setParseValue] = useState(value);
+  const [startState, setStartValue] = useState('Start');
   const valueGetter = useRef();
 
   function handleEditorDidMount(_valueGetter) {
@@ -14,6 +16,8 @@ const PlayBox = ({ id, value }) => {
 
   function changeValueToParse() {
     setParseValue(valueGetter.current());
+    if (startState === 'Start') setStartValue('Stop');
+    else setStartValue('Start');
   }
 
   return (
@@ -25,8 +29,9 @@ const PlayBox = ({ id, value }) => {
         theme="dark"
         editorDidMount={handleEditorDidMount}
       />
-      <button type="button" value={parseValue} onClick={changeValueToParse} disabled={!isEditorReady} id="Start">Start</button>
-      <button type="button" disabled={!isEditorReady} id="Stop">Stop</button>
+      <Button className={startState} type="button" value={parseValue} onClick={changeValueToParse} disabled={!isEditorReady} id="trigger">
+        {startState}
+      </Button>
     </div>
   );
 };
