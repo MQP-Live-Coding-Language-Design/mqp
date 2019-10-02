@@ -46,7 +46,12 @@ const start = (id, value) => {
 document.querySelectorAll('.playBox').forEach((playBox) => {
   const element = playBox.querySelector('[id=trigger]');
   element.addEventListener('click', () => {
-    start(playBox.id, element.value);
+    console.log(element.className);
+    if (element.className.includes('Start')) {
+      start(playBox.id, element.value);
+    } else {
+      stop(playBox.id);
+    }
   });
   // playBox.querySelector('[id=Stop]').addEventListener('click', () => { stop(playBox); });
 });
