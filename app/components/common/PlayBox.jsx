@@ -9,7 +9,6 @@ const peg = require('../../../language/language.js');
 
 const PlayBox = ({ id, value }) => {
   const [isEditorReady, setIsEditorReady] = useState(false);
-  const [parseValue, setParseValue] = useState(value);
   const [buttonState, setButtonState] = useState('Start');
   const [runningParts, setParts] = useState([]);
   const valueGetter = useRef();
@@ -32,7 +31,7 @@ const PlayBox = ({ id, value }) => {
 
   function start() {
     stop();
-    const parsedVal = peg.parse(parseValue);
+    const parsedVal = peg.parse(valueGetter.current());
     setParts(parsedVal);
     console.log('1', runningParts);
     if (loaded && Tone.context.state === 'running') {
@@ -45,8 +44,6 @@ const PlayBox = ({ id, value }) => {
 
 
   function buttonClick() {
-    setParseValue(valueGetter.current());
-
     if (Tone.context.state !== 'running') {
       Tone.context.resume();
     }
@@ -73,7 +70,7 @@ const PlayBox = ({ id, value }) => {
         theme="dark"
         editorDidMount={handleEditorDidMount}
       />
-      <Button className={buttonState} type="button" value={parseValue} onClick={buttonClick} disabled={!isEditorReady} id="trigger">
+      <Button className={buttonState} type="button" onClick={buttonClick} disabled={!isEditorReady} id="trigger">
         {buttonState}
       </Button>
     </div>

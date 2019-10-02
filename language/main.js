@@ -6,7 +6,7 @@ const samples = require('./samples.js');
 let runningParts = {};
 /* eslint-enable */
 
-/* document.documentElement.addEventListener(
+document.documentElement.addEventListener(
   'mousedown', () => {
     if (Tone.context.state !== 'running') {
       Tone.context.resume();
@@ -17,7 +17,7 @@ let runningParts = {};
     }
   },
 );
- // THIS IS THE ONE TO DELETE
+/* // THIS IS THE ONE TO DELETE
 let loaded = false;
 Tone.Buffer.on('load', () => { loaded = true; });
 
