@@ -6,12 +6,13 @@ import Button from '@material-ui/core/Button';
 const Tone = require('tone');
 const peg = require('../../../language/language.js');
 
+
 const PlayBox = ({ id, value }) => {
   const [isEditorReady, setIsEditorReady] = useState(false);
   const [parseValue, setParseValue] = useState(value);
   const [buttonState, setButtonState] = useState('Start');
+  const [runningParts, setParts] = useState([]);
   const valueGetter = useRef();
-  const runningParts = {};
   const loaded = true;
 
 
@@ -21,21 +22,22 @@ const PlayBox = ({ id, value }) => {
   }
 
   function stop() {
-    if (id in runningParts) {
-      runningParts[id].forEach((part) => {
-        part.stop();
-      });
-    }
-    delete runningParts[id];
+    console.log('hit stop');
+    console.log(runningParts);
+    runningParts.forEach((part) => {
+      part.stop();
+    });
+    setParts([]);
   }
 
   function start() {
-    stop(id);
-    const parts = peg.parse(parseValue);
-    runningParts[id] = parts;
-
+    stop();
+    const parsedVal = peg.parse(parseValue);
+    setParts(parsedVal);
+    console.log('1', runningParts);
     if (loaded && Tone.context.state === 'running') {
-      parts.forEach((part) => { part.start(); });
+      parsedVal.forEach((part) => { part.start(); });
+      console.log('2', runningParts);
     } else {
       console.log('unloaded');
     }
