@@ -12,7 +12,6 @@ const PlayBox = ({ id, value }) => {
   const [buttonState, setButtonState] = useState('Start');
   const [runningParts, setParts] = useState([]);
   const valueGetter = useRef();
-  const loaded = true;
 
 
   function handleEditorDidMount(_valueGetter) {
@@ -34,7 +33,7 @@ const PlayBox = ({ id, value }) => {
     const parsedVal = peg.parse(valueGetter.current());
     setParts(parsedVal);
     console.log('1', runningParts);
-    if (loaded && Tone.context.state === 'running') {
+    if (Tone.context.state === 'running') {
       parsedVal.forEach((part) => { part.start(); });
       console.log('2', runningParts);
     } else {
@@ -64,8 +63,8 @@ const PlayBox = ({ id, value }) => {
   return (
     <div className="playBox" id={id}>
       <Editor
-        height="10vh"
-        width="50vw"
+        height="20vh"
+        width="60vw"
         value={value}
         theme="dark"
         editorDidMount={handleEditorDidMount}
