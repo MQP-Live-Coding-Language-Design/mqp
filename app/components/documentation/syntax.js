@@ -32,11 +32,11 @@ Notes, numbers, and percussion can be followed by any number of \`~\`s. This wil
 \`\`\`
 In the example above, the \`a\` will be three times as long as the \`c\` and the \`b\` will be twice as long as the \`c\`.
 
-### Group behaviors (NOT YET IMPLEMENTED)
+### Group behaviors
 - **chord**: plays groups at the same time when written as \`chord(e g)\`
-- **step**: plays one group per loop when written as \`step(c e g)\`. This plays \`c e g\` in the time of 3 loops.
+- **step**: plays one group per loop when written as \`step(c e g)\`. This plays \`c e g\` in the time of 3 loops. (NOT YET IMPLEMENTED)
 - **random**: randomizes groups when written as \`rand()\`. This will play any random note. A range can also be specified as \`rand(c e g)\`. This will play one of the 3 notes randomly.
-- **repeat**: repeat a group a number of times when written as \`c*3\`. This is interpreted the same as \`c c c\`.
+- **repeat**: repeat a group a number of times when written as \`c*3\`. This is interpreted the same as \`c c c\`. (NOT YET IMPLEMENTED)
 
 ## Sequence modifiers
 A sequence modifier is added after the phrase is defined as:
@@ -97,7 +97,7 @@ abc_2
 ## Sequence combination (NOT YET IMPLEMENTED)
 **Saved sequences** can be combined to create new sequences, where different sections of the sequence have different modifiers defined earlier. The modifiers applied after a combination affect the entire combination.
 
-## Concatenation (NOT YET IMPLEMENTED)
+### Concatenation (NOT YET IMPLEMENTED)
 Concatenating sequences places sequences one after the next: \`concat(seq1 seq2 seq3)\` will create a sequence formed by \`seq1\`, followed by \`seq2\` followed by \`seq3\`.
 For example, let's say we have these three sequences:
 \`\`\`
@@ -132,14 +132,11 @@ A part is defined once the **instrument** of a phrase has been defined in the ca
   >> octave +
   >> saw      // this is the beginning of a part
 \`\`\`
-The available instruments are available:
+An instrument can be any of:
 - \`triangle\`: Simple synth with a triangle wave
 - \`soft\`: Sine wave synth with a rich tone quality
 - \`saw\`: Fat synth with a saw wave, bright tone quality
-- \`play\`: No sound
-
-The \`play\` instrument cannot be used to play notes, but it can be used to play percussion sounds and rests.
-Since most percussion parts do not have any notes in them it is often easiest to use this instrument to play them instead of choosing an arbitrary different instrument.
+- \`play\`: Default synth
 
 ## Instrument attributes
 Instruments may be followed by one or more attributes which will change the sound of the instrument:
@@ -149,22 +146,22 @@ Instruments may be followed by one or more attributes which will change the soun
 \`\`\`
 Attributes can only be applied once each. Specifying the same attribute multiple times will override previous changes to that attribute.
 
-The available attributes are:
+Attributes can be any of:
 - \`volume\`: Takes a fraction or decimal, positive or negative, and changes the volume of the instrument by that number of decibals
 - \`wave\`: Takes one of \`sine\`, \`triangle\`, \`sawtooth\`, or \`square\`, and sets the wave of the instrument to that type.
 
-## Part modifiers
-Part modifiers change the way an instrument or percussion element sounds. To add a part modifier:
+## Filters
+Filters change the way an instrument or percussion element sounds. To add a filter:
 \`\`\`
 "a b c"
   >> piano
-    > <part modifier>
-    > <part modifier>
+    > <filter>
+    > <filter>
   >> <any sequence modifier>
 \`\`\`
-Part modifiers act similarly to sequence modifiers in that they are processed sequentially, and any part modifier acts without knowledge of modifiers which follow it.
+Filters act similarly to sequence modifiers in that they are processed sequentially, and every filter acts without knowledge of filters which follow it.
 
-The \`&\` symbol may also be inserted between part modifiers. This will cause the sound to be played at the point at which the \`&\` symbol is inserted, as well as after the last part modifier.
+The \`&\` symbol may also be inserted between filters. This will cause the sound to be played at the point at which the \`&\` symbol is inserted. The sound will always be played at the end of a sequence of filters, regardless of whether a \`&\` is used.
 \`\`\`
 "a b c"
   >> piano
@@ -177,34 +174,16 @@ As an example, the example above will only play the pingpong echo, not the origi
     > pingpong 0.5
 \`\`\`
 
-### Filters
-Filters modify sound **frequencies**. Filters can be any of:
+Filters can be any of:
 - \`pingpong\`: Makes the sound echo between speakers. Takes a delay between echos.
 
-(NOT YET IMPLEMENTED)
+NOT YET IMPLEMENTED:
 - \`distort\`: adds distortion to the sound. Takes any number of values between 0 and 1.
 - \`lo\`: low pass filter attenuates frequencies above the cutoff. This takes as input any number of values between 0 and 1.
 - \`hi\`: high pass filter attenuates frequencies below the cutoff. This takes as input any number of values between 0 and 1.
 - \`bandpass\`: band pass filter attenuates any frequencies outside of a range. This takes as input two values between 0 and 1, corresponding to the low and high value of the range.
-
-Any of the filters follow the following syntax (with the appropriate number of inputs):
-\`\`\`
-"a b c"
-  >> piano
-    > lo 0.5
-\`\`\`
-
-### Effects (NOT YET IMPLEMENTED)
-Effects modify the sound with no frequency modification. Effects can be any of:
-- **pan**: moves sounds from left to right. This takes any number of values from -1 to 1 as input. -1 corresponds to left, and 1 corresponds to right.
-- **vol**: changes volume. This takes any number of values from 0 to 1.
-
-Any of the filters follow the following syntax (with the appropriate number of inputs):
-\`\`\`
-"a b c"
-  >> piano
-    > vol 0.5
-\`\`\`
+- \`pan\`: moves sounds from left to right. This takes any number of values from -1 to 1 as input. -1 corresponds to left, and 1 corresponds to right.
+- \`vol\`: changes volume. This takes any number of values from 0 to 1.
 
 ## Part storage (NOT YET IMPLEMENTED)
 A part and can be saved to be referenced in the sound visualization UI, to stop sound without affecting any sequences (in-sequence storage), or to use the same part in another phrase (global storage);
