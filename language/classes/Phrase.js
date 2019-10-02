@@ -11,14 +11,6 @@ class Phrase {
     this.next = 0; // group to be played on retrigger
   }
 
-  /**
-   * Adds a Group to this Phrase's groups
-   * @param {Group} group to be added to this Phrase
-   */
-  add(group) {
-    this.groups.unshift(group);
-  }
-
   octChange(n) {
     this.groups.forEach((group) => {
       group.octChange(n);

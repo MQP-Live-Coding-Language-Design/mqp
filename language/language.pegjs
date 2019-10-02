@@ -26,15 +26,17 @@ line
   }
 
 // Written sequence of notes, contained within quotes
-// Returns a Phrase containing the notes
+// Returns a list of Groups
 noteseq
   = note:note __ seq:noteseq { return [note].concat(seq); }
   / note:note { return [note]; }
 
-// A single note
-// Returns a Note
+// A single Group
+// Returns a Group
 note
   = note:notestart ext:(_ "~")* { note.tempoChange(ext.length + 1); return note; }
+  / "(" _ seq:noteseq  _ ")" { return new classes.Phrase(seq); }
+  / "rand(" _ seq:noteseq _ ")" { return new classes.Random(seq); }
 
 // The base of a note
 // Returns a Note
