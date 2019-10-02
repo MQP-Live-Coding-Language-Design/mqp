@@ -34,7 +34,8 @@ noteseq
 // A single Group
 // Returns a Group
 note
-  = note:notestart ext:(_ "~")* { note.tempoChange(ext.length + 1); return note; }
+  = "chord(" _ seq:noteseq _ ")" { return new classes.Chord(seq); }
+  / note:notestart ext:(_ "~")* { note.tempoChange(ext.length + 1); return note; }
   / "(" _ seq:noteseq  _ ")" { return new classes.Phrase(seq); }
   / "rand(" _ seq:noteseq _ ")" { return new classes.Random(seq); }
 
