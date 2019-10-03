@@ -46323,7 +46323,7 @@ var Tutorial = function Tutorial() {
     value: "\"c e f g\" >> soft >> pitch +7 >> triangle\n\"c e g\" >> duration 1/2 >> octave + >> saw"
   }), _react.default.createElement("br", null), _react.default.createElement("br", null), _react.default.createElement("br", null), "Feel free to combine anything you've used!", _react.default.createElement("br", null), _react.default.createElement(_PlayBox.default, {
     id: "sixthTutBox",
-    value: "\"ab f db eb\" >> duration 2 >> octave - >> soft >> pitch +7 >> soft\n\"o _ x _\" >> duration .5 >> play\n\"c+ ab g ab c+ ab g ab db ab g ab bb ab g ab\" >> duration .5 >> triangle\n\"ab _ _ eb _ _ c _ _ eb _ _ ab _ _ f _ _ db _ f _ ab _ bb _ _ ab _ _ g _\" >> octave >> duration 1/4 >> saw\n\"ab ab eb+\" >> duration 1/4 >> triangle\n\"ab _ _ eb _ _ f ab ~ _ _ g _ _ ab bb\" >> octave ++ >> duration .5 >> triangle & > pingpong .25\n\"- - - - -- - - -\" >> duration .5 >> play"
+    value: "\"ab f db eb\" >> duration 2 >> octave - >> soft >> pitch +7 >> soft\n\"o _ x _\" >> duration .5 >> play\n\"c+ ab g ab c+ ab g ab db ab g ab bb ab g ab\" >> duration .5 >> triangle\n\"ab _ _ eb _ _ c _ _ eb _ _ ab _ _ f _ _ db _ f _ ab _ bb _ _ ab _ _ g _\" >> octave >> duration 1/4 >> saw\n\"rand((g ab) (ab ab)) eb+\" >> duration 1/4 >> triangle\n\"ab _ _ eb _ _ f ab ~ _ _ g _ _ ab bb\" >> octave ++ >> duration .5 >> triangle & > pingpong .5\n\"- - - - -- - - -\" >> duration .5 >> play"
   }), _react.default.createElement("br", null), _react.default.createElement("br", null), _react.default.createElement("br", null))));
 };
 
@@ -55347,7 +55347,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "40579" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "34447" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};
