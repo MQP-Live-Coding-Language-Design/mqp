@@ -4,8 +4,11 @@ import Editor from '@monaco-editor/react';
 import Button from '@material-ui/core/Button';
 
 const Tone = require('tone');
+const samples = require('../../../language/samples.js');
 const peg = require('../../../language/language.js');
 
+let loaded = false;
+Tone.Buffer.on('load', () => { loaded = true; });
 
 const PlayBox = ({ id, value }) => {
   const [isEditorReady, setIsEditorReady] = useState(false);
@@ -30,7 +33,7 @@ const PlayBox = ({ id, value }) => {
     stop();
     const parsedVal = peg.parse(valueGetter.current());
     setParts(parsedVal);
-    if (Tone.context.state === 'running') {
+    if (loaded && Tone.context.state === 'running') {
       parsedVal.forEach((part) => { part.start(); });
     } else {
       console.log('unloaded');
