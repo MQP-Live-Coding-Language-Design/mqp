@@ -46,12 +46,14 @@ const PlayBox = ({ id, value }) => {
       Tone.Transport.seconds = Tone.context.now();
     }
 
-    if (buttonState === 'Start' && loaded && Tone.context.state === 'running') {
-      start();
-      setButtonState('Stop');
-    } else {
-      stop();
-      setButtonState('Start');
+    if (loaded && Tone.context.state === 'running') {
+      if (buttonState === 'Start') {
+        start();
+        setButtonState('Stop');
+      } else {
+        stop();
+        setButtonState('Start');
+      }
     }
   }
 
