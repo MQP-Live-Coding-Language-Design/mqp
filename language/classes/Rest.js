@@ -28,7 +28,7 @@ class Rest {
     return ret;
   }
 
-  trigger(par, inst, time) {
+  trigger(par, inst, filter, time) {
     // schedules a retrigger of parent for when it plays
     const nxtTime = Tone.TransportTime(time + this.gap);
     Tone.Transport.scheduleOnce(() => { par.retrigger(nxtTime); }, time);

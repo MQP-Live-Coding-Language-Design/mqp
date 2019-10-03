@@ -125,8 +125,8 @@ const Tutorial = () => (
 "o _ x _" >> duration .5 >> play
 "c+ ab g ab c+ ab g ab db ab g ab bb ab g ab" >> duration .5 >> triangle
 "ab _ _ eb _ _ c _ _ eb _ _ ab _ _ f _ _ db _ f _ ab _ bb _ _ ab _ _ g _" >> octave >> duration 1/4 >> saw
-"ab ab eb+" >> duration 1/4 >> triangle
-"ab _ _ eb _ _ f ab ~ _ _ g _ _ ab bb" >> octave ++ >> duration .5 >> triangle & > pingpong .25
+"rand((g ab) (ab ab)) eb+" >> duration 1/4 >> triangle
+"ab _ _ eb _ _ f ab ~ _ _ g _ _ ab bb" >> octave ++ >> duration .5 >> triangle & > pingpong .5
 "- - - - -- - - -" >> duration .5 >> play`}
         />
         <br />

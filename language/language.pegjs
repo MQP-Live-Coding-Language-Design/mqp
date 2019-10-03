@@ -26,15 +26,18 @@ line
   }
 
 // Written sequence of notes, contained within quotes
-// Returns a Phrase containing the notes
+// Returns a list of Groups
 noteseq
   = note:note __ seq:noteseq { return [note].concat(seq); }
   / note:note { return [note]; }
 
-// A single note
-// Returns a Note
+// A single Group
+// Returns a Group
 note
-  = note:notestart ext:(_ "~")* { note.tempoChange(ext.length + 1); return note; }
+  = "chord(" _ seq:noteseq _ ")" { return new classes.Chord(seq); }
+  / note:notestart ext:(_ "~")* { note.tempoChange(ext.length + 1); return note; }
+  / "(" _ seq:noteseq  _ ")" { return new classes.Phrase(seq); }
+  / "rand(" _ seq:noteseq _ ")" { return new classes.Random(seq); }
 
 // The base of a note
 // Returns a Note
@@ -79,18 +82,17 @@ modifier
   / '>>' _ "pitch" _ mod:nummod { return function(phrase) {phrase.pitchChange(mod);}; }
   / '>>' _ "duration" _ mod:fltOrFrac { return function(phrase) {phrase.tempoChange(mod);}; }
   / '>>' _ plr:player { return plr; }
-  / '>>' _ "play" { return function(phrase) { let np = new classes.Part(null, phrase); returnParts.push(np); }; }
 
 // Instrument plus its attributes and filters
 // Returns a function that plays a phrase
 player
   = inst:instrument attr:attributeseq _ fltr:filterseq
 {
-  inst.sync();
   for (var a of attr) {
-    inst.set(a);
+    a(inst);
   }
-  let last = inst;
+  let first = new Tone.Volume(defaults.defaultVolume);
+  let last = first;
   for (var f of fltr) {
     last.connect(f);
     if (f !== Tone.Master)
@@ -98,38 +100,40 @@ player
   }
   last.toMaster();
 
-  return function(phrase) { let np = new classes.Part(inst, phrase); returnParts.push(np); };
+  return function(phrase) { let np = new classes.Part(inst, first, phrase); returnParts.push(np); };
 }
 
 // A default instrument
-// Returns a new Tone.Synth
+// Returns an object which can be used to create a Tone.Synth
 instrument
-  = "triangle" { return new Tone.Synth({volume: defaults.defaultVolume}); }
-  / "soft" { return new Tone.Synth({oscillator: {type: "sine2", partials: [1, .5], volume: defaults.defaultVolume}}); }
-  / "saw" { return new Tone.Synth({oscillator: {type: "fatsawtooth", volume: defaults.defaultVolume, spread: 40}}); }
+  = "triangle" { return {oscillator: {}}; }
+  / "soft" { return {oscillator: {type: "sine2", partials: [1, .5]}}; }
+  / "saw" { return {oscillator: {type: "fatsawtooth", spread: 40}}; }
+  / "play" { return {oscillator: {}}; }
+
 // A sequence of instrument attributes
-// Returns a list of dictionaries which can be set on an instrument
+// Returns a list of functions which modify objects
 attributeseq
-  = __ attr:attribute seq:attributeseq { return seq.concat([attr]); }
+  = __ attr:attribute seq:attributeseq { return [attr].concat(seq); }
   / & {return true;} { return []; }
 
 // A single attribute for an instrument
-// Returns a dictionary which can be set on an instrument
+// Returns a function which modifies an object appropriately
 attribute
-  = "wave" __ wave:("sine"/"triangle"/"square"/"sawtooth") { return {oscillator: {type: wave}}; }
-  / "volume" __ sign:"-"? num:fltOrFrac { if (sign !== null) num *= -1; return {volume: num+defaults.defaultVolume}; }
+  = "wave" __ wave:("sine"/"triangle"/"square"/"sawtooth") { return (obj) => { obj.oscillator.type = wave; }; }
+  / "volume" __ sign:"-"? num:fltOrFrac { if (sign !== null) num *= -1; return (obj) => { obj.volume = num+defaults.defaultVolume; }; }
 
 // A sequence of filters for an Instrument
 // Returns a list of Tone effects
 filterseq
-  = ">" _ fltr:filter seq:filterseq { return [fltr].concat(seq); } //Order?
+  = ">" _ fltr:filter _ seq:filterseq { return [fltr].concat(seq); }
   / "&" _ seq:filterseq { return [Tone.Master].concat(seq); }
   / & {return true;} { return []; }
 
 // A single filter for an instrument
 // Returns a Tone effect
 filter
-  = "pingpong" __ delay:fltOrFrac { return new Tone.PingPongDelay(delay); }
+  = "pingpong" __ delay:fltOrFrac { return new Tone.PingPongDelay(delay*defaults.defaultGap); }
 
 // Float or fraction
 // Returns the value as a float

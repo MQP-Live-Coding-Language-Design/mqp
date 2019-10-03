@@ -4,8 +4,9 @@ const Tone = require('tone');
  * A Part represents the combination of a Phrase and instrument
  */
 class Part {
-  constructor(inst, phrase) {
+  constructor(inst, filter, phrase) {
     this.inst = inst;
+    this.filter = filter;
     this.phrase = phrase.copy; // {Phrase} being played by this Part
     this.running = false;
   }
@@ -21,7 +22,7 @@ class Part {
       if (startTime <= now) startTime += length; // ensure startTime is now or later
       startTime = Tone.TransportTime(startTime);
 
-      this.phrase.trigger(this, this.inst, startTime);
+      this.phrase.trigger(this, this.inst, this.filter, startTime);
       this.running = true;
     }
   }
@@ -40,7 +41,7 @@ class Part {
    * @param  {string} time something like "4n" that would represent a 1/4 note
    */
   retrigger(time) {
-    if (this.running) this.phrase.trigger(this, this.inst, time);
+    if (this.running) this.phrase.trigger(this, this.inst, this.filter, time);
   }
 }
 
