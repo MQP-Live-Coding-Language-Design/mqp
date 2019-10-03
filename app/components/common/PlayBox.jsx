@@ -33,11 +33,7 @@ const PlayBox = ({ id, value }) => {
     stop();
     const parsedVal = peg.parse(valueGetter.current());
     setParts(parsedVal);
-    if (loaded && Tone.context.state === 'running') {
-      parsedVal.forEach((part) => { part.start(); });
-    } else {
-      console.log('unloaded');
-    }
+    parsedVal.forEach((part) => { part.start(); });
   }
 
 
@@ -50,7 +46,7 @@ const PlayBox = ({ id, value }) => {
       Tone.Transport.seconds = Tone.context.now();
     }
 
-    if (buttonState === 'Start') {
+    if (buttonState === 'Start' && loaded && Tone.context.state === 'running') {
       start();
       setButtonState('Stop');
     } else {
