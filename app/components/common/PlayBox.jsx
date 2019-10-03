@@ -1,23 +1,79 @@
-import React from 'react';
+import React, { useRef, useState } from 'react';
 import PropTypes from 'prop-types';
-import Box from '@material-ui/core/Box';
+import Editor from '@monaco-editor/react';
+import Button from '@material-ui/core/Button';
 
-const PlayBox = ({ id, value }) => (
-  <Box p={2}>
-    {
-      <div className="playBox" id={id}>
-        <textarea
-          rows="10"
-          cols="90"
-          id="input"
-          defaultValue={value}
-        />
-        <button type="button" id="Start">Start</button>
-        <button type="button" id="Stop">Stop</button>
-      </div>
+const Tone = require('tone');
+const samples = require('../../../language/samples.js');
+const peg = require('../../../language/language.js');
+
+let loaded = false;
+Tone.Buffer.on('load', () => { loaded = true; });
+
+const PlayBox = ({ id, value }) => {
+  const [isEditorReady, setIsEditorReady] = useState(false);
+  const [buttonState, setButtonState] = useState('Start');
+  const [runningParts, setParts] = useState([]);
+  const valueGetter = useRef();
+
+
+  function handleEditorDidMount(_valueGetter) {
+    setIsEditorReady(true);
+    valueGetter.current = _valueGetter;
+  }
+
+  function stop() {
+    runningParts.forEach((part) => {
+      part.stop();
+    });
+    setParts([]);
+  }
+
+  function start() {
+    stop();
+    const parsedVal = peg.parse(valueGetter.current());
+    setParts(parsedVal);
+    if (loaded && Tone.context.state === 'running') {
+      parsedVal.forEach((part) => { part.start(); });
+    } else {
+      console.log('unloaded');
     }
-  </Box>
-);
+  }
+
+
+  function buttonClick() {
+    if (Tone.context.state !== 'running') {
+      Tone.context.resume();
+    }
+    if (Tone.Transport.state !== 'started') {
+      Tone.Transport.start();
+      Tone.Transport.seconds = Tone.context.now();
+    }
+
+    if (buttonState === 'Start') {
+      start();
+      setButtonState('Stop');
+    } else {
+      stop();
+      setButtonState('Start');
+    }
+  }
+
+  return (
+    <div className="playBox" id={id}>
+      <Editor
+        height="20vh"
+        width="60vw"
+        value={value}
+        theme="dark"
+        editorDidMount={handleEditorDidMount}
+      />
+      <Button className={buttonState} type="button" onClick={buttonClick} disabled={!isEditorReady} id="trigger">
+        {buttonState}
+      </Button>
+    </div>
+  );
+};
 
 PlayBox.propTypes = {
   id: PropTypes.string.isRequired,
