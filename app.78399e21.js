@@ -54010,13 +54010,7 @@ var PlayBox = function PlayBox(_ref) {
     });
   }
 
-  function buttonClick() {
-    if (Tone.context.state !== 'running') {
-      Tone.context.resume();
-
-      while (Tone.context !== 'running') {}
-    }
-
+  function toggle() {
     if (Tone.Transport.state !== 'started') {
       Tone.Transport.start();
       Tone.Transport.seconds = Tone.context.now();
@@ -54034,6 +54028,15 @@ var PlayBox = function PlayBox(_ref) {
         stop();
         setButtonState('Start');
       }
+    }
+  }
+
+  function buttonClick() {
+    if (Tone.context.state !== 'running') {
+      var resume = Tone.context.resume();
+      resume.then(toggle);
+    } else {
+      toggle();
     }
   }
 
@@ -63162,7 +63165,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "60635" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "61269" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};
