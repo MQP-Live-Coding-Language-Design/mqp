@@ -23,7 +23,7 @@ const PlayBox = ({ id, value }) => {
 
       monaco.editor.defineTheme('sicko-theme', {
         base: 'vs-dark',
-        inherit: false,
+        inherit: true,
         rules: [
           { token: 'instrument', foreground: 'D7BDE2' },
           { token: 'custom-error', foreground: 'ff0000', fontStyle: 'bold' },
