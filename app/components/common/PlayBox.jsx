@@ -62,11 +62,7 @@ const PlayBox = ({ id, value }) => {
     parsedVal.forEach((part) => { part.start(); });
   }
 
-
-  function buttonClick() {
-    if (Tone.context.state !== 'running') {
-      Tone.context.resume();
-    }
+  function toggle() {
     if (Tone.Transport.state !== 'started') {
       Tone.Transport.start();
       Tone.Transport.seconds = Tone.context.now();
@@ -80,6 +76,15 @@ const PlayBox = ({ id, value }) => {
         stop();
         setButtonState('Start');
       }
+    }
+  }
+
+  function buttonClick() {
+    if (Tone.context.state !== 'running') {
+      const resume = Tone.context.resume();
+      resume.then(toggle);
+    } else {
+      toggle();
     }
   }
 
