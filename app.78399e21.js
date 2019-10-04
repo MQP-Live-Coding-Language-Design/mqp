@@ -54016,10 +54016,6 @@ var PlayBox = function PlayBox(_ref) {
       Tone.Transport.seconds = Tone.context.now();
     }
 
-    console.log(loaded);
-    console.log(Tone.context.state);
-    console.log(Tone.Transport.state);
-
     if (loaded && Tone.context.state === 'running') {
       if (buttonState === 'Start') {
         start();

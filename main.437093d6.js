@@ -118,8 +118,6 @@ parcelRequire = (function (modules, cache, entry, globalName) {
 
   return newRequire;
 })({"../language/main.js":[function(require,module,exports) {
-// const samples = require('./samples.js');
-// console.log('main');
 // To do:
 // add additional modifiers, instrments, filters, and attributes
 // add syntax for changing defaults
