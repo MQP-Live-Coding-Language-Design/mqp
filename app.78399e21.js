@@ -54013,6 +54013,8 @@ var PlayBox = function PlayBox(_ref) {
   function buttonClick() {
     if (Tone.context.state !== 'running') {
       Tone.context.resume();
+
+      while (Tone.context !== 'running') {}
     }
 
     if (Tone.Transport.state !== 'started') {
@@ -54022,6 +54024,7 @@ var PlayBox = function PlayBox(_ref) {
 
     console.log(loaded);
     console.log(Tone.context.state);
+    console.log(Tone.Transport.state);
 
     if (loaded && Tone.context.state === 'running') {
       if (buttonState === 'Start') {
@@ -63159,7 +63162,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "59836" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "60635" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};
