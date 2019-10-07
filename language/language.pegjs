@@ -121,11 +121,12 @@ player
 
 sampler
   = "drums" { return samples.drums; }
+  / "piano" { return samples.piano; }
 
 // A default instrument
 // Returns an object which can be used to create a Tone.Synth
 instrument
-  = "triangle" { return {oscillator: {}}; }
+  = "triangle" { return {oscillator: {}, envelope: {release: .06}}; }
   / "soft" { return {oscillator: {type: "sine2", partials: [1, .5]}}; }
   / "fatsaw" { return {oscillator: {type: "fatsawtooth", spread: 40}}; }
   / "saw" { return {oscillator: {type: "sawtooth", spread: 40}}; }

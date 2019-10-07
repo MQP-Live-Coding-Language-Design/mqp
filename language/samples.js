@@ -7,4 +7,8 @@ const drums = new Tone.Sampler({
   F3: './ophat.wav',
 });
 
-module.exports = { drums };
+const piano = new Tone.Sampler({
+  C4: './piano_middle_C.mp3',
+});
+
+module.exports = { drums, piano };
