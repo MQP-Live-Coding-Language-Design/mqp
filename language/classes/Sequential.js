@@ -2,13 +2,9 @@
  * A Phrase is the list of Groups to be played
  */
 
-class Phrase {
+class Sequential {
   constructor(groups) {
     this.groups = groups; // list of groups forming this Phrase
-    this.instrument = null;
-    this.filter = null;
-    this.parent = null;
-    this.next = 0; // group to be played on retrigger
   }
 
   octChange(n) {
@@ -42,28 +38,29 @@ class Phrase {
     this.groups.forEach((group) => {
       newGroups.push(group.copy);
     });
-    return new Phrase(newGroups);
+    return new Sequential(newGroups);
   }
 
-  trigger(parent, instrument, filter, time) {
-    this.parent = parent;
-    this.instrument = instrument;
-    this.filter = filter;
-    this.next = 1;
-    this.groups[0].trigger(this, instrument, filter, time);
-  }
-
-  retrigger(time) {
-    if (this.next < this.groups.length) {
-      this.groups[this.next].trigger(this, this.instrument, this.filter, time);
-      this.next += 1;
+  trigger(instrument, time, obj) {
+    let num;
+    let memory;
+    if (obj === null) {
+      num = 0;
+      memory = null;
     } else {
-      const temp = this.parent;
-      this.parent = null;
-      this.instrument = null;
-      temp.retrigger(time);
+      num = obj.num;
+      memory = obj.memory;
     }
+    const ret = this.groups[num].trigger(instrument, time, memory);
+    if (ret.memory === null) {
+      num += 1;
+    }
+
+    if (num >= this.groups.length) {
+      return { time: ret.time, memory: null };
+    }
+    return { time: ret.time, memory: { num, memory: ret.memory } };
   }
 }
 
-module.exports = Phrase;
+module.exports = Sequential;

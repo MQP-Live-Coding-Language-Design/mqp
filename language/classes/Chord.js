@@ -5,7 +5,6 @@
 class Chord {
   constructor(groups) {
     this.groups = groups; // list of groups forming this Random
-    this.parent = null;
   }
 
   octChange(n) {
@@ -27,7 +26,11 @@ class Chord {
   }
 
   get length() {
-    return this.groups[0].length;
+    let max = 0;
+    this.groups.forEach((group) => {
+      max = Math.max(group.length, max);
+    });
+    return max;
   }
 
   get copy() {
@@ -38,18 +41,42 @@ class Chord {
     return new Chord(newGroups);
   }
 
-  trigger(parent, instrument, filter, time) {
-    this.parent = parent;
-    this.groups[0].trigger(this, instrument, filter, time);
-    this.groups.slice(1).forEach((group) => {
-      group.trigger({ retrigger: () => {} }, instrument, filter, time);
+  trigger(instrument, time, obj) {
+    const newobj = [];
+    let max = 0;
+    if (obj === null) {
+      for (let i = 0; i < this.groups.length; i += 1) {
+        const temp = this.groups[i].trigger(instrument, time, null);
+        max = Math.max(max, temp.time);
+        if (temp.memory !== null) {
+          temp.index = i;
+          newobj.push(temp);
+        }
+      }
+    } else {
+      let min = obj[0].time;
+      obj.forEach((item) => {
+        min = Math.min(min, item.time);
+      });
+      obj.forEach((item) => {
+        if (item.time * 1 === min) {
+          const temp = this.groups[item.index].trigger(instrument, time, item.memory);
+          max = Math.max(max, temp.time);
+          if (temp.memory !== null) {
+            temp.index = item.index;
+            newobj.push(temp);
+          }
+        }
+      });
+    }
+    if (newobj.length === 0) {
+      return { time: max, memory: null };
+    }
+    let min = newobj[0].time;
+    newobj.forEach((item) => {
+      min = Math.min(min, item.time);
     });
-  }
-
-  retrigger(time) {
-    const temp = this.parent;
-    this.parent = null;
-    temp.retrigger(time);
+    return { time: min, memory: newobj };
   }
 }
 
