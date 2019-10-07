@@ -74,13 +74,13 @@ const Tutorial = () => (
         <br />
 
         In addition to notes, you can also play drums! Just use o (bass drum), s (snare drum), -
-        (high hat), and -- (open high hat) instead of note names. Drums can be played with any
-        instrument, but it will not change their sound.
+        (high hat), and -- (open high hat) instead of note names. Drums can be played with the
+        drums instrument.
         <br />
         <PlayBox
           id="seventhTutBox"
-          value={`"o x -- x" >> play
-"-" >> duration .5 >> triangle`}
+          value={`"o x -- x" >> drums
+"-" >> duration .5 >> drums`}
         />
         <br />
         <br />
@@ -122,12 +122,12 @@ const Tutorial = () => (
         <PlayBox
           id="sixthTutBox"
           value={`"ab f db eb" >> duration 2 >> octave - >> soft >> pitch +7 >> soft
-"o _ x _" >> duration .5 >> play
+"o _ x _" >> duration .5 >> drums
 "c+ ab g ab c+ ab g ab db ab g ab bb ab g ab" >> duration .5 >> triangle
 "ab _ _ eb _ _ c _ _ eb _ _ ab _ _ f _ _ db _ f _ ab _ bb _ _ ab _ _ g _" >> octave >> duration 1/4 >> saw
 "rand((g ab) (ab ab)) eb+" >> duration 1/4 >> triangle
 "ab _ _ eb _ _ f ab ~ _ _ g _ _ ab bb" >> octave ++ >> duration .5 >> triangle & > pingpong .5
-"- - - - -- - - -" >> duration .5 >> play`}
+"- - - - -- - - -" >> duration .5 >> drums`}
         />
         <br />
         <br />

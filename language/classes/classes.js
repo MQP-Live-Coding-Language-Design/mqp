@@ -1,11 +1,11 @@
 const Note = require('./Note');
-const Audio = require('./Audio');
+const Drum = require('./Drum');
 const Rest = require('./Rest');
-const Phrase = require('./Phrase');
+const Sequential = require('./Sequential');
 const Part = require('./Part');
 const Random = require('./Random');
 const Chord = require('./Chord');
 
 module.exports = {
-  Note, Audio, Rest, Phrase, Part, Random, Chord,
+  Note, Drum, Rest, Sequential, Part, Random, Chord,
 };

@@ -9,7 +9,6 @@ class Note {
     this.frequency = frequency; // {Tone.Frequency} pitch of the note
     this.sustain = defaults.defaultSustain; // {float} proportion of gap time (0-1) to sustain note
     this.gap = defaults.defaultGap; // {float} gap between a note and the next
-    this.instrument = null;
   }
 
   octChange(n) {
@@ -35,15 +34,12 @@ class Note {
     return newNote;
   }
 
-  trigger(par, inst, filter, time) {
-    if (this.instrument === null) {
-      this.instrument = new Tone.Synth(inst).connect(filter);
-    }
+  trigger(inst, time) {
     // tell Tone.js to trigger the note at parameter time
-    this.instrument.triggerAttackRelease(this.frequency, this.gap * this.sustain, time);
+    inst.triggerAttackRelease(this.frequency, this.gap * this.sustain, time);
 
-    const nxtTime = Tone.TransportTime(time + this.gap); // schedules retrigger of parent
-    Tone.Transport.scheduleOnce(() => { par.retrigger(nxtTime); }, time);
+    const nxtTime = Tone.TransportTime(time + this.gap);
+    return { time: nxtTime, memory: null };
   }
 }
 

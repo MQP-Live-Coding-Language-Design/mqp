@@ -19,7 +19,7 @@ multiLines
 line
   = '"' _ notes:noteseq _ '"' _ mods:modifierseq
   {
-    notes = new classes.Phrase(notes);
+    notes = new classes.Sequential(notes);
 	  for (var i = 0; i < mods.length; i++) {
 		  mods[i](notes);
 	  }
@@ -36,17 +36,17 @@ noteseq
 note
   = "chord(" _ seq:noteseq _ ")" { return new classes.Chord(seq); }
   / note:notestart ext:(_ "~")* { note.tempoChange(ext.length + 1); return note; }
-  / "(" _ seq:noteseq  _ ")" { return new classes.Phrase(seq); }
+  / "(" _ seq:noteseq  _ ")" { return new classes.Sequential(seq); }
   / "rand(" _ seq:noteseq _ ")" { return new classes.Random(seq); }
 
 // The base of a note
 // Returns a Note
 notestart
   = note:$([A-G]i [#b]?) oct:octmod { return new classes.Note(Tone.Frequency(note+oct)); }
-  / "o" { return new classes.Audio(samples.kick); }
-  / "x" { return new classes.Audio(samples.snare); }
-  / "--" { return new classes.Audio(samples.ophat); }
-  / "-" { return new classes.Audio(samples.hat); }
+  / "o" { return new classes.Note(Tone.Frequency("D3")); }
+  / "x" { return new classes.Note(Tone.Frequency("E3")); }
+  / "--" { return new classes.Note(Tone.Frequency("F3")); }
+  / "-" { return new classes.Note(Tone.Frequency("C3")); }
   / "_" { return new classes.Rest(); }
 
 // Optional octave modifier for after a note
@@ -84,13 +84,28 @@ modifier
   / '>>' _ plr:player { return plr; }
 
 // Instrument plus its attributes and filters
-// Returns a function that plays a phrase
+// Returns a Tone player
 player
-  = inst:instrument attr:attributeseq _ fltr:filterseq
+  = samp:sampler _ fltr:filterseq
+  {
+    let first = new Tone.Volume(defaults.defaultVolume);
+    let last = first;
+    for (var f of fltr) {
+      last.connect(f);
+      if (f !== Tone.Master)
+        last = f;
+    }
+    last.toMaster();
+    samp.connect(first);
+
+    return function(phrase) { let np = new classes.Part(samp, phrase); returnParts.push(np); };
+  }
+  / inst:instrument attr:attributeseq _ fltr:filterseq
 {
   for (var a of attr) {
     a(inst);
   }
+  let retInstrument = new Tone.PolySynth(6, Tone.Synth, inst);
   let first = new Tone.Volume(defaults.defaultVolume);
   let last = first;
   for (var f of fltr) {
@@ -99,9 +114,13 @@ player
       last = f;
   }
   last.toMaster();
+  retInstrument.connect(first);
 
-  return function(phrase) { let np = new classes.Part(inst, first, phrase); returnParts.push(np); };
+  return function(phrase) { let np = new classes.Part(retInstrument, phrase); returnParts.push(np); };
 }
+
+sampler
+  = "drums" { return samples.drums; }
 
 // A default instrument
 // Returns an object which can be used to create a Tone.Synth
@@ -112,7 +131,6 @@ instrument
   / "saw" { return {oscillator: {type: "sawtooth", spread: 40}}; }
   / "square" { return {oscillator: {type: "fatsquare", spread: 10, count: 3}};}
   / "pls no" { return {oscillator: {type: "pulse", width: .80}}; }
-  / "play" { return {oscillator: {}}; }
 
 // A sequence of instrument attributes
 // Returns a list of functions which modify objects
