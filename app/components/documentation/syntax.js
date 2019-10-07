@@ -19,7 +19,7 @@ A number can be any integer, and will correspond to a note in a scale. The scale
 The above example is equivalent to \`"c e f"\`.
 
 ### Percussion
-Percussion symbols correspond to the following predetermined sounds:
+Percussion symbols correspond to the following predetermined sounds. Percussion can only be played with the \`drums\` instrument.
 - \`x\`: snare
 - \`o\`: kick
 - \`-\`: hi-hat
@@ -136,7 +136,7 @@ An instrument can be any of:
 - \`triangle\`: Simple synth with a triangle wave
 - \`soft\`: Sine wave synth with a rich tone quality
 - \`saw\`: Fat synth with a saw wave, bright tone quality
-- \`play\`: Default synth
+- \`drums\`: Used to play drums
 
 ## Instrument attributes
 Instruments may be followed by one or more attributes which will change the sound of the instrument:
