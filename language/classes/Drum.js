@@ -1,13 +1,16 @@
+// import defaultGap from '../defaults';
+
 const Tone = require('tone');
 const defaults = require('../defaults');
 
 /**
- * A Rest is a Group representing a Rest
+ * An Audio is a Group representing an audio file
  */
 
-class Rest {
-  constructor() {
-    this.gap = defaults.defaultGap; // {float} representing gap between this note and next
+class Drum {
+  constructor(frequency) {
+    this.frequency = frequency;
+    this.gap = defaults.defaultGap; // {float} gap between a note and the next
   }
 
   octChange() { return this; }
@@ -23,16 +26,18 @@ class Rest {
   }
 
   get copy() {
-    const ret = new Rest();
+    const ret = new Drum(this.frequency);
     ret.tempoChange(this.gap / defaults.defaultGap);
     return ret;
   }
 
   trigger(inst, time) {
-    // schedules a retrigger of parent for when it plays
     const nxtTime = Tone.TransportTime(time + this.gap);
+
+    inst.triggerAttack(time); // tell tone.js to play the sound at the given time
+
     return { time: nxtTime, memory: null };
   }
 }
 
-module.exports = Rest;
+module.exports = Drum;

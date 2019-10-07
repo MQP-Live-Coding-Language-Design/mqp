@@ -5,7 +5,6 @@
 class Random {
   constructor(groups) {
     this.groups = groups; // list of groups forming this Random
-    this.parent = null;
   }
 
   octChange(n) {
@@ -38,16 +37,22 @@ class Random {
     return new Random(newGroups);
   }
 
-  trigger(parent, instrument, filter, time) {
-    this.parent = parent;
-    this.groups[Math.floor(Math.random() * this.groups.length)]
-      .trigger(this, instrument, filter, time);
-  }
+  trigger(instrument, time, obj) {
+    let num;
+    let memory;
+    if (obj === null) {
+      num = Math.floor(Math.random() * this.groups.length);
+      memory = null;
+    } else {
+      num = obj.num;
+      memory = obj.memory;
+    }
 
-  retrigger(time) {
-    const temp = this.parent;
-    this.parent = null;
-    temp.retrigger(time);
+    const ret = this.groups[num].trigger(instrument, time, memory);
+    if (ret.memory === null) {
+      return { time: ret.time, memory: null };
+    }
+    return { time: ret.time, memory: { num, memory: ret.memory } };
   }
 }
 
