@@ -127,7 +127,11 @@ sampler
 instrument
   = "triangle" { return {oscillator: {}}; }
   / "soft" { return {oscillator: {type: "sine2", partials: [1, .5]}}; }
-  / "saw" { return {oscillator: {type: "fatsawtooth", spread: 40}}; }
+  / "fatsaw" { return {oscillator: {type: "fatsawtooth", spread: 40}}; }
+  / "saw" { return {oscillator: {type: "sawtooth", spread: 40}}; }
+  / "square" { return {oscillator: {type: "fatsquare", spread: 10, count: 3}};}
+  / "pls no" { return {oscillator: {type: "pulse", width: .80}}; }
+  / "play" { return {oscillator: {}}; }
 
 // A sequence of instrument attributes
 // Returns a list of functions which modify objects
