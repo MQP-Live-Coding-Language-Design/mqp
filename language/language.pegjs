@@ -120,8 +120,8 @@ player
 }
 
 sampler
-  = "drums" { return samples.drums; }
-  / "piano" { return samples.piano; }
+  = "drums" { return new Tone.Sampler(samples.drums); }
+  / "piano" { return new Tone.Sampler(samples.piano); }
 
 // A default instrument
 // Returns an object which can be used to create a Tone.Synth
