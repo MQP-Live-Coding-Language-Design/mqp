@@ -122,17 +122,35 @@ player
 sampler
   = "drums" { return new Tone.Sampler(samples.drums); }
   / "piano" { return new Tone.Sampler(samples.piano); }
+  / ("electricbass"/"bass") { return new Tone.Sampler(samples.electricbass); }
+  / "bassoon" { return new Tone.Sampler(samples.bassoon); }
+  / "cello" { return new Tone.Sampler(samples.cello); }
+  / "clarinet" { return new Tone.Sampler(samples.clarinet); }
+  / "contrabass" { return new Tone.Sampler(samples.contrabass); }
+  / "flute" { return new Tone.Sampler(samples.flute); }
+  / ("frenchhorn"/"horn") { return new Tone.Sampler(samples.frenchhorn); }
+  / "acousticguitar" { return new Tone.Sampler(samples.acousticguitar); }
+  / "electricguitar" { return new Tone.Sampler(samples.electricguitar); }
+  / "nylonguitar" { return new Tone.Sampler(samples.nylonguitar); }
+  / "harmonium" { return new Tone.Sampler(samples.harmonium); }
+  / "harp" { return new Tone.Sampler(samples.harp); }
+  / "organ" { return new Tone.Sampler(samples.organ); }
+  / "saxophone" { return new Tone.Sampler(samples.saxophone); }
+  / "trombone" { return new Tone.Sampler(samples.trombone); }
+  / "trumpet" { return new Tone.Sampler(samples.trumpet); }
+  / "tuba" { return new Tone.Sampler(samples.tuba); }
+  / "violin" { return new Tone.Sampler(samples.violin); }
+  / "xylophone" { return new Tone.Sampler(samples.xylophone); }
 
 // A default instrument
 // Returns an object which can be used to create a Tone.Synth
 instrument
   = "triangle" { return {oscillator: {}, envelope: {release: .06}}; }
-  / "soft" { return {oscillator: {type: "sine2", partials: [1, .5]}}; }
-  / "fatsaw" { return {oscillator: {type: "fatsawtooth", spread: 40}}; }
-  / "saw" { return {oscillator: {type: "sawtooth", spread: 40}}; }
-  / "square" { return {oscillator: {type: "fatsquare", spread: 10, count: 3}};}
-  / "pls no" { return {oscillator: {type: "pulse", width: .80}}; }
-  / "play" { return {oscillator: {}}; }
+  / "soft" { return {oscillator: {type: "sine2", partials: [1, .5]}, envelope: {release: .06}}; }
+  / "fatsaw" { return {oscillator: {type: "fatsawtooth", spread: 40}, envelope: {release: .06}}; }
+  / "saw" { return {oscillator: {type: "sawtooth", spread: 40}, envelope: {release: .06}}; }
+  / "square" { return {oscillator: {type: "fatsquare", spread: 10, count: 3}, envelope: {release: .06}};}
+  / "pls no" { return {oscillator: {type: "pulse", width: .80}, envelope: {release: .06}}; }
 
 // A sequence of instrument attributes
 // Returns a list of functions which modify objects
