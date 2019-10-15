@@ -184,6 +184,7 @@ filterseq
 // Returns a Tone effect
 filter
   = "pingpong" __ delay:fltOrFrac { return new Tone.PingPongDelay(delay*defaults.defaultGap); }
+  / "pan" __ neg:$("-"?) amnt:fltOrFrac { return new Tone.Panner((neg ? -1 : 1) * amnt); }
 
 // Float or fraction
 // Returns the value as a float
