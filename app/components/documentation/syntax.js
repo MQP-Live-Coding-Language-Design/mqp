@@ -132,14 +132,41 @@ A part is defined once the **instrument** of a phrase has been defined in the ca
   >> octave +
   >> saw      // this is the beginning of a part
 \`\`\`
-An instrument can be any of:
+Instruments can be divided into two categories, synths and samplers.
+
+The synths are as follows:
 - \`triangle\`: Simple synth with a triangle wave
 - \`soft\`: Sine wave synth with a rich tone quality
-- \`saw\`: Fat synth with a saw wave, bright tone quality
-- \`drums\`: Used to play drums
+- \`fatsaw\`: Fat synth with a saw wave, distorted sound
+- \`saw\`: Saw wave with very bright tone
+- \`square\`: Fat square wave similar to fatsaw but more forcecful
+- \`pls no\`: Pulse oscillator with harsh tone quality
 
-## Instrument attributes
-Instruments may be followed by one or more attributes which will change the sound of the instrument:
+The samplers are made from instrument samples and include:
+- \`drums\`: Used to play drums
+- \`piano\`
+- \`electricbass\` or \`bass\`
+- \`bassoon\`
+- \`cello\`
+- \`clarinet\`
+- \`contrabass\`
+- \`flute\`
+- \`frenchhorn\` or \`horn\`
+- \`acousticguitar\`
+- \`electricguitar\` or \`guitar\`
+- \`nylonguitar\`
+- \`harmonium\`
+- \`harp\`
+- \`organ\`
+- \`saxophone\`
+- \`trombone\`
+- \`trumpet\`
+- \`tuba\`
+- \`violin\`
+- \`xylophone\`
+
+## Synth Attributes
+Synths may be followed by one or more attributes which will change the sound of the instrument:
 \`\`\`
 "a b c"
   >> triangle volume 10
