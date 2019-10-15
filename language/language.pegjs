@@ -35,6 +35,7 @@ noteseq
 // Returns a Group
 note
   = "chord(" _ seq:noteseq _ ")" { return new classes.Chord(seq); }
+  / note:notestart __ ext:$([0-9]+) "~" { note.tempoChange(parseInt(ext) + 1); return note; }
   / note:notestart ext:(_ "~")* { note.tempoChange(ext.length + 1); return note; }
   / "(" _ seq:noteseq  _ ")" { return new classes.Sequential(seq); }
   / "rand(" _ seq:noteseq _ ")" { return new classes.Random(seq); }
