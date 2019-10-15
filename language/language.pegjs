@@ -130,7 +130,7 @@ sampler
   / "flute" { return new Tone.Sampler(samples.flute); }
   / ("frenchhorn"/"horn") { return new Tone.Sampler(samples.frenchhorn); }
   / "acousticguitar" { return new Tone.Sampler(samples.acousticguitar); }
-  / "electricguitar" { return new Tone.Sampler(samples.electricguitar); }
+  / ("electricguitar"/"guitar") { return new Tone.Sampler(samples.electricguitar); }
   / "nylonguitar" { return new Tone.Sampler(samples.nylonguitar); }
   / "harmonium" { return new Tone.Sampler(samples.harmonium); }
   / "harp" { return new Tone.Sampler(samples.harp); }
