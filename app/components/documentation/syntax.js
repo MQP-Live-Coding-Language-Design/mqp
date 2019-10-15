@@ -20,10 +20,16 @@ The above example is equivalent to \`"c e f"\`.
 
 ### Percussion
 Percussion symbols correspond to the following predetermined sounds. Percussion can only be played with the \`drums\` instrument.
-- \`x\`: snare
-- \`o\`: kick
-- \`-\`: hi-hat
-- \`--\`: open hi-hat
+- \`sn\`: snare
+- \`k\`: kick
+- \`h\`: hi-hat
+- \`oh\`: open hi-hat
+- \`r\`: ride cymbal
+- \`be\`: ride bell
+- \`t1\`: tom 1
+- \`t2\`: tom 2
+- \`t3\`: tom 3
+- \`t4\`: tom 4
 
 ### Extensions
 Notes, numbers, and percussion can be followed by any number of \`~\`s. This will cause it to be extended by the number of \`~\`s used.
@@ -143,7 +149,8 @@ The synths are as follows:
 - \`pls no\`: Pulse oscillator with harsh tone quality
 
 The samplers are made from instrument samples and include:
-- \`drums\`: Used to play drums
+- \`drums\` or \`acousticdrums\`: Used to play drums
+- \`electricdrums\`: Used to play drums
 - \`piano\`
 - \`electricbass\` or \`bass\`
 - \`bassoon\`

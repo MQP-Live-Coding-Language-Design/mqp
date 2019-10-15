@@ -35,20 +35,27 @@ noteseq
 // Returns a Group
 note
   = "chord(" _ seq:noteseq _ ")" { return new classes.Chord(seq); }
+  / "rand(" _ seq:noteseq _ ")" { return new classes.Random(seq); }
   / note:notestart __ ext:$([0-9]+) "~" { note.tempoChange(parseInt(ext) + 1); return note; }
   / note:notestart ext:(_ "~")* { note.tempoChange(ext.length + 1); return note; }
   / "(" _ seq:noteseq  _ ")" { return new classes.Sequential(seq); }
-  / "rand(" _ seq:noteseq _ ")" { return new classes.Random(seq); }
 
 // The base of a note
 // Returns a Note
 notestart
-  = note:$([A-G]i [#b]?) oct:octmod { return new classes.Note(Tone.Frequency(note+oct)); }
-  / "o" { return new classes.Note(Tone.Frequency("D3")); }
-  / "x" { return new classes.Note(Tone.Frequency("E3")); }
-  / "--" { return new classes.Note(Tone.Frequency("F3")); }
-  / "-" { return new classes.Note(Tone.Frequency("C3")); }
+  = "k" { return new classes.Note(Tone.Frequency("D3")); }
+  / "sn" { return new classes.Note(Tone.Frequency("E3")); }
+  / "oh" { return new classes.Note(Tone.Frequency("F3")); }
+  / "h" { return new classes.Note(Tone.Frequency("C3")); }
+  / "cr" { return new classes.Note(Tone.Frequency("G3")); }
+  / "r" { return new classes.Note(Tone.Frequency("A3")); }
+  / "be" { return new classes.Note(Tone.Frequency("B3")); }
+  / "t1" { return new classes.Note(Tone.Frequency("C4")); }
+  / "t2" { return new classes.Note(Tone.Frequency("D4")); }
+  / "t3" { return new classes.Note(Tone.Frequency("E4")); }
+  / "t4" { return new classes.Note(Tone.Frequency("F4")); }
   / "_" { return new classes.Rest(); }
+  / note:$([A-G]i [#b]?) oct:octmod { return new classes.Note(Tone.Frequency(note+oct)); }
 
 // Optional octave modifier for after a note
 // Returns an int representing the octave of the note
@@ -121,7 +128,8 @@ player
 }
 
 sampler
-  = "drums" { return new Tone.Sampler(samples.drums); }
+  = ("drums"/"acousticdrums") { return new Tone.Sampler(samples.drums); }
+  / "electricdrums" { return new Tone.Sampler(samples.electricdrums); }
   / "piano" { return new Tone.Sampler(samples.piano); }
   / ("electricbass"/"bass") { return new Tone.Sampler(samples.electricbass); }
   / "bassoon" { return new Tone.Sampler(samples.bassoon); }

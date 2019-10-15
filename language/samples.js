@@ -6,9 +6,34 @@ const drumUrls = {
     D3: 'kick.wav',
     E3: 'snare.wav',
     F3: 'ophat.wav',
+    G3: 'crash.wav',
+    A3: 'ride.wav',
+    B3: 'bell.wav',
+    C4: 'tom1.wav',
+    D4: 'tom2.wav',
+    E4: 'tom3.wav',
+    F4: 'tom4.wav',
   },
-  baseUrl: './drums/',
+  baseUrl: './acousticdrums/',
   name: 'drums',
+};
+
+const electricdrumUrls = {
+  notes: {
+    C3: 'hat.wav',
+    D3: 'kick.wav',
+    E3: 'snare.wav',
+    F3: 'ophat.wav',
+    G3: 'crash.wav',
+    A3: 'ride.wav',
+    B3: 'bell.wav',
+    C4: 'tom1.wav',
+    D4: 'tom2.wav',
+    E4: 'tom3.wav',
+    F4: 'tom4.wav',
+  },
+  baseUrl: './electricdrums/',
+  name: 'electricdrums',
 };
 
 const pianoUrls = {
@@ -613,7 +638,7 @@ const xylophoneUrls = {
 const urls = [drumUrls, pianoUrls, electricBassUrls, bassoonUrls, celloUrls, clarinetUrl,
   contrabassUrl, fluteUrls, frenchhornUrls, acousticguitarUrls, electricguitarUrls,
   nylonguitarUrls, harmoniumUrls, harpUrls, organUrls, saxophoneUrls, tromboneUrls, trumpetUrls,
-  tubaUrls, violinUrls, xylophoneUrls];
+  tubaUrls, violinUrls, xylophoneUrls, electricdrumUrls];
 
 urls.forEach((url) => {
   module.exports[url.name] = {};
