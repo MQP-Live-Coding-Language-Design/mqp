@@ -39,10 +39,11 @@ Notes, numbers, and percussion can be followed by any number of \`~\`s. This wil
 In the example above, the \`a\` will be three times as long as the \`c\` and the \`b\` will be twice as long as the \`c\`.
 
 ### Group behaviors
+- **sequential**: plays groups in order when written as \`(a b c)\`
 - **chord**: plays groups at the same time when written as \`chord(e g)\`
-- **step**: plays one group per loop when written as \`step(c e g)\`. This plays \`c e g\` in the time of 3 loops. (NOT YET IMPLEMENTED)
-- **random**: randomizes groups when written as \`rand()\`. This will play any random note. A range can also be specified as \`rand(c e g)\`. This will play one of the 3 notes randomly.
-- **repeat**: repeat a group a number of times when written as \`c*3\`. This is interpreted the same as \`c c c\`. (NOT YET IMPLEMENTED)
+- **step**: plays one group per loop, cycling through groups each loop, when written as \`step(c e g)\`. This plays \`c e g\` in the time of 3 loops. (NOT YET IMPLEMENTED)
+- **random**: plays one group per loop, selected at random, when written as \`rand(c e g)\`.
+- **repeat**: repeat a group a number of times when written as \`(c)*3\` or \`(c e)*3\`. The latter is interpreted the same as \`(c e c e c e)\`.
 
 ## Sequence modifiers
 A sequence modifier is added after the phrase is defined as:
