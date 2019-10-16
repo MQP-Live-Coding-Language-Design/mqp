@@ -15,12 +15,15 @@ const PlayBox = ({ id, value }) => {
   const [isEditorReady, setIsEditorReady] = useState(false);
   const [buttonState, setButtonState] = useState('Start');
   const [runningParts, setParts] = useState([]);
+  const [box, setBox] = useState(null);
+  const [model, setModel] = useState(null);
   const valueGetter = useRef();
   monaco.init()
-    .then((monaco) => {
-      monaco.languages.register({ id: 'sicko-mode' });
+    .then((monacoBox) => {
+      setBox(monacoBox);
+      monacoBox.languages.register({ id: 'sicko-mode' });
 
-      monaco.languages.setMonarchTokensProvider('sicko-mode', {
+      monacoBox.languages.setMonarchTokensProvider('sicko-mode', {
         tokenizer: {
           root: [
             [/\ffff/, 'custom-error'],
@@ -31,7 +34,7 @@ const PlayBox = ({ id, value }) => {
         },
       });
 
-      monaco.editor.defineTheme('sicko-theme', {
+      monacoBox.editor.defineTheme('sicko-theme', {
         base: 'vs-dark',
         inherit: true,
         rules: [
@@ -43,9 +46,32 @@ const PlayBox = ({ id, value }) => {
       });
     })
     .catch((error) => console.error('An error occurred during initialization of Monaco: ', error));
-  function handleEditorDidMount(_valueGetter) {
-    setIsEditorReady(true);
+
+  function handleEditorDidMount(_valueGetter, editor) {
+    setModel(editor._modelData.model);
     valueGetter.current = _valueGetter;
+
+    let time;
+    editor.onDidChangeModelContent(() => {
+      clearTimeout(time);
+      box.editor.setModelMarkers(editor._modelData.model, 'test', []);
+      time = setTimeout(() => {
+        try {
+          peg.parse(valueGetter.current());
+        } catch (error) {
+          box.editor.setModelMarkers(editor._modelData.model, 'test', [{
+            startLineNumber: error.location.start.line,
+            startColumn: error.location.start.column,
+            endLineNumber: error.location.end.line,
+            endColumn: error.location.end.column,
+            message: error.message,
+            severity: box.MarkerSeverity.Error,
+          }]);
+        }
+      }, 1500);
+    });
+
+    setIsEditorReady(true);
   }
 
   function stop() {
@@ -53,13 +79,25 @@ const PlayBox = ({ id, value }) => {
       part.stop();
     });
     setParts([]);
+    setButtonState('Start');
   }
 
   function start() {
-    stop();
-    const parsedVal = peg.parse(valueGetter.current());
-    setParts(parsedVal);
-    parsedVal.forEach((part) => { part.start(); });
+    try {
+      const parsedVal = peg.parse(valueGetter.current());
+      setParts(parsedVal);
+      parsedVal.forEach((part) => { part.start(); });
+      setButtonState('Stop');
+    } catch (error) {
+      box.editor.setModelMarkers(model, 'test', [{
+        startLineNumber: error.location.start.line,
+        startColumn: error.location.start.column,
+        endLineNumber: error.location.end.line,
+        endColumn: error.location.end.column,
+        message: error.message,
+        severity: box.MarkerSeverity.Error,
+      }]);
+    }
   }
 
   function toggle() {
@@ -71,10 +109,8 @@ const PlayBox = ({ id, value }) => {
     if (loaded && Tone.context.state === 'running') {
       if (buttonState === 'Start') {
         start();
-        setButtonState('Stop');
       } else {
         stop();
-        setButtonState('Start');
       }
     }
   }
