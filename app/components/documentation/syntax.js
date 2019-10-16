@@ -20,10 +20,16 @@ The above example is equivalent to \`"c e f"\`.
 
 ### Percussion
 Percussion symbols correspond to the following predetermined sounds. Percussion can only be played with the \`drums\` instrument.
-- \`x\`: snare
-- \`o\`: kick
-- \`-\`: hi-hat
-- \`--\`: open hi-hat
+- \`sn\`: snare
+- \`k\`: kick
+- \`h\`: hi-hat
+- \`oh\`: open hi-hat
+- \`r\`: ride cymbal
+- \`be\`: ride bell
+- \`t1\`: tom 1
+- \`t2\`: tom 2
+- \`t3\`: tom 3
+- \`t4\`: tom 4
 
 ### Extensions
 Notes, numbers, and percussion can be followed by any number of \`~\`s. This will cause it to be extended by the number of \`~\`s used.
@@ -33,10 +39,11 @@ Notes, numbers, and percussion can be followed by any number of \`~\`s. This wil
 In the example above, the \`a\` will be three times as long as the \`c\` and the \`b\` will be twice as long as the \`c\`.
 
 ### Group behaviors
+- **sequential**: plays groups in order when written as \`(a b c)\`
 - **chord**: plays groups at the same time when written as \`chord(e g)\`
-- **step**: plays one group per loop when written as \`step(c e g)\`. This plays \`c e g\` in the time of 3 loops. (NOT YET IMPLEMENTED)
-- **random**: randomizes groups when written as \`rand()\`. This will play any random note. A range can also be specified as \`rand(c e g)\`. This will play one of the 3 notes randomly.
-- **repeat**: repeat a group a number of times when written as \`c*3\`. This is interpreted the same as \`c c c\`. (NOT YET IMPLEMENTED)
+- **step**: plays one group per loop, cycling through groups each loop, when written as \`step(c e g)\`. This plays \`c e g\` in the time of 3 loops. (NOT YET IMPLEMENTED)
+- **random**: plays one group per loop, selected at random, when written as \`rand(c e g)\`.
+- **repeat**: repeat a group a number of times when written as \`(c)*3\` or \`(c e)*3\`. The latter is interpreted the same as \`(c e c e c e)\`.
 
 ## Sequence modifiers
 A sequence modifier is added after the phrase is defined as:
@@ -143,7 +150,8 @@ The synths are as follows:
 - \`pls no\`: Pulse oscillator with harsh tone quality
 
 The samplers are made from instrument samples and include:
-- \`drums\`: Used to play drums
+- \`drums\` or \`acousticdrums\`: Used to play drums
+- \`electricdrums\`: Used to play drums
 - \`piano\`
 - \`electricbass\` or \`bass\`
 - \`bassoon\`
@@ -203,14 +211,15 @@ As an example, the example above will only play the pingpong echo, not the origi
 
 Filters can be any of:
 - \`pingpong\`: Makes the sound echo between speakers. Takes a delay between echos.
+- \`volume\`: Changes volume. Takes a number in decibals where negative values make it quieter and positive values make it louder.
+- \`distort\`: Adds distortion to the sound. Takes a positive number, recommended values between 0 and 1.
+- \`pan\`: Moves sounds from left to right. Takes a number from -1 to 1 as input. -1 corresponds to left, and 1 corresponds to right.
+- \`chebyshev\`: Applies a Chebyshev distortion. Takes a positive integer, recommended values between 1 and 100. Note that odd numbers are very different from even numbers.
 
 NOT YET IMPLEMENTED:
-- \`distort\`: adds distortion to the sound. Takes any number of values between 0 and 1.
 - \`lo\`: low pass filter attenuates frequencies above the cutoff. This takes as input any number of values between 0 and 1.
 - \`hi\`: high pass filter attenuates frequencies below the cutoff. This takes as input any number of values between 0 and 1.
 - \`bandpass\`: band pass filter attenuates any frequencies outside of a range. This takes as input two values between 0 and 1, corresponding to the low and high value of the range.
-- \`pan\`: moves sounds from left to right. This takes any number of values from -1 to 1 as input. -1 corresponds to left, and 1 corresponds to right.
-- \`vol\`: changes volume. This takes any number of values from 0 to 1.
 
 ## Part storage (NOT YET IMPLEMENTED)
 A part and can be saved to be referenced in the sound visualization UI, to stop sound without affecting any sequences (in-sequence storage), or to use the same part in another phrase (global storage);

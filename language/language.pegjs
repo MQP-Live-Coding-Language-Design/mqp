@@ -35,19 +35,36 @@ noteseq
 // Returns a Group
 note
   = "chord(" _ seq:noteseq _ ")" { return new classes.Chord(seq); }
-  / note:notestart ext:(_ "~")* { note.tempoChange(ext.length + 1); return note; }
-  / "(" _ seq:noteseq  _ ")" { return new classes.Sequential(seq); }
   / "rand(" _ seq:noteseq _ ")" { return new classes.Random(seq); }
+  / note:notestart __ ext:$([0-9]+) "~" { note.tempoChange(parseInt(ext) + 1); return note; }
+  / note:notestart ext:(_ "~")* { note.tempoChange(ext.length + 1); return note; }
+  / "(" _ seq:noteseq _ ")" _ '*' _ num:$([0-9]+) {
+    let ret = [];
+    let parsednum = parseInt(num);
+    let seqClass = new classes.Sequential(seq);
+    for (var i = 0; i < parsednum; i++) {
+      ret.push(seqClass.copy);
+    }
+    return new classes.Sequential(ret);
+  }
+  / "(" _ seq:noteseq  _ ")" { return new classes.Sequential(seq); }
 
 // The base of a note
 // Returns a Note
 notestart
-  = note:$([A-G]i [#b]?) oct:octmod { return new classes.Note(Tone.Frequency(note+oct)); }
-  / "o" { return new classes.Note(Tone.Frequency("D3")); }
-  / "x" { return new classes.Note(Tone.Frequency("E3")); }
-  / "--" { return new classes.Note(Tone.Frequency("F3")); }
-  / "-" { return new classes.Note(Tone.Frequency("C3")); }
+  = "k" { return new classes.Drum(Tone.Frequency("D3")); }
+  / "sn" { return new classes.Drum(Tone.Frequency("E3")); }
+  / "oh" { return new classes.Drum(Tone.Frequency("F3")); }
+  / "h" { return new classes.Drum(Tone.Frequency("C3")); }
+  / "cr" { return new classes.Drum(Tone.Frequency("G3")); }
+  / "r" { return new classes.Drum(Tone.Frequency("A3")); }
+  / "be" { return new classes.Drum(Tone.Frequency("B3")); }
+  / "t1" { return new classes.Drum(Tone.Frequency("C4")); }
+  / "t2" { return new classes.Drum(Tone.Frequency("D4")); }
+  / "t3" { return new classes.Drum(Tone.Frequency("E4")); }
+  / "t4" { return new classes.Drum(Tone.Frequency("F4")); }
   / "_" { return new classes.Rest(); }
+  / note:$([A-G]i [#b]?) oct:octmod { return new classes.Note(Tone.Frequency(note+oct)); }
 
 // Optional octave modifier for after a note
 // Returns an int representing the octave of the note
@@ -120,7 +137,8 @@ player
 }
 
 sampler
-  = "drums" { return new Tone.Sampler(samples.drums); }
+  = ("drums"/"acousticdrums") { return new Tone.Sampler(samples.drums); }
+  / "electricdrums" { return new Tone.Sampler(samples.electricdrums); }
   / "piano" { return new Tone.Sampler(samples.piano); }
   / ("electricbass"/"bass") { return new Tone.Sampler(samples.electricbass); }
   / "bassoon" { return new Tone.Sampler(samples.bassoon); }
@@ -162,7 +180,6 @@ attributeseq
 // Returns a function which modifies an object appropriately
 attribute
   = "wave" __ wave:("sine"/"triangle"/"square"/"sawtooth") { return (obj) => { obj.oscillator.type = wave; }; }
-  / "volume" __ sign:"-"? num:fltOrFrac { if (sign !== null) num *= -1; return (obj) => { obj.volume = num+defaults.defaultVolume; }; }
 
 // A sequence of filters for an Instrument
 // Returns a list of Tone effects
@@ -175,6 +192,13 @@ filterseq
 // Returns a Tone effect
 filter
   = "pingpong" __ delay:fltOrFrac { return new Tone.PingPongDelay(delay*defaults.defaultGap); }
+  / "pan" __ amnt:signedFltOrFrac { return new Tone.Panner(amnt); }
+  / "volume" __ amnt:signedFltOrFrac { return new Tone.Volume(amnt); }
+  / "distort" __ amnt:signedFltOrFrac { return new Tone.Distortion(amnt); }
+  / "chebyshev" __ order:$([0-9]+) { return new Tone.Chebyshev(parseInt(order)); }
+
+signedFltOrFrac
+ = neg:$("-"?) amnt:fltOrFrac { return (neg ? -1 : 1) * amnt; }
 
 // Float or fraction
 // Returns the value as a float
