@@ -210,14 +210,15 @@ As an example, the example above will only play the pingpong echo, not the origi
 
 Filters can be any of:
 - \`pingpong\`: Makes the sound echo between speakers. Takes a delay between echos.
+- \`volume\`: Changes volume. Takes a number in decibals where negative values make it quieter and positive values make it louder.
+- \`distort\`: Adds distortion to the sound. Takes a positive number, recommended values between 0 and 1.
+- \`pan\`: Moves sounds from left to right. Takes a number from -1 to 1 as input. -1 corresponds to left, and 1 corresponds to right.
+- \`chebyshev\`: Applies a Chebyshev distortion. Takes a positive integer, recommended values between 1 and 100. Note that odd numbers are very different from even numbers.
 
 NOT YET IMPLEMENTED:
-- \`distort\`: adds distortion to the sound. Takes any number of values between 0 and 1.
 - \`lo\`: low pass filter attenuates frequencies above the cutoff. This takes as input any number of values between 0 and 1.
 - \`hi\`: high pass filter attenuates frequencies below the cutoff. This takes as input any number of values between 0 and 1.
 - \`bandpass\`: band pass filter attenuates any frequencies outside of a range. This takes as input two values between 0 and 1, corresponding to the low and high value of the range.
-- \`pan\`: moves sounds from left to right. This takes any number of values from -1 to 1 as input. -1 corresponds to left, and 1 corresponds to right.
-- \`vol\`: changes volume. This takes any number of values from 0 to 1.
 
 ## Part storage (NOT YET IMPLEMENTED)
 A part and can be saved to be referenced in the sound visualization UI, to stop sound without affecting any sequences (in-sequence storage), or to use the same part in another phrase (global storage);

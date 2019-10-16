@@ -171,7 +171,6 @@ attributeseq
 // Returns a function which modifies an object appropriately
 attribute
   = "wave" __ wave:("sine"/"triangle"/"square"/"sawtooth") { return (obj) => { obj.oscillator.type = wave; }; }
-  / "volume" __ sign:"-"? num:fltOrFrac { if (sign !== null) num *= -1; return (obj) => { obj.volume = num+defaults.defaultVolume; }; }
 
 // A sequence of filters for an Instrument
 // Returns a list of Tone effects
@@ -184,7 +183,13 @@ filterseq
 // Returns a Tone effect
 filter
   = "pingpong" __ delay:fltOrFrac { return new Tone.PingPongDelay(delay*defaults.defaultGap); }
-  / "pan" __ neg:$("-"?) amnt:fltOrFrac { return new Tone.Panner((neg ? -1 : 1) * amnt); }
+  / "pan" __ amnt:signedFltOrFrac { return new Tone.Panner(amnt); }
+  / "volume" __ amnt:signedFltOrFrac { return new Tone.Volume(amnt); }
+  / "distort" __ amnt:signedFltOrFrac { return new Tone.Distortion(amnt); }
+  / "chebyshev" __ order:$([0-9]+) { return new Tone.Chebyshev(parseInt(order)); }
+
+signedFltOrFrac
+ = neg:$("-"?) amnt:fltOrFrac { return (neg ? -1 : 1) * amnt; }
 
 // Float or fraction
 // Returns the value as a float
