@@ -43,17 +43,17 @@ note
 // The base of a note
 // Returns a Note
 notestart
-  = "k" { return new classes.Note(Tone.Frequency("D3")); }
-  / "sn" { return new classes.Note(Tone.Frequency("E3")); }
-  / "oh" { return new classes.Note(Tone.Frequency("F3")); }
-  / "h" { return new classes.Note(Tone.Frequency("C3")); }
-  / "cr" { return new classes.Note(Tone.Frequency("G3")); }
-  / "r" { return new classes.Note(Tone.Frequency("A3")); }
-  / "be" { return new classes.Note(Tone.Frequency("B3")); }
-  / "t1" { return new classes.Note(Tone.Frequency("C4")); }
-  / "t2" { return new classes.Note(Tone.Frequency("D4")); }
-  / "t3" { return new classes.Note(Tone.Frequency("E4")); }
-  / "t4" { return new classes.Note(Tone.Frequency("F4")); }
+  = "k" { return new classes.Drum(Tone.Frequency("D3")); }
+  / "sn" { return new classes.Drum(Tone.Frequency("E3")); }
+  / "oh" { return new classes.Drum(Tone.Frequency("F3")); }
+  / "h" { return new classes.Drum(Tone.Frequency("C3")); }
+  / "cr" { return new classes.Drum(Tone.Frequency("G3")); }
+  / "r" { return new classes.Drum(Tone.Frequency("A3")); }
+  / "be" { return new classes.Drum(Tone.Frequency("B3")); }
+  / "t1" { return new classes.Drum(Tone.Frequency("C4")); }
+  / "t2" { return new classes.Drum(Tone.Frequency("D4")); }
+  / "t3" { return new classes.Drum(Tone.Frequency("E4")); }
+  / "t4" { return new classes.Drum(Tone.Frequency("F4")); }
   / "_" { return new classes.Rest(); }
   / note:$([A-G]i [#b]?) oct:octmod { return new classes.Note(Tone.Frequency(note+oct)); }
 

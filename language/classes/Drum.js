@@ -34,7 +34,7 @@ class Drum {
   trigger(inst, time) {
     const nxtTime = Tone.TransportTime(time + this.gap);
 
-    inst.triggerAttack(time); // tell tone.js to play the sound at the given time
+    inst.triggerAttack(this.frequency, time); // tell tone.js to play the sound at the given time
 
     return { time: nxtTime, memory: null };
   }
