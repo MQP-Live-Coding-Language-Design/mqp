@@ -26,15 +26,10 @@ const PlayBox = ({ id, value }) => {
       monacoBox.languages.setMonarchTokensProvider('sicko-mode', {
         tokenizer: {
           root: [
-            [/>>\s*(octave|pitch)\s*(([+-][0-9]+)|[+-]*)/, 'modifier'],
-            [/>>\s*duration\s*[0-9.]+(\/[0-9]+)?/, 'modifier'],
-            [/>> (soft|triangle|saw|fatsaw|square|(pls no)|drums|acousticdrums|electricdrums|piano|bass|electricbass|bassoon|cello|clarinet|contrabass|flute|frenchhorn|horn|acousticguitar|electricguitar|guitar|nylonguitar|harmonium|harp|organ|saxophone|trombone|trumpet|tuba|violin|xylophone)/, 'instrument'],
-            [/(chord|rand)?\(/, 'group'],
-            [/\)(\*[0-9]+)?/, 'group'],
-            [/"/, 'notes'],
-            [/&?\s*>\s*(pingpong|pan|volume|distort|chebyshev)(\s+[+\-0-9./]+)?/, 'filter'],
-            [/k|sn|oh|h|cr|r|be|t[1-4]|_/, 'notes'],
-            [/([a-gA-G][#b]?[+\-0-9]*(\s*~)*)/, 'notes'],
+            [/>>\s*(soft|triangle|saw|fatsaw|square|(pls no)|drums|acousticdrums|electricdrums|piano|bass|electricbass|bassoon|cello|clarinet|contrabass|flute|frenchhorn|horn|acousticguitar|electricguitar|guitar|nylonguitar|harmonium|harp|organ|saxophone|trombone|trumpet|tuba|violin|xylophone)/, 'instrument'],
+            [/>>[^>"]*/, 'modifier'],
+            [/"[^"]*"/, 'notes'],
+            [/(&\s*)?>[^>"]+/, 'filter'],
           ],
         },
       });
