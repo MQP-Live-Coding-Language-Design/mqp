@@ -171,7 +171,7 @@ function peg$parse(input, options) {
       peg$c22 = peg$literalExpectation("(", false),
       peg$c23 = "*",
       peg$c24 = peg$literalExpectation("*", false),
-      peg$c25 = function(seq, num) {
+      peg$c25 = function(seq, num) { //grp:note _ '*' _ num:
           let ret = [];
           let parsednum = parseInt(num);
           let seqClass = new classes.Sequential(seq);

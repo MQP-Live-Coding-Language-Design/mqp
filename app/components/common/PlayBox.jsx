@@ -26,10 +26,15 @@ const PlayBox = ({ id, value }) => {
       monacoBox.languages.setMonarchTokensProvider('sicko-mode', {
         tokenizer: {
           root: [
-            [/\ffff/, 'custom-error'],
-            [/>> (octave|pitch|duration) [+-./0-9]*[0-9]*/, 'modifier'],
-            [/>> (soft|triangle|saw|play)/, 'instrument'],
-            [/"[a-zA-Z 0-9+#-_~()]+"[+-]*[0-9]*/, 'notes'],
+            [/>>\s*(octave|pitch)\s*(([+-][0-9]+)|[+-]*)/, 'modifier'],
+            [/>>\s*duration\s*[0-9.]+(\/[0-9]+)?/, 'modifier'],
+            [/>> (soft|triangle|saw|fatsaw|square|(pls no)|drums|acousticdrums|electricdrums|piano|bass|electricbass|bassoon|cello|clarinet|contrabass|flute|frenchhorn|horn|acousticguitar|electricguitar|guitar|nylonguitar|harmonium|harp|organ|saxophone|trombone|trumpet|tuba|violin|xylophone)/, 'instrument'],
+            [/(chord|rand)?\(/, 'group'],
+            [/\)(\*[0-9]+)?/, 'group'],
+            [/"/, 'notes'],
+            [/&?\s*>\s*(pingpong|pan|volume|distort|chebyshev)(\s+[+\-0-9./]+)?/, 'filter'],
+            [/k|sn|oh|h|cr|r|be|t[1-4]|_/, 'notes'],
+            [/([a-gA-G][#b]?[+\-0-9]*(\s*~)*)/, 'notes'],
           ],
         },
       });
@@ -38,10 +43,11 @@ const PlayBox = ({ id, value }) => {
         base: 'vs-dark',
         inherit: true,
         rules: [
-          { token: 'instrument', foreground: 'D7BDE2' },
-          { token: 'custom-error', foreground: 'ff0000', fontStyle: 'bold' },
-          { token: 'modifier', foreground: 'D6EAF8' },
-          { token: 'notes', foreground: 'A3E4D7' },
+          { token: 'instrument', foreground: '61AFEF' },
+          { token: 'modifier', foreground: 'ABA58E' },
+          { token: 'notes', foreground: '98B755' },
+          { token: 'group', foreground: '378876' },
+          { token: 'filter', foreground: '6871D7' },
         ],
       });
     })
@@ -127,8 +133,8 @@ const PlayBox = ({ id, value }) => {
   return (
     <div className="playBox" id={id}>
       <Editor
-        height="20vh"
-        width="60vw"
+        height="40vh"
+        width="94vw"
         value={value}
         language="sicko-mode"
         theme="sicko-theme"
