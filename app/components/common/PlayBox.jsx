@@ -6,6 +6,7 @@ import Button from '@material-ui/core/Button';
 const Tone = require('tone');
 const samples = require('../../../language/samples.js');
 const peg = require('../../../language/language.js');
+const autocomplete = require('./autocomplete.js');
 
 
 let loaded = false;
@@ -34,6 +35,24 @@ const PlayBox = ({ id, value }) => {
         },
       });
 
+      monacoBox.languages.registerCompletionItemProvider('sicko-mode', {
+        provideCompletionItems(argmodel, position) {
+          const text = argmodel.getValueInRange({
+            startLineNumber: 1,
+            startColumn: 1,
+            endLineNumber: position.lineNumber,
+            endColumn: position.column,
+          });
+          const note = text.match(/[^"]*("[^"]*"[^"]*)*"[^"]*/);
+
+          if (note) {
+            return { suggestions: autocomplete.note };
+          }
+
+          return [];
+        },
+      });
+
       monacoBox.editor.defineTheme('sicko-theme', {
         base: 'vs-dark',
         inherit: true,
@@ -54,6 +73,7 @@ const PlayBox = ({ id, value }) => {
 
     let time;
     editor.onDidChangeModelContent(() => {
+      console.log('asdf');
       clearTimeout(time);
       box.editor.setModelMarkers(editor._modelData.model, 'test', []);
       time = setTimeout(() => {
