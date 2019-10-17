@@ -7,65 +7,68 @@ const Tone = require('tone');
 const samples = require('../../../language/samples.js');
 const peg = require('../../../language/language.js');
 const autocomplete = require('./autocomplete.js');
+const defaults = require('../../../language/defaults.js');
 
 
 let loaded = false;
 Tone.Buffer.on('load', () => { loaded = true; });
 
+let box = null;
+monaco.init()
+  .then((monacoBox) => {
+    box = monacoBox;
+    monacoBox.languages.register({ id: 'sicko-mode' });
+
+    monacoBox.languages.setMonarchTokensProvider('sicko-mode', {
+      tokenizer: {
+        root: [
+          [/>>\s*(soft|triangle|saw|fatsaw|square|(pls no)|drums|acousticdrums|electricdrums|piano|bass|electricbass|bassoon|cello|clarinet|contrabass|flute|frenchhorn|horn|acousticguitar|electricguitar|guitar|nylonguitar|harmonium|harp|organ|saxophone|trombone|trumpet|tuba|violin|xylophone)/, 'instrument'],
+          [/>>[^>"]*/, 'modifier'],
+          [/"[^"]*"/, 'notes'],
+          [/(&\s*)?>[^>"]+/, 'filter'],
+        ],
+      },
+    });
+
+    monacoBox.languages.registerCompletionItemProvider('sicko-mode', {
+      provideCompletionItems(argmodel, position) {
+        const text = argmodel.getValueInRange({
+          startLineNumber: 1,
+          startColumn: 1,
+          endLineNumber: position.lineNumber,
+          endColumn: position.column,
+        });
+        const note = text.match(/[^"]*("[^"]*"[^"]*)*"([^"]*\s)?/);
+
+        if (note) {
+          return { suggestions: autocomplete.note };
+        }
+
+        return [];
+      },
+    });
+
+    monacoBox.editor.defineTheme('sicko-theme', {
+      base: 'vs-dark',
+      inherit: true,
+      rules: [
+        { token: 'instrument', foreground: '61AFEF' },
+        { token: 'modifier', foreground: 'ABA58E' },
+        { token: 'notes', foreground: '98B755' },
+        { token: 'group', foreground: '378876' },
+        { token: 'filter', foreground: '6871D7' },
+      ],
+    });
+  })
+  .catch((error) => console.error('An error occurred during initialization of Monaco: ', error));
+
+
 const PlayBox = ({ id, value }) => {
   const [isEditorReady, setIsEditorReady] = useState(false);
   const [buttonState, setButtonState] = useState('Start');
   const [runningParts, setParts] = useState([]);
-  const [box, setBox] = useState(null);
   const [model, setModel] = useState(null);
   const valueGetter = useRef();
-  monaco.init()
-    .then((monacoBox) => {
-      setBox(monacoBox);
-      monacoBox.languages.register({ id: 'sicko-mode' });
-
-      monacoBox.languages.setMonarchTokensProvider('sicko-mode', {
-        tokenizer: {
-          root: [
-            [/>>\s*(soft|triangle|saw|fatsaw|square|(pls no)|drums|acousticdrums|electricdrums|piano|bass|electricbass|bassoon|cello|clarinet|contrabass|flute|frenchhorn|horn|acousticguitar|electricguitar|guitar|nylonguitar|harmonium|harp|organ|saxophone|trombone|trumpet|tuba|violin|xylophone)/, 'instrument'],
-            [/>>[^>"]*/, 'modifier'],
-            [/"[^"]*"/, 'notes'],
-            [/(&\s*)?>[^>"]+/, 'filter'],
-          ],
-        },
-      });
-
-      monacoBox.languages.registerCompletionItemProvider('sicko-mode', {
-        provideCompletionItems(argmodel, position) {
-          const text = argmodel.getValueInRange({
-            startLineNumber: 1,
-            startColumn: 1,
-            endLineNumber: position.lineNumber,
-            endColumn: position.column,
-          });
-          const note = text.match(/[^"]*("[^"]*"[^"]*)*"[^"]*/);
-
-          if (note) {
-            return { suggestions: autocomplete.note };
-          }
-
-          return [];
-        },
-      });
-
-      monacoBox.editor.defineTheme('sicko-theme', {
-        base: 'vs-dark',
-        inherit: true,
-        rules: [
-          { token: 'instrument', foreground: '61AFEF' },
-          { token: 'modifier', foreground: 'ABA58E' },
-          { token: 'notes', foreground: '98B755' },
-          { token: 'group', foreground: '378876' },
-          { token: 'filter', foreground: '6871D7' },
-        ],
-      });
-    })
-    .catch((error) => console.error('An error occurred during initialization of Monaco: ', error));
 
   function handleEditorDidMount(_valueGetter, editor) {
     setModel(editor._modelData.model);
@@ -73,7 +76,6 @@ const PlayBox = ({ id, value }) => {
 
     let time;
     editor.onDidChangeModelContent(() => {
-      console.log('asdf');
       clearTimeout(time);
       box.editor.setModelMarkers(editor._modelData.model, 'test', []);
       time = setTimeout(() => {

@@ -83,8 +83,8 @@ The \`pitch\` modifier changes a sequence by a number of half-steps. It accepts 
 ### Duration
 The \`duration\` modifier changes the duration of each individual group in the phrase. It accepts a fraction or decimal as input, and the duration of each group in a sequence will be multiplied by this value.
 
-## Sequence storage (NOT YET IMPLEMENTED)
-The \`save\` command allows to save any sequence as it is when the command is reached. The \`save\` command will only save **sequences**, which does not include any parts or part modifiers (i.e. instruments and its modifiers).
+## Sequence storage
+The \`save\` command allows you to save any sequence as it is when the command is reached. The \`save\` command will only save **sequences**, which does not include any parts or part modifiers (i.e. instruments and its modifiers).
 \`\`\`
 "a b c"
   >> octave 4
@@ -92,44 +92,15 @@ The \`save\` command allows to save any sequence as it is when the command is re
   >> pitch ---
   >> save abc_2
 \`\`\`
-In the example above, \`abc_1\` would contain the sequence and its \`octave\` modifier. Then, \`abc_2\` would contain all of that, plus the \`pitch\` modifier. This can be referenced later to avoid writing sequences and its modifiers multiple times:
+In the example above, \`abc_1\` would contain the sequence and its \`octave\` modifier. Then, \`abc_2\` would contain all of that, plus the \`pitch\` modifier. Saved sequences can be used in place of notes by using \`!name\`:
 \`\`\`
-abc_1
-  >> <any sequence modifier or part definition>
-
-abc_2
+"!abc_1"
   >> <any sequence modifier or part definition>
 \`\`\`
-
-## Sequence combination (NOT YET IMPLEMENTED)
-**Saved sequences** can be combined to create new sequences, where different sections of the sequence have different modifiers defined earlier. The modifiers applied after a combination affect the entire combination.
-
-### Concatenation (NOT YET IMPLEMENTED)
-Concatenating sequences places sequences one after the next: \`concat(seq1 seq2 seq3)\` will create a sequence formed by \`seq1\`, followed by \`seq2\` followed by \`seq3\`.
-For example, let's say we have these three sequences:
+Saved sequences can be combined into groups in the same way as notes.
 \`\`\`
-"a b c" >> octave -- >> save seq1
-"d e f" >> octave ++ >> save seq2
-"g a b" >> octave + >> save seq3
-\`\`\`
-which is the same as:
-\`\`\`
-"a2 b2 c2" >> save seq1
-"d6 e6 f6" >> save seq2
-"g5 a5 b5" >> save seq3
-\`\`\`
-Let's say we then have a new sequence:
-\`\`\`
-concat(seq1 seq2 seq3)
-\`\`\`
-This will be interpreted as:
-\`\`\`
-"a2 b2 c2 d6 e6 f6 g5 a5 b5"
-\`\`\`
-and it can be treated as a regular sequence. For example, more modifiers can be added to it:
-\`\`\`
-concat(seq1 seq2 seq3)
-  >> pitch --
+"chord(!abc_1 !abc_2)"
+  >> <any sequence modifier or part definition>
 \`\`\`
 
 # Parts
