@@ -48,6 +48,12 @@ note
     return new classes.Sequential(ret);
   }
   / "(" _ seq:noteseq  _ ")" { return new classes.Sequential(seq); }
+  / "!" name:$([a-zA-Z_0-9]+) {
+    if (defaults.savedSequences.hasOwnProperty(name)) {
+      return defaults.savedSequences[name].copy;
+    }
+    throw {location: location(), message: "Name "+name+" is not defined"};
+  }
 
 // The base of a note
 // Returns a Note
@@ -98,6 +104,7 @@ modifier
   = '>>' _ "octave" _ mod:nummod { return function(phrase) {phrase.octChange(mod);}; }
   / '>>' _ "pitch" _ mod:nummod { return function(phrase) {phrase.pitchChange(mod);}; }
   / '>>' _ "duration" _ mod:fltOrFrac { return function(phrase) {phrase.tempoChange(mod);}; }
+  / '>>' _ "save" _ name:$([a-zA-Z_0-9]+) { return function(phrase) {defaults.savedSequences[name] = phrase.copy;}}
   / '>>' _ plr:player { return plr; }
 
 // Instrument plus its attributes and filters

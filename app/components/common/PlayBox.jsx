@@ -6,46 +6,95 @@ import Button from '@material-ui/core/Button';
 const Tone = require('tone');
 const samples = require('../../../language/samples.js');
 const peg = require('../../../language/language.js');
+const autocomplete = require('./autocomplete.js');
+const defaults = require('../../../language/defaults.js');
 
 
 let loaded = false;
 Tone.Buffer.on('load', () => { loaded = true; });
 
+let box = null;
+monaco.init()
+  .then((monacoBox) => {
+    box = monacoBox;
+    monacoBox.languages.register({ id: 'sicko-mode' });
+
+    monacoBox.languages.setMonarchTokensProvider('sicko-mode', {
+      tokenizer: {
+        root: [
+          [/>>\s*(soft|triangle|saw|fatsaw|square|(pls no)|drums|acousticdrums|electricdrums|piano|bass|electricbass|bassoon|cello|clarinet|contrabass|flute|frenchhorn|horn|acousticguitar|electricguitar|guitar|nylonguitar|harmonium|harp|organ|saxophone|trombone|trumpet|tuba|violin|xylophone)/, 'instrument'],
+          [/>>[^>"]*/, 'modifier'],
+          [/(&\s*)?>[^>"]+/, 'filter'],
+          [/(^|")[^">&]+("|$)/, 'notes'],
+        ],
+      },
+    });
+    /*
+    monacoBox.languages.registerCompletionItemProvider('sicko-mode', {
+      provideCompletionItems(argmodel, position) {
+        const text = argmodel.getValueInRange({
+          startLineNumber: 1,
+          startColumn: 1,
+          endLineNumber: position.lineNumber,
+          endColumn: position.column,
+        });
+        const note = text.match(/[^"]*("[^"]*"[^"]*)*"([^"]*\s)?/);
+
+        if (note) {
+          return { suggestions: autocomplete.note };
+        }
+
+        return [];
+      },
+    });
+*/
+    monacoBox.editor.defineTheme('sicko-theme', {
+      base: 'vs-dark',
+      inherit: true,
+      rules: [
+        { token: 'instrument', foreground: '61AFEF' },
+        { token: 'modifier', foreground: 'ABA58E' },
+        { token: 'notes', foreground: '98B755' },
+        { token: 'group', foreground: '378876' },
+        { token: 'filter', foreground: '6871D7' },
+      ],
+    });
+  })
+  .catch((error) => console.error('An error occurred during initialization of Monaco: ', error));
+
+
 const PlayBox = ({ id, value }) => {
   const [isEditorReady, setIsEditorReady] = useState(false);
   const [buttonState, setButtonState] = useState('Start');
   const [runningParts, setParts] = useState([]);
+  const [model, setModel] = useState(null);
   const valueGetter = useRef();
-  monaco.init()
-    .then((monaco) => {
-      monaco.languages.register({ id: 'sicko-mode' });
 
-      monaco.languages.setMonarchTokensProvider('sicko-mode', {
-        tokenizer: {
-          root: [
-            [/\ffff/, 'custom-error'],
-            [/>> (octave|pitch|duration) [+-./0-9]*[0-9]*/, 'modifier'],
-            [/>> (soft|triangle|saw|play)/, 'instrument'],
-            [/"[a-zA-Z 0-9+#-_~()]+"[+-]*[0-9]*/, 'notes'],
-          ],
-        },
-      });
-
-      monaco.editor.defineTheme('sicko-theme', {
-        base: 'vs-dark',
-        inherit: true,
-        rules: [
-          { token: 'instrument', foreground: 'D7BDE2' },
-          { token: 'custom-error', foreground: 'ff0000', fontStyle: 'bold' },
-          { token: 'modifier', foreground: 'D6EAF8' },
-          { token: 'notes', foreground: 'A3E4D7' },
-        ],
-      });
-    })
-    .catch((error) => console.error('An error occurred during initialization of Monaco: ', error));
-  function handleEditorDidMount(_valueGetter) {
-    setIsEditorReady(true);
+  function handleEditorDidMount(_valueGetter, editor) {
+    setModel(editor._modelData.model);
     valueGetter.current = _valueGetter;
+    /*
+    let time;
+    editor.onDidChangeModelContent(() => {
+      clearTimeout(time);
+      box.editor.setModelMarkers(editor._modelData.model, 'test', []);
+      time = setTimeout(() => {
+        try {
+          peg.parse(valueGetter.current());
+        } catch (error) {
+          box.editor.setModelMarkers(editor._modelData.model, 'test', [{
+            startLineNumber: error.location.start.line,
+            startColumn: error.location.start.column,
+            endLineNumber: error.location.end.line,
+            endColumn: error.location.end.column,
+            message: error.message,
+            severity: box.MarkerSeverity.Error,
+          }]);
+        }
+      }, 1500);
+    });
+*/
+    setIsEditorReady(true);
   }
 
   function stop() {
@@ -53,13 +102,25 @@ const PlayBox = ({ id, value }) => {
       part.stop();
     });
     setParts([]);
+    setButtonState('Start');
   }
 
   function start() {
-    stop();
-    const parsedVal = peg.parse(valueGetter.current());
-    setParts(parsedVal);
-    parsedVal.forEach((part) => { part.start(); });
+    try {
+      const parsedVal = peg.parse(valueGetter.current());
+      setParts(parsedVal);
+      parsedVal.forEach((part) => { part.start(); });
+      setButtonState('Stop');
+    } catch (error) {
+      box.editor.setModelMarkers(model, 'test', [{
+        startLineNumber: error.location.start.line,
+        startColumn: error.location.start.column,
+        endLineNumber: error.location.end.line,
+        endColumn: error.location.end.column,
+        message: error.message,
+        severity: box.MarkerSeverity.Error,
+      }]);
+    }
   }
 
   function toggle() {
@@ -71,10 +132,8 @@ const PlayBox = ({ id, value }) => {
     if (loaded && Tone.context.state === 'running') {
       if (buttonState === 'Start') {
         start();
-        setButtonState('Stop');
       } else {
         stop();
-        setButtonState('Start');
       }
     }
   }
@@ -91,8 +150,8 @@ const PlayBox = ({ id, value }) => {
   return (
     <div className="playBox" id={id}>
       <Editor
-        height="20vh"
-        width="60vw"
+        height="40vh"
+        width="94vw"
         value={value}
         language="sicko-mode"
         theme="sicko-theme"
