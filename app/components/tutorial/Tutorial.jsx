@@ -10,7 +10,7 @@ import PlayBox from '../common/PlayBox';
 import {
   tutorial1, tutorial2, tutorialaltchars, tutorialmods, tutorialduration, tutorialdrums,
   exampledrums, tutorialmult, tutorialpatterns, examplepatterns, tutorialconclusion, examplesong,
-  welcome,
+  welcome, examplesong2,
 } from './TutorialText';
 
 const theme = createMuiTheme({
@@ -59,7 +59,7 @@ const Tutorial = () => (
         <ReactMarkdown source={tutorialpatterns} />
         <PlayBox id="fifthTutBox" value={examplepatterns} />
         <ReactMarkdown source={tutorialconclusion} />
-        <PlayBox id="sixthTutBox" value={examplesong} />
+        <PlayBox id="sixthTutBox" value={examplesong2} />
       </Box>
     </Typography>
   </ThemeProvider>

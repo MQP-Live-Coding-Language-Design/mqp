@@ -29,7 +29,7 @@ monaco.init()
         ],
       },
     });
-
+    /*
     monacoBox.languages.registerCompletionItemProvider('sicko-mode', {
       provideCompletionItems(argmodel, position) {
         const text = argmodel.getValueInRange({
@@ -47,7 +47,7 @@ monaco.init()
         return [];
       },
     });
-
+*/
     monacoBox.editor.defineTheme('sicko-theme', {
       base: 'vs-dark',
       inherit: true,
@@ -73,7 +73,7 @@ const PlayBox = ({ id, value }) => {
   function handleEditorDidMount(_valueGetter, editor) {
     setModel(editor._modelData.model);
     valueGetter.current = _valueGetter;
-
+    /*
     let time;
     editor.onDidChangeModelContent(() => {
       clearTimeout(time);
@@ -93,7 +93,7 @@ const PlayBox = ({ id, value }) => {
         }
       }, 1500);
     });
-
+*/
     setIsEditorReady(true);
   }
 
