@@ -24,8 +24,8 @@ monaco.init()
         root: [
           [/>>\s*(soft|triangle|saw|fatsaw|square|(pls no)|drums|acousticdrums|electricdrums|piano|bass|electricbass|bassoon|cello|clarinet|contrabass|flute|frenchhorn|horn|acousticguitar|electricguitar|guitar|nylonguitar|harmonium|harp|organ|saxophone|trombone|trumpet|tuba|violin|xylophone)/, 'instrument'],
           [/>>[^>"]*/, 'modifier'],
-          [/"[^"]*"/, 'notes'],
           [/(&\s*)?>[^>"]+/, 'filter'],
+          [/(^|")[^">&]+("|$)/, 'notes'],
         ],
       },
     });
