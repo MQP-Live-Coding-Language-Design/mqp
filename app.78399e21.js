@@ -64969,25 +64969,24 @@ _react2.monaco.init().then(function (monacoBox) {
       root: [[/>>\s*(soft|triangle|saw|fatsaw|square|(pls no)|drums|acousticdrums|electricdrums|piano|bass|electricbass|bassoon|cello|clarinet|contrabass|flute|frenchhorn|horn|acousticguitar|electricguitar|guitar|nylonguitar|harmonium|harp|organ|saxophone|trombone|trumpet|tuba|violin|xylophone)/, 'instrument'], [/>>[^>"]*/, 'modifier'], [/"[^"]*"/, 'notes'], [/(&\s*)?>[^>"]+/, 'filter']]
     }
   });
+  /*
   monacoBox.languages.registerCompletionItemProvider('sicko-mode', {
-    provideCompletionItems: function provideCompletionItems(argmodel, position) {
-      var text = argmodel.getValueInRange({
+    provideCompletionItems(argmodel, position) {
+      const text = argmodel.getValueInRange({
         startLineNumber: 1,
         startColumn: 1,
         endLineNumber: position.lineNumber,
-        endColumn: position.column
+        endColumn: position.column,
       });
-      var note = text.match(/[^"]*("[^"]*"[^"]*)*"([^"]*\s)?/);
-
-      if (note) {
-        return {
-          suggestions: autocomplete.note
-        };
+      const note = text.match(/[^"]*("[^"]*"[^"]*)*"([^"]*\s)?/);
+       if (note) {
+        return { suggestions: autocomplete.note };
       }
-
-      return [];
-    }
+       return [];
+    },
   });
+  */
+
   monacoBox.editor.defineTheme('sicko-theme', {
     base: 'vs-dark',
     inherit: true,
@@ -65608,7 +65607,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "49706" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "62412" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};
