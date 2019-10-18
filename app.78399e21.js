@@ -64966,7 +64966,7 @@ _react2.monaco.init().then(function (monacoBox) {
   });
   monacoBox.languages.setMonarchTokensProvider('sicko-mode', {
     tokenizer: {
-      root: [[/>>\s*(soft|triangle|saw|fatsaw|square|(pls no)|drums|acousticdrums|electricdrums|piano|bass|electricbass|bassoon|cello|clarinet|contrabass|flute|frenchhorn|horn|acousticguitar|electricguitar|guitar|nylonguitar|harmonium|harp|organ|saxophone|trombone|trumpet|tuba|violin|xylophone)/, 'instrument'], [/>>[^>"]*/, 'modifier'], [/"[^"]*"/, 'notes'], [/(&\s*)?>[^>"]+/, 'filter']]
+      root: [[/>>\s*(soft|triangle|saw|fatsaw|square|(pls no)|drums|acousticdrums|electricdrums|piano|bass|electricbass|bassoon|cello|clarinet|contrabass|flute|frenchhorn|horn|acousticguitar|electricguitar|guitar|nylonguitar|harmonium|harp|organ|saxophone|trombone|trumpet|tuba|violin|xylophone)/, 'instrument'], [/>>[^>"]*/, 'modifier'], [/(&\s*)?>[^>"]+/, 'filter'], [/(^|")[^">&]+("|$)/, 'notes']]
     }
   });
   /*
@@ -65225,8 +65225,11 @@ var Tutorial = function Tutorial() {
     component: "div"
   }, _react.default.createElement(_Box.default, {
     display: "flex",
+    justifyContent: "center"
+  }, _react.default.createElement(_Box.default, {
+    display: "flex",
     flexWrap: "wrap",
-    justifyContent: "flex-start",
+    justifyContent: "center",
     alignContent: "flex-start",
     fontFamily: "Helvetica",
     bgcolor: "#ffffff",
@@ -65288,7 +65291,7 @@ var Tutorial = function Tutorial() {
   }), _react.default.createElement(_PlayBox.default, {
     id: "sixthTutBox",
     value: _TutorialText.examplesong2
-  }))));
+  })))));
 };
 
 var _default = Tutorial;
@@ -65612,7 +65615,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "64244" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "53975" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};
