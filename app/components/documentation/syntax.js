@@ -119,6 +119,7 @@ The synths are as follows:
 - \`saw\`: Saw wave with very bright tone
 - \`square\`: Fat square wave similar to fatsaw but more forcecful
 - \`pls no\`: Pulse oscillator with harsh tone quality
+- \`alien\`: Smooth but strange sound
 
 The samplers are made from instrument samples and include:
 - \`drums\` or \`acousticdrums\`: Used to play drums

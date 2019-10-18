@@ -22,14 +22,14 @@ monaco.init()
     monacoBox.languages.setMonarchTokensProvider('sicko-mode', {
       tokenizer: {
         root: [
-          [/>>\s*(soft|triangle|saw|fatsaw|square|(pls no)|drums|acousticdrums|electricdrums|piano|bass|electricbass|bassoon|cello|clarinet|contrabass|flute|frenchhorn|horn|acousticguitar|electricguitar|guitar|nylonguitar|harmonium|harp|organ|saxophone|trombone|trumpet|tuba|violin|xylophone)/, 'instrument'],
+          [/>>\s*(alien|soft|triangle|saw|fatsaw|square|(pls no)|drums|acousticdrums|electricdrums|piano|bass|electricbass|bassoon|cello|clarinet|contrabass|flute|frenchhorn|horn|acousticguitar|electricguitar|guitar|nylonguitar|harmonium|harp|organ|saxophone|trombone|trumpet|tuba|violin|xylophone)/, 'instrument'],
           [/>>[^>"]*/, 'modifier'],
           [/(&\s*)?>[^>"]+/, 'filter'],
           [/(^|")[^">&]+("|$)/, 'notes'],
         ],
       },
     });
-    /*
+    /* Autocomplete
     monacoBox.languages.registerCompletionItemProvider('sicko-mode', {
       provideCompletionItems(argmodel, position) {
         const text = argmodel.getValueInRange({
@@ -73,7 +73,7 @@ const PlayBox = ({ id, value }) => {
   function handleEditorDidMount(_valueGetter, editor) {
     setModel(editor._modelData.model);
     valueGetter.current = _valueGetter;
-    /*
+    /* Continuous error checking
     let time;
     editor.onDidChangeModelContent(() => {
       clearTimeout(time);

@@ -176,6 +176,7 @@ instrument
   / "saw" { return {oscillator: {type: "sawtooth", spread: 40}, envelope: {release: .06}}; }
   / "square" { return {oscillator: {type: "fatsquare", spread: 10, count: 3}, envelope: {release: .06}};}
   / "pls no" { return {oscillator: {type: "pulse", width: .80}, envelope: {release: .06}}; }
+  / "alien" { return {oscillator: {harmonicity: 1.5, type: "amsine3", partials: [1, 1, 1], modulationType: "sine"}, envelope: {release: 0.06}}; }
 
 // A sequence of instrument attributes
 // Returns a list of functions which modify objects
