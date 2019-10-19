@@ -25,6 +25,12 @@ class Chord {
     });
   }
 
+  scaleChange(k, t) {
+    this.groups.forEach((group) => {
+      group.scaleChange(k, t);
+    });
+  }
+
   get length() {
     let max = 0;
     this.groups.forEach((group) => {

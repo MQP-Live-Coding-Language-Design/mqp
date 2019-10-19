@@ -21,6 +21,8 @@ class Drum {
     this.gap *= n;
   }
 
+  scaleChange() { return this; }
+
   get length() {
     return this.gap;
   }

@@ -42,6 +42,8 @@ class Part {
    */
   stop() {
     this.running = false;
+    // Permenantly silences instrument
+    this.inst.disconnect();
   }
 }
 

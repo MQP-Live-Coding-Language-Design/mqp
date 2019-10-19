@@ -25,6 +25,12 @@ class Random {
     });
   }
 
+  scaleChange(k, t) {
+    this.groups.forEach((group) => {
+      group.scaleChange(k, t);
+    });
+  }
+
   get length() {
     return this.groups[0].length;
   }

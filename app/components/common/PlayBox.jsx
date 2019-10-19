@@ -73,11 +73,11 @@ const PlayBox = ({ id, value }) => {
   function handleEditorDidMount(_valueGetter, editor) {
     setModel(editor._modelData.model);
     valueGetter.current = _valueGetter;
-    /* Continuous error checking
     let time;
     editor.onDidChangeModelContent(() => {
       clearTimeout(time);
       box.editor.setModelMarkers(editor._modelData.model, 'test', []);
+      /* Continuous error checking
       time = setTimeout(() => {
         try {
           peg.parse(valueGetter.current());
@@ -92,8 +92,8 @@ const PlayBox = ({ id, value }) => {
           }]);
         }
       }, 1500);
+  */
     });
-*/
     setIsEditorReady(true);
   }
 
@@ -112,6 +112,7 @@ const PlayBox = ({ id, value }) => {
       parsedVal.forEach((part) => { part.start(); });
       setButtonState('Stop');
     } catch (error) {
+      console.log(error);
       box.editor.setModelMarkers(model, 'test', [{
         startLineNumber: error.location.start.line,
         startColumn: error.location.start.column,
