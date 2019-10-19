@@ -10,7 +10,7 @@ A note is any letter between \`a\` and \`g\`, uppercase or lowercase, correspond
   - **Octave number**: any positive integer can be added to the right of a note (or to the right of its accidental if it has one) to specify the octave. For example \`b5\` is a \`b\` note in the 5th octave. If no octave number is specified, the default value is 4.
   - **Octave modifier**: any number of \`-\` or \`+\` can be added to the right of a note and its accidental to increase or decrease the octave of the note. For example \`b+++\` is a \`b\` note in the 7th octave. \`b+++\` is equivalent to writing \`b+3\` or \`b7\`.
 
-### Numbers (NOT YET IMPLEMENTED)
+### Numbers
 A number can be any integer, and will correspond to a note in a scale. The scale is specified with the \`scale\` sequence modifier, described in more detail in the modifiers section. The default scale is C major.
 \`\`\`
 "1 3 5"
