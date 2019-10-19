@@ -39,13 +39,7 @@ note
   / note:notestart __ ext:$([0-9]+) "~" { note.tempoChange(parseInt(ext) + 1); return note; }
   / note:notestart ext:(_ "~")* { note.tempoChange(ext.length + 1); return note; }
   / "(" _ seq:noteseq _ ")" _ '*' _ num:$([0-9]+) {
-    let ret = [];
-    let parsednum = parseInt(num);
-    let seqClass = new classes.Sequential(seq);
-    for (var i = 0; i < parsednum; i++) {
-      ret.push(seqClass.copy);
-    }
-    return new classes.Sequential(ret);
+    return new classes.Repeat(new classes.Sequential(seq), parseInt(num));
   }
   / "(" _ seq:noteseq  _ ")" { return new classes.Sequential(seq); }
   / "!" name:$([a-zA-Z_0-9]+) {
