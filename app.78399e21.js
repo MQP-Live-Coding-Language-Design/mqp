@@ -60608,7 +60608,7 @@ function () {
 }();
 
 module.exports = Rest;
-},{"tone":"../node_modules/tone/build/Tone.js","../defaults":"../language/defaults.js"}],"../language/classes/Sequential.js":[function(require,module,exports) {
+},{"tone":"../node_modules/tone/build/Tone.js","../defaults":"../language/defaults.js"}],"../language/classes/Repeat.js":[function(require,module,exports) {
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
@@ -60616,8 +60616,103 @@ function _defineProperties(target, props) { for (var i = 0; i < props.length; i+
 function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
 
 /**
+ * A Repeat is a group to be played multiple times
+ */
+var Repeat =
+/*#__PURE__*/
+function () {
+  function Repeat(group, n) {
+    _classCallCheck(this, Repeat);
+
+    this.group = group; // list of groups forming this Phrase
+
+    this.n = n;
+  }
+
+  _createClass(Repeat, [{
+    key: "octChange",
+    value: function octChange(n) {
+      this.group.octChange(n);
+    }
+  }, {
+    key: "pitchChange",
+    value: function pitchChange(n) {
+      this.group.pitchChange(n);
+    }
+  }, {
+    key: "tempoChange",
+    value: function tempoChange(n) {
+      this.group.tempoChange(n);
+    }
+  }, {
+    key: "scaleChange",
+    value: function scaleChange(k, t) {
+      this.group.scaleChange(k, t);
+    }
+  }, {
+    key: "trigger",
+    value: function trigger(instrument, time, obj) {
+      var num;
+      var memory;
+
+      if (obj === null) {
+        num = 0;
+        memory = null;
+      } else {
+        num = obj.num;
+        memory = obj.memory;
+      }
+
+      var ret = this.group.trigger(instrument, time, memory);
+
+      if (ret.memory === null) {
+        num += 1;
+      }
+
+      if (num >= this.n) {
+        return {
+          time: ret.time,
+          memory: null
+        };
+      }
+
+      return {
+        time: ret.time,
+        memory: {
+          num: num,
+          memory: ret.memory
+        }
+      };
+    }
+  }, {
+    key: "length",
+    get: function get() {
+      return this.group.length * this.n;
+    }
+  }, {
+    key: "copy",
+    get: function get() {
+      return new Repeat(this.group.copy, this.n);
+    }
+  }]);
+
+  return Repeat;
+}();
+
+module.exports = Repeat;
+},{}],"../language/classes/Sequential.js":[function(require,module,exports) {
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
+
+var Repeat = require('./Repeat');
+/**
  * A Phrase is the list of Groups to be played
  */
+
+
 var Sequential =
 /*#__PURE__*/
 function () {
@@ -60632,9 +60727,7 @@ function () {
     value: function stutter(n) {
       var nl = [];
       this.groups.forEach(function (group) {
-        Array(n).fill().forEach(function () {
-          nl.push(group.copy);
-        });
+        nl.push(new Repeat(group.copy, n));
       });
       this.groups = nl;
     }
@@ -60725,7 +60818,7 @@ function () {
 }();
 
 module.exports = Sequential;
-},{}],"../language/classes/Part.js":[function(require,module,exports) {
+},{"./Repeat":"../language/classes/Repeat.js"}],"../language/classes/Part.js":[function(require,module,exports) {
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
@@ -61152,6 +61245,8 @@ var Chord = require('./Chord');
 
 var NumNote = require('./NumNote');
 
+var Repeat = require('./Repeat');
+
 module.exports = {
   Note: Note,
   Drum: Drum,
@@ -61160,9 +61255,10 @@ module.exports = {
   Part: Part,
   Random: Random,
   Chord: Chord,
-  NumNote: NumNote
+  NumNote: NumNote,
+  Repeat: Repeat
 };
-},{"./Note":"../language/classes/Note.js","./Drum":"../language/classes/Drum.js","./Rest":"../language/classes/Rest.js","./Sequential":"../language/classes/Sequential.js","./Part":"../language/classes/Part.js","./Random":"../language/classes/Random.js","./Chord":"../language/classes/Chord.js","./NumNote":"../language/classes/NumNote.js"}],"../language/language.js":[function(require,module,exports) {
+},{"./Note":"../language/classes/Note.js","./Drum":"../language/classes/Drum.js","./Rest":"../language/classes/Rest.js","./Sequential":"../language/classes/Sequential.js","./Part":"../language/classes/Part.js","./Random":"../language/classes/Random.js","./Chord":"../language/classes/Chord.js","./NumNote":"../language/classes/NumNote.js","./Repeat":"../language/classes/Repeat.js"}],"../language/language.js":[function(require,module,exports) {
 /*
  * Generated by PEG.js 0.10.0.
  *
@@ -61342,15 +61438,7 @@ function peg$parse(input, options) {
       peg$c23 = "*",
       peg$c24 = peg$literalExpectation("*", false),
       peg$c25 = function peg$c25(seq, num) {
-    var ret = [];
-    var parsednum = parseInt(num);
-    var seqClass = new classes.Sequential(seq);
-
-    for (var i = 0; i < parsednum; i++) {
-      ret.push(seqClass.copy);
-    }
-
-    return new classes.Sequential(ret);
+    return new classes.Repeat(new classes.Sequential(seq), parseInt(num));
   },
       peg$c26 = function peg$c26(seq) {
     return new classes.Sequential(seq);
@@ -65773,10 +65861,10 @@ _react2.monaco.init().then(function (monacoBox) {
         endColumn: position.column,
       });
       const note = text.match(/[^"]*("[^"]*"[^"]*)*"([^"]*\s)?/);
-       if (note) {
+        if (note) {
         return { suggestions: autocomplete.note };
       }
-       return [];
+        return [];
     },
   });
   */
@@ -66186,7 +66274,7 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports.default = void 0;
-var _default = "\nUser Documentation: Language Syntax\n===\n\n# Sequences\n## Groups\n### Notes\nA note is any letter between `a` and `g`, uppercase or lowercase, corresponding to the musical notes. A note has multiple optional specifiers and modifiers that determine the pitch and octave of the note. The order in which these are applied matters, and is the following:\n  - **Accidentals**: the `#` or `b` characters can be added to the right of a note to **sharp** or **flat** it. For example, `b#` would be a `b` sharp and `bb` would be an `b` flat.\n  - **Octave number**: any positive integer can be added to the right of a note (or to the right of its accidental if it has one) to specify the octave. For example `b5` is a `b` note in the 5th octave. If no octave number is specified, the default value is 4.\n  - **Octave modifier**: any number of `-` or `+` can be added to the right of a note and its accidental to increase or decrease the octave of the note. For example `b+++` is a `b` note in the 7th octave. `b+++` is equivalent to writing `b+3` or `b7`.\n\n### Numbers (NOT YET IMPLEMENTED)\nA number can be any integer, and will correspond to a note in a scale. The scale is specified with the `scale` sequence modifier, described in more detail in the modifiers section. The default scale is C major.\n```\n\"1 3 5\"\n>> scale c major\n```\nThe above example is equivalent to `\"c e f\"`.\n\n### Percussion\nPercussion symbols correspond to the following predetermined sounds. Percussion can only be played with the `drums` instrument.\n- `sn`: snare\n- `k`: kick\n- `h`: hi-hat\n- `oh`: open hi-hat\n- `r`: ride cymbal\n- `be`: ride bell\n- `t1`: tom 1\n- `t2`: tom 2\n- `t3`: tom 3\n- `t4`: tom 4\n\n### Extensions\nNotes, numbers, and percussion can be followed by any number of `~`s. This will cause it to be extended by the number of `~`s used.\n```\n\"a ~ ~ b ~ c\"\n```\nIn the example above, the `a` will be three times as long as the `c` and the `b` will be twice as long as the `c`.\n\n### Group behaviors\n- **sequential**: plays groups in order when written as `(a b c)`\n- **chord**: plays groups at the same time when written as `chord(e g)`\n- **step**: plays one group per loop, cycling through groups each loop, when written as `step(c e g)`. This plays `c e g` in the time of 3 loops. (NOT YET IMPLEMENTED)\n- **random**: plays one group per loop, selected at random, when written as `rand(c e g)`.\n- **repeat**: repeat a group a number of times when written as `(c)*3` or `(c e)*3`. The latter is interpreted the same as `(c e c e c e)`.\n\n## Sequence modifiers\nA sequence modifier is added after the phrase is defined as:\n```\n\"phrase\"\n  >> sequence modifier\n```\nSequence modifiers are executed in order, and each sequence modifier acts without knowledge of future sequence modifiers. For example, consider the following code.\n```\n\"a b c\"\n  >> octave 3\n  >> octave ++\n```\nWhen `\"a b c\" >> octave 3` has been executed, the result is equivalent to `\"a3 b3 c3\"`. This result is then passed into the `>> octave ++` modifier, and the resulting output is equivalent to `\"a5 b5 c5\"`.\n\n### Octave\nThe `octave` modifier accepts 3 types of input:\n  - Numbers: `3` (NOT YET IMPLEMENTED)\n  - A sign and a number: `+3` or `-3`\n  - A number of signs: `+++` or `---`\n\nThe number input will set the octave corresponding to that number.\n\nThe input with signs will increase or decrease the octave relative to a previous `octave` modifier if a number was specified, or from the default value if nothing was specified before.\n\nFor example, below the entire sequence will be changed to octave 3, since the default octave is the 4th.\n```\n\"a b c\"\n  >> octave -\n```\n\n### Pitch\nThe `pitch` modifier changes a sequence by a number of half-steps. It accepts 2 types of input:\n  - A sign and a number: `-3`\n  - A number of signs: `---`\nWhen modifying numbers, the pitch modifier is equivalent to changing the numbers by that amount (so `\"1\" >> pitch +` is equivalent to `\"2\"`).\n\n### Duration\nThe `duration` modifier changes the duration of each individual group in the phrase. It accepts a fraction or decimal as input, and the duration of each group in a sequence will be multiplied by this value.\n\n###Stutter\nThe `stutter` modifier repeats each of the highest level groups a given number of times.\n```\n\"a b c d\"\n  >> stutter 2\n  >> triangle\n```\nFor example, the above example would play `\"a a b b c c d d\"`, but the below example would play `\"(a b) (a b) (c d) (c d)\"` because the parentheses are the highest level group.\n```\n\"(a b) (c d)\"\n  >> stutter 2\n  >> triangle\n```\n\n### Scale\nThe `scale` modifier only changes numbers, and changes the scale against which the number will be evaluated. It accepts a key (eg. `C`, `f#`, `Bb`) and a scale type (see below), in that order. Both parameters are optional, and any parameters not used remain the same.\n```\n\"1 3 5\"\n  >> scale c major >> piano\n  >> scale d >> flute\n  >> scale minor >> cello\n```\nIn the above example, `\"c e g\"` would be played on the piano, `\"d f# a` (D major) would be played on the flute, and `\"d f a\"` (D minor) would be played on the cello.\n\nThe scale types are:\n- `major`: Can be abbreviated to `maj` or `M`\n- `naturalminor`: Can be abbreviated to `minor`, `min`, `nm`, or `m`\n- `harmonicminor`: Can be abbreviated to `hm`\n- `chromatic`: Can be abbreviated to `ch`\n- `majortriad`: Can be abbreviated to `Mtriad`, `Mt`, or `M3`\n- `minortriad`: Can be abbreviated to `mtriad`, `mt`, or `m3`\n\n## Sequence storage\nThe `save` command allows you to save any sequence as it is when the command is reached. The `save` command will only save **sequences**, which does not include any parts or part modifiers (i.e. instruments and its modifiers).\n```\n\"a b c\"\n  >> octave 4\n  >> save abc_1\n  >> pitch ---\n  >> save abc_2\n```\nIn the example above, `abc_1` would contain the sequence and its `octave` modifier. Then, `abc_2` would contain all of that, plus the `pitch` modifier. Saved sequences can be used in place of notes by using `!name`:\n```\n\"!abc_1\"\n  >> <any sequence modifier or part definition>\n```\nSaved sequences can be combined into groups in the same way as notes.\n```\n\"chord(!abc_1 !abc_2)\"\n  >> <any sequence modifier or part definition>\n```\n\n# Parts\nA part is defined once the **instrument** of a phrase has been defined in the case of notes and numbers:\n```\n\"a b c\"\n  >> octave +\n  >> saw      // this is the beginning of a part\n```\nInstruments can be divided into two categories, synths and samplers.\n\nThe synths are as follows:\n- `triangle`: Simple synth with a triangle wave\n- `soft`: Sine wave synth with a rich tone quality\n- `fatsaw`: Fat synth with a saw wave, distorted sound\n- `saw`: Saw wave with very bright tone\n- `square`: Fat square wave similar to fatsaw but more forcecful\n- `pls no`: Pulse oscillator with harsh tone quality\n- `alien`: Smooth but strange sound\n\nThe samplers are made from instrument samples and include:\n- `drums` or `acousticdrums`: Used to play drums\n- `electricdrums`: Used to play drums\n- `piano`\n- `electricbass` or `bass`\n- `bassoon`\n- `cello`\n- `clarinet`\n- `contrabass`\n- `flute`\n- `frenchhorn` or `horn`\n- `acousticguitar`\n- `electricguitar` or `guitar`\n- `nylonguitar`\n- `harmonium`\n- `harp`\n- `organ`\n- `saxophone`\n- `trombone`\n- `trumpet`\n- `tuba`\n- `violin`\n- `xylophone`\n\n## Synth Attributes\nSynths may be followed by one or more attributes which will change the sound of the instrument:\n```\n\"a b c\"\n  >> triangle volume 10\n```\nAttributes can only be applied once each. Specifying the same attribute multiple times will override previous changes to that attribute.\n\nAttributes can be any of:\n- `volume`: Takes a fraction or decimal, positive or negative, and changes the volume of the instrument by that number of decibals\n- `wave`: Takes one of `sine`, `triangle`, `sawtooth`, or `square`, and sets the wave of the instrument to that type.\n\n## Filters\nFilters change the way an instrument or percussion element sounds. To add a filter:\n```\n\"a b c\"\n  >> piano\n    > <filter>\n    > <filter>\n  >> <any sequence modifier>\n```\nFilters act similarly to sequence modifiers in that they are processed sequentially, and every filter acts without knowledge of filters which follow it.\n\nThe `&` symbol may also be inserted between filters. This will cause the sound to be played at the point at which the `&` symbol is inserted. The sound will always be played at the end of a sequence of filters, regardless of whether a `&` is used.\n```\n\"a b c\"\n  >> piano\n    > pingpong 0.5\n```\nAs an example, the example above will only play the pingpong echo, not the original note. However, the example below will play both the unmodified notes as well as the echo.\n```\n\"a b c\"\n  >> piano &\n    > pingpong 0.5\n```\n\nFilters can be any of:\n- `pingpong`: Makes the sound echo between speakers. Takes a delay between echos.\n- `volume`: Changes volume. Takes a number in decibals where negative values make it quieter and positive values make it louder.\n- `distort`: Adds distortion to the sound. Takes a positive number, recommended values between 0 and 1.\n- `pan`: Moves sounds from left to right. Takes a number from -1 to 1 as input. -1 corresponds to left, and 1 corresponds to right.\n- `chebyshev`: Applies a Chebyshev distortion. Takes a positive integer, recommended values between 1 and 100. Note that odd numbers are very different from even numbers.\n\nNOT YET IMPLEMENTED:\n- `lo`: low pass filter attenuates frequencies above the cutoff. This takes as input any number of values between 0 and 1.\n- `hi`: high pass filter attenuates frequencies below the cutoff. This takes as input any number of values between 0 and 1.\n- `bandpass`: band pass filter attenuates any frequencies outside of a range. This takes as input two values between 0 and 1, corresponding to the low and high value of the range.\n\n## Part storage (NOT YET IMPLEMENTED)\nA part and can be saved to be referenced in the sound visualization UI, to stop sound without affecting any sequences (in-sequence storage), or to use the same part in another phrase (global storage);\n\n### In-sequence storage\nIn-sequence storage allows a part to be saved along with the phrase it is following. This helps to visualize what is being played in the sound visualization UI, and can also make it easier to stop a sound. To store a part in-sequence:\n```\n\"a b c\"\n  >> piano as abc_1\n```\n\nIt will then be displayed in the sound visualization UI and can be stopped anywhere outside a block as: `stop abc_1`.\n\n### Global storage\nGlobal storage allows a part to be reused in multiple phrases. This will only store the part and its modifiers, and will not take into account the phrase it is used in. To store a part globally:\n```\n\"a b c\"\n  >> piano as global piano_left_distorted\n    ^ pan 0.2\n    ^ distort 2\n```\n\nPart `piano_left_distorted` can now be used in other sequences, without having to type all of the part and its modifiers again:\n```\n\"d e f\"\n  >> piano_left_distorted\n```\n\n";
+var _default = "\nUser Documentation: Language Syntax\n===\n\n# Sequences\n## Groups\n### Notes\nA note is any letter between `a` and `g`, uppercase or lowercase, corresponding to the musical notes. A note has multiple optional specifiers and modifiers that determine the pitch and octave of the note. The order in which these are applied matters, and is the following:\n  - **Accidentals**: the `#` or `b` characters can be added to the right of a note to **sharp** or **flat** it. For example, `b#` would be a `b` sharp and `bb` would be an `b` flat.\n  - **Octave number**: any positive integer can be added to the right of a note (or to the right of its accidental if it has one) to specify the octave. For example `b5` is a `b` note in the 5th octave. If no octave number is specified, the default value is 4.\n  - **Octave modifier**: any number of `-` or `+` can be added to the right of a note and its accidental to increase or decrease the octave of the note. For example `b+++` is a `b` note in the 7th octave. `b+++` is equivalent to writing `b+3` or `b7`.\n\n### Numbers\nA number can be any integer, and will correspond to a note in a scale. The scale is specified with the `scale` sequence modifier, described in more detail in the modifiers section. The default scale is C major.\n```\n\"1 3 5\"\n>> scale c major\n```\nThe above example is equivalent to `\"c e f\"`.\n\n### Percussion\nPercussion symbols correspond to the following predetermined sounds. Percussion can only be played with the `drums` instrument.\n- `sn`: snare\n- `k`: kick\n- `h`: hi-hat\n- `oh`: open hi-hat\n- `r`: ride cymbal\n- `be`: ride bell\n- `t1`: tom 1\n- `t2`: tom 2\n- `t3`: tom 3\n- `t4`: tom 4\n\n### Extensions\nNotes, numbers, and percussion can be followed by any number of `~`s. This will cause it to be extended by the number of `~`s used.\n```\n\"a ~ ~ b ~ c\"\n```\nIn the example above, the `a` will be three times as long as the `c` and the `b` will be twice as long as the `c`.\n\n### Group behaviors\n- **sequential**: plays groups in order when written as `(a b c)`\n- **chord**: plays groups at the same time when written as `chord(e g)`\n- **step**: plays one group per loop, cycling through groups each loop, when written as `step(c e g)`. This plays `c e g` in the time of 3 loops. (NOT YET IMPLEMENTED)\n- **random**: plays one group per loop, selected at random, when written as `rand(c e g)`.\n- **repeat**: repeat a group a number of times when written as `(c)*3` or `(c e)*3`. The latter is interpreted the same as `(c e c e c e)`.\n\n## Sequence modifiers\nA sequence modifier is added after the phrase is defined as:\n```\n\"phrase\"\n  >> sequence modifier\n```\nSequence modifiers are executed in order, and each sequence modifier acts without knowledge of future sequence modifiers. For example, consider the following code.\n```\n\"a b c\"\n  >> octave 3\n  >> octave ++\n```\nWhen `\"a b c\" >> octave 3` has been executed, the result is equivalent to `\"a3 b3 c3\"`. This result is then passed into the `>> octave ++` modifier, and the resulting output is equivalent to `\"a5 b5 c5\"`.\n\n### Octave\nThe `octave` modifier accepts 3 types of input:\n  - Numbers: `3` (NOT YET IMPLEMENTED)\n  - A sign and a number: `+3` or `-3`\n  - A number of signs: `+++` or `---`\n\nThe number input will set the octave corresponding to that number.\n\nThe input with signs will increase or decrease the octave relative to a previous `octave` modifier if a number was specified, or from the default value if nothing was specified before.\n\nFor example, below the entire sequence will be changed to octave 3, since the default octave is the 4th.\n```\n\"a b c\"\n  >> octave -\n```\n\n### Pitch\nThe `pitch` modifier changes a sequence by a number of half-steps. It accepts 2 types of input:\n  - A sign and a number: `-3`\n  - A number of signs: `---`\nWhen modifying numbers, the pitch modifier is equivalent to changing the numbers by that amount (so `\"1\" >> pitch +` is equivalent to `\"2\"`).\n\n### Duration\nThe `duration` modifier changes the duration of each individual group in the phrase. It accepts a fraction or decimal as input, and the duration of each group in a sequence will be multiplied by this value.\n\n### Stutter\nThe `stutter` modifier repeats each of the highest level groups a given number of times.\n```\n\"a b c d\"\n  >> stutter 2\n  >> triangle\n```\nFor example, the above example would play `\"a a b b c c d d\"`, but the below example would play `\"(a b) (a b) (c d) (c d)\"` because the parentheses are the highest level group.\n```\n\"(a b) (c d)\"\n  >> stutter 2\n  >> triangle\n```\n\n### Scale\nThe `scale` modifier only changes numbers, and changes the scale against which the number will be evaluated. It accepts a key (eg. `C`, `f#`, `Bb`) and a scale type (see below), in that order. Both parameters are optional, and any parameters not used remain the same.\n```\n\"1 3 5\"\n  >> scale c major >> piano\n  >> scale d >> flute\n  >> scale minor >> cello\n```\nIn the above example, `\"c e g\"` would be played on the piano, `\"d f# a` (D major) would be played on the flute, and `\"d f a\"` (D minor) would be played on the cello.\n\nThe scale types are:\n- `major`: Can be abbreviated to `maj` or `M`\n- `naturalminor`: Can be abbreviated to `minor`, `min`, `nm`, or `m`\n- `harmonicminor`: Can be abbreviated to `hm`\n- `chromatic`: Can be abbreviated to `ch`\n- `majortriad`: Can be abbreviated to `Mtriad`, `Mt`, or `M3`\n- `minortriad`: Can be abbreviated to `mtriad`, `mt`, or `m3`\n\n## Sequence storage\nThe `save` command allows you to save any sequence as it is when the command is reached. The `save` command will only save **sequences**, which does not include any parts or part modifiers (i.e. instruments and its modifiers).\n```\n\"a b c\"\n  >> octave 4\n  >> save abc_1\n  >> pitch ---\n  >> save abc_2\n```\nIn the example above, `abc_1` would contain the sequence and its `octave` modifier. Then, `abc_2` would contain all of that, plus the `pitch` modifier. Saved sequences can be used in place of notes by using `!name`:\n```\n\"!abc_1\"\n  >> <any sequence modifier or part definition>\n```\nSaved sequences can be combined into groups in the same way as notes.\n```\n\"chord(!abc_1 !abc_2)\"\n  >> <any sequence modifier or part definition>\n```\n\n# Parts\nA part is defined once the **instrument** of a phrase has been defined in the case of notes and numbers:\n```\n\"a b c\"\n  >> octave +\n  >> saw      // this is the beginning of a part\n```\nInstruments can be divided into two categories, synths and samplers.\n\nThe synths are as follows:\n- `triangle`: Simple synth with a triangle wave\n- `soft`: Sine wave synth with a rich tone quality\n- `fatsaw`: Fat synth with a saw wave, distorted sound\n- `saw`: Saw wave with very bright tone\n- `square`: Fat square wave similar to fatsaw but more forcecful\n- `pls no`: Pulse oscillator with harsh tone quality\n- `alien`: Smooth but strange sound\n\nThe samplers are made from instrument samples and include:\n- `drums` or `acousticdrums`: Used to play drums\n- `electricdrums`: Used to play drums\n- `piano`\n- `electricbass` or `bass`\n- `bassoon`\n- `cello`\n- `clarinet`\n- `contrabass`\n- `flute`\n- `frenchhorn` or `horn`\n- `acousticguitar`\n- `electricguitar` or `guitar`\n- `nylonguitar`\n- `harmonium`\n- `harp`\n- `organ`\n- `saxophone`\n- `trombone`\n- `trumpet`\n- `tuba`\n- `violin`\n- `xylophone`\n\n## Synth Attributes\nSynths may be followed by one or more attributes which will change the sound of the instrument:\n```\n\"a b c\"\n  >> triangle volume 10\n```\nAttributes can only be applied once each. Specifying the same attribute multiple times will override previous changes to that attribute.\n\nAttributes can be any of:\n- `volume`: Takes a fraction or decimal, positive or negative, and changes the volume of the instrument by that number of decibals\n- `wave`: Takes one of `sine`, `triangle`, `sawtooth`, or `square`, and sets the wave of the instrument to that type.\n\n## Filters\nFilters change the way an instrument or percussion element sounds. To add a filter:\n```\n\"a b c\"\n  >> piano\n    > <filter>\n    > <filter>\n  >> <any sequence modifier>\n```\nFilters act similarly to sequence modifiers in that they are processed sequentially, and every filter acts without knowledge of filters which follow it.\n\nThe `&` symbol may also be inserted between filters. This will cause the sound to be played at the point at which the `&` symbol is inserted. The sound will always be played at the end of a sequence of filters, regardless of whether a `&` is used.\n```\n\"a b c\"\n  >> piano\n    > pingpong 0.5\n```\nAs an example, the example above will only play the pingpong echo, not the original note. However, the example below will play both the unmodified notes as well as the echo.\n```\n\"a b c\"\n  >> piano &\n    > pingpong 0.5\n```\n\nFilters can be any of:\n- `pingpong`: Makes the sound echo between speakers. Takes a delay between echos.\n- `volume`: Changes volume. Takes a number in decibals where negative values make it quieter and positive values make it louder.\n- `distort`: Adds distortion to the sound. Takes a positive number, recommended values between 0 and 1.\n- `pan`: Moves sounds from left to right. Takes a number from -1 to 1 as input. -1 corresponds to left, and 1 corresponds to right.\n- `chebyshev`: Applies a Chebyshev distortion. Takes a positive integer, recommended values between 1 and 100. Note that odd numbers are very different from even numbers.\n\nNOT YET IMPLEMENTED:\n- `lo`: low pass filter attenuates frequencies above the cutoff. This takes as input any number of values between 0 and 1.\n- `hi`: high pass filter attenuates frequencies below the cutoff. This takes as input any number of values between 0 and 1.\n- `bandpass`: band pass filter attenuates any frequencies outside of a range. This takes as input two values between 0 and 1, corresponding to the low and high value of the range.\n\n## Part storage (NOT YET IMPLEMENTED)\nA part and can be saved to be referenced in the sound visualization UI, to stop sound without affecting any sequences (in-sequence storage), or to use the same part in another phrase (global storage);\n\n### In-sequence storage\nIn-sequence storage allows a part to be saved along with the phrase it is following. This helps to visualize what is being played in the sound visualization UI, and can also make it easier to stop a sound. To store a part in-sequence:\n```\n\"a b c\"\n  >> piano as abc_1\n```\n\nIt will then be displayed in the sound visualization UI and can be stopped anywhere outside a block as: `stop abc_1`.\n\n### Global storage\nGlobal storage allows a part to be reused in multiple phrases. This will only store the part and its modifiers, and will not take into account the phrase it is used in. To store a part globally:\n```\n\"a b c\"\n  >> piano as global piano_left_distorted\n    ^ pan 0.2\n    ^ distort 2\n```\n\nPart `piano_left_distorted` can now be used in other sequences, without having to type all of the part and its modifiers again:\n```\n\"d e f\"\n  >> piano_left_distorted\n```\n\n";
 exports.default = _default;
 },{}],"components/documentation/UserDocumentation.jsx":[function(require,module,exports) {
 "use strict";
@@ -66409,7 +66497,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "53024" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "59455" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};
