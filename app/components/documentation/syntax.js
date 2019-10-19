@@ -11,7 +11,7 @@ A note is any letter between \`a\` and \`g\`, uppercase or lowercase, correspond
   - **Octave modifier**: any number of \`-\` or \`+\` can be added to the right of a note and its accidental to increase or decrease the octave of the note. For example \`b+++\` is a \`b\` note in the 7th octave. \`b+++\` is equivalent to writing \`b+3\` or \`b7\`.
 
 ### Numbers (NOT YET IMPLEMENTED)
-A number can be any integer, and will correspond to a note in a scale. The scale is specified with the \`scale\` sequence modifier.
+A number can be any integer, and will correspond to a note in a scale. The scale is specified with the \`scale\` sequence modifier, described in more detail in the modifiers section. The default scale is C major.
 \`\`\`
 "1 3 5"
 >> scale c major
@@ -79,9 +79,42 @@ For example, below the entire sequence will be changed to octave 3, since the de
 The \`pitch\` modifier changes a sequence by a number of half-steps. It accepts 2 types of input:
   - A sign and a number: \`-3\`
   - A number of signs: \`---\`
+When modifying numbers, the pitch modifier is equivalent to changing the numbers by that amount (so \`"1" >> pitch +\` is equivalent to \`"2"\`).
 
 ### Duration
 The \`duration\` modifier changes the duration of each individual group in the phrase. It accepts a fraction or decimal as input, and the duration of each group in a sequence will be multiplied by this value.
+
+###Stutter
+The \`stutter\` modifier repeats each of the highest level groups a given number of times.
+\`\`\`
+"a b c d"
+  >> stutter 2
+  >> triangle
+\`\`\`
+For example, the above example would play \`"a a b b c c d d"\`, but the below example would play \`"(a b) (a b) (c d) (c d)"\` because the parentheses are the highest level group.
+\`\`\`
+"(a b) (c d)"
+  >> stutter 2
+  >> triangle
+\`\`\`
+
+### Scale
+The \`scale\` modifier only changes numbers, and changes the scale against which the number will be evaluated. It accepts a key (eg. \`C\`, \`f#\`, \`Bb\`) and a scale type (see below), in that order. Both parameters are optional, and any parameters not used remain the same.
+\`\`\`
+"1 3 5"
+  >> scale c major >> piano
+  >> scale d >> flute
+  >> scale minor >> cello
+\`\`\`
+In the above example, \`"c e g"\` would be played on the piano, \`"d f# a\` (D major) would be played on the flute, and \`"d f a"\` (D minor) would be played on the cello.
+
+The scale types are:
+- \`major\`: Can be abbreviated to \`maj\` or \`M\`
+- \`naturalminor\`: Can be abbreviated to \`minor\`, \`min\`, \`nm\`, or \`m\`
+- \`harmonicminor\`: Can be abbreviated to \`hm\`
+- \`chromatic\`: Can be abbreviated to \`ch\`
+- \`majortriad\`: Can be abbreviated to \`Mtriad\`, \`Mt\`, or \`M3\`
+- \`minortriad\`: Can be abbreviated to \`mtriad\`, \`mt\`, or \`m3\`
 
 ## Sequence storage
 The \`save\` command allows you to save any sequence as it is when the command is reached. The \`save\` command will only save **sequences**, which does not include any parts or part modifiers (i.e. instruments and its modifiers).
@@ -119,6 +152,7 @@ The synths are as follows:
 - \`saw\`: Saw wave with very bright tone
 - \`square\`: Fat square wave similar to fatsaw but more forcecful
 - \`pls no\`: Pulse oscillator with harsh tone quality
+- \`alien\`: Smooth but strange sound
 
 The samplers are made from instrument samples and include:
 - \`drums\` or \`acousticdrums\`: Used to play drums

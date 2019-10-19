@@ -7,6 +7,14 @@ class Sequential {
     this.groups = groups; // list of groups forming this Phrase
   }
 
+  stutter(n) {
+    const nl = [];
+    this.groups.forEach((group) => {
+      Array(n).fill().forEach(() => { nl.push(group.copy); });
+    });
+    this.groups = nl;
+  }
+
   octChange(n) {
     this.groups.forEach((group) => {
       group.octChange(n);
@@ -22,6 +30,12 @@ class Sequential {
   tempoChange(n) {
     this.groups.forEach((group) => {
       group.tempoChange(n);
+    });
+  }
+
+  scaleChange(k, t) {
+    this.groups.forEach((group) => {
+      group.scaleChange(k, t);
     });
   }
 

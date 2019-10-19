@@ -70,6 +70,7 @@ notestart
   / "t3" { return new classes.Drum(Tone.Frequency("E4")); }
   / "t4" { return new classes.Drum(Tone.Frequency("F4")); }
   / "_" { return new classes.Rest(); }
+  / num:$("-"? [0-9]+) { return new classes.NumNote(parseInt(num)-1); }
   / note:$([A-G]i [#b]?) oct:octmod { return new classes.Note(Tone.Frequency(note+oct)); }
 
 // Optional octave modifier for after a note
@@ -105,6 +106,9 @@ modifier
   / '>>' _ "pitch" _ mod:nummod { return function(phrase) {phrase.pitchChange(mod);}; }
   / '>>' _ "duration" _ mod:fltOrFrac { return function(phrase) {phrase.tempoChange(mod);}; }
   / '>>' _ "save" _ name:$([a-zA-Z_0-9]+) { return function(phrase) {defaults.savedSequences[name] = phrase.copy;}}
+  / '>>' _ "scale" _ type:$(name:$([a-zA-Z0-9]+) & { return defaults.scaleMap.hasOwnProperty(name); }) {return function(phrase) {phrase.scaleChange(null, defaults.scaleMap[type])};}
+  / '>>' _ "scale" _ key:$([A-G]i [#b]?) _ type:$(name:$([a-zA-Z0-9]+) & { return defaults.scaleMap.hasOwnProperty(name); })? {return function(phrase) {phrase.scaleChange(key, defaults.scaleMap[type])};}
+  / '>>' _ "stutter" _ num:$([0-9]+) { return function(phrase) {phrase.stutter(parseInt(num));}}
   / '>>' _ plr:player { return plr; }
 
 // Instrument plus its attributes and filters
@@ -176,6 +180,7 @@ instrument
   / "saw" { return {oscillator: {type: "sawtooth", spread: 40}, envelope: {release: .06}}; }
   / "square" { return {oscillator: {type: "fatsquare", spread: 10, count: 3}, envelope: {release: .06}};}
   / "pls no" { return {oscillator: {type: "pulse", width: .80}, envelope: {release: .06}}; }
+  / "alien" { return {oscillator: {harmonicity: 1.5, type: "amsine3", partials: [1, 1, 1], modulationType: "sine"}, envelope: {release: 0.06}}; }
 
 // A sequence of instrument attributes
 // Returns a list of functions which modify objects

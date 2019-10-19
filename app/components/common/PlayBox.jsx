@@ -22,14 +22,14 @@ monaco.init()
     monacoBox.languages.setMonarchTokensProvider('sicko-mode', {
       tokenizer: {
         root: [
-          [/>>\s*(soft|triangle|saw|fatsaw|square|(pls no)|drums|acousticdrums|electricdrums|piano|bass|electricbass|bassoon|cello|clarinet|contrabass|flute|frenchhorn|horn|acousticguitar|electricguitar|guitar|nylonguitar|harmonium|harp|organ|saxophone|trombone|trumpet|tuba|violin|xylophone)/, 'instrument'],
+          [/>>\s*(alien|soft|triangle|saw|fatsaw|square|(pls no)|drums|acousticdrums|electricdrums|piano|bass|electricbass|bassoon|cello|clarinet|contrabass|flute|frenchhorn|horn|acousticguitar|electricguitar|guitar|nylonguitar|harmonium|harp|organ|saxophone|trombone|trumpet|tuba|violin|xylophone)/, 'instrument'],
           [/>>[^>"]*/, 'modifier'],
           [/(&\s*)?>[^>"]+/, 'filter'],
           [/(^|")[^">&]+("|$)/, 'notes'],
         ],
       },
     });
-    /*
+    /* Autocomplete
     monacoBox.languages.registerCompletionItemProvider('sicko-mode', {
       provideCompletionItems(argmodel, position) {
         const text = argmodel.getValueInRange({
@@ -73,11 +73,11 @@ const PlayBox = ({ id, value }) => {
   function handleEditorDidMount(_valueGetter, editor) {
     setModel(editor._modelData.model);
     valueGetter.current = _valueGetter;
-    /*
     let time;
     editor.onDidChangeModelContent(() => {
       clearTimeout(time);
       box.editor.setModelMarkers(editor._modelData.model, 'test', []);
+      /* Continuous error checking
       time = setTimeout(() => {
         try {
           peg.parse(valueGetter.current());
@@ -92,8 +92,8 @@ const PlayBox = ({ id, value }) => {
           }]);
         }
       }, 1500);
+  */
     });
-*/
     setIsEditorReady(true);
   }
 
@@ -112,6 +112,7 @@ const PlayBox = ({ id, value }) => {
       parsedVal.forEach((part) => { part.start(); });
       setButtonState('Stop');
     } catch (error) {
+      console.log(error);
       box.editor.setModelMarkers(model, 'test', [{
         startLineNumber: error.location.start.line,
         startColumn: error.location.start.column,
