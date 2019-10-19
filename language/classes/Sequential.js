@@ -1,3 +1,4 @@
+const Repeat = require('./Repeat');
 /**
  * A Phrase is the list of Groups to be played
  */
@@ -10,7 +11,7 @@ class Sequential {
   stutter(n) {
     const nl = [];
     this.groups.forEach((group) => {
-      Array(n).fill().forEach(() => { nl.push(group.copy); });
+      nl.push(new Repeat(group.copy, n));
     });
     this.groups = nl;
   }

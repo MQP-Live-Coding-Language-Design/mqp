@@ -6,7 +6,8 @@ const Part = require('./Part');
 const Random = require('./Random');
 const Chord = require('./Chord');
 const NumNote = require('./NumNote');
+const Repeat = require('./Repeat');
 
 module.exports = {
-  Note, Drum, Rest, Sequential, Part, Random, Chord, NumNote,
+  Note, Drum, Rest, Sequential, Part, Random, Chord, NumNote, Repeat,
 };

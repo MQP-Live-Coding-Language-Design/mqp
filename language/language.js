@@ -172,13 +172,7 @@ function peg$parse(input, options) {
       peg$c23 = "*",
       peg$c24 = peg$literalExpectation("*", false),
       peg$c25 = function(seq, num) {
-          let ret = [];
-          let parsednum = parseInt(num);
-          let seqClass = new classes.Sequential(seq);
-          for (var i = 0; i < parsednum; i++) {
-            ret.push(seqClass.copy);
-          }
-          return new classes.Sequential(ret);
+          return new classes.Repeat(new classes.Sequential(seq), parseInt(num));
         },
       peg$c26 = function(seq) { return new classes.Sequential(seq); },
       peg$c27 = "!",
