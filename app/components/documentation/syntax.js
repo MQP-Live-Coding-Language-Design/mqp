@@ -84,7 +84,7 @@ When modifying numbers, the pitch modifier is equivalent to changing the numbers
 ### Duration
 The \`duration\` modifier changes the duration of each individual group in the phrase. It accepts a fraction or decimal as input, and the duration of each group in a sequence will be multiplied by this value.
 
-###Stutter
+### Stutter
 The \`stutter\` modifier repeats each of the highest level groups a given number of times.
 \`\`\`
 "a b c d"
