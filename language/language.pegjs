@@ -145,8 +145,8 @@ sampler
   = ("drums"/"acousticdrums") { return new Tone.Sampler(samples.drums); }
   / "electricdrums" { return new Tone.Sampler(samples.electricdrums); }
   / "piano" { return new Tone.Sampler(samples.piano); }
-  / ("electricbass"/"bass") { return new Tone.Sampler(samples.electricbass); }
   / "bassoon" { return new Tone.Sampler(samples.bassoon); }
+  / ("electricbass"/"bass") { return new Tone.Sampler(samples.electricbass); }
   / "cello" { return new Tone.Sampler(samples.cello); }
   / "clarinet" { return new Tone.Sampler(samples.clarinet); }
   / "contrabass" { return new Tone.Sampler(samples.contrabass); }

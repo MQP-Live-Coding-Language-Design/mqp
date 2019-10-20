@@ -22,7 +22,7 @@ monaco.init()
     monacoBox.languages.setMonarchTokensProvider('sicko-mode', {
       tokenizer: {
         root: [
-          [/>>\s*(alien|soft|triangle|saw|fatsaw|square|(pls no)|drums|acousticdrums|electricdrums|piano|bass|electricbass|bassoon|cello|clarinet|contrabass|flute|frenchhorn|horn|acousticguitar|electricguitar|guitar|nylonguitar|harmonium|harp|organ|saxophone|trombone|trumpet|tuba|violin|xylophone)/, 'instrument'],
+          [/>>\s*(alien|soft|triangle|saw|fatsaw|square|(pls no)|drums|acousticdrums|electricdrums|piano|bassoon|bass|electricbass|cello|clarinet|contrabass|flute|frenchhorn|horn|acousticguitar|electricguitar|guitar|nylonguitar|harmonium|harp|organ|saxophone|trombone|trumpet|tuba|violin|xylophone)/, 'instrument'],
           [/>>[^>"]*/, 'modifier'],
           [/(&\s*)?>[^>"]+/, 'filter'],
           [/(^|")[^">&]+("|$)/, 'notes'],

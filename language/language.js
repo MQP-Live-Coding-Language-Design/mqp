@@ -310,14 +310,14 @@ function peg$parse(input, options) {
       peg$c119 = "piano",
       peg$c120 = peg$literalExpectation("piano", false),
       peg$c121 = function() { return new Tone.Sampler(samples.piano); },
-      peg$c122 = "electricbass",
-      peg$c123 = peg$literalExpectation("electricbass", false),
-      peg$c124 = "bass",
-      peg$c125 = peg$literalExpectation("bass", false),
-      peg$c126 = function() { return new Tone.Sampler(samples.electricbass); },
-      peg$c127 = "bassoon",
-      peg$c128 = peg$literalExpectation("bassoon", false),
-      peg$c129 = function() { return new Tone.Sampler(samples.bassoon); },
+      peg$c122 = "bassoon",
+      peg$c123 = peg$literalExpectation("bassoon", false),
+      peg$c124 = function() { return new Tone.Sampler(samples.bassoon); },
+      peg$c125 = "electricbass",
+      peg$c126 = peg$literalExpectation("electricbass", false),
+      peg$c127 = "bass",
+      peg$c128 = peg$literalExpectation("bass", false),
+      peg$c129 = function() { return new Tone.Sampler(samples.electricbass); },
       peg$c130 = "cello",
       peg$c131 = peg$literalExpectation("cello", false),
       peg$c132 = function() { return new Tone.Sampler(samples.cello); },
@@ -2346,35 +2346,35 @@ function peg$parse(input, options) {
         s0 = s1;
         if (s0 === peg$FAILED) {
           s0 = peg$currPos;
-          if (input.substr(peg$currPos, 12) === peg$c122) {
+          if (input.substr(peg$currPos, 7) === peg$c122) {
             s1 = peg$c122;
-            peg$currPos += 12;
+            peg$currPos += 7;
           } else {
             s1 = peg$FAILED;
             if (peg$silentFails === 0) { peg$fail(peg$c123); }
           }
-          if (s1 === peg$FAILED) {
-            if (input.substr(peg$currPos, 4) === peg$c124) {
-              s1 = peg$c124;
-              peg$currPos += 4;
-            } else {
-              s1 = peg$FAILED;
-              if (peg$silentFails === 0) { peg$fail(peg$c125); }
-            }
-          }
           if (s1 !== peg$FAILED) {
             peg$savedPos = s0;
-            s1 = peg$c126();
+            s1 = peg$c124();
           }
           s0 = s1;
           if (s0 === peg$FAILED) {
             s0 = peg$currPos;
-            if (input.substr(peg$currPos, 7) === peg$c127) {
-              s1 = peg$c127;
-              peg$currPos += 7;
+            if (input.substr(peg$currPos, 12) === peg$c125) {
+              s1 = peg$c125;
+              peg$currPos += 12;
             } else {
               s1 = peg$FAILED;
-              if (peg$silentFails === 0) { peg$fail(peg$c128); }
+              if (peg$silentFails === 0) { peg$fail(peg$c126); }
+            }
+            if (s1 === peg$FAILED) {
+              if (input.substr(peg$currPos, 4) === peg$c127) {
+                s1 = peg$c127;
+                peg$currPos += 4;
+              } else {
+                s1 = peg$FAILED;
+                if (peg$silentFails === 0) { peg$fail(peg$c128); }
+              }
             }
             if (s1 !== peg$FAILED) {
               peg$savedPos = s0;
