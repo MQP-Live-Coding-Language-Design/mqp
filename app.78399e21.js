@@ -60851,17 +60851,41 @@ function () {
 
   _createClass(Part, [{
     key: "start",
-    value: function start() {
+    value: function start(force) {
       if (!this.running) {
         var now = Tone.TransportTime(Tone.Transport.seconds);
         var length = this.phrase.length;
         var startTime = now.quantize(length); // round startTime to length of phrase
 
-        if (startTime <= now) startTime += length; // ensure startTime is now or later
+        if (force) {
+          if (startTime >= now) startTime -= length;
+        } else if (startTime <= now) {
+          startTime += length; // ensure startTime is now or later
+        }
 
         this.time = Tone.TransportTime(startTime);
         this.running = true;
+
+        if (force) {
+          this.ff();
+        }
+
         this.continue();
+      }
+    }
+  }, {
+    key: "ff",
+    value: function ff() {
+      var now = Tone.TransportTime(Tone.Transport.seconds);
+      var fakeInst = {
+        triggerAttackRelease: function triggerAttackRelease() {},
+        triggerAttack: function triggerAttack() {}
+      };
+
+      while (now >= this.time) {
+        var temp = this.phrase.trigger(fakeInst, this.time, this.memory);
+        this.memory = temp.memory;
+        this.time = temp.time;
       }
     }
   }, {
@@ -60869,7 +60893,7 @@ function () {
     value: function _continue() {
       var _this = this;
 
-      if (this.running) {
+      if (this.running || this.memory !== null) {
         Tone.Transport.scheduleOnce(function () {
           _this.continue();
         }, this.time);
@@ -60884,10 +60908,13 @@ function () {
 
   }, {
     key: "stop",
-    value: function stop() {
-      this.running = false; // Permenantly silences instrument
+    value: function stop(force) {
+      this.running = false;
 
-      this.inst.disconnect();
+      if (force) {
+        // Permenantly silences instrument
+        this.inst.disconnect();
+      }
     }
   }]);
 
@@ -65861,10 +65888,10 @@ _react2.monaco.init().then(function (monacoBox) {
         endColumn: position.column,
       });
       const note = text.match(/[^"]*("[^"]*"[^"]*)*"([^"]*\s)?/);
-        if (note) {
+       if (note) {
         return { suggestions: autocomplete.note };
       }
-        return [];
+       return [];
     },
   });
   */
@@ -65946,20 +65973,20 @@ var PlayBox = function PlayBox(_ref) {
     setIsEditorReady(true);
   }
 
-  function stop() {
+  function stop(force) {
     runningParts.forEach(function (part) {
-      part.stop();
+      part.stop(force);
     });
     setParts([]);
     setButtonState('Start');
   }
 
-  function start() {
+  function start(force) {
     try {
       var parsedVal = peg.parse(valueGetter.current());
       setParts(parsedVal);
       parsedVal.forEach(function (part) {
-        part.start();
+        part.start(force);
       });
       setButtonState('Stop');
     } catch (error) {
@@ -65975,7 +66002,7 @@ var PlayBox = function PlayBox(_ref) {
     }
   }
 
-  function toggle() {
+  function toggle(force) {
     if (Tone.Transport.state !== 'started') {
       Tone.Transport.start();
       Tone.Transport.seconds = Tone.context.now();
@@ -65983,20 +66010,36 @@ var PlayBox = function PlayBox(_ref) {
 
     if (loaded && Tone.context.state === 'running') {
       if (buttonState === 'Start') {
-        start();
+        start(force);
       } else {
-        stop();
+        stop(force);
       }
     }
   }
 
-  function buttonClick() {
+  function buttonClick(force) {
     if (Tone.context.state !== 'running') {
       var resume = Tone.context.resume();
-      resume.then(toggle);
+      resume.then(function () {
+        toggle(force);
+      });
     } else {
-      toggle();
+      toggle(force);
     }
+  }
+
+  function forceClick() {
+    buttonClick(true);
+  }
+
+  function softClick() {
+    buttonClick(false);
+  }
+
+  function update() {
+    // ToDo: Find better solution
+    stop(false);
+    start(false);
   }
 
   return _react.default.createElement("div", {
@@ -66012,10 +66055,19 @@ var PlayBox = function PlayBox(_ref) {
   }), _react.default.createElement(_Button.default, {
     className: buttonState,
     type: "button",
-    onClick: buttonClick,
+    onClick: forceClick,
     disabled: !isEditorReady,
     id: "trigger"
-  }, buttonState));
+  }, "force ".concat(buttonState)), _react.default.createElement(_Button.default, {
+    className: buttonState,
+    type: "button",
+    onClick: softClick,
+    disabled: !isEditorReady
+  }, buttonState), _react.default.createElement(_Button.default, {
+    type: "button",
+    onClick: update,
+    disabled: !isEditorReady || buttonState === 'Start'
+  }, 'Update'));
 };
 
 PlayBox.propTypes = {
@@ -66055,7 +66107,7 @@ var tutorialconclusion = 'Feel free to combine anything you\'ve used!';
 exports.tutorialconclusion = tutorialconclusion;
 var examplesong = '"ab f db eb" >> duration 2 >> octave - >> soft >> pitch +7 >> soft\n"k sn" >> drums\n"c+ ab g ab c+ ab g ab db ab g ab bb ab g ab" >> duration .5 >> triangle\n"ab _ _ eb _ _ c _ _ eb _ _ ab _ _ f _ _ db _ f _ ab _ bb _ _ ab _ _ g _" >> octave >> duration 1/4 >> saw\n"rand((g ab) (ab ab)) eb+" >> duration 1/4 >> triangle\n"ab _ _ eb _ _ f ab ~ _ _ g _ _ ab bb" >> octave ++ >> duration .5 >> triangle & > pingpong .5\n"(h)*4 oh (h)*3" >> duration .5 >> drums';
 exports.examplesong = examplesong;
-var welcome = 'Language Name\n===\nWelcome to Language! This is a live coding language designed for coders and non-coders alike. Below is an editor in which you can see the code for some music. It might look complicated but don\'t worry, it will all make sense soon. Feel free to alter the text in this or any other box. Press stop then start again to hear your changes.';
+var welcome = 'Language Name\n===\nWelcome to Language! This is a live coding language designed for coders and non-coders alike. Below is an editor in which you can see the code for some music. It might look complicated but don\'t worry, it will all make sense soon.\n\nTry playing with the buttons to see how they each work. Also, feel free to alter the text in this or any other box in the tutorial. To hear your changes, either press the update button (be patient and do not spam), or stop and restart the music.';
 exports.welcome = welcome;
 var examplesong2 = '"f# d a e" >> duration 4 >> octave -- >> save bass2 >> pitch +7 >> save bass3\n"chord(!bass2 !bass3)" >> soft > volume 10\n\n"_ _ a g# a _ c#+ _" >> save mel1\n"_ _ a g# a _ d+ _" >> save mel2\n"_ _ g# f# g# _ b _" >> save mel3\n"_ _ f# e f# _ a _" >> save harm1\n"_ _ e e e _ a _" >> save harm2\n"_ _ e e e _ g# _" >> save harm3\n"!mel1 !mel2 !mel1 !mel3" >> stutter 2 >> duration .25 >> triangle\n"!harm1 !harm1 !harm2 !harm3" >> stutter 2 >> duration .25 >> triangle\n\n"c#+ 5~ b a 8~ c#+ 5~ b b 8~" >> duration .5 >> fatsaw\n"a 5~ g# f# 8~ a 5~ g# g# 8~" >> duration .5 >> fatsaw\n"f# 5~ e d 8~ e 5~ e e 8~" >> duration .5 >> fatsaw\n\n"1 1 2 1 1 2 1 1" >> save blip\n"!blip" >> scale f# m3 >> save blip1\n"!blip" >> scale d M3 >> pitch + >> save blip2\n"!blip" >> scale a M3 >> pitch - >> save blip3\n"!blip" >> scale e M3 >> save blip4\n"!blip1 !blip2 !blip3 !blip4" >> save blipsS >> stutter 2 >> save blips >> pitch + >> save blipsh\n"chord(!blips !blipsh)" >> duration .25 >> octave ++ >> saw > volume -5\n"!blipsS" >> octave + >> duration .5 >> triangle wave sine > volume -5\n>> pitch + >> triangle wave sine > volume -5\n\n"h h sn h" >> duration .5 >> drums\n"cr" >> duration 16 >> drums > volume 5\n"k" >> electricdrums';
 exports.examplesong2 = examplesong2;
@@ -66497,7 +66549,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "59455" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "52596" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};
