@@ -97,19 +97,19 @@ const PlayBox = ({ id, value }) => {
     setIsEditorReady(true);
   }
 
-  function stop() {
+  function stop(force) {
     runningParts.forEach((part) => {
-      part.stop();
+      part.stop(force);
     });
     setParts([]);
     setButtonState('Start');
   }
 
-  function start() {
+  function start(force) {
     try {
       const parsedVal = peg.parse(valueGetter.current());
       setParts(parsedVal);
-      parsedVal.forEach((part) => { part.start(); });
+      parsedVal.forEach((part) => { part.start(force); });
       setButtonState('Stop');
     } catch (error) {
       console.log(error);
@@ -124,7 +124,7 @@ const PlayBox = ({ id, value }) => {
     }
   }
 
-  function toggle() {
+  function toggle(force) {
     if (Tone.Transport.state !== 'started') {
       Tone.Transport.start();
       Tone.Transport.seconds = Tone.context.now();
@@ -132,20 +132,34 @@ const PlayBox = ({ id, value }) => {
 
     if (loaded && Tone.context.state === 'running') {
       if (buttonState === 'Start') {
-        start();
+        start(force);
       } else {
-        stop();
+        stop(force);
       }
     }
   }
 
-  function buttonClick() {
+  function buttonClick(force) {
     if (Tone.context.state !== 'running') {
       const resume = Tone.context.resume();
-      resume.then(toggle);
+      resume.then(() => { toggle(force); });
     } else {
-      toggle();
+      toggle(force);
     }
+  }
+
+  function forceClick() {
+    buttonClick(true);
+  }
+
+  function softClick() {
+    buttonClick(false);
+  }
+
+  function update() {
+    // ToDo: Find better solution
+    stop(false);
+    start(false);
   }
 
   return (
@@ -158,8 +172,14 @@ const PlayBox = ({ id, value }) => {
         theme="sicko-theme"
         editorDidMount={handleEditorDidMount}
       />
-      <Button className={buttonState} type="button" onClick={buttonClick} disabled={!isEditorReady} id="trigger">
+      <Button className={buttonState} type="button" onClick={forceClick} disabled={!isEditorReady} id="trigger">
+        {`force ${buttonState}`}
+      </Button>
+      <Button className={buttonState} type="button" onClick={softClick} disabled={!isEditorReady}>
         {buttonState}
+      </Button>
+      <Button type="button" onClick={update} disabled={!isEditorReady || buttonState === 'Start'}>
+        {'Update'}
       </Button>
     </div>
   );

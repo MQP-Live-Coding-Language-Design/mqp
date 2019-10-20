@@ -15,21 +15,39 @@ class Part {
   /**
    * Starts playing the current Phrase
    */
-  start() {
+  start(force) {
     if (!this.running) {
       const now = Tone.TransportTime(Tone.Transport.seconds);
       const { length } = this.phrase;
       let startTime = now.quantize(length); // round startTime to length of phrase
-      if (startTime <= now) startTime += length; // ensure startTime is now or later
+      if (force) {
+        if (startTime >= now) startTime -= length;
+      } else if (startTime <= now) {
+        startTime += length; // ensure startTime is now or later
+      }
       this.time = Tone.TransportTime(startTime);
       this.running = true;
+
+      if (force) {
+        this.ff();
+      }
 
       this.continue();
     }
   }
 
+  ff() {
+    const now = Tone.TransportTime(Tone.Transport.seconds);
+    const fakeInst = { triggerAttackRelease: () => {}, triggerAttack: () => {} };
+    while (now >= this.time) {
+      const temp = this.phrase.trigger(fakeInst, this.time, this.memory);
+      this.memory = temp.memory;
+      this.time = temp.time;
+    }
+  }
+
   continue() {
-    if (this.running) {
+    if (this.running || this.memory !== null) {
       Tone.Transport.scheduleOnce(() => { this.continue(); }, this.time);
       const temp = this.phrase.trigger(this.inst, this.time, this.memory);
       this.memory = temp.memory;
@@ -40,10 +58,12 @@ class Part {
   /**
    * Marks this Part to stop running once the cycle ends
    */
-  stop() {
+  stop(force) {
     this.running = false;
-    // Permenantly silences instrument
-    this.inst.disconnect();
+    if (force) {
+      // Permenantly silences instrument
+      this.inst.disconnect();
+    }
   }
 }
 
