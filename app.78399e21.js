@@ -61770,17 +61770,17 @@ function peg$parse(input, options) {
       peg$c121 = function peg$c121() {
     return new Tone.Sampler(samples.piano);
   },
-      peg$c122 = "electricbass",
-      peg$c123 = peg$literalExpectation("electricbass", false),
-      peg$c124 = "bass",
-      peg$c125 = peg$literalExpectation("bass", false),
-      peg$c126 = function peg$c126() {
-    return new Tone.Sampler(samples.electricbass);
-  },
-      peg$c127 = "bassoon",
-      peg$c128 = peg$literalExpectation("bassoon", false),
-      peg$c129 = function peg$c129() {
+      peg$c122 = "bassoon",
+      peg$c123 = peg$literalExpectation("bassoon", false),
+      peg$c124 = function peg$c124() {
     return new Tone.Sampler(samples.bassoon);
+  },
+      peg$c125 = "electricbass",
+      peg$c126 = peg$literalExpectation("electricbass", false),
+      peg$c127 = "bass",
+      peg$c128 = peg$literalExpectation("bass", false),
+      peg$c129 = function peg$c129() {
+    return new Tone.Sampler(samples.electricbass);
   },
       peg$c130 = "cello",
       peg$c131 = peg$literalExpectation("cello", false),
@@ -64441,9 +64441,9 @@ function peg$parse(input, options) {
         if (s0 === peg$FAILED) {
           s0 = peg$currPos;
 
-          if (input.substr(peg$currPos, 12) === peg$c122) {
+          if (input.substr(peg$currPos, 7) === peg$c122) {
             s1 = peg$c122;
-            peg$currPos += 12;
+            peg$currPos += 7;
           } else {
             s1 = peg$FAILED;
 
@@ -64452,22 +64452,9 @@ function peg$parse(input, options) {
             }
           }
 
-          if (s1 === peg$FAILED) {
-            if (input.substr(peg$currPos, 4) === peg$c124) {
-              s1 = peg$c124;
-              peg$currPos += 4;
-            } else {
-              s1 = peg$FAILED;
-
-              if (peg$silentFails === 0) {
-                peg$fail(peg$c125);
-              }
-            }
-          }
-
           if (s1 !== peg$FAILED) {
             peg$savedPos = s0;
-            s1 = peg$c126();
+            s1 = peg$c124();
           }
 
           s0 = s1;
@@ -64475,14 +64462,27 @@ function peg$parse(input, options) {
           if (s0 === peg$FAILED) {
             s0 = peg$currPos;
 
-            if (input.substr(peg$currPos, 7) === peg$c127) {
-              s1 = peg$c127;
-              peg$currPos += 7;
+            if (input.substr(peg$currPos, 12) === peg$c125) {
+              s1 = peg$c125;
+              peg$currPos += 12;
             } else {
               s1 = peg$FAILED;
 
               if (peg$silentFails === 0) {
-                peg$fail(peg$c128);
+                peg$fail(peg$c126);
+              }
+            }
+
+            if (s1 === peg$FAILED) {
+              if (input.substr(peg$currPos, 4) === peg$c127) {
+                s1 = peg$c127;
+                peg$currPos += 4;
+              } else {
+                s1 = peg$FAILED;
+
+                if (peg$silentFails === 0) {
+                  peg$fail(peg$c128);
+                }
               }
             }
 
@@ -65875,7 +65875,7 @@ _react2.monaco.init().then(function (monacoBox) {
   });
   monacoBox.languages.setMonarchTokensProvider('sicko-mode', {
     tokenizer: {
-      root: [[/>>\s*(alien|soft|triangle|saw|fatsaw|square|(pls no)|drums|acousticdrums|electricdrums|piano|bass|electricbass|bassoon|cello|clarinet|contrabass|flute|frenchhorn|horn|acousticguitar|electricguitar|guitar|nylonguitar|harmonium|harp|organ|saxophone|trombone|trumpet|tuba|violin|xylophone)/, 'instrument'], [/>>[^>"]*/, 'modifier'], [/(&\s*)?>[^>"]+/, 'filter'], [/(^|")[^">&]+("|$)/, 'notes']]
+      root: [[/>>\s*(alien|soft|triangle|saw|fatsaw|square|(pls no)|drums|acousticdrums|electricdrums|piano|bassoon|bass|electricbass|cello|clarinet|contrabass|flute|frenchhorn|horn|acousticguitar|electricguitar|guitar|nylonguitar|harmonium|harp|organ|saxophone|trombone|trumpet|tuba|violin|xylophone)/, 'instrument'], [/>>[^>"]*/, 'modifier'], [/(&\s*)?>[^>"]+/, 'filter'], [/(^|")[^">&]+("|$)/, 'notes']]
     }
   });
   /* Autocomplete
@@ -66549,7 +66549,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "52596" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "63318" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};
