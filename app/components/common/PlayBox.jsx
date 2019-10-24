@@ -42,7 +42,6 @@ monaco.init()
         if (text.match(/[^"]*("[^"]*"[^"]*)*"([^"]*\s)?$/)) {
           return { suggestions: autocomplete.note };
         }
-        console.log(text.match(/.*>>\s*scale[^>]*$/));
         if (text.match(/.*>>\s*scale[^>]*$/)) {
           return { suggestions: autocomplete.scales };
         }
@@ -80,6 +79,7 @@ const PlayBox = ({ id, value }) => {
     setModel(editor._modelData.model);
     valueGetter.current = _valueGetter;
     let time;
+    console.log(editor);
     editor.onDidChangeModelContent(() => {
       clearTimeout(time);
       box.editor.setModelMarkers(editor._modelData.model, 'test', []);
