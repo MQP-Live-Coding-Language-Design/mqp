@@ -1,8 +1,6 @@
-export const instruction1 = 'Play three notes of your choice in the 6th octave with the `saw` instrument';
-export const instruction2 = 'Play any two different sets of notes at the same time with two different instruments';
-export const instruction3 = 'Play any sets of alternating notes and rests';
+export const instruction1 = 'Play any notes of your choice with any instrument';
+export const instruction2 = 'Play some longer notes, shorter notes, and rests mixed together';
+export const instruction3 = 'Modify your code above to play faster and higher';
 export const instruction4 = 'Make a sick drum beat';
-export const instruction5 = 'Play the following 4 notes in the 4th octave: A flat, F, D flat, E flat with the `soft` instrument. Make the notes play faster';
-export const instruction6 = `Using your code from the previous instruction, modify it so that:
-- The same notes are played with the same modifiers and instrument
-- The same notes but 7 pitches up and a duration are played with the \`triangle\` instrument at the same time`;
+export const instruction5 = 'Find something in the documentation you didn\'t learn in the tutorial, and use it to play something new';
+export const instruction6 = 'Play a sequence on two different instruments at the same time, modifying it so it sounds different on each of the instruments';
