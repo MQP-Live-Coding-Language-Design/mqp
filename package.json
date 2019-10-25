@@ -6,6 +6,7 @@
   "scripts": {
     "buildPeg": "pegjs language/language.pegjs",
     "test": "echo \"Error: no test specified\" && exit 1",
+    "startServer": "nodemon backend/server.js",
     "start": "npm run buildPeg && parcel app/index.html",
     "build": "parcel build app/index.html --public-url /mqp/",
     "predeploy": "npm run build",
@@ -22,7 +23,8 @@
   },
   "homepage": "https://mqp-live-coding-language-design.github.io/mqp/",
   "dependencies": {
-    "@material-ui/core": "^4.4.2",
+    "@material-ui/core": "^4.5.1",
+    "@material-ui/icons": "^4.5.1",
     "@material-ui/styles": "^4.4.3",
     "@material-ui/system": "^4.4.3",
     "@monaco-editor/react": "^1.2.1",
@@ -31,11 +33,11 @@
     "instructions": "^1.1.1",
     "parcel": "^1.12.3",
     "prop-types": "^15.7.2",
-    "react": "^16.10.1",
-    "react-dom": "^16.9.0",
+    "react": "^16.11.0",
+    "react-dom": "^16.11.0",
     "react-markdown": "^4.2.2",
     "styled-components": "^4.4.0",
-    "tone": "^13.8.25"
+    "tone": "^13.8.25",
   },
   "devDependencies": {
     "babel-eslint": "^10.0.3",
@@ -49,7 +51,7 @@
     "eslint-plugin-react-hooks": "^1.7.0",
     "parcel-bundler": "^1.12.3",
     "parcel-plugin-asset-copier": "^1.0.0",
-    "pegjs": "^0.10.0"
+    "pegjs": "^0.10.0",
   },
   "assetsPath": "./language/samples"
 }
