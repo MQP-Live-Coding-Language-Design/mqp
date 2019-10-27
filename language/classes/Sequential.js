@@ -1,4 +1,6 @@
 const Repeat = require('./Repeat');
+const Chord = require('./Chord');
+const Random = require('./Random');
 /**
  * A Phrase is the list of Groups to be played
  */
@@ -6,6 +8,29 @@ const Repeat = require('./Repeat');
 class Sequential {
   constructor(groups) {
     this.groups = groups; // list of groups forming this Phrase
+  }
+
+  multCopy(type, functions) {
+    const newSeq = new Sequential(this.groups);
+    const list = [];
+
+    functions.forEach((fcn) => {
+      const newnewSeq = newSeq.copy;
+      fcn.forEach((f) => {
+        f(newnewSeq);
+      });
+      list.push(newnewSeq);
+    });
+
+    if (type === 'seq') {
+      this.groups = list;
+    }
+    if (type === 'chord') {
+      this.groups = [new Chord(list)];
+    }
+    if (type === 'rand') {
+      this.groups = [new Random(list)];
+    }
   }
 
   stutter(n) {

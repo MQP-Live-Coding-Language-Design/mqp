@@ -116,6 +116,24 @@ The scale types are:
 - \`majortriad\`: Can be abbreviated to \`Mtriad\`, \`Mt\`, or \`M3\`
 - \`minortriad\`: Can be abbreviated to \`mtriad\`, \`mt\`, or \`m3\`
 
+### Copy
+The \`copy\` modifier can be used to make use of multiple instances of the same sequence at once. It takes a type of group (\`seq\`, \`chord\`, or \`rand\`), and a series of modifier sequences.
+\`\`\`
+"c e g"
+  >> copy seq
+  (>> pitch +,
+  >> octave +)
+  >> triangle
+\`\`\`
+The above example will first play \`"c e g" >> pitch+\` then play \`"c e g" >> octave +\`. To play both of these at once, the word \`seq\` could be replaced with \`chord\`, and to randomly select one of them it could be replaced with \`rand\`.
+\`\`\`
+"1 2 3"
+  >> copy chord
+  ( , >> pitch ++)
+  >> triangle
+\`\`\`
+The above example plays \`"1 2 3"\` unmodified by having only a space between the open paren and the first comma. It is equivalent to \`"chord((1 2 3) (3 4 5))"\`.
+
 ## Sequence storage
 The \`save\` command allows you to save any sequence as it is when the command is reached. The \`save\` command will only save **sequences**, which does not include any parts or part modifiers (i.e. instruments and its modifiers).
 \`\`\`
@@ -220,6 +238,9 @@ Filters can be any of:
 - \`distort\`: Adds distortion to the sound. Takes a positive number, recommended values between 0 and 1.
 - \`pan\`: Moves sounds from left to right. Takes a number from -1 to 1 as input. -1 corresponds to left, and 1 corresponds to right.
 - \`chebyshev\`: Applies a Chebyshev distortion. Takes a positive integer, recommended values between 1 and 100. Note that odd numbers are very different from even numbers.
+- \`tremolo\`: Quickly pans between left and right ears. Takes two numbers, a frequency in Hz and a maximum pan value (0.0 - 1.0)
+- \`vibrato\`: Quickly shifts the pitch up and down. Takes two numbers, a frequency in Hz and an amount the pitch is modulated (0.0 - 1.0)
+
 
 NOT YET IMPLEMENTED:
 - \`lo\`: low pass filter attenuates frequencies above the cutoff. This takes as input any number of values between 0 and 1.
