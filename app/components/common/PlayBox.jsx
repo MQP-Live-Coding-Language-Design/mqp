@@ -13,9 +13,12 @@ const defaults = require('../../../language/defaults.js');
 
 
 let loaded = false;
+
 Tone.Buffer.on('load', () => { loaded = true; });
 
 let box = null;
+
+
 monaco.init()
   .then((monacoBox) => {
     box = monacoBox;
@@ -77,9 +80,25 @@ const PlayBox = ({ id, value, isPlayground }) => {
   const [runningParts, setParts] = useState([]);
   const [model, setModel] = useState(null);
   const valueGetter = useRef();
+  let line = 0;
+  let alreadyPlaying = false;
 
   function handleEditorDidMount(_valueGetter, editor) {
     setModel(editor._modelData.model);
+
+    editor.onMouseDown((e) => {
+      const clicked = e.target.toString();
+      //  CONTENT_TEXT: (1,52) - [1,51 -> 1,52] - null
+      const firPar = clicked.indexOf('(');
+      line = parseInt(clicked.charAt(firPar + 1), 10);
+      stopFromClick();
+      startFromClick();
+    });
+
+    /*  editor.addCommand(monaco.KeyCode.Tab, () => {
+      alert('my command is executing!');
+    }, 'true'); */
+
     valueGetter.current = _valueGetter;
     let time;
     console.log(editor);
@@ -106,7 +125,47 @@ const PlayBox = ({ id, value, isPlayground }) => {
     setIsEditorReady(true);
   }
 
+  function stopFromClick() {
+    let fullText = valueGetter.current(); // Gets current full box
+    fullText = fullText.split('\n');
+    const theLine = fullText[line - 1]; // This is the line that was clicked
+    console.log(runningParts);
+    const theParts = runningParts[theLine];
+    if (theParts) {
+      runningParts[theLine] = null;
+      alreadyPlaying = true;
+      theParts.forEach((part) => {
+        part.stop(true);
+      });
+    } else { alreadyPlaying = false; }
+  }
+
+  function startFromClick() {
+    try {
+      if (!alreadyPlaying) {
+        let fullText = valueGetter.current();
+        fullText = fullText.split('\n');
+        const theLine = fullText[line - 1];
+        const parsedVal = peg.parse(theLine);
+        runningParts[theLine] = parsedVal;
+        parsedVal.forEach((part) => { part.start(true); });
+      }
+    } catch (error) {
+      console.log(error);
+      box.editor.setModelMarkers(model, 'test', [{
+        startLineNumber: error.location.start.line,
+        startColumn: error.location.start.column,
+        endLineNumber: error.location.end.line,
+        endColumn: error.location.end.column,
+        message: error.message,
+        severity: box.MarkerSeverity.Error,
+      }]);
+    }
+  }
+
   function stop(force) {
+    console.log(runningParts);
+
     runningParts.forEach((part) => {
       part.stop(force);
     });
@@ -166,7 +225,7 @@ const PlayBox = ({ id, value, isPlayground }) => {
   }
 
   function update() {
-    // ToDo: Find better solution
+    // TODO: : Find better solution
     stop(false);
     start(false);
   }
