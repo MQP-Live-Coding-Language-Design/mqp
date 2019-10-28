@@ -91,9 +91,16 @@ const PlayBox = ({ id, value, isPlayground }) => {
       //  CONTENT_TEXT: (1,52) - [1,51 -> 1,52] - null
       const firPar = clicked.indexOf('(');
       line = parseInt(clicked.charAt(firPar + 1), 10);
-      stopFromClick();
-      startFromClick();
     });
+
+    editor.onKeyDown((e) => {
+      console.log(e);
+      if (e.shiftKey && e.metaKey) {
+        stopFromClick();
+        startFromClick();
+      }
+    });
+
 
     /*  editor.addCommand(monaco.KeyCode.Tab, () => {
       alert('my command is executing!');
@@ -129,10 +136,9 @@ const PlayBox = ({ id, value, isPlayground }) => {
     let fullText = valueGetter.current(); // Gets current full box
     fullText = fullText.split('\n');
     const theLine = fullText[line - 1]; // This is the line that was clicked
-    console.log(runningParts);
-    const theParts = runningParts[line - 1];
+    const theParts = runningParts[line];
     if (theParts) {
-      runningParts[line - 1] = null;
+      runningParts[line] = null;
       alreadyPlaying = true;
       theParts.forEach((part) => {
         part.stop(true);
@@ -147,7 +153,7 @@ const PlayBox = ({ id, value, isPlayground }) => {
         fullText = fullText.split('\n');
         const theLine = fullText[line - 1];
         const parsedVal = peg.parse(theLine);
-        runningParts[line - 1] = parsedVal;
+        runningParts[line] = parsedVal;
         parsedVal.forEach((part) => { part.start(true); });
       }
     } catch (error) {
@@ -161,10 +167,6 @@ const PlayBox = ({ id, value, isPlayground }) => {
         severity: box.MarkerSeverity.Error,
       }]);
     }
-  }
-
-  function clicked() {
-    console.log('HELLO');
   }
 
   function stop(force) {
@@ -248,7 +250,6 @@ const PlayBox = ({ id, value, isPlayground }) => {
         language="sicko-mode"
         theme="sicko-theme"
         editorDidMount={handleEditorDidMount}
-        onMouseDown={clicked}
       />
       <Button className={buttonState} type="button" onClick={forceClick} disabled={!isEditorReady} id="trigger">
         {`force ${buttonState}`}
