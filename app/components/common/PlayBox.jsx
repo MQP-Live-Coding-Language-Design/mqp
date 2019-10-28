@@ -80,24 +80,25 @@ const PlayBox = ({ id, value, isPlayground }) => {
   const [runningParts, setParts] = useState([]);
   const [model, setModel] = useState(null);
   const valueGetter = useRef();
-  let line = 0;
-  let alreadyPlaying = false;
+  let startLine = 0;
+  let endLine = 0;
+  const alreadyPlaying = false;
 
   function handleEditorDidMount(_valueGetter, editor) {
     setModel(editor._modelData.model);
 
-    editor.onMouseDown((e) => {
-      const clicked = e.target.toString();
-      //  CONTENT_TEXT: (1,52) - [1,51 -> 1,52] - null
-      const firPar = clicked.indexOf('(');
-      line = parseInt(clicked.charAt(firPar + 1), 10);
-    });
-
     editor.onKeyDown((e) => {
       console.log(e);
+      console.log(e._asRuntimeKeybinding.altKey);
+      startLine = editor.getSelection().startLineNumber;
+      endLine = editor.getSelection().endLineNumber;
       if (e.shiftKey && e.metaKey) {
+        checkTone();
         stopFromClick();
         startFromClick();
+      } else if (e.metaKey && e._asRuntimeKeybinding.altKey) {
+        checkTone();
+        stopFromClick();
       }
     });
 
@@ -133,29 +134,32 @@ const PlayBox = ({ id, value, isPlayground }) => {
   }
 
   function stopFromClick() {
-    let fullText = valueGetter.current(); // Gets current full box
-    fullText = fullText.split('\n');
-    const theLine = fullText[line - 1]; // This is the line that was clicked
-    const theParts = runningParts[line];
-    if (theParts) {
-      runningParts[line] = null;
-      alreadyPlaying = true;
-      theParts.forEach((part) => {
-        part.stop(true);
-      });
-    } else { alreadyPlaying = false; }
+    let i;
+    for (i = startLine; i <= endLine; i += 1) {
+      const theParts = runningParts[i];
+      if (theParts) {
+        console.log(theParts);
+        theParts.forEach((part) => {
+          part.stop(true);
+        });
+        runningParts[i] = null;
+      }
+    }
+    console.log(runningParts);
   }
 
   function startFromClick() {
     try {
-      if (!alreadyPlaying) {
-        let fullText = valueGetter.current();
-        fullText = fullText.split('\n');
-        const theLine = fullText[line - 1];
+      let i;
+      let fullText = valueGetter.current();
+      fullText = fullText.split('\n');
+      for (i = startLine; i <= endLine; i += 1) {
+        const theLine = fullText[i - 1];
         const parsedVal = peg.parse(theLine);
-        runningParts[line] = parsedVal;
+        runningParts[i] = parsedVal;
         parsedVal.forEach((part) => { part.start(true); });
       }
+      console.log(runningParts);
     } catch (error) {
       console.log(error);
       box.editor.setModelMarkers(model, 'test', [{
@@ -199,17 +203,20 @@ const PlayBox = ({ id, value, isPlayground }) => {
   }
 
   function toggle(force) {
-    if (Tone.Transport.state !== 'started') {
-      Tone.Transport.start();
-      Tone.Transport.seconds = Tone.context.now();
-    }
-
+    checkTone();
     if (loaded && Tone.context.state === 'running') {
       if (buttonState === 'Start') {
         start(force);
       } else {
         stop(force);
       }
+    }
+  }
+
+  function checkTone() {
+    if (Tone.Transport.state !== 'started') {
+      Tone.Transport.start();
+      Tone.Transport.seconds = Tone.context.now();
     }
   }
 
