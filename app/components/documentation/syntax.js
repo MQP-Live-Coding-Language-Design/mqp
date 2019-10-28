@@ -240,12 +240,9 @@ Filters can be any of:
 - \`chebyshev\`: Applies a Chebyshev distortion. Takes a positive integer, recommended values between 1 and 100. Note that odd numbers are very different from even numbers.
 - \`tremolo\`: Quickly pans between left and right ears. Takes two numbers, a frequency in Hz and a maximum pan value (0.0 - 1.0)
 - \`vibrato\`: Quickly shifts the pitch up and down. Takes two numbers, a frequency in Hz and an amount the pitch is modulated (0.0 - 1.0)
-
-
-NOT YET IMPLEMENTED:
-- \`lo\`: low pass filter attenuates frequencies above the cutoff. This takes as input any number of values between 0 and 1.
-- \`hi\`: high pass filter attenuates frequencies below the cutoff. This takes as input any number of values between 0 and 1.
-- \`bandpass\`: band pass filter attenuates any frequencies outside of a range. This takes as input two values between 0 and 1, corresponding to the low and high value of the range.
+- \`lo\`: Low pass filter attenuates frequencies above the cutoff. This takes an integer frequency.
+- \`hi\`: High pass filter attenuates frequencies below the cutoff. This takes an integer frequency.
+- \`limit\`: Volume limiter. Takes a value in decibals.
 
 ## Part storage (NOT YET IMPLEMENTED)
 A part and can be saved to be referenced in the sound visualization UI, to stop sound without affecting any sequences (in-sequence storage), or to use the same part in another phrase (global storage);

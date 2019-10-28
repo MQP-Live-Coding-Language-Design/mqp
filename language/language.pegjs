@@ -210,6 +210,9 @@ filter
   / "tremolo" __ freq:fltOrFrac __ depth:fltOrFrac { return new Tone.Tremolo(freq, depth).start(); }
   / "vibrato" __ freq:fltOrFrac __ depth:fltOrFrac { return new Tone.Vibrato(freq, depth); }
   / "chorus" __ freq:fltOrFrac __ delay:fltOrFrac __ depth:fltOrFrac { return new Tone.Chorus(freq, delay, depth); }
+  / "lo" __ freq:$([0-9]+) { return new Tone.Filter(parseInt(freq), "lowpass"); }
+  / "hi" __ freq:$([0-9]+) { return new Tone.Filter(parseInt(freq), "highpass"); }
+  / "limit" __ thresh:signedFltOrFrac { return new Tone.Limiter(thresh); }
 
 signedFltOrFrac
  = neg:$("-"?) amnt:fltOrFrac { return (neg ? -1 : 1) * amnt; }
