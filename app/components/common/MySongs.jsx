@@ -18,7 +18,7 @@ const MySongs = ({ currentContent, onContentLoad }) => {
   const [newSongTitle, setNewSongTitle] = useState('');
 
   const getAllSongs = () => {
-    fetch('http://localhost:3000/getallsongs', {
+    fetch('https://mqp-server.herokuapp.com/getallsongs', {
       method: 'post',
       headers: { 'Content-Type': 'application/json' },
     })
@@ -35,7 +35,7 @@ const MySongs = ({ currentContent, onContentLoad }) => {
   const deleteSong = (song) => {
     const conf = confirm(`Are you sure you want to delete ${song.title.trim()}?`);
     if (conf) {
-      fetch('http://localhost:3000/deletesong', {
+      fetch('https://mqp-server.herokuapp.com/deletesong', {
         method: 'post',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -52,7 +52,7 @@ const MySongs = ({ currentContent, onContentLoad }) => {
   const updateContent = (song) => {
     const conf = confirm(`Are you sure you want to update "${song.title.trim()}" with the current content?`);
     if (conf) {
-      fetch('http://localhost:3000/updatecontent', {
+      fetch('https://mqp-server.herokuapp.com/updatecontent', {
         method: 'post',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -74,7 +74,7 @@ const MySongs = ({ currentContent, onContentLoad }) => {
     }
     const conf = confirm(`Are you sure you want to rename "${song.title.trim()}" to "${newSongTitle}" ?`);
     if (conf) {
-      fetch('http://localhost:3000/updatetitle', {
+      fetch('https://mqp-server.herokuapp.com/updatetitle', {
         method: 'post',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -139,7 +139,8 @@ const MySongs = ({ currentContent, onContentLoad }) => {
     if (currentContent === '') {
       alert('Please add content to your song');
     } else {
-      fetch('http://localhost:3000/saveSong', {
+      console.log('saving song');
+      fetch('https://mqp-server.herokuapp.com/savesong', {
         method: 'post',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
