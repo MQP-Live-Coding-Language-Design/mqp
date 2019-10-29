@@ -262,16 +262,16 @@ const contrabassUrl = {
 
 const fluteUrls = {
   notes: {
-    A5: 'A5.[mp3|ogg]',
-    C3: 'C3.[mp3|ogg]',
-    C4: 'C4.[mp3|ogg]',
-    C5: 'C5.[mp3|ogg]',
-    C6: 'C6.[mp3|ogg]',
-    E3: 'E3.[mp3|ogg]',
-    E4: 'E4.[mp3|ogg]',
-    E5: 'E5.[mp3|ogg]',
-    A3: 'A3.[mp3|ogg]',
-    A4: 'A4.[mp3|ogg]',
+    A6: 'A5.[mp3|ogg]',
+    C4: 'C3.[mp3|ogg]',
+    C5: 'C4.[mp3|ogg]',
+    C6: 'C5.[mp3|ogg]',
+    C7: 'C6.[mp3|ogg]',
+    E4: 'E3.[mp3|ogg]',
+    E5: 'E4.[mp3|ogg]',
+    E6: 'E5.[mp3|ogg]',
+    A4: 'A3.[mp3|ogg]',
+    A5: 'A4.[mp3|ogg]',
 
   },
   baseUrl: './flute/',
