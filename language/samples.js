@@ -153,17 +153,19 @@ const electricBassUrls = {
 
 const bassoonUrls = {
   notes: {
+    A1: 'A1.[mp3|ogg]',
+    A2: 'A2.[mp3|ogg]',
     A3: 'A3.[mp3|ogg]',
+    C1: 'C2.[mp3|ogg]',
     C2: 'C2.[mp3|ogg]',
     C3: 'C3.[mp3|ogg]',
     C4: 'C4.[mp3|ogg]',
-    E3: 'E3.[mp3|ogg]',
-    G1: 'G1.[mp3|ogg]',
-    G2: 'G2.[mp3|ogg]',
-    G3: 'G3.[mp3|ogg]',
-    A1: 'A1.[mp3|ogg]',
-    A2: 'A2.[mp3|ogg]',
-
+    'D#1': 'Ds1.mp3',
+    'D#2': 'Ds2.mp3',
+    'D#3': 'Ds3.mp3',
+    'F#1': 'Fs1.mp3',
+    'F#2': 'Fs2.mp3',
+    'F#3': 'Fs3.mp3',
   },
   baseUrl: './bassoon/',
   name: 'bassoon',
