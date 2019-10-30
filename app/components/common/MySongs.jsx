@@ -10,6 +10,7 @@ import DeleteIcon from '@material-ui/icons/Delete';
 import PublishIcon from '@material-ui/icons/Publish';
 import TitleIcon from '@material-ui/icons/Title';
 import Tooltip from '@material-ui/core/Tooltip';
+import Cookies from 'universal-cookie';
 
 
 const MySongs = ({ currentContent, onContentLoad }) => {
@@ -17,10 +18,16 @@ const MySongs = ({ currentContent, onContentLoad }) => {
   const [mySongs, setMySongs] = useState([]);
   const [newSongTitle, setNewSongTitle] = useState('');
 
+  const cookies = new Cookies();
+  const email = cookies.get('email');
+
   const getAllSongs = () => {
     fetch('https://mqp-server.herokuapp.com/getallsongs', {
       method: 'post',
       headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        email,
+      }),
     })
       .then((res) => res.json())
       .then((data) => {
@@ -139,13 +146,13 @@ const MySongs = ({ currentContent, onContentLoad }) => {
     if (currentContent === '') {
       alert('Please add content to your song');
     } else {
-      console.log('saving song');
       fetch('https://mqp-server.herokuapp.com/savesong', {
         method: 'post',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           songTitle: newSongTitle,
           songContent: currentContent,
+          email,
         }),
       })
         .then((res) => res.json())

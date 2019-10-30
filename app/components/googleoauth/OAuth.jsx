@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { GoogleLogin } from 'react-google-login';
 import styled from 'styled-components';
 import { Redirect } from 'react-router-dom';
+import Cookies from 'universal-cookie';
 
 const GoogleSignIn = styled.button`
   width: 243px;
@@ -16,13 +17,17 @@ const Wrapper = styled.div`
 
 const OAuth = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const cookies = new Cookies();
 
   const oAuthSuccess = (response) => {
-    fetch('http://localhost:3000/saveuser', {
+    const expirationTime = new Date();
+    expirationTime.setTime(expirationTime.getTime() + 3600 * 1000);
+    cookies.set('email', response.getBasicProfile().getEmail(), { path: '/', expires: expirationTime });
+    fetch('https://mqp-server.herokuapp.com/saveuser', {
       method: 'post',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        token: response.Zi.id_token,
+        email: response.getBasicProfile().getEmail(),
       }),
     })
       .then((res) => res.json());
@@ -30,6 +35,7 @@ const OAuth = () => {
   };
 
   const oAuthFailure = (response) => {
+    cookies.remove('email');
     setIsAuthenticated(false);
   };
 
