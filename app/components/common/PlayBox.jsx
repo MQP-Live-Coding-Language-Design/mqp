@@ -29,7 +29,7 @@ monaco.init()
         ],
       },
     });
-    /* Autocomplete
+    // Autocomplete
     monacoBox.languages.registerCompletionItemProvider('sicko-mode', {
       provideCompletionItems(argmodel, position) {
         const text = argmodel.getValueInRange({
@@ -38,16 +38,21 @@ monaco.init()
           endLineNumber: position.lineNumber,
           endColumn: position.column,
         });
-        const note = text.match(/[^"]*("[^"]*"[^"]*)*"([^"]*\s)?/);
 
-        if (note) {
+        if (text.match(/[^"]*("[^"]*"[^"]*)*"([^"]*\s)?$/)) {
           return { suggestions: autocomplete.note };
         }
+        if (text.match(/.*>>\s*scale[^>]*$/)) {
+          return { suggestions: autocomplete.scales };
+        }
+        if (text.match(/.*>>[^>]*$/)) {
+          return { suggestions: autocomplete.instrument.concat(autocomplete.modifier) };
+        }
 
-        return [];
+        return { suggestions: [] };
       },
     });
-*/
+
     monacoBox.editor.defineTheme('sicko-theme', {
       base: 'vs-dark',
       inherit: true,
@@ -74,6 +79,7 @@ const PlayBox = ({ id, value }) => {
     setModel(editor._modelData.model);
     valueGetter.current = _valueGetter;
     let time;
+    console.log(editor);
     editor.onDidChangeModelContent(() => {
       clearTimeout(time);
       box.editor.setModelMarkers(editor._modelData.model, 'test', []);
