@@ -1,11 +1,23 @@
 import React, { useState } from 'react';
 import Cookies from 'universal-cookie';
 import { Redirect } from 'react-router-dom';
+import styled from 'styled-components';
 import Button from '@material-ui/core/Button';
 
+const Wrapper = styled.div`
+  display: flex;
+  justify-content: space-around;
+  margin-top: 339px;
+`;
+
+const BodyText = styled.div`
+  line-height: 1.31;
+  margin: 53px;
+`;
 
 const Homepage = () => {
   const [reroute, setReroute] = useState('homepage');
+
 
   const userTestReroute = () => {
     setReroute('usertest');
@@ -23,14 +35,14 @@ const Homepage = () => {
         return <Redirect to="/playground" />;
       default:
         return (
-          <>
-            <Button type="button" onClick={userTestReroute}>
-  user test
+          <Wrapper>
+            <Button variant="outlined" type="button" onClick={userTestReroute}>
+              <BodyText>user test</BodyText>
             </Button>
-            <Button type="button" onClick={playgroundReroute}>
-  playground
+            <Button variant="outlined" type="button" onClick={playgroundReroute}>
+              <BodyText> playground</BodyText>
             </Button>
-          </>
+          </Wrapper>
         );
     }
   };
