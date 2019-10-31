@@ -6,7 +6,7 @@ User Documentation: Language Syntax
 ## Groups
 ### Notes
 A note is any letter between \`a\` and \`g\`, uppercase or lowercase, corresponding to the musical notes. A note has multiple optional specifiers and modifiers that determine the pitch and octave of the note. The order in which these are applied matters, and is the following:
-  - **Accidentals**: the \`#\` or \`b\` characters can be added to the right of a note to **sharp** or **flat** it. For example, \`b#\` would be a \`b\` sharp and \`bb\` would be an \`b\` flat.
+  - **Accidentals**: the \`#\` or \`b\` characters can be added to the right of a note to **sharp** or **flat** it. For example, \`b#\` would be a B sharp and \`bb\` would be a B flat.
   - **Octave number**: any positive integer can be added to the right of a note (or to the right of its accidental if it has one) to specify the octave. For example \`b5\` is a \`b\` note in the 5th octave. If no octave number is specified, the default value is 4.
   - **Octave modifier**: any number of \`-\` or \`+\` can be added to the right of a note and its accidental to increase or decrease the octave of the note. For example \`b+++\` is a \`b\` note in the 7th octave. \`b+++\` is equivalent to writing \`b+3\` or \`b7\`.
 
@@ -116,6 +116,24 @@ The scale types are:
 - \`majortriad\`: Can be abbreviated to \`Mtriad\`, \`Mt\`, or \`M3\`
 - \`minortriad\`: Can be abbreviated to \`mtriad\`, \`mt\`, or \`m3\`
 
+### Copy
+The \`copy\` modifier can be used to make use of multiple instances of the same sequence at once. It takes a type of group (\`seq\`, \`chord\`, or \`rand\`), and a series of modifier sequences.
+\`\`\`
+"c e g"
+  >> copy seq
+  (>> pitch +,
+  >> octave +)
+  >> triangle
+\`\`\`
+The above example will first play \`"c e g" >> pitch+\` then play \`"c e g" >> octave +\`. To play both of these at once, the word \`seq\` could be replaced with \`chord\`, and to randomly select one of them it could be replaced with \`rand\`.
+\`\`\`
+"1 2 3"
+  >> copy chord
+  ( , >> pitch ++)
+  >> triangle
+\`\`\`
+The above example plays \`"1 2 3"\` unmodified by having only a space between the open paren and the first comma. It is equivalent to \`"chord((1 2 3) (3 4 5))"\`.
+
 ## Sequence storage
 The \`save\` command allows you to save any sequence as it is when the command is reached. The \`save\` command will only save **sequences**, which does not include any parts or part modifiers (i.e. instruments and its modifiers).
 \`\`\`
@@ -172,9 +190,7 @@ The samplers are made from instrument samples and include:
 - \`harp\`
 - \`organ\`
 - \`saxophone\`
-- \`trombone\`
 - \`trumpet\`
-- \`tuba\`
 - \`violin\`
 - \`xylophone\`
 
@@ -220,11 +236,11 @@ Filters can be any of:
 - \`distort\`: Adds distortion to the sound. Takes a positive number, recommended values between 0 and 1.
 - \`pan\`: Moves sounds from left to right. Takes a number from -1 to 1 as input. -1 corresponds to left, and 1 corresponds to right.
 - \`chebyshev\`: Applies a Chebyshev distortion. Takes a positive integer, recommended values between 1 and 100. Note that odd numbers are very different from even numbers.
-
-NOT YET IMPLEMENTED:
-- \`lo\`: low pass filter attenuates frequencies above the cutoff. This takes as input any number of values between 0 and 1.
-- \`hi\`: high pass filter attenuates frequencies below the cutoff. This takes as input any number of values between 0 and 1.
-- \`bandpass\`: band pass filter attenuates any frequencies outside of a range. This takes as input two values between 0 and 1, corresponding to the low and high value of the range.
+- \`tremolo\`: Quickly pans between left and right ears. Takes two numbers, a frequency in Hz and a maximum pan value (0.0 - 1.0)
+- \`vibrato\`: Quickly shifts the pitch up and down. Takes two numbers, a frequency in Hz and an amount the pitch is modulated (0.0 - 1.0)
+- \`lo\`: Low pass filter attenuates frequencies above the cutoff. This takes an integer frequency.
+- \`hi\`: High pass filter attenuates frequencies below the cutoff. This takes an integer frequency.
+- \`limit\`: Volume limiter. Takes a value in decibals.
 
 ## Part storage (NOT YET IMPLEMENTED)
 A part and can be saved to be referenced in the sound visualization UI, to stop sound without affecting any sequences (in-sequence storage), or to use the same part in another phrase (global storage);

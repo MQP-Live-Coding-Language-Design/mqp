@@ -102,8 +102,13 @@ modifier
   / '>>' _ "save" _ name:$([a-zA-Z_0-9]+) { return function(phrase) {defaults.savedSequences[name] = phrase.copy;}}
   / '>>' _ "scale" _ type:$(name:$([a-zA-Z0-9]+) & { return defaults.scaleMap.hasOwnProperty(name); }) {return function(phrase) {phrase.scaleChange(null, defaults.scaleMap[type])};}
   / '>>' _ "scale" _ key:$([A-G]i [#b]?) _ type:$(name:$([a-zA-Z0-9]+) & { return defaults.scaleMap.hasOwnProperty(name); })? {return function(phrase) {phrase.scaleChange(key, defaults.scaleMap[type])};}
-  / '>>' _ "stutter" _ num:$([0-9]+) { return function(phrase) {phrase.stutter(parseInt(num));}}
+  / '>>' _ "stutter" _ num:$([0-9]+) { return function(phrase) {phrase.stutter(parseInt(num));};}
+  / '>>' _ "copy" _ type:("chord"/"rand"/"seq") _ "(" seq:copyseq { return function(phrase) {phrase.multCopy(type, seq);};}
   / '>>' _ plr:player { return plr; }
+
+copyseq
+  = _ mod:modifierseq _ "," seq:copyseq { return [mod].concat(seq); }
+  / _ mod:modifierseq _ ")" { return [mod]; }
 
 // Instrument plus its attributes and filters
 // Returns a Tone player
@@ -159,9 +164,7 @@ sampler
   / "harp" { return new Tone.Sampler(samples.harp); }
   / "organ" { return new Tone.Sampler(samples.organ); }
   / "saxophone" { return new Tone.Sampler(samples.saxophone); }
-  / "trombone" { return new Tone.Sampler(samples.trombone); }
   / "trumpet" { return new Tone.Sampler(samples.trumpet); }
-  / "tuba" { return new Tone.Sampler(samples.tuba); }
   / "violin" { return new Tone.Sampler(samples.violin); }
   / "xylophone" { return new Tone.Sampler(samples.xylophone); }
 
@@ -202,6 +205,12 @@ filter
   / "volume" __ amnt:signedFltOrFrac { return new Tone.Volume(amnt); }
   / "distort" __ amnt:signedFltOrFrac { return new Tone.Distortion(amnt); }
   / "chebyshev" __ order:$([0-9]+) { return new Tone.Chebyshev(parseInt(order)); }
+  / "tremolo" __ freq:fltOrFrac __ depth:fltOrFrac { return new Tone.Tremolo(freq, depth).start(); }
+  / "vibrato" __ freq:fltOrFrac __ depth:fltOrFrac { return new Tone.Vibrato(freq, depth); }
+  / "chorus" __ freq:fltOrFrac __ delay:fltOrFrac __ depth:fltOrFrac { return new Tone.Chorus(freq, delay, depth); }
+  / "lo" __ freq:$([0-9]+) { return new Tone.Filter(parseInt(freq), "lowpass"); }
+  / "hi" __ freq:$([0-9]+) { return new Tone.Filter(parseInt(freq), "highpass"); }
+  / "limit" __ thresh:signedFltOrFrac { return new Tone.Limiter(thresh); }
 
 signedFltOrFrac
  = neg:$("-"?) amnt:fltOrFrac { return (neg ? -1 : 1) * amnt; }

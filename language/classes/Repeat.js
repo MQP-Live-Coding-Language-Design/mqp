@@ -4,7 +4,7 @@
 
 class Repeat {
   constructor(group, n) {
-    this.group = group; // list of groups forming this Phrase
+    this.group = group; // Single group forming this Phrase
     this.n = n;
   }
 
