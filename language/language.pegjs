@@ -164,9 +164,7 @@ sampler
   / "harp" { return new Tone.Sampler(samples.harp); }
   / "organ" { return new Tone.Sampler(samples.organ); }
   / "saxophone" { return new Tone.Sampler(samples.saxophone); }
-  / "trombone" { return new Tone.Sampler(samples.trombone); }
   / "trumpet" { return new Tone.Sampler(samples.trumpet); }
-  / "tuba" { return new Tone.Sampler(samples.tuba); }
   / "violin" { return new Tone.Sampler(samples.violin); }
   / "xylophone" { return new Tone.Sampler(samples.xylophone); }
 

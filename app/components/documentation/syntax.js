@@ -190,9 +190,7 @@ The samplers are made from instrument samples and include:
 - \`harp\`
 - \`organ\`
 - \`saxophone\`
-- \`trombone\`
 - \`trumpet\`
-- \`tuba\`
 - \`violin\`
 - \`xylophone\`
 
