@@ -24,11 +24,6 @@ const Wrapper = styled.div`
   margin-top: 339px;
 `;
 
-const BodyText = styled.div`
-  line-height: 1.31;
-  margin-bottom: 53px;
-`;
-
 const SignInPage = () => {
   const cookies = new Cookies();
   if (cookies.get('email')) {
