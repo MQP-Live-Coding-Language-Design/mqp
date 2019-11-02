@@ -22,10 +22,11 @@ monaco.init()
     monacoBox.languages.setMonarchTokensProvider('sicko-mode', {
       tokenizer: {
         root: [
-          [/>>\s*(alien|soft|triangle|saw|fatsaw|square|(pls no)|drums|acousticdrums|electricdrums|piano|bassoon|bass|electricbass|cello|clarinet|contrabass|flute|frenchhorn|horn|acousticguitar|electricguitar|guitar|nylonguitar|harmonium|harp|organ|saxophone|trumpet|violin|xylophone)/, 'instrument'],
-          [/>>[^>"]*/, 'modifier'],
-          [/(&\s*)?>[^>"]+/, 'filter'],
-          [/(^|")[^">&]+("|$)/, 'notes'],
+          [/\s*\/\/.*$/, 'none'],
+          [/\s*>>\s*(alien|soft|triangle|saw|fatsaw|square|(pls no)|drums|acousticdrums|electricdrums|piano|bassoon|bass|electricbass|cello|clarinet|contrabass|flute|frenchhorn|horn|acousticguitar|electricguitar|guitar|nylonguitar|harmonium|harp|organ|saxophone|trumpet|violin|xylophone)/, 'constant'],
+          [/\s*>>[^>"]*/, 'string'],
+          [/\s*(&\s*)?>[^>"]+/, 'variable'],
+          [/(^|\s*")[^">&]+("|$)/, 'comment'],
         ],
       },
     });
@@ -56,13 +57,7 @@ monaco.init()
     monacoBox.editor.defineTheme('sicko-theme', {
       base: 'vs-dark',
       inherit: true,
-      rules: [
-        { token: 'instrument', foreground: '61AFEF' },
-        { token: 'modifier', foreground: 'ABA58E' },
-        { token: 'notes', foreground: '98B755' },
-        { token: 'group', foreground: '378876' },
-        { token: 'filter', foreground: '6871D7' },
-      ],
+      rules: [],
     });
   })
   .catch((error) => console.error('An error occurred during initialization of Monaco: ', error));
