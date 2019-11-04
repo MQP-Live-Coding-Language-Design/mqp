@@ -4,3 +4,7 @@
 **/dist
 
 **/package-lock.json
+
+**/config*
+
+**/etc

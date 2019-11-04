@@ -2,6 +2,8 @@ import React, { useRef, useState } from 'react';
 import PropTypes from 'prop-types';
 import Editor, { monaco } from '@monaco-editor/react';
 import Button from '@material-ui/core/Button';
+import MySongs from './MySongs';
+
 
 const Tone = require('tone');
 const samples = require('../../../language/samples.js');
@@ -68,9 +70,10 @@ monaco.init()
   .catch((error) => console.error('An error occurred during initialization of Monaco: ', error));
 
 
-const PlayBox = ({ id, value }) => {
+const PlayBox = ({ id, value, isPlayground }) => {
   const [isEditorReady, setIsEditorReady] = useState(false);
   const [buttonState, setButtonState] = useState('Start');
+  const [currentValue, setCurrentValue] = useState(value);
   const [runningParts, setParts] = useState([]);
   const [model, setModel] = useState(null);
   const valueGetter = useRef();
@@ -168,12 +171,17 @@ const PlayBox = ({ id, value }) => {
     start(false);
   }
 
+  const loadNewContent = (newContent) => {
+    stop(true);
+    setCurrentValue(newContent);
+  };
+
   return (
     <div className="playBox" id={id}>
       <Editor
         height="40vh"
         width="94vw"
-        value={value}
+        value={currentValue}
         language="sicko-mode"
         theme="sicko-theme"
         editorDidMount={handleEditorDidMount}
@@ -187,6 +195,17 @@ const PlayBox = ({ id, value }) => {
       <Button type="button" onClick={update} disabled={!isEditorReady || buttonState === 'Start'}>
         {'Update'}
       </Button>
+      {
+        isEditorReady && isPlayground
+          ? (
+            <MySongs
+              disabled={!isEditorReady}
+              currentContent={valueGetter.current()}
+              onContentLoad={loadNewContent}
+            />
+          )
+          : null
+      }
     </div>
   );
 };
@@ -194,6 +213,11 @@ const PlayBox = ({ id, value }) => {
 PlayBox.propTypes = {
   id: PropTypes.string.isRequired,
   value: PropTypes.string.isRequired,
+  isPlayground: PropTypes.boolean,
+};
+
+PlayBox.defaltProps = {
+  isPlayground: false,
 };
 
 export default PlayBox;
