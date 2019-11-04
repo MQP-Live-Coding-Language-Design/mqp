@@ -224,7 +224,8 @@ fltOrFrac
   }
 
 // optional whitespace
-_  = [ \t\r\n]*
+_  = [ \t\r\n]* ("//" [^\n]* [ \t\r\n]*)*
 
 // mandatory whitespace
-__ = [ \t\r\n]+
+__ = [ \t\r\n]* ("//" [^\n]* [\n] [ \t\r\n]*)+
+   / [ \t\r\n]+
