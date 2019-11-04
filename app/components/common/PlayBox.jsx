@@ -24,9 +24,9 @@ monaco.init()
         root: [
           [/\s*\/\/.*$/, 'none'],
           [/\s*>>\s*(alien|soft|triangle|saw|fatsaw|square|(pls no)|drums|acousticdrums|electricdrums|piano|bassoon|bass|electricbass|cello|clarinet|contrabass|flute|frenchhorn|horn|acousticguitar|electricguitar|guitar|nylonguitar|harmonium|harp|organ|saxophone|trumpet|violin|xylophone)/, 'constant'],
-          [/\s*>>[^>"]*/, 'string'],
-          [/\s*(&\s*)?>[^>"]+/, 'variable'],
-          [/(^|\s*")[^">&]+("|$)/, 'comment'],
+          [/\s*>>([^>/"]|(\/[^/">]))*/, 'string'],
+          [/\s*(&\s*)?>([^>/"]|(\/[^/">]))+/, 'variable'],
+          [/(^|\s*")([^>/"]|(\/[^/">]))+("|$)/, 'comment'],
         ],
       },
     });
@@ -35,14 +35,13 @@ monaco.init()
       triggerCharacters: [' ', '>', '"'],
       provideCompletionItems(argmodel, position) {
         const text = argmodel.getValueInRange({
-          startLineNumber: 1,
-          startColumn: 1,
+          startLineNumber: 0,
+          startColumn: 0,
           endLineNumber: position.lineNumber,
           endColumn: position.column,
         });
-        console.log(text);
 
-        if (text.match(/[^"]*("[^"]*"[^"]*)*"([^"]*\s)?$/)) {
+        if (text.match(/^[^"]*("[^"]*"[^"]*)*"([^"]*\s)?$/)) {
           return { suggestions: autocomplete.note };
         }
         if (text.match(/.*>>\s*scale[^>]*$/)) {
