@@ -32,6 +32,7 @@ monaco.init()
     });
     // Autocomplete
     monacoBox.languages.registerCompletionItemProvider('sicko-mode', {
+      triggerCharacters: [' ', '>', '"'],
       provideCompletionItems(argmodel, position) {
         const text = argmodel.getValueInRange({
           startLineNumber: 1,
@@ -39,6 +40,7 @@ monaco.init()
           endLineNumber: position.lineNumber,
           endColumn: position.column,
         });
+        console.log(text);
 
         if (text.match(/[^"]*("[^"]*"[^"]*)*"([^"]*\s)?$/)) {
           return { suggestions: autocomplete.note };
@@ -46,10 +48,11 @@ monaco.init()
         if (text.match(/.*>>\s*scale[^>]*$/)) {
           return { suggestions: autocomplete.scales };
         }
-        if (text.match(/.*>>[^>]*$/)) {
+        if (text.match(/.*>>[^>]*\s*$/)) {
           return { suggestions: autocomplete.instrument.concat(autocomplete.modifier) };
         }
 
+        console.log('resetting');
         return { suggestions: [] };
       },
     });
@@ -74,7 +77,6 @@ const PlayBox = ({ id, value }) => {
     setModel(editor._modelData.model);
     valueGetter.current = _valueGetter;
     let time;
-    console.log(editor);
     editor.onDidChangeModelContent(() => {
       clearTimeout(time);
       box.editor.setModelMarkers(editor._modelData.model, 'test', []);
