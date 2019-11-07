@@ -35751,7 +35751,3645 @@ if ("development" !== "production") {
     style: _propTypes.default.object
   });
 }
-},{"react-router":"../node_modules/react-router/esm/react-router.js","@babel/runtime/helpers/esm/inheritsLoose":"../node_modules/@babel/runtime/helpers/esm/inheritsLoose.js","react":"../node_modules/react/index.js","history":"../node_modules/history/esm/history.js","prop-types":"../node_modules/prop-types/index.js","tiny-warning":"../node_modules/tiny-warning/dist/tiny-warning.esm.js","@babel/runtime/helpers/esm/extends":"../node_modules/@babel/runtime/helpers/esm/extends.js","@babel/runtime/helpers/esm/objectWithoutPropertiesLoose":"../node_modules/@babel/runtime/helpers/esm/objectWithoutPropertiesLoose.js","tiny-invariant":"../node_modules/tiny-invariant/dist/tiny-invariant.esm.js"}],"../node_modules/@babel/runtime/helpers/esm/objectWithoutProperties.js":[function(require,module,exports) {
+},{"react-router":"../node_modules/react-router/esm/react-router.js","@babel/runtime/helpers/esm/inheritsLoose":"../node_modules/@babel/runtime/helpers/esm/inheritsLoose.js","react":"../node_modules/react/index.js","history":"../node_modules/history/esm/history.js","prop-types":"../node_modules/prop-types/index.js","tiny-warning":"../node_modules/tiny-warning/dist/tiny-warning.esm.js","@babel/runtime/helpers/esm/extends":"../node_modules/@babel/runtime/helpers/esm/extends.js","@babel/runtime/helpers/esm/objectWithoutPropertiesLoose":"../node_modules/@babel/runtime/helpers/esm/objectWithoutPropertiesLoose.js","tiny-invariant":"../node_modules/tiny-invariant/dist/tiny-invariant.esm.js"}],"../node_modules/cookie/index.js":[function(require,module,exports) {
+/*!
+ * cookie
+ * Copyright(c) 2012-2014 Roman Shtylman
+ * Copyright(c) 2015 Douglas Christopher Wilson
+ * MIT Licensed
+ */
+'use strict';
+/**
+ * Module exports.
+ * @public
+ */
+
+exports.parse = parse;
+exports.serialize = serialize;
+/**
+ * Module variables.
+ * @private
+ */
+
+var decode = decodeURIComponent;
+var encode = encodeURIComponent;
+var pairSplitRegExp = /; */;
+/**
+ * RegExp to match field-content in RFC 7230 sec 3.2
+ *
+ * field-content = field-vchar [ 1*( SP / HTAB ) field-vchar ]
+ * field-vchar   = VCHAR / obs-text
+ * obs-text      = %x80-FF
+ */
+
+var fieldContentRegExp = /^[\u0009\u0020-\u007e\u0080-\u00ff]+$/;
+/**
+ * Parse a cookie header.
+ *
+ * Parse the given cookie header string into an object
+ * The object has the various cookies as keys(names) => values
+ *
+ * @param {string} str
+ * @param {object} [options]
+ * @return {object}
+ * @public
+ */
+
+function parse(str, options) {
+  if (typeof str !== 'string') {
+    throw new TypeError('argument str must be a string');
+  }
+
+  var obj = {};
+  var opt = options || {};
+  var pairs = str.split(pairSplitRegExp);
+  var dec = opt.decode || decode;
+
+  for (var i = 0; i < pairs.length; i++) {
+    var pair = pairs[i];
+    var eq_idx = pair.indexOf('='); // skip things that don't look like key=value
+
+    if (eq_idx < 0) {
+      continue;
+    }
+
+    var key = pair.substr(0, eq_idx).trim();
+    var val = pair.substr(++eq_idx, pair.length).trim(); // quoted values
+
+    if ('"' == val[0]) {
+      val = val.slice(1, -1);
+    } // only assign once
+
+
+    if (undefined == obj[key]) {
+      obj[key] = tryDecode(val, dec);
+    }
+  }
+
+  return obj;
+}
+/**
+ * Serialize data into a cookie header.
+ *
+ * Serialize the a name value pair into a cookie string suitable for
+ * http headers. An optional options object specified cookie parameters.
+ *
+ * serialize('foo', 'bar', { httpOnly: true })
+ *   => "foo=bar; httpOnly"
+ *
+ * @param {string} name
+ * @param {string} val
+ * @param {object} [options]
+ * @return {string}
+ * @public
+ */
+
+
+function serialize(name, val, options) {
+  var opt = options || {};
+  var enc = opt.encode || encode;
+
+  if (typeof enc !== 'function') {
+    throw new TypeError('option encode is invalid');
+  }
+
+  if (!fieldContentRegExp.test(name)) {
+    throw new TypeError('argument name is invalid');
+  }
+
+  var value = enc(val);
+
+  if (value && !fieldContentRegExp.test(value)) {
+    throw new TypeError('argument val is invalid');
+  }
+
+  var str = name + '=' + value;
+
+  if (null != opt.maxAge) {
+    var maxAge = opt.maxAge - 0;
+    if (isNaN(maxAge)) throw new Error('maxAge should be a Number');
+    str += '; Max-Age=' + Math.floor(maxAge);
+  }
+
+  if (opt.domain) {
+    if (!fieldContentRegExp.test(opt.domain)) {
+      throw new TypeError('option domain is invalid');
+    }
+
+    str += '; Domain=' + opt.domain;
+  }
+
+  if (opt.path) {
+    if (!fieldContentRegExp.test(opt.path)) {
+      throw new TypeError('option path is invalid');
+    }
+
+    str += '; Path=' + opt.path;
+  }
+
+  if (opt.expires) {
+    if (typeof opt.expires.toUTCString !== 'function') {
+      throw new TypeError('option expires is invalid');
+    }
+
+    str += '; Expires=' + opt.expires.toUTCString();
+  }
+
+  if (opt.httpOnly) {
+    str += '; HttpOnly';
+  }
+
+  if (opt.secure) {
+    str += '; Secure';
+  }
+
+  if (opt.sameSite) {
+    var sameSite = typeof opt.sameSite === 'string' ? opt.sameSite.toLowerCase() : opt.sameSite;
+
+    switch (sameSite) {
+      case true:
+        str += '; SameSite=Strict';
+        break;
+
+      case 'lax':
+        str += '; SameSite=Lax';
+        break;
+
+      case 'strict':
+        str += '; SameSite=Strict';
+        break;
+
+      case 'none':
+        str += '; SameSite=None';
+        break;
+
+      default:
+        throw new TypeError('option sameSite is invalid');
+    }
+  }
+
+  return str;
+}
+/**
+ * Try decoding a string using a decoding function.
+ *
+ * @param {string} str
+ * @param {function} decode
+ * @private
+ */
+
+
+function tryDecode(str, decode) {
+  try {
+    return decode(str);
+  } catch (e) {
+    return str;
+  }
+}
+},{}],"../node_modules/universal-cookie/es6/utils.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.hasDocumentCookie = hasDocumentCookie;
+exports.cleanCookies = cleanCookies;
+exports.parseCookies = parseCookies;
+exports.isParsingCookie = isParsingCookie;
+exports.readCookie = readCookie;
+
+var cookie = _interopRequireWildcard(require("cookie"));
+
+function _getRequireWildcardCache() { if (typeof WeakMap !== "function") return null; var cache = new WeakMap(); _getRequireWildcardCache = function () { return cache; }; return cache; }
+
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } var cache = _getRequireWildcardCache(); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; if (obj != null) { var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } } newObj.default = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
+
+function hasDocumentCookie() {
+  // JSDOM does not support changing cookies, disable it for tests
+  if (isJsDom()) {
+    return false;
+  } // Can we get/set cookies on document.cookie?
+
+
+  return typeof document === 'object' && typeof document.cookie === 'string';
+}
+
+function isJsDom() {
+  if (typeof navigator !== 'object' || typeof navigator.userAgent !== 'string') {
+    return false;
+  }
+
+  return navigator.userAgent.indexOf('Node.js') >= 0 || navigator.userAgent.indexOf('jsdom') >= 0;
+}
+
+function cleanCookies() {
+  document.cookie.split(';').forEach(function (c) {
+    document.cookie = c.replace(/^ +/, '').replace(/=.*/, '=;expires=' + new Date().toUTCString() + ';path=/');
+  });
+}
+
+function parseCookies(cookies) {
+  if (typeof cookies === 'string') {
+    return cookie.parse(cookies);
+  } else if (typeof cookies === 'object' && cookies !== null) {
+    return cookies;
+  } else {
+    return {};
+  }
+}
+
+function isParsingCookie(value, doNotParse) {
+  if (typeof doNotParse === 'undefined') {
+    // We guess if the cookie start with { or [, it has been serialized
+    doNotParse = !value || value[0] !== '{' && value[0] !== '[' && value[0] !== '"';
+  }
+
+  return !doNotParse;
+}
+
+function readCookie(value, options) {
+  if (options === void 0) {
+    options = {};
+  }
+
+  var cleanValue = cleanupCookieValue(value);
+
+  if (isParsingCookie(cleanValue, options.doNotParse)) {
+    try {
+      return JSON.parse(cleanValue);
+    } catch (e) {// At least we tried
+    }
+  } // Ignore clean value if we failed the deserialization
+  // It is not relevant anymore to trim those values
+
+
+  return value;
+}
+
+function cleanupCookieValue(value) {
+  // express prepend j: before serializing a cookie
+  if (value && value[0] === 'j' && value[1] === ':') {
+    return value.substr(2);
+  }
+
+  return value;
+}
+},{"cookie":"../node_modules/cookie/index.js"}],"../node_modules/universal-cookie/es6/Cookies.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var cookie = _interopRequireWildcard(require("cookie"));
+
+var _utils = require("./utils");
+
+function _getRequireWildcardCache() { if (typeof WeakMap !== "function") return null; var cache = new WeakMap(); _getRequireWildcardCache = function () { return cache; }; return cache; }
+
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } var cache = _getRequireWildcardCache(); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; if (obj != null) { var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } } newObj.default = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
+
+// We can't please Rollup and TypeScript at the same time
+// Only way to make both of them work
+var objectAssign = require('object-assign');
+
+var Cookies =
+/** @class */
+function () {
+  function Cookies(cookies) {
+    var _this = this;
+
+    this.changeListeners = [];
+    this.HAS_DOCUMENT_COOKIE = false;
+    this.cookies = (0, _utils.parseCookies)(cookies);
+    new Promise(function () {
+      _this.HAS_DOCUMENT_COOKIE = (0, _utils.hasDocumentCookie)();
+    }).catch(function () {});
+  }
+
+  Cookies.prototype._updateBrowserValues = function () {
+    if (!this.HAS_DOCUMENT_COOKIE) {
+      return;
+    }
+
+    this.cookies = cookie.parse(document.cookie);
+  };
+
+  Cookies.prototype._emitChange = function (params) {
+    for (var i = 0; i < this.changeListeners.length; ++i) {
+      this.changeListeners[i](params);
+    }
+  };
+
+  Cookies.prototype.get = function (name, options) {
+    if (options === void 0) {
+      options = {};
+    }
+
+    this._updateBrowserValues();
+
+    return (0, _utils.readCookie)(this.cookies[name], options);
+  };
+
+  Cookies.prototype.getAll = function (options) {
+    if (options === void 0) {
+      options = {};
+    }
+
+    this._updateBrowserValues();
+
+    var result = {};
+
+    for (var name_1 in this.cookies) {
+      result[name_1] = (0, _utils.readCookie)(this.cookies[name_1], options);
+    }
+
+    return result;
+  };
+
+  Cookies.prototype.set = function (name, value, options) {
+    var _a;
+
+    if (typeof value === 'object') {
+      value = JSON.stringify(value);
+    }
+
+    this.cookies = objectAssign({}, this.cookies, (_a = {}, _a[name] = value, _a));
+
+    if (this.HAS_DOCUMENT_COOKIE) {
+      document.cookie = cookie.serialize(name, value, options);
+    }
+
+    this._emitChange({
+      name: name,
+      value: value,
+      options: options
+    });
+  };
+
+  Cookies.prototype.remove = function (name, options) {
+    var finalOptions = options = objectAssign({}, options, {
+      expires: new Date(1970, 1, 1, 0, 0, 1),
+      maxAge: 0
+    });
+    this.cookies = objectAssign({}, this.cookies);
+    delete this.cookies[name];
+
+    if (this.HAS_DOCUMENT_COOKIE) {
+      document.cookie = cookie.serialize(name, '', finalOptions);
+    }
+
+    this._emitChange({
+      name: name,
+      value: undefined,
+      options: options
+    });
+  };
+
+  Cookies.prototype.addChangeListener = function (callback) {
+    this.changeListeners.push(callback);
+  };
+
+  Cookies.prototype.removeChangeListener = function (callback) {
+    var idx = this.changeListeners.indexOf(callback);
+
+    if (idx >= 0) {
+      this.changeListeners.splice(idx, 1);
+    }
+  };
+
+  return Cookies;
+}();
+
+var _default = Cookies;
+exports.default = _default;
+},{"cookie":"../node_modules/cookie/index.js","./utils":"../node_modules/universal-cookie/es6/utils.js","object-assign":"../node_modules/object-assign/index.js"}],"../node_modules/universal-cookie/es6/index.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var _Cookies = _interopRequireDefault(require("./Cookies"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var _default = _Cookies.default;
+exports.default = _default;
+},{"./Cookies":"../node_modules/universal-cookie/es6/Cookies.js"}],"../node_modules/stylis/stylis.min.js":[function(require,module,exports) {
+var define;
+!function(e){"object"==typeof exports&&"undefined"!=typeof module?module.exports=e(null):"function"==typeof define&&define.amd?define(e(null)):window.stylis=e(null)}(function e(a){"use strict";var r=/^\0+/g,c=/[\0\r\f]/g,s=/: */g,t=/zoo|gra/,i=/([,: ])(transform)/g,f=/,+\s*(?![^(]*[)])/g,n=/ +\s*(?![^(]*[)])/g,l=/ *[\0] */g,o=/,\r+?/g,h=/([\t\r\n ])*\f?&/g,u=/:global\(((?:[^\(\)\[\]]*|\[.*\]|\([^\(\)]*\))*)\)/g,d=/\W+/g,b=/@(k\w+)\s*(\S*)\s*/,p=/::(place)/g,k=/:(read-only)/g,g=/\s+(?=[{\];=:>])/g,A=/([[}=:>])\s+/g,C=/(\{[^{]+?);(?=\})/g,w=/\s{2,}/g,v=/([^\(])(:+) */g,m=/[svh]\w+-[tblr]{2}/,x=/\(\s*(.*)\s*\)/g,$=/([\s\S]*?);/g,y=/-self|flex-/g,O=/[^]*?(:[rp][el]a[\w-]+)[^]*/,j=/stretch|:\s*\w+\-(?:conte|avail)/,z=/([^-])(image-set\()/,N="-webkit-",S="-moz-",F="-ms-",W=59,q=125,B=123,D=40,E=41,G=91,H=93,I=10,J=13,K=9,L=64,M=32,P=38,Q=45,R=95,T=42,U=44,V=58,X=39,Y=34,Z=47,_=62,ee=43,ae=126,re=0,ce=12,se=11,te=107,ie=109,fe=115,ne=112,le=111,oe=105,he=99,ue=100,de=112,be=1,pe=1,ke=0,ge=1,Ae=1,Ce=1,we=0,ve=0,me=0,xe=[],$e=[],ye=0,Oe=null,je=-2,ze=-1,Ne=0,Se=1,Fe=2,We=3,qe=0,Be=1,De="",Ee="",Ge="";function He(e,a,s,t,i){for(var f,n,o=0,h=0,u=0,d=0,g=0,A=0,C=0,w=0,m=0,$=0,y=0,O=0,j=0,z=0,R=0,we=0,$e=0,Oe=0,je=0,ze=s.length,Je=ze-1,Re="",Te="",Ue="",Ve="",Xe="",Ye="";R<ze;){if(C=s.charCodeAt(R),R===Je)if(h+d+u+o!==0){if(0!==h)C=h===Z?I:Z;d=u=o=0,ze++,Je++}if(h+d+u+o===0){if(R===Je){if(we>0)Te=Te.replace(c,"");if(Te.trim().length>0){switch(C){case M:case K:case W:case J:case I:break;default:Te+=s.charAt(R)}C=W}}if(1===$e)switch(C){case B:case q:case W:case Y:case X:case D:case E:case U:$e=0;case K:case J:case I:case M:break;default:for($e=0,je=R,g=C,R--,C=W;je<ze;)switch(s.charCodeAt(je++)){case I:case J:case W:++R,C=g,je=ze;break;case V:if(we>0)++R,C=g;case B:je=ze}}switch(C){case B:for(g=(Te=Te.trim()).charCodeAt(0),y=1,je=++R;R<ze;){switch(C=s.charCodeAt(R)){case B:y++;break;case q:y--;break;case Z:switch(A=s.charCodeAt(R+1)){case T:case Z:R=Qe(A,R,Je,s)}break;case G:C++;case D:C++;case Y:case X:for(;R++<Je&&s.charCodeAt(R)!==C;);}if(0===y)break;R++}if(Ue=s.substring(je,R),g===re)g=(Te=Te.replace(r,"").trim()).charCodeAt(0);switch(g){case L:if(we>0)Te=Te.replace(c,"");switch(A=Te.charCodeAt(1)){case ue:case ie:case fe:case Q:f=a;break;default:f=xe}if(je=(Ue=He(a,f,Ue,A,i+1)).length,me>0&&0===je)je=Te.length;if(ye>0)if(f=Ie(xe,Te,Oe),n=Pe(We,Ue,f,a,pe,be,je,A,i,t),Te=f.join(""),void 0!==n)if(0===(je=(Ue=n.trim()).length))A=0,Ue="";if(je>0)switch(A){case fe:Te=Te.replace(x,Me);case ue:case ie:case Q:Ue=Te+"{"+Ue+"}";break;case te:if(Ue=(Te=Te.replace(b,"$1 $2"+(Be>0?De:"")))+"{"+Ue+"}",1===Ae||2===Ae&&Le("@"+Ue,3))Ue="@"+N+Ue+"@"+Ue;else Ue="@"+Ue;break;default:if(Ue=Te+Ue,t===de)Ve+=Ue,Ue=""}else Ue="";break;default:Ue=He(a,Ie(a,Te,Oe),Ue,t,i+1)}Xe+=Ue,O=0,$e=0,z=0,we=0,Oe=0,j=0,Te="",Ue="",C=s.charCodeAt(++R);break;case q:case W:if((je=(Te=(we>0?Te.replace(c,""):Te).trim()).length)>1){if(0===z)if((g=Te.charCodeAt(0))===Q||g>96&&g<123)je=(Te=Te.replace(" ",":")).length;if(ye>0)if(void 0!==(n=Pe(Se,Te,a,e,pe,be,Ve.length,t,i,t)))if(0===(je=(Te=n.trim()).length))Te="\0\0";switch(g=Te.charCodeAt(0),A=Te.charCodeAt(1),g){case re:break;case L:if(A===oe||A===he){Ye+=Te+s.charAt(R);break}default:if(Te.charCodeAt(je-1)===V)break;Ve+=Ke(Te,g,A,Te.charCodeAt(2))}}O=0,$e=0,z=0,we=0,Oe=0,Te="",C=s.charCodeAt(++R)}}switch(C){case J:case I:if(h+d+u+o+ve===0)switch($){case E:case X:case Y:case L:case ae:case _:case T:case ee:case Z:case Q:case V:case U:case W:case B:case q:break;default:if(z>0)$e=1}if(h===Z)h=0;else if(ge+O===0&&t!==te&&Te.length>0)we=1,Te+="\0";if(ye*qe>0)Pe(Ne,Te,a,e,pe,be,Ve.length,t,i,t);be=1,pe++;break;case W:case q:if(h+d+u+o===0){be++;break}default:switch(be++,Re=s.charAt(R),C){case K:case M:if(d+o+h===0)switch(w){case U:case V:case K:case M:Re="";break;default:if(C!==M)Re=" "}break;case re:Re="\\0";break;case ce:Re="\\f";break;case se:Re="\\v";break;case P:if(d+h+o===0&&ge>0)Oe=1,we=1,Re="\f"+Re;break;case 108:if(d+h+o+ke===0&&z>0)switch(R-z){case 2:if(w===ne&&s.charCodeAt(R-3)===V)ke=w;case 8:if(m===le)ke=m}break;case V:if(d+h+o===0)z=R;break;case U:if(h+u+d+o===0)we=1,Re+="\r";break;case Y:case X:if(0===h)d=d===C?0:0===d?C:d;break;case G:if(d+h+u===0)o++;break;case H:if(d+h+u===0)o--;break;case E:if(d+h+o===0)u--;break;case D:if(d+h+o===0){if(0===O)switch(2*w+3*m){case 533:break;default:y=0,O=1}u++}break;case L:if(h+u+d+o+z+j===0)j=1;break;case T:case Z:if(d+o+u>0)break;switch(h){case 0:switch(2*C+3*s.charCodeAt(R+1)){case 235:h=Z;break;case 220:je=R,h=T}break;case T:if(C===Z&&w===T&&je+2!==R){if(33===s.charCodeAt(je+2))Ve+=s.substring(je,R+1);Re="",h=0}}}if(0===h){if(ge+d+o+j===0&&t!==te&&C!==W)switch(C){case U:case ae:case _:case ee:case E:case D:if(0===O){switch(w){case K:case M:case I:case J:Re+="\0";break;default:Re="\0"+Re+(C===U?"":"\0")}we=1}else switch(C){case D:if(z+7===R&&108===w)z=0;O=++y;break;case E:if(0==(O=--y))we=1,Re+="\0"}break;case K:case M:switch(w){case re:case B:case q:case W:case U:case ce:case K:case M:case I:case J:break;default:if(0===O)we=1,Re+="\0"}}if(Te+=Re,C!==M&&C!==K)$=C}}m=w,w=C,R++}if(je=Ve.length,me>0)if(0===je&&0===Xe.length&&0===a[0].length==false)if(t!==ie||1===a.length&&(ge>0?Ee:Ge)===a[0])je=a.join(",").length+2;if(je>0){if(f=0===ge&&t!==te?function(e){for(var a,r,s=0,t=e.length,i=Array(t);s<t;++s){for(var f=e[s].split(l),n="",o=0,h=0,u=0,d=0,b=f.length;o<b;++o){if(0===(h=(r=f[o]).length)&&b>1)continue;if(u=n.charCodeAt(n.length-1),d=r.charCodeAt(0),a="",0!==o)switch(u){case T:case ae:case _:case ee:case M:case D:break;default:a=" "}switch(d){case P:r=a+Ee;case ae:case _:case ee:case M:case E:case D:break;case G:r=a+r+Ee;break;case V:switch(2*r.charCodeAt(1)+3*r.charCodeAt(2)){case 530:if(Ce>0){r=a+r.substring(8,h-1);break}default:if(o<1||f[o-1].length<1)r=a+Ee+r}break;case U:a="";default:if(h>1&&r.indexOf(":")>0)r=a+r.replace(v,"$1"+Ee+"$2");else r=a+r+Ee}n+=r}i[s]=n.replace(c,"").trim()}return i}(a):a,ye>0)if(void 0!==(n=Pe(Fe,Ve,f,e,pe,be,je,t,i,t))&&0===(Ve=n).length)return Ye+Ve+Xe;if(Ve=f.join(",")+"{"+Ve+"}",Ae*ke!=0){if(2===Ae&&!Le(Ve,2))ke=0;switch(ke){case le:Ve=Ve.replace(k,":"+S+"$1")+Ve;break;case ne:Ve=Ve.replace(p,"::"+N+"input-$1")+Ve.replace(p,"::"+S+"$1")+Ve.replace(p,":"+F+"input-$1")+Ve}ke=0}}return Ye+Ve+Xe}function Ie(e,a,r){var c=a.trim().split(o),s=c,t=c.length,i=e.length;switch(i){case 0:case 1:for(var f=0,n=0===i?"":e[0]+" ";f<t;++f)s[f]=Je(n,s[f],r,i).trim();break;default:f=0;var l=0;for(s=[];f<t;++f)for(var h=0;h<i;++h)s[l++]=Je(e[h]+" ",c[f],r,i).trim()}return s}function Je(e,a,r,c){var s=a,t=s.charCodeAt(0);if(t<33)t=(s=s.trim()).charCodeAt(0);switch(t){case P:switch(ge+c){case 0:case 1:if(0===e.trim().length)break;default:return s.replace(h,"$1"+e.trim())}break;case V:switch(s.charCodeAt(1)){case 103:if(Ce>0&&ge>0)return s.replace(u,"$1").replace(h,"$1"+Ge);break;default:return e.trim()+s.replace(h,"$1"+e.trim())}default:if(r*ge>0&&s.indexOf("\f")>0)return s.replace(h,(e.charCodeAt(0)===V?"":"$1")+e.trim())}return e+s}function Ke(e,a,r,c){var l,o=0,h=e+";",u=2*a+3*r+4*c;if(944===u)return function(e){var a=e.length,r=e.indexOf(":",9)+1,c=e.substring(0,r).trim(),s=e.substring(r,a-1).trim();switch(e.charCodeAt(9)*Be){case 0:break;case Q:if(110!==e.charCodeAt(10))break;default:for(var t=s.split((s="",f)),i=0,r=0,a=t.length;i<a;r=0,++i){for(var l=t[i],o=l.split(n);l=o[r];){var h=l.charCodeAt(0);if(1===Be&&(h>L&&h<90||h>96&&h<123||h===R||h===Q&&l.charCodeAt(1)!==Q))switch(isNaN(parseFloat(l))+(-1!==l.indexOf("("))){case 1:switch(l){case"infinite":case"alternate":case"backwards":case"running":case"normal":case"forwards":case"both":case"none":case"linear":case"ease":case"ease-in":case"ease-out":case"ease-in-out":case"paused":case"reverse":case"alternate-reverse":case"inherit":case"initial":case"unset":case"step-start":case"step-end":break;default:l+=De}}o[r++]=l}s+=(0===i?"":",")+o.join(" ")}}if(s=c+s+";",1===Ae||2===Ae&&Le(s,1))return N+s+s;return s}(h);else if(0===Ae||2===Ae&&!Le(h,1))return h;switch(u){case 1015:return 97===h.charCodeAt(10)?N+h+h:h;case 951:return 116===h.charCodeAt(3)?N+h+h:h;case 963:return 110===h.charCodeAt(5)?N+h+h:h;case 1009:if(100!==h.charCodeAt(4))break;case 969:case 942:return N+h+h;case 978:return N+h+S+h+h;case 1019:case 983:return N+h+S+h+F+h+h;case 883:if(h.charCodeAt(8)===Q)return N+h+h;if(h.indexOf("image-set(",11)>0)return h.replace(z,"$1"+N+"$2")+h;return h;case 932:if(h.charCodeAt(4)===Q)switch(h.charCodeAt(5)){case 103:return N+"box-"+h.replace("-grow","")+N+h+F+h.replace("grow","positive")+h;case 115:return N+h+F+h.replace("shrink","negative")+h;case 98:return N+h+F+h.replace("basis","preferred-size")+h}return N+h+F+h+h;case 964:return N+h+F+"flex-"+h+h;case 1023:if(99!==h.charCodeAt(8))break;return l=h.substring(h.indexOf(":",15)).replace("flex-","").replace("space-between","justify"),N+"box-pack"+l+N+h+F+"flex-pack"+l+h;case 1005:return t.test(h)?h.replace(s,":"+N)+h.replace(s,":"+S)+h:h;case 1e3:switch(o=(l=h.substring(13).trim()).indexOf("-")+1,l.charCodeAt(0)+l.charCodeAt(o)){case 226:l=h.replace(m,"tb");break;case 232:l=h.replace(m,"tb-rl");break;case 220:l=h.replace(m,"lr");break;default:return h}return N+h+F+l+h;case 1017:if(-1===h.indexOf("sticky",9))return h;case 975:switch(o=(h=e).length-10,u=(l=(33===h.charCodeAt(o)?h.substring(0,o):h).substring(e.indexOf(":",7)+1).trim()).charCodeAt(0)+(0|l.charCodeAt(7))){case 203:if(l.charCodeAt(8)<111)break;case 115:h=h.replace(l,N+l)+";"+h;break;case 207:case 102:h=h.replace(l,N+(u>102?"inline-":"")+"box")+";"+h.replace(l,N+l)+";"+h.replace(l,F+l+"box")+";"+h}return h+";";case 938:if(h.charCodeAt(5)===Q)switch(h.charCodeAt(6)){case 105:return l=h.replace("-items",""),N+h+N+"box-"+l+F+"flex-"+l+h;case 115:return N+h+F+"flex-item-"+h.replace(y,"")+h;default:return N+h+F+"flex-line-pack"+h.replace("align-content","").replace(y,"")+h}break;case 973:case 989:if(h.charCodeAt(3)!==Q||122===h.charCodeAt(4))break;case 931:case 953:if(true===j.test(e))if(115===(l=e.substring(e.indexOf(":")+1)).charCodeAt(0))return Ke(e.replace("stretch","fill-available"),a,r,c).replace(":fill-available",":stretch");else return h.replace(l,N+l)+h.replace(l,S+l.replace("fill-",""))+h;break;case 962:if(h=N+h+(102===h.charCodeAt(5)?F+h:"")+h,r+c===211&&105===h.charCodeAt(13)&&h.indexOf("transform",10)>0)return h.substring(0,h.indexOf(";",27)+1).replace(i,"$1"+N+"$2")+h}return h}function Le(e,a){var r=e.indexOf(1===a?":":"{"),c=e.substring(0,3!==a?r:10),s=e.substring(r+1,e.length-1);return Oe(2!==a?c:c.replace(O,"$1"),s,a)}function Me(e,a){var r=Ke(a,a.charCodeAt(0),a.charCodeAt(1),a.charCodeAt(2));return r!==a+";"?r.replace($," or ($1)").substring(4):"("+a+")"}function Pe(e,a,r,c,s,t,i,f,n,l){for(var o,h=0,u=a;h<ye;++h)switch(o=$e[h].call(Te,e,u,r,c,s,t,i,f,n,l)){case void 0:case false:case true:case null:break;default:u=o}if(u!==a)return u}function Qe(e,a,r,c){for(var s=a+1;s<r;++s)switch(c.charCodeAt(s)){case Z:if(e===T)if(c.charCodeAt(s-1)===T&&a+2!==s)return s+1;break;case I:if(e===Z)return s+1}return s}function Re(e){for(var a in e){var r=e[a];switch(a){case"keyframe":Be=0|r;break;case"global":Ce=0|r;break;case"cascade":ge=0|r;break;case"compress":we=0|r;break;case"semicolon":ve=0|r;break;case"preserve":me=0|r;break;case"prefix":if(Oe=null,!r)Ae=0;else if("function"!=typeof r)Ae=1;else Ae=2,Oe=r}}return Re}function Te(a,r){if(void 0!==this&&this.constructor===Te)return e(a);var s=a,t=s.charCodeAt(0);if(t<33)t=(s=s.trim()).charCodeAt(0);if(Be>0)De=s.replace(d,t===G?"":"-");if(t=1,1===ge)Ge=s;else Ee=s;var i,f=[Ge];if(ye>0)if(void 0!==(i=Pe(ze,r,f,f,pe,be,0,0,0,0))&&"string"==typeof i)r=i;var n=He(xe,f,r,0,0);if(ye>0)if(void 0!==(i=Pe(je,n,f,f,pe,be,n.length,0,0,0))&&"string"!=typeof(n=i))t=0;return De="",Ge="",Ee="",ke=0,pe=1,be=1,we*t==0?n:n.replace(c,"").replace(g,"").replace(A,"$1").replace(C,"$1").replace(w," ")}if(Te.use=function e(a){switch(a){case void 0:case null:ye=$e.length=0;break;default:if("function"==typeof a)$e[ye++]=a;else if("object"==typeof a)for(var r=0,c=a.length;r<c;++r)e(a[r]);else qe=0|!!a}return e},Te.set=Re,void 0!==a)Re(a);return Te});
+
+},{}],"../node_modules/stylis-rule-sheet/index.js":[function(require,module,exports) {
+var define;
+(function (factory) {
+	typeof exports === 'object' && typeof module !== 'undefined' ? (module['exports'] = factory()) :
+		typeof define === 'function' && define['amd'] ? define(factory()) :
+			(window['stylisRuleSheet'] = factory())
+}(function () {
+
+	'use strict'
+
+	return function (insertRule) {
+		var delimiter = '/*|*/'
+		var needle = delimiter+'}'
+
+		function toSheet (block) {
+			if (block)
+				try {
+					insertRule(block + '}')
+				} catch (e) {}
+		}
+
+		return function ruleSheet (context, content, selectors, parents, line, column, length, ns, depth, at) {
+			switch (context) {
+				// property
+				case 1:
+					// @import
+					if (depth === 0 && content.charCodeAt(0) === 64)
+						return insertRule(content+';'), ''
+					break
+				// selector
+				case 2:
+					if (ns === 0)
+						return content + delimiter
+					break
+				// at-rule
+				case 3:
+					switch (ns) {
+						// @font-face, @page
+						case 102:
+						case 112:
+							return insertRule(selectors[0]+content), ''
+						default:
+							return content + (at === 0 ? delimiter : '')
+					}
+				case -2:
+					content.split(needle).forEach(toSheet)
+			}
+		}
+	}
+}))
+
+},{}],"../node_modules/@emotion/unitless/dist/unitless.browser.esm.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+var unitlessKeys = {
+  animationIterationCount: 1,
+  borderImageOutset: 1,
+  borderImageSlice: 1,
+  borderImageWidth: 1,
+  boxFlex: 1,
+  boxFlexGroup: 1,
+  boxOrdinalGroup: 1,
+  columnCount: 1,
+  columns: 1,
+  flex: 1,
+  flexGrow: 1,
+  flexPositive: 1,
+  flexShrink: 1,
+  flexNegative: 1,
+  flexOrder: 1,
+  gridRow: 1,
+  gridRowEnd: 1,
+  gridRowSpan: 1,
+  gridRowStart: 1,
+  gridColumn: 1,
+  gridColumnEnd: 1,
+  gridColumnSpan: 1,
+  gridColumnStart: 1,
+  msGridRow: 1,
+  msGridRowSpan: 1,
+  msGridColumn: 1,
+  msGridColumnSpan: 1,
+  fontWeight: 1,
+  lineHeight: 1,
+  opacity: 1,
+  order: 1,
+  orphans: 1,
+  tabSize: 1,
+  widows: 1,
+  zIndex: 1,
+  zoom: 1,
+  WebkitLineClamp: 1,
+  // SVG-related properties
+  fillOpacity: 1,
+  floodOpacity: 1,
+  stopOpacity: 1,
+  strokeDasharray: 1,
+  strokeDashoffset: 1,
+  strokeMiterlimit: 1,
+  strokeOpacity: 1,
+  strokeWidth: 1
+};
+var _default = unitlessKeys;
+exports.default = _default;
+},{}],"../node_modules/memoize-one/dist/memoize-one.esm.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+function areInputsEqual(newInputs, lastInputs) {
+  if (newInputs.length !== lastInputs.length) {
+    return false;
+  }
+
+  for (var i = 0; i < newInputs.length; i++) {
+    if (newInputs[i] !== lastInputs[i]) {
+      return false;
+    }
+  }
+
+  return true;
+}
+
+function memoizeOne(resultFn, isEqual) {
+  if (isEqual === void 0) {
+    isEqual = areInputsEqual;
+  }
+
+  var lastThis;
+  var lastArgs = [];
+  var lastResult;
+  var calledOnce = false;
+
+  function memoized() {
+    var newArgs = [];
+
+    for (var _i = 0; _i < arguments.length; _i++) {
+      newArgs[_i] = arguments[_i];
+    }
+
+    if (calledOnce && lastThis === this && isEqual(newArgs, lastArgs)) {
+      return lastResult;
+    }
+
+    lastResult = resultFn.apply(this, newArgs);
+    calledOnce = true;
+    lastThis = this;
+    lastArgs = newArgs;
+    return lastResult;
+  }
+
+  return memoized;
+}
+
+var _default = memoizeOne;
+exports.default = _default;
+},{}],"../node_modules/@emotion/memoize/dist/memoize.browser.esm.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+function memoize(fn) {
+  var cache = {};
+  return function (arg) {
+    if (cache[arg] === undefined) cache[arg] = fn(arg);
+    return cache[arg];
+  };
+}
+
+var _default = memoize;
+exports.default = _default;
+},{}],"../node_modules/@emotion/is-prop-valid/dist/is-prop-valid.browser.esm.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var _memoize = _interopRequireDefault(require("@emotion/memoize"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var reactPropsRegex = /^((children|dangerouslySetInnerHTML|key|ref|autoFocus|defaultValue|defaultChecked|innerHTML|suppressContentEditableWarning|suppressHydrationWarning|valueLink|accept|acceptCharset|accessKey|action|allow|allowUserMedia|allowPaymentRequest|allowFullScreen|allowTransparency|alt|async|autoComplete|autoPlay|capture|cellPadding|cellSpacing|challenge|charSet|checked|cite|classID|className|cols|colSpan|content|contentEditable|contextMenu|controls|controlsList|coords|crossOrigin|data|dateTime|decoding|default|defer|dir|disabled|download|draggable|encType|form|formAction|formEncType|formMethod|formNoValidate|formTarget|frameBorder|headers|height|hidden|high|href|hrefLang|htmlFor|httpEquiv|id|inputMode|integrity|is|keyParams|keyType|kind|label|lang|list|loading|loop|low|marginHeight|marginWidth|max|maxLength|media|mediaGroup|method|min|minLength|multiple|muted|name|nonce|noValidate|open|optimum|pattern|placeholder|playsInline|poster|preload|profile|radioGroup|readOnly|referrerPolicy|rel|required|reversed|role|rows|rowSpan|sandbox|scope|scoped|scrolling|seamless|selected|shape|size|sizes|slot|span|spellCheck|src|srcDoc|srcLang|srcSet|start|step|style|summary|tabIndex|target|title|type|useMap|value|width|wmode|wrap|about|datatype|inlist|prefix|property|resource|typeof|vocab|autoCapitalize|autoCorrect|autoSave|color|itemProp|itemScope|itemType|itemID|itemRef|results|security|unselectable|accentHeight|accumulate|additive|alignmentBaseline|allowReorder|alphabetic|amplitude|arabicForm|ascent|attributeName|attributeType|autoReverse|azimuth|baseFrequency|baselineShift|baseProfile|bbox|begin|bias|by|calcMode|capHeight|clip|clipPathUnits|clipPath|clipRule|colorInterpolation|colorInterpolationFilters|colorProfile|colorRendering|contentScriptType|contentStyleType|cursor|cx|cy|d|decelerate|descent|diffuseConstant|direction|display|divisor|dominantBaseline|dur|dx|dy|edgeMode|elevation|enableBackground|end|exponent|externalResourcesRequired|fill|fillOpacity|fillRule|filter|filterRes|filterUnits|floodColor|floodOpacity|focusable|fontFamily|fontSize|fontSizeAdjust|fontStretch|fontStyle|fontVariant|fontWeight|format|from|fr|fx|fy|g1|g2|glyphName|glyphOrientationHorizontal|glyphOrientationVertical|glyphRef|gradientTransform|gradientUnits|hanging|horizAdvX|horizOriginX|ideographic|imageRendering|in|in2|intercept|k|k1|k2|k3|k4|kernelMatrix|kernelUnitLength|kerning|keyPoints|keySplines|keyTimes|lengthAdjust|letterSpacing|lightingColor|limitingConeAngle|local|markerEnd|markerMid|markerStart|markerHeight|markerUnits|markerWidth|mask|maskContentUnits|maskUnits|mathematical|mode|numOctaves|offset|opacity|operator|order|orient|orientation|origin|overflow|overlinePosition|overlineThickness|panose1|paintOrder|pathLength|patternContentUnits|patternTransform|patternUnits|pointerEvents|points|pointsAtX|pointsAtY|pointsAtZ|preserveAlpha|preserveAspectRatio|primitiveUnits|r|radius|refX|refY|renderingIntent|repeatCount|repeatDur|requiredExtensions|requiredFeatures|restart|result|rotate|rx|ry|scale|seed|shapeRendering|slope|spacing|specularConstant|specularExponent|speed|spreadMethod|startOffset|stdDeviation|stemh|stemv|stitchTiles|stopColor|stopOpacity|strikethroughPosition|strikethroughThickness|string|stroke|strokeDasharray|strokeDashoffset|strokeLinecap|strokeLinejoin|strokeMiterlimit|strokeOpacity|strokeWidth|surfaceScale|systemLanguage|tableValues|targetX|targetY|textAnchor|textDecoration|textRendering|textLength|to|transform|u1|u2|underlinePosition|underlineThickness|unicode|unicodeBidi|unicodeRange|unitsPerEm|vAlphabetic|vHanging|vIdeographic|vMathematical|values|vectorEffect|version|vertAdvY|vertOriginX|vertOriginY|viewBox|viewTarget|visibility|widths|wordSpacing|writingMode|x|xHeight|x1|x2|xChannelSelector|xlinkActuate|xlinkArcrole|xlinkHref|xlinkRole|xlinkShow|xlinkTitle|xlinkType|xmlBase|xmlns|xmlnsXlink|xmlLang|xmlSpace|y|y1|y2|yChannelSelector|z|zoomAndPan|for|class|autofocus)|(([Dd][Aa][Tt][Aa]|[Aa][Rr][Ii][Aa]|x)-.*))$/; // https://esbench.com/bench/5bfee68a4cd7e6009ef61d23
+
+var index = (0, _memoize.default)(function (prop) {
+  return reactPropsRegex.test(prop) || prop.charCodeAt(0) === 111
+  /* o */
+  && prop.charCodeAt(1) === 110
+  /* n */
+  && prop.charCodeAt(2) < 91;
+}
+/* Z+1 */
+);
+var _default = index;
+exports.default = _default;
+},{"@emotion/memoize":"../node_modules/@emotion/memoize/dist/memoize.browser.esm.js"}],"../node_modules/is-what/dist/index.esm.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.getType = getType;
+exports.isUndefined = isUndefined;
+exports.isNull = isNull;
+exports.isPlainObject = isPlainObject;
+exports.isObject = isObject;
+exports.isAnyObject = isAnyObject;
+exports.isObjectLike = isObjectLike;
+exports.isFunction = isFunction;
+exports.isArray = isArray;
+exports.isString = isString;
+exports.isFullString = isFullString;
+exports.isEmptyString = isEmptyString;
+exports.isNumber = isNumber;
+exports.isBoolean = isBoolean;
+exports.isRegExp = isRegExp;
+exports.isDate = isDate;
+exports.isSymbol = isSymbol;
+exports.isPrimitive = isPrimitive;
+exports.isType = isType;
+
+/**
+ * Returns the object type of the given payload
+ *
+ * @param {*} payload
+ * @returns {string}
+ */
+function getType(payload) {
+  return Object.prototype.toString.call(payload).slice(8, -1);
+}
+/**
+ * Returns whether the payload is undefined
+ *
+ * @param {*} payload
+ * @returns {payload is undefined}
+ */
+
+
+function isUndefined(payload) {
+  return getType(payload) === 'Undefined';
+}
+/**
+ * Returns whether the payload is null
+ *
+ * @param {*} payload
+ * @returns {payload is null}
+ */
+
+
+function isNull(payload) {
+  return getType(payload) === 'Null';
+}
+/**
+ * Returns whether the payload is a plain JavaScript object (excluding special classes or objects with other prototypes)
+ *
+ * @param {*} payload
+ * @returns {payload is {[key: string]: any}}
+ */
+
+
+function isPlainObject(payload) {
+  if (getType(payload) !== 'Object') return false;
+  return payload.constructor === Object && Object.getPrototypeOf(payload) === Object.prototype;
+}
+/**
+ * Returns whether the payload is a plain JavaScript object (excluding special classes or objects with other prototypes)
+ *
+ * @param {*} payload
+ * @returns {payload is {[key: string]: any}}
+ */
+
+
+function isObject(payload) {
+  return isPlainObject(payload);
+}
+/**
+ * Returns whether the payload is an any kind of object (including special classes or objects with different prototypes)
+ *
+ * @param {*} payload
+ * @returns {payload is {[key: string]: any}}
+ */
+
+
+function isAnyObject(payload) {
+  return getType(payload) === 'Object';
+}
+/**
+ * Returns whether the payload is an object like a type passed in < >
+ *
+ * Usage: isObjectLike<{id: any}>(payload) // will make sure it's an object and has an `id` prop.
+ *
+ * @template T this must be passed in < >
+ * @param {*} payload
+ * @returns {payload is T}
+ */
+
+
+function isObjectLike(payload) {
+  return isAnyObject(payload);
+}
+/**
+ * Returns whether the payload is a function
+ *
+ * @param {*} payload
+ * @returns {payload is Function}
+ */
+
+
+function isFunction(payload) {
+  return getType(payload) === 'Function';
+}
+/**
+ * Returns whether the payload is an array
+ *
+ * @param {*} payload
+ * @returns {payload is undefined}
+ */
+
+
+function isArray(payload) {
+  return getType(payload) === 'Array';
+}
+/**
+ * Returns whether the payload is a string
+ *
+ * @param {*} payload
+ * @returns {payload is string}
+ */
+
+
+function isString(payload) {
+  return getType(payload) === 'String';
+}
+/**
+ * Returns whether the payload is a string, BUT returns false for ''
+ *
+ * @param {*} payload
+ * @returns {payload is string}
+ */
+
+
+function isFullString(payload) {
+  return isString(payload) && payload !== '';
+}
+/**
+ * Returns whether the payload is ''
+ *
+ * @param {*} payload
+ * @returns {payload is string}
+ */
+
+
+function isEmptyString(payload) {
+  return payload === '';
+}
+/**
+ * Returns whether the payload is a number
+ *
+ * This will return false for NaN
+ *
+ * @param {*} payload
+ * @returns {payload is number}
+ */
+
+
+function isNumber(payload) {
+  return getType(payload) === 'Number' && !isNaN(payload);
+}
+/**
+ * Returns whether the payload is a boolean
+ *
+ * @param {*} payload
+ * @returns {payload is boolean}
+ */
+
+
+function isBoolean(payload) {
+  return getType(payload) === 'Boolean';
+}
+/**
+ * Returns whether the payload is a regular expression
+ *
+ * @param {*} payload
+ * @returns {payload is RegExp}
+ */
+
+
+function isRegExp(payload) {
+  return getType(payload) === 'RegExp';
+}
+/**
+ * Returns whether the payload is a date, and that the date is Valid
+ *
+ * @param {*} payload
+ * @returns {payload is Date}
+ */
+
+
+function isDate(payload) {
+  return getType(payload) === 'Date' && !isNaN(payload);
+}
+/**
+ * Returns whether the payload is a Symbol
+ *
+ * @param {*} payload
+ * @returns {payload is symbol}
+ */
+
+
+function isSymbol(payload) {
+  return getType(payload) === 'Symbol';
+}
+/**
+ * Returns whether the payload is a primitive type (eg. Boolean | Null | Undefined | Number | String | Symbol)
+ *
+ * @param {*} payload
+ * @returns {(payload is boolean | null | undefined | number | string | symbol)}
+ */
+
+
+function isPrimitive(payload) {
+  return isBoolean(payload) || isNull(payload) || isUndefined(payload) || isNumber(payload) || isString(payload) || isSymbol(payload);
+}
+/**
+ * Does a generic check to check that the given payload is of a given type.
+ * In cases like Number, it will return true for NaN as NaN is a Number (thanks javascript!);
+ * It will, however, differentiate between object and null
+ *
+ * @template T
+ * @param {*} payload
+ * @param {T} type
+ * @throws {TypeError} Will throw type error if type is an invalid type
+ * @returns {payload is T}
+ */
+
+
+function isType(payload, type) {
+  if (!(type instanceof Function)) {
+    throw new TypeError('Type must be a function');
+  }
+
+  if (!type.hasOwnProperty('prototype')) {
+    throw new TypeError('Type is not a class');
+  } // Classes usually have names (as functions usually have names)
+
+
+  var name = type.name;
+  return getType(payload) === name || Boolean(payload && payload.constructor === type);
+}
+},{}],"../node_modules/merge-anything/dist/index.esm.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.merge = merge;
+exports.concatArrays = concatArrays;
+exports.default = void 0;
+
+var _isWhat = require("is-what");
+
+function assignProp(carry, key, newVal, originalObject) {
+  var propType = originalObject.propertyIsEnumerable(key) ? 'enumerable' : 'nonenumerable';
+  if (propType === 'enumerable') carry[key] = newVal;
+
+  if (propType === 'nonenumerable') {
+    Object.defineProperty(carry, key, {
+      value: newVal,
+      enumerable: false,
+      writable: true,
+      configurable: true
+    });
+  }
+}
+
+function mergeRecursively(origin, newComer, extensions) {
+  // work directly on newComer if its not an object
+  if (!(0, _isWhat.isPlainObject)(newComer)) {
+    // extend merge rules
+    if (extensions && (0, _isWhat.isArray)(extensions)) {
+      extensions.forEach(function (extend) {
+        newComer = extend(origin, newComer);
+      });
+    }
+
+    return newComer;
+  } // define newObject to merge all values upon
+
+
+  var newObject = {};
+
+  if ((0, _isWhat.isPlainObject)(origin)) {
+    var props_1 = Object.getOwnPropertyNames(origin);
+    var symbols_1 = Object.getOwnPropertySymbols(origin);
+    newObject = props_1.concat(symbols_1).reduce(function (carry, key) {
+      // @ts-ignore
+      var targetVal = origin[key];
+
+      if (!(0, _isWhat.isSymbol)(key) && !Object.getOwnPropertyNames(newComer).includes(key) || (0, _isWhat.isSymbol)(key) && !Object.getOwnPropertySymbols(newComer).includes(key)) {
+        assignProp(carry, key, targetVal, origin);
+      }
+
+      return carry;
+    }, {});
+  }
+
+  var props = Object.getOwnPropertyNames(newComer);
+  var symbols = Object.getOwnPropertySymbols(newComer);
+  var result = props.concat(symbols).reduce(function (carry, key) {
+    // re-define the origin and newComer as targetVal and newVal
+    var newVal = newComer[key];
+    var targetVal = (0, _isWhat.isPlainObject)(origin) ? // @ts-ignore
+    origin[key] : undefined; // extend merge rules
+
+    if (extensions && (0, _isWhat.isArray)(extensions)) {
+      extensions.forEach(function (extend) {
+        newVal = extend(targetVal, newVal);
+      });
+    } // When newVal is an object do the merge recursively
+
+
+    if (targetVal !== undefined && (0, _isWhat.isPlainObject)(newVal)) {
+      newVal = mergeRecursively(targetVal, newVal, extensions);
+    }
+
+    assignProp(carry, key, newVal, newComer);
+    return carry;
+  }, newObject);
+  return result;
+}
+/**
+ * Merge anything recursively.
+ * Objects get merged, special objects (classes etc.) are re-assigned "as is".
+ * Basic types overwrite objects or other basic types.
+ *
+ * @param {(IConfig | any)} origin
+ * @param {...any[]} newComers
+ * @returns the result
+ */
+
+
+function merge(origin) {
+  var newComers = [];
+
+  for (var _i = 1; _i < arguments.length; _i++) {
+    newComers[_i - 1] = arguments[_i];
+  }
+
+  var extensions = null;
+  var base = origin;
+
+  if ((0, _isWhat.isPlainObject)(origin) && origin.extensions && Object.keys(origin).length === 1) {
+    base = {};
+    extensions = origin.extensions;
+  }
+
+  return newComers.reduce(function (result, newComer) {
+    return mergeRecursively(result, newComer, extensions);
+  }, base);
+}
+
+function concatArrays(originVal, newVal) {
+  if ((0, _isWhat.isArray)(originVal) && (0, _isWhat.isArray)(newVal)) {
+    // concat logic
+    return originVal.concat(newVal);
+  }
+
+  return newVal; // always return newVal as fallback!!
+}
+
+var _default = merge;
+exports.default = _default;
+},{"is-what":"../node_modules/is-what/dist/index.esm.js"}],"../node_modules/process/browser.js":[function(require,module,exports) {
+
+// shim for using process in browser
+var process = module.exports = {}; // cached from whatever global is present so that test runners that stub it
+// don't break things.  But we need to wrap it in a try catch in case it is
+// wrapped in strict mode code which doesn't define any globals.  It's inside a
+// function because try/catches deoptimize in certain engines.
+
+var cachedSetTimeout;
+var cachedClearTimeout;
+
+function defaultSetTimout() {
+  throw new Error('setTimeout has not been defined');
+}
+
+function defaultClearTimeout() {
+  throw new Error('clearTimeout has not been defined');
+}
+
+(function () {
+  try {
+    if (typeof setTimeout === 'function') {
+      cachedSetTimeout = setTimeout;
+    } else {
+      cachedSetTimeout = defaultSetTimout;
+    }
+  } catch (e) {
+    cachedSetTimeout = defaultSetTimout;
+  }
+
+  try {
+    if (typeof clearTimeout === 'function') {
+      cachedClearTimeout = clearTimeout;
+    } else {
+      cachedClearTimeout = defaultClearTimeout;
+    }
+  } catch (e) {
+    cachedClearTimeout = defaultClearTimeout;
+  }
+})();
+
+function runTimeout(fun) {
+  if (cachedSetTimeout === setTimeout) {
+    //normal enviroments in sane situations
+    return setTimeout(fun, 0);
+  } // if setTimeout wasn't available but was latter defined
+
+
+  if ((cachedSetTimeout === defaultSetTimout || !cachedSetTimeout) && setTimeout) {
+    cachedSetTimeout = setTimeout;
+    return setTimeout(fun, 0);
+  }
+
+  try {
+    // when when somebody has screwed with setTimeout but no I.E. maddness
+    return cachedSetTimeout(fun, 0);
+  } catch (e) {
+    try {
+      // When we are in I.E. but the script has been evaled so I.E. doesn't trust the global object when called normally
+      return cachedSetTimeout.call(null, fun, 0);
+    } catch (e) {
+      // same as above but when it's a version of I.E. that must have the global object for 'this', hopfully our context correct otherwise it will throw a global error
+      return cachedSetTimeout.call(this, fun, 0);
+    }
+  }
+}
+
+function runClearTimeout(marker) {
+  if (cachedClearTimeout === clearTimeout) {
+    //normal enviroments in sane situations
+    return clearTimeout(marker);
+  } // if clearTimeout wasn't available but was latter defined
+
+
+  if ((cachedClearTimeout === defaultClearTimeout || !cachedClearTimeout) && clearTimeout) {
+    cachedClearTimeout = clearTimeout;
+    return clearTimeout(marker);
+  }
+
+  try {
+    // when when somebody has screwed with setTimeout but no I.E. maddness
+    return cachedClearTimeout(marker);
+  } catch (e) {
+    try {
+      // When we are in I.E. but the script has been evaled so I.E. doesn't  trust the global object when called normally
+      return cachedClearTimeout.call(null, marker);
+    } catch (e) {
+      // same as above but when it's a version of I.E. that must have the global object for 'this', hopfully our context correct otherwise it will throw a global error.
+      // Some versions of I.E. have different rules for clearTimeout vs setTimeout
+      return cachedClearTimeout.call(this, marker);
+    }
+  }
+}
+
+var queue = [];
+var draining = false;
+var currentQueue;
+var queueIndex = -1;
+
+function cleanUpNextTick() {
+  if (!draining || !currentQueue) {
+    return;
+  }
+
+  draining = false;
+
+  if (currentQueue.length) {
+    queue = currentQueue.concat(queue);
+  } else {
+    queueIndex = -1;
+  }
+
+  if (queue.length) {
+    drainQueue();
+  }
+}
+
+function drainQueue() {
+  if (draining) {
+    return;
+  }
+
+  var timeout = runTimeout(cleanUpNextTick);
+  draining = true;
+  var len = queue.length;
+
+  while (len) {
+    currentQueue = queue;
+    queue = [];
+
+    while (++queueIndex < len) {
+      if (currentQueue) {
+        currentQueue[queueIndex].run();
+      }
+    }
+
+    queueIndex = -1;
+    len = queue.length;
+  }
+
+  currentQueue = null;
+  draining = false;
+  runClearTimeout(timeout);
+}
+
+process.nextTick = function (fun) {
+  var args = new Array(arguments.length - 1);
+
+  if (arguments.length > 1) {
+    for (var i = 1; i < arguments.length; i++) {
+      args[i - 1] = arguments[i];
+    }
+  }
+
+  queue.push(new Item(fun, args));
+
+  if (queue.length === 1 && !draining) {
+    runTimeout(drainQueue);
+  }
+}; // v8 likes predictible objects
+
+
+function Item(fun, array) {
+  this.fun = fun;
+  this.array = array;
+}
+
+Item.prototype.run = function () {
+  this.fun.apply(null, this.array);
+};
+
+process.title = 'browser';
+process.env = {};
+process.argv = [];
+process.version = ''; // empty string to avoid regexp issues
+
+process.versions = {};
+
+function noop() {}
+
+process.on = noop;
+process.addListener = noop;
+process.once = noop;
+process.off = noop;
+process.removeListener = noop;
+process.removeAllListeners = noop;
+process.emit = noop;
+process.prependListener = noop;
+process.prependOnceListener = noop;
+
+process.listeners = function (name) {
+  return [];
+};
+
+process.binding = function (name) {
+  throw new Error('process.binding is not supported');
+};
+
+process.cwd = function () {
+  return '/';
+};
+
+process.chdir = function (dir) {
+  throw new Error('process.chdir is not supported');
+};
+
+process.umask = function () {
+  return 0;
+};
+},{}],"../node_modules/styled-components/dist/styled-components.browser.esm.js":[function(require,module,exports) {
+var process = require("process");
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.createGlobalStyle = createGlobalStyle;
+exports.css = css;
+exports.isStyledComponent = isStyledComponent;
+exports.keyframes = keyframes;
+exports.__DO_NOT_USE_OR_YOU_WILL_BE_HAUNTED_BY_SPOOKY_GHOSTS = exports.withTheme = exports.ThemeProvider = exports.ThemeContext = exports.ThemeConsumer = exports.StyleSheetManager = exports.StyleSheetContext = exports.StyleSheetConsumer = exports.ServerStyleSheet = exports.default = void 0;
+
+var _stylis = _interopRequireDefault(require("stylis/stylis.min"));
+
+var _stylisRuleSheet = _interopRequireDefault(require("stylis-rule-sheet"));
+
+var _react = _interopRequireWildcard(require("react"));
+
+var _unitless = _interopRequireDefault(require("@emotion/unitless"));
+
+var _reactIs = require("react-is");
+
+var _memoizeOne = _interopRequireDefault(require("memoize-one"));
+
+var _propTypes = _interopRequireDefault(require("prop-types"));
+
+var _isPropValid = _interopRequireDefault(require("@emotion/is-prop-valid"));
+
+var _mergeAnything = _interopRequireDefault(require("merge-anything"));
+
+function _getRequireWildcardCache() { if (typeof WeakMap !== "function") return null; var cache = new WeakMap(); _getRequireWildcardCache = function () { return cache; }; return cache; }
+
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } var cache = _getRequireWildcardCache(); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; if (obj != null) { var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } } newObj.default = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+// 
+var interleave = function (strings, interpolations) {
+  var result = [strings[0]];
+
+  for (var i = 0, len = interpolations.length; i < len; i += 1) {
+    result.push(interpolations[i], strings[i + 1]);
+  }
+
+  return result;
+};
+
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) {
+  return typeof obj;
+} : function (obj) {
+  return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj;
+};
+
+var classCallCheck = function (instance, Constructor) {
+  if (!(instance instanceof Constructor)) {
+    throw new TypeError("Cannot call a class as a function");
+  }
+};
+
+var createClass = function () {
+  function defineProperties(target, props) {
+    for (var i = 0; i < props.length; i++) {
+      var descriptor = props[i];
+      descriptor.enumerable = descriptor.enumerable || false;
+      descriptor.configurable = true;
+      if ("value" in descriptor) descriptor.writable = true;
+      Object.defineProperty(target, descriptor.key, descriptor);
+    }
+  }
+
+  return function (Constructor, protoProps, staticProps) {
+    if (protoProps) defineProperties(Constructor.prototype, protoProps);
+    if (staticProps) defineProperties(Constructor, staticProps);
+    return Constructor;
+  };
+}();
+
+var _extends = Object.assign || function (target) {
+  for (var i = 1; i < arguments.length; i++) {
+    var source = arguments[i];
+
+    for (var key in source) {
+      if (Object.prototype.hasOwnProperty.call(source, key)) {
+        target[key] = source[key];
+      }
+    }
+  }
+
+  return target;
+};
+
+var inherits = function (subClass, superClass) {
+  if (typeof superClass !== "function" && superClass !== null) {
+    throw new TypeError("Super expression must either be null or a function, not " + typeof superClass);
+  }
+
+  subClass.prototype = Object.create(superClass && superClass.prototype, {
+    constructor: {
+      value: subClass,
+      enumerable: false,
+      writable: true,
+      configurable: true
+    }
+  });
+  if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass;
+};
+
+var objectWithoutProperties = function (obj, keys) {
+  var target = {};
+
+  for (var i in obj) {
+    if (keys.indexOf(i) >= 0) continue;
+    if (!Object.prototype.hasOwnProperty.call(obj, i)) continue;
+    target[i] = obj[i];
+  }
+
+  return target;
+};
+
+var possibleConstructorReturn = function (self, call) {
+  if (!self) {
+    throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
+  }
+
+  return call && (typeof call === "object" || typeof call === "function") ? call : self;
+}; // 
+
+
+var isPlainObject = function (x) {
+  return (typeof x === 'undefined' ? 'undefined' : _typeof(x)) === 'object' && x.constructor === Object;
+}; // 
+
+
+var EMPTY_ARRAY = Object.freeze([]);
+var EMPTY_OBJECT = Object.freeze({}); // 
+
+function isFunction(test) {
+  return typeof test === 'function';
+} // 
+
+
+function getComponentName(target) {
+  return ("development" !== 'production' ? typeof target === 'string' && target : false) || target.displayName || target.name || 'Component';
+} // 
+
+
+function isStatelessFunction(test) {
+  return typeof test === 'function' && !(test.prototype && test.prototype.isReactComponent);
+} // 
+
+
+function isStyledComponent(target) {
+  return target && typeof target.styledComponentId === 'string';
+} // 
+
+
+var SC_ATTR = typeof process !== 'undefined' && (undefined || undefined) || 'data-styled';
+var SC_VERSION_ATTR = 'data-styled-version';
+var SC_STREAM_ATTR = 'data-styled-streamed';
+var IS_BROWSER = typeof window !== 'undefined' && 'HTMLElement' in window;
+var DISABLE_SPEEDY = typeof SC_DISABLE_SPEEDY === 'boolean' && SC_DISABLE_SPEEDY || typeof process !== 'undefined' && (undefined || undefined) || "development" !== 'production'; // Shared empty execution context when generating static styles
+
+var STATIC_EXECUTION_CONTEXT = {}; // 
+
+/**
+ * Parse errors.md and turn it into a simple hash of code: message
+ */
+
+var ERRORS = "development" !== 'production' ? {
+  "1": "Cannot create styled-component for component: %s.\n\n",
+  "2": "Can't collect styles once you've consumed a `ServerStyleSheet`'s styles! `ServerStyleSheet` is a one off instance for each server-side render cycle.\n\n- Are you trying to reuse it across renders?\n- Are you accidentally calling collectStyles twice?\n\n",
+  "3": "Streaming SSR is only supported in a Node.js environment; Please do not try to call this method in the browser.\n\n",
+  "4": "The `StyleSheetManager` expects a valid target or sheet prop!\n\n- Does this error occur on the client and is your target falsy?\n- Does this error occur on the server and is the sheet falsy?\n\n",
+  "5": "The clone method cannot be used on the client!\n\n- Are you running in a client-like environment on the server?\n- Are you trying to run SSR on the client?\n\n",
+  "6": "Trying to insert a new style tag, but the given Node is unmounted!\n\n- Are you using a custom target that isn't mounted?\n- Does your document not have a valid head element?\n- Have you accidentally removed a style tag manually?\n\n",
+  "7": "ThemeProvider: Please return an object from your \"theme\" prop function, e.g.\n\n```js\ntheme={() => ({})}\n```\n\n",
+  "8": "ThemeProvider: Please make your \"theme\" prop an object.\n\n",
+  "9": "Missing document `<head>`\n\n",
+  "10": "Cannot find a StyleSheet instance. Usually this happens if there are multiple copies of styled-components loaded at once. Check out this issue for how to troubleshoot and fix the common cases where this situation can happen: https://github.com/styled-components/styled-components/issues/1941#issuecomment-417862021\n\n",
+  "11": "_This error was replaced with a dev-time warning, it will be deleted for v4 final._ [createGlobalStyle] received children which will not be rendered. Please use the component without passing children elements.\n\n",
+  "12": "It seems you are interpolating a keyframe declaration (%s) into an untagged string. This was supported in styled-components v3, but is not longer supported in v4 as keyframes are now injected on-demand. Please wrap your string in the css\\`\\` helper which ensures the styles are injected correctly. See https://www.styled-components.com/docs/api#css\n\n",
+  "13": "%s is not a styled component and cannot be referred to via component selector. See https://www.styled-components.com/docs/advanced#referring-to-other-components for more details.\n"
+} : {};
+/**
+ * super basic version of sprintf
+ */
+
+function format() {
+  var a = arguments.length <= 0 ? undefined : arguments[0];
+  var b = [];
+
+  for (var c = 1, len = arguments.length; c < len; c += 1) {
+    b.push(arguments.length <= c ? undefined : arguments[c]);
+  }
+
+  b.forEach(function (d) {
+    a = a.replace(/%[a-z]/, d);
+  });
+  return a;
+}
+/**
+ * Create an error file out of errors.md for development and a simple web link to the full errors
+ * in production mode.
+ */
+
+
+var StyledComponentsError = function (_Error) {
+  inherits(StyledComponentsError, _Error);
+
+  function StyledComponentsError(code) {
+    classCallCheck(this, StyledComponentsError);
+
+    for (var _len = arguments.length, interpolations = Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
+      interpolations[_key - 1] = arguments[_key];
+    }
+
+    if ("development" === 'production') {
+      var _this = possibleConstructorReturn(this, _Error.call(this, 'An error occurred. See https://github.com/styled-components/styled-components/blob/master/packages/styled-components/src/utils/errors.md#' + code + ' for more information.' + (interpolations.length > 0 ? ' Additional arguments: ' + interpolations.join(', ') : '')));
+    } else {
+      var _this = possibleConstructorReturn(this, _Error.call(this, format.apply(undefined, [ERRORS[code]].concat(interpolations)).trim()));
+    }
+
+    return possibleConstructorReturn(_this);
+  }
+
+  return StyledComponentsError;
+}(Error); // 
+
+
+var SC_COMPONENT_ID = /^[^\S\n]*?\/\* sc-component-id:\s*(\S+)\s+\*\//gm;
+
+var extractComps = function (maybeCSS) {
+  var css = '' + (maybeCSS || ''); // Definitely a string, and a clone
+
+  var existingComponents = [];
+  css.replace(SC_COMPONENT_ID, function (match, componentId, matchIndex) {
+    existingComponents.push({
+      componentId: componentId,
+      matchIndex: matchIndex
+    });
+    return match;
+  });
+  return existingComponents.map(function (_ref, i) {
+    var componentId = _ref.componentId,
+        matchIndex = _ref.matchIndex;
+    var nextComp = existingComponents[i + 1];
+    var cssFromDOM = nextComp ? css.slice(matchIndex, nextComp.matchIndex) : css.slice(matchIndex);
+    return {
+      componentId: componentId,
+      cssFromDOM: cssFromDOM
+    };
+  });
+}; // 
+
+
+var COMMENT_REGEX = /^\s*\/\/.*$/gm; // NOTE: This stylis instance is only used to split rules from SSR'd style tags
+
+var stylisSplitter = new _stylis.default({
+  global: false,
+  cascade: true,
+  keyframe: false,
+  prefix: false,
+  compress: false,
+  semicolon: true
+});
+var stylis = new _stylis.default({
+  global: false,
+  cascade: true,
+  keyframe: false,
+  prefix: true,
+  compress: false,
+  semicolon: false // NOTE: This means "autocomplete missing semicolons"
+
+}); // Wrap `insertRulePlugin to build a list of rules,
+// and then make our own plugin to return the rules. This
+// makes it easier to hook into the existing SSR architecture
+
+var parsingRules = []; // eslint-disable-next-line consistent-return
+
+var returnRulesPlugin = function returnRulesPlugin(context) {
+  if (context === -2) {
+    var parsedRules = parsingRules;
+    parsingRules = [];
+    return parsedRules;
+  }
+};
+
+var parseRulesPlugin = (0, _stylisRuleSheet.default)(function (rule) {
+  parsingRules.push(rule);
+});
+
+var _componentId = void 0;
+
+var _selector = void 0;
+
+var _selectorRegexp = void 0;
+
+var selfReferenceReplacer = function selfReferenceReplacer(match, offset, string) {
+  if ( // the first self-ref is always untouched
+  offset > 0 && // there should be at least two self-refs to do a replacement (.b > .b)
+  string.slice(0, offset).indexOf(_selector) !== -1 && // no consecutive self refs (.b.b); that is a precedence boost and treated differently
+  string.slice(offset - _selector.length, offset) !== _selector) {
+    return '.' + _componentId;
+  }
+
+  return match;
+};
+/**
+ * When writing a style like
+ *
+ * & + & {
+ *   color: red;
+ * }
+ *
+ * The second ampersand should be a reference to the static component class. stylis
+ * has no knowledge of static class so we have to intelligently replace the base selector.
+ */
+
+
+var selfReferenceReplacementPlugin = function selfReferenceReplacementPlugin(context, _, selectors) {
+  if (context === 2 && selectors.length && selectors[0].lastIndexOf(_selector) > 0) {
+    // eslint-disable-next-line no-param-reassign
+    selectors[0] = selectors[0].replace(_selectorRegexp, selfReferenceReplacer);
+  }
+};
+
+stylis.use([selfReferenceReplacementPlugin, parseRulesPlugin, returnRulesPlugin]);
+stylisSplitter.use([parseRulesPlugin, returnRulesPlugin]);
+
+var splitByRules = function splitByRules(css) {
+  return stylisSplitter('', css);
+};
+
+function stringifyRules(rules, selector, prefix) {
+  var componentId = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : '&';
+  var flatCSS = rules.join('').replace(COMMENT_REGEX, ''); // replace JS comments
+
+  var cssStr = selector && prefix ? prefix + ' ' + selector + ' { ' + flatCSS + ' }' : flatCSS; // stylis has no concept of state to be passed to plugins
+  // but since JS is single=threaded, we can rely on that to ensure
+  // these properties stay in sync with the current stylis run
+
+  _componentId = componentId;
+  _selector = selector;
+  _selectorRegexp = new RegExp('\\' + _selector + '\\b', 'g');
+  return stylis(prefix || !selector ? '' : selector, cssStr);
+} // 
+
+/* eslint-disable camelcase, no-undef */
+
+
+var getNonce = function () {
+  return typeof __webpack_nonce__ !== 'undefined' ? __webpack_nonce__ : null;
+}; // 
+
+/* These are helpers for the StyleTags to keep track of the injected
+ * rule names for each (component) ID that they're keeping track of.
+ * They're crucial for detecting whether a name has already been
+ * injected.
+ * (This excludes rehydrated names) */
+
+/* adds a new ID:name pairing to a names dictionary */
+
+
+var addNameForId = function addNameForId(names, id, name) {
+  if (name) {
+    // eslint-disable-next-line no-param-reassign
+    var namesForId = names[id] || (names[id] = Object.create(null));
+    namesForId[name] = true;
+  }
+};
+/* resets an ID entirely by overwriting it in the dictionary */
+
+
+var resetIdNames = function resetIdNames(names, id) {
+  // eslint-disable-next-line no-param-reassign
+  names[id] = Object.create(null);
+};
+/* factory for a names dictionary checking the existance of an ID:name pairing */
+
+
+var hasNameForId = function hasNameForId(names) {
+  return function (id, name) {
+    return names[id] !== undefined && names[id][name];
+  };
+};
+/* stringifies names for the html/element output */
+
+
+var stringifyNames = function stringifyNames(names) {
+  var str = ''; // eslint-disable-next-line guard-for-in
+
+  for (var id in names) {
+    str += Object.keys(names[id]).join(' ') + ' ';
+  }
+
+  return str.trim();
+};
+/* clones the nested names dictionary */
+
+
+var cloneNames = function cloneNames(names) {
+  var clone = Object.create(null); // eslint-disable-next-line guard-for-in
+
+  for (var id in names) {
+    clone[id] = _extends({}, names[id]);
+  }
+
+  return clone;
+}; // 
+
+/* These are helpers that deal with the insertRule (aka speedy) API
+ * They are used in the StyleTags and specifically the speedy tag
+ */
+
+/* retrieve a sheet for a given style tag */
+
+
+var sheetForTag = function sheetForTag(tag) {
+  // $FlowFixMe
+  if (tag.sheet) return tag.sheet;
+  /* Firefox quirk requires us to step through all stylesheets to find one owned by the given tag */
+
+  var size = tag.ownerDocument.styleSheets.length;
+
+  for (var i = 0; i < size; i += 1) {
+    var sheet = tag.ownerDocument.styleSheets[i]; // $FlowFixMe
+
+    if (sheet.ownerNode === tag) return sheet;
+  }
+  /* we should always be able to find a tag */
+
+
+  throw new StyledComponentsError(10);
+};
+/* insert a rule safely and return whether it was actually injected */
+
+
+var safeInsertRule = function safeInsertRule(sheet, cssRule, index) {
+  /* abort early if cssRule string is falsy */
+  if (!cssRule) return false;
+  var maxIndex = sheet.cssRules.length;
+
+  try {
+    /* use insertRule and cap passed index with maxIndex (no of cssRules) */
+    sheet.insertRule(cssRule, index <= maxIndex ? index : maxIndex);
+  } catch (err) {
+    /* any error indicates an invalid rule */
+    return false;
+  }
+
+  return true;
+};
+/* deletes `size` rules starting from `removalIndex` */
+
+
+var deleteRules = function deleteRules(sheet, removalIndex, size) {
+  var lowerBound = removalIndex - size;
+
+  for (var i = removalIndex; i > lowerBound; i -= 1) {
+    sheet.deleteRule(i);
+  }
+}; // 
+
+/* this marker separates component styles and is important for rehydration */
+
+
+var makeTextMarker = function makeTextMarker(id) {
+  return '\n/* sc-component-id: ' + id + ' */\n';
+};
+/* add up all numbers in array up until and including the index */
+
+
+var addUpUntilIndex = function addUpUntilIndex(sizes, index) {
+  var totalUpToIndex = 0;
+
+  for (var i = 0; i <= index; i += 1) {
+    totalUpToIndex += sizes[i];
+  }
+
+  return totalUpToIndex;
+};
+/* create a new style tag after lastEl */
+
+
+var makeStyleTag = function makeStyleTag(target, tagEl, insertBefore) {
+  var targetDocument = document;
+  if (target) targetDocument = target.ownerDocument;else if (tagEl) targetDocument = tagEl.ownerDocument;
+  var el = targetDocument.createElement('style');
+  el.setAttribute(SC_ATTR, '');
+  el.setAttribute(SC_VERSION_ATTR, "4.4.0");
+  var nonce = getNonce();
+
+  if (nonce) {
+    el.setAttribute('nonce', nonce);
+  }
+  /* Work around insertRule quirk in EdgeHTML */
+
+
+  el.appendChild(targetDocument.createTextNode(''));
+
+  if (target && !tagEl) {
+    /* Append to target when no previous element was passed */
+    target.appendChild(el);
+  } else {
+    if (!tagEl || !target || !tagEl.parentNode) {
+      throw new StyledComponentsError(6);
+    }
+    /* Insert new style tag after the previous one */
+
+
+    tagEl.parentNode.insertBefore(el, insertBefore ? tagEl : tagEl.nextSibling);
+  }
+
+  return el;
+};
+/* takes a css factory function and outputs an html styled tag factory */
+
+
+var wrapAsHtmlTag = function wrapAsHtmlTag(css, names) {
+  return function (additionalAttrs) {
+    var nonce = getNonce();
+    var attrs = [nonce && 'nonce="' + nonce + '"', SC_ATTR + '="' + stringifyNames(names) + '"', SC_VERSION_ATTR + '="' + "4.4.0" + '"', additionalAttrs];
+    var htmlAttr = attrs.filter(Boolean).join(' ');
+    return '<style ' + htmlAttr + '>' + css() + '</style>';
+  };
+};
+/* takes a css factory function and outputs an element factory */
+
+
+var wrapAsElement = function wrapAsElement(css, names) {
+  return function () {
+    var _props;
+
+    var props = (_props = {}, _props[SC_ATTR] = stringifyNames(names), _props[SC_VERSION_ATTR] = "4.4.0", _props);
+    var nonce = getNonce();
+
+    if (nonce) {
+      // $FlowFixMe
+      props.nonce = nonce;
+    } // eslint-disable-next-line react/no-danger
+
+
+    return _react.default.createElement('style', _extends({}, props, {
+      dangerouslySetInnerHTML: {
+        __html: css()
+      }
+    }));
+  };
+};
+
+var getIdsFromMarkersFactory = function getIdsFromMarkersFactory(markers) {
+  return function () {
+    return Object.keys(markers);
+  };
+};
+/* speedy tags utilise insertRule */
+
+
+var makeSpeedyTag = function makeSpeedyTag(el, getImportRuleTag) {
+  var names = Object.create(null);
+  var markers = Object.create(null);
+  var sizes = [];
+  var extractImport = getImportRuleTag !== undefined;
+  /* indicates whether getImportRuleTag was called */
+
+  var usedImportRuleTag = false;
+
+  var insertMarker = function insertMarker(id) {
+    var prev = markers[id];
+
+    if (prev !== undefined) {
+      return prev;
+    }
+
+    markers[id] = sizes.length;
+    sizes.push(0);
+    resetIdNames(names, id);
+    return markers[id];
+  };
+
+  var insertRules = function insertRules(id, cssRules, name) {
+    var marker = insertMarker(id);
+    var sheet = sheetForTag(el);
+    var insertIndex = addUpUntilIndex(sizes, marker);
+    var injectedRules = 0;
+    var importRules = [];
+    var cssRulesSize = cssRules.length;
+
+    for (var i = 0; i < cssRulesSize; i += 1) {
+      var cssRule = cssRules[i];
+      var mayHaveImport = extractImport;
+      /* @import rules are reordered to appear first */
+
+      if (mayHaveImport && cssRule.indexOf('@import') !== -1) {
+        importRules.push(cssRule);
+      } else if (safeInsertRule(sheet, cssRule, insertIndex + injectedRules)) {
+        mayHaveImport = false;
+        injectedRules += 1;
+      }
+    }
+
+    if (extractImport && importRules.length > 0) {
+      usedImportRuleTag = true; // $FlowFixMe
+
+      getImportRuleTag().insertRules(id + '-import', importRules);
+    }
+
+    sizes[marker] += injectedRules;
+    /* add up no of injected rules */
+
+    addNameForId(names, id, name);
+  };
+
+  var removeRules = function removeRules(id) {
+    var marker = markers[id];
+    if (marker === undefined) return; // $FlowFixMe
+
+    if (el.isConnected === false) return;
+    var size = sizes[marker];
+    var sheet = sheetForTag(el);
+    var removalIndex = addUpUntilIndex(sizes, marker) - 1;
+    deleteRules(sheet, removalIndex, size);
+    sizes[marker] = 0;
+    resetIdNames(names, id);
+
+    if (extractImport && usedImportRuleTag) {
+      // $FlowFixMe
+      getImportRuleTag().removeRules(id + '-import');
+    }
+  };
+
+  var css = function css() {
+    var _sheetForTag = sheetForTag(el),
+        cssRules = _sheetForTag.cssRules;
+
+    var str = ''; // eslint-disable-next-line guard-for-in
+
+    for (var id in markers) {
+      str += makeTextMarker(id);
+      var marker = markers[id];
+      var end = addUpUntilIndex(sizes, marker);
+      var size = sizes[marker];
+
+      for (var i = end - size; i < end; i += 1) {
+        var rule = cssRules[i];
+
+        if (rule !== undefined) {
+          str += rule.cssText;
+        }
+      }
+    }
+
+    return str;
+  };
+
+  return {
+    clone: function clone() {
+      throw new StyledComponentsError(5);
+    },
+    css: css,
+    getIds: getIdsFromMarkersFactory(markers),
+    hasNameForId: hasNameForId(names),
+    insertMarker: insertMarker,
+    insertRules: insertRules,
+    removeRules: removeRules,
+    sealed: false,
+    styleTag: el,
+    toElement: wrapAsElement(css, names),
+    toHTML: wrapAsHtmlTag(css, names)
+  };
+};
+
+var makeTextNode = function makeTextNode(targetDocument, id) {
+  return targetDocument.createTextNode(makeTextMarker(id));
+};
+
+var makeBrowserTag = function makeBrowserTag(el, getImportRuleTag) {
+  var names = Object.create(null);
+  var markers = Object.create(null);
+  var extractImport = getImportRuleTag !== undefined;
+  /* indicates whether getImportRuleTag was called */
+
+  var usedImportRuleTag = false;
+
+  var insertMarker = function insertMarker(id) {
+    var prev = markers[id];
+
+    if (prev !== undefined) {
+      return prev;
+    }
+
+    markers[id] = makeTextNode(el.ownerDocument, id);
+    el.appendChild(markers[id]);
+    names[id] = Object.create(null);
+    return markers[id];
+  };
+
+  var insertRules = function insertRules(id, cssRules, name) {
+    var marker = insertMarker(id);
+    var importRules = [];
+    var cssRulesSize = cssRules.length;
+
+    for (var i = 0; i < cssRulesSize; i += 1) {
+      var rule = cssRules[i];
+      var mayHaveImport = extractImport;
+
+      if (mayHaveImport && rule.indexOf('@import') !== -1) {
+        importRules.push(rule);
+      } else {
+        mayHaveImport = false;
+        var separator = i === cssRulesSize - 1 ? '' : ' ';
+        marker.appendData('' + rule + separator);
+      }
+    }
+
+    addNameForId(names, id, name);
+
+    if (extractImport && importRules.length > 0) {
+      usedImportRuleTag = true; // $FlowFixMe
+
+      getImportRuleTag().insertRules(id + '-import', importRules);
+    }
+  };
+
+  var removeRules = function removeRules(id) {
+    var marker = markers[id];
+    if (marker === undefined) return;
+    /* create new empty text node and replace the current one */
+
+    var newMarker = makeTextNode(el.ownerDocument, id);
+    el.replaceChild(newMarker, marker);
+    markers[id] = newMarker;
+    resetIdNames(names, id);
+
+    if (extractImport && usedImportRuleTag) {
+      // $FlowFixMe
+      getImportRuleTag().removeRules(id + '-import');
+    }
+  };
+
+  var css = function css() {
+    var str = ''; // eslint-disable-next-line guard-for-in
+
+    for (var id in markers) {
+      str += markers[id].data;
+    }
+
+    return str;
+  };
+
+  return {
+    clone: function clone() {
+      throw new StyledComponentsError(5);
+    },
+    css: css,
+    getIds: getIdsFromMarkersFactory(markers),
+    hasNameForId: hasNameForId(names),
+    insertMarker: insertMarker,
+    insertRules: insertRules,
+    removeRules: removeRules,
+    sealed: false,
+    styleTag: el,
+    toElement: wrapAsElement(css, names),
+    toHTML: wrapAsHtmlTag(css, names)
+  };
+};
+
+var makeServerTag = function makeServerTag(namesArg, markersArg) {
+  var names = namesArg === undefined ? Object.create(null) : namesArg;
+  var markers = markersArg === undefined ? Object.create(null) : markersArg;
+
+  var insertMarker = function insertMarker(id) {
+    var prev = markers[id];
+
+    if (prev !== undefined) {
+      return prev;
+    }
+
+    return markers[id] = [''];
+  };
+
+  var insertRules = function insertRules(id, cssRules, name) {
+    var marker = insertMarker(id);
+    marker[0] += cssRules.join(' ');
+    addNameForId(names, id, name);
+  };
+
+  var removeRules = function removeRules(id) {
+    var marker = markers[id];
+    if (marker === undefined) return;
+    marker[0] = '';
+    resetIdNames(names, id);
+  };
+
+  var css = function css() {
+    var str = ''; // eslint-disable-next-line guard-for-in
+
+    for (var id in markers) {
+      var cssForId = markers[id][0];
+
+      if (cssForId) {
+        str += makeTextMarker(id) + cssForId;
+      }
+    }
+
+    return str;
+  };
+
+  var clone = function clone() {
+    var namesClone = cloneNames(names);
+    var markersClone = Object.create(null); // eslint-disable-next-line guard-for-in
+
+    for (var id in markers) {
+      markersClone[id] = [markers[id][0]];
+    }
+
+    return makeServerTag(namesClone, markersClone);
+  };
+
+  var tag = {
+    clone: clone,
+    css: css,
+    getIds: getIdsFromMarkersFactory(markers),
+    hasNameForId: hasNameForId(names),
+    insertMarker: insertMarker,
+    insertRules: insertRules,
+    removeRules: removeRules,
+    sealed: false,
+    styleTag: null,
+    toElement: wrapAsElement(css, names),
+    toHTML: wrapAsHtmlTag(css, names)
+  };
+  return tag;
+};
+
+var makeTag = function makeTag(target, tagEl, forceServer, insertBefore, getImportRuleTag) {
+  if (IS_BROWSER && !forceServer) {
+    var el = makeStyleTag(target, tagEl, insertBefore);
+
+    if (DISABLE_SPEEDY) {
+      return makeBrowserTag(el, getImportRuleTag);
+    } else {
+      return makeSpeedyTag(el, getImportRuleTag);
+    }
+  }
+
+  return makeServerTag();
+};
+
+var rehydrate = function rehydrate(tag, els, extracted) {
+  /* add all extracted components to the new tag */
+  for (var i = 0, len = extracted.length; i < len; i += 1) {
+    var _extracted$i = extracted[i],
+        componentId = _extracted$i.componentId,
+        cssFromDOM = _extracted$i.cssFromDOM;
+    var cssRules = splitByRules(cssFromDOM);
+    tag.insertRules(componentId, cssRules);
+  }
+  /* remove old HTMLStyleElements, since they have been rehydrated */
+
+
+  for (var _i = 0, _len = els.length; _i < _len; _i += 1) {
+    var el = els[_i];
+
+    if (el.parentNode) {
+      el.parentNode.removeChild(el);
+    }
+  }
+}; // 
+
+
+var SPLIT_REGEX = /\s+/;
+/* determine the maximum number of components before tags are sharded */
+
+var MAX_SIZE = void 0;
+
+if (IS_BROWSER) {
+  /* in speedy mode we can keep a lot more rules in a sheet before a slowdown can be expected */
+  MAX_SIZE = DISABLE_SPEEDY ? 40 : 1000;
+} else {
+  /* for servers we do not need to shard at all */
+  MAX_SIZE = -1;
+}
+
+var sheetRunningId = 0;
+var master = void 0;
+
+var StyleSheet = function () {
+  /* a map from ids to tags */
+
+  /* deferred rules for a given id */
+
+  /* this is used for not reinjecting rules via hasNameForId() */
+
+  /* when rules for an id are removed using remove() we have to ignore rehydratedNames for it */
+
+  /* a list of tags belonging to this StyleSheet */
+
+  /* a tag for import rules */
+
+  /* current capacity until a new tag must be created */
+
+  /* children (aka clones) of this StyleSheet inheriting all and future injections */
+  function StyleSheet() {
+    var _this = this;
+
+    var target = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : IS_BROWSER ? document.head : null;
+    var forceServer = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
+    classCallCheck(this, StyleSheet);
+
+    this.getImportRuleTag = function () {
+      var importRuleTag = _this.importRuleTag;
+
+      if (importRuleTag !== undefined) {
+        return importRuleTag;
+      }
+
+      var firstTag = _this.tags[0];
+      var insertBefore = true;
+      return _this.importRuleTag = makeTag(_this.target, firstTag ? firstTag.styleTag : null, _this.forceServer, insertBefore);
+    };
+
+    sheetRunningId += 1;
+    this.id = sheetRunningId;
+    this.forceServer = forceServer;
+    this.target = forceServer ? null : target;
+    this.tagMap = {};
+    this.deferred = {};
+    this.rehydratedNames = {};
+    this.ignoreRehydratedNames = {};
+    this.tags = [];
+    this.capacity = 1;
+    this.clones = [];
+  }
+  /* rehydrate all SSR'd style tags */
+
+
+  StyleSheet.prototype.rehydrate = function rehydrate$$1() {
+    if (!IS_BROWSER || this.forceServer) return this;
+    var els = [];
+    var extracted = [];
+    var isStreamed = false;
+    /* retrieve all of our SSR style elements from the DOM */
+
+    var nodes = document.querySelectorAll('style[' + SC_ATTR + '][' + SC_VERSION_ATTR + '="' + "4.4.0" + '"]');
+    var nodesSize = nodes.length;
+    /* abort rehydration if no previous style tags were found */
+
+    if (!nodesSize) return this;
+
+    for (var i = 0; i < nodesSize; i += 1) {
+      var el = nodes[i];
+      /* check if style tag is a streamed tag */
+
+      if (!isStreamed) isStreamed = !!el.getAttribute(SC_STREAM_ATTR);
+      /* retrieve all component names */
+
+      var elNames = (el.getAttribute(SC_ATTR) || '').trim().split(SPLIT_REGEX);
+      var elNamesSize = elNames.length;
+
+      for (var j = 0, name; j < elNamesSize; j += 1) {
+        name = elNames[j];
+        /* add rehydrated name to sheet to avoid re-adding styles */
+
+        this.rehydratedNames[name] = true;
+      }
+      /* extract all components and their CSS */
+
+
+      extracted.push.apply(extracted, extractComps(el.textContent));
+      /* store original HTMLStyleElement */
+
+      els.push(el);
+    }
+    /* abort rehydration if nothing was extracted */
+
+
+    var extractedSize = extracted.length;
+    if (!extractedSize) return this;
+    /* create a tag to be used for rehydration */
+
+    var tag = this.makeTag(null);
+    rehydrate(tag, els, extracted);
+    /* reset capacity and adjust MAX_SIZE by the initial size of the rehydration */
+
+    this.capacity = Math.max(1, MAX_SIZE - extractedSize);
+    this.tags.push(tag);
+    /* retrieve all component ids */
+
+    for (var _j = 0; _j < extractedSize; _j += 1) {
+      this.tagMap[extracted[_j].componentId] = tag;
+    }
+
+    return this;
+  };
+  /* retrieve a "master" instance of StyleSheet which is typically used when no other is available
+   * The master StyleSheet is targeted by createGlobalStyle, keyframes, and components outside of any
+    * StyleSheetManager's context */
+
+  /* reset the internal "master" instance */
+
+
+  StyleSheet.reset = function reset() {
+    var forceServer = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : false;
+    master = new StyleSheet(undefined, forceServer).rehydrate();
+  };
+  /* adds "children" to the StyleSheet that inherit all of the parents' rules
+   * while their own rules do not affect the parent */
+
+
+  StyleSheet.prototype.clone = function clone() {
+    var sheet = new StyleSheet(this.target, this.forceServer);
+    /* add to clone array */
+
+    this.clones.push(sheet);
+    /* clone all tags */
+
+    sheet.tags = this.tags.map(function (tag) {
+      var ids = tag.getIds();
+      var newTag = tag.clone();
+      /* reconstruct tagMap */
+
+      for (var i = 0; i < ids.length; i += 1) {
+        sheet.tagMap[ids[i]] = newTag;
+      }
+
+      return newTag;
+    });
+    /* clone other maps */
+
+    sheet.rehydratedNames = _extends({}, this.rehydratedNames);
+    sheet.deferred = _extends({}, this.deferred);
+    return sheet;
+  };
+  /* force StyleSheet to create a new tag on the next injection */
+
+
+  StyleSheet.prototype.sealAllTags = function sealAllTags() {
+    this.capacity = 1;
+    this.tags.forEach(function (tag) {
+      // eslint-disable-next-line no-param-reassign
+      tag.sealed = true;
+    });
+  };
+
+  StyleSheet.prototype.makeTag = function makeTag$$1(tag) {
+    var lastEl = tag ? tag.styleTag : null;
+    var insertBefore = false;
+    return makeTag(this.target, lastEl, this.forceServer, insertBefore, this.getImportRuleTag);
+  };
+  /* get a tag for a given componentId, assign the componentId to one, or shard */
+
+
+  StyleSheet.prototype.getTagForId = function getTagForId(id) {
+    /* simply return a tag, when the componentId was already assigned one */
+    var prev = this.tagMap[id];
+
+    if (prev !== undefined && !prev.sealed) {
+      return prev;
+    }
+
+    var tag = this.tags[this.tags.length - 1];
+    /* shard (create a new tag) if the tag is exhausted (See MAX_SIZE) */
+
+    this.capacity -= 1;
+
+    if (this.capacity === 0) {
+      this.capacity = MAX_SIZE;
+      tag = this.makeTag(tag);
+      this.tags.push(tag);
+    }
+
+    return this.tagMap[id] = tag;
+  };
+  /* mainly for createGlobalStyle to check for its id */
+
+
+  StyleSheet.prototype.hasId = function hasId(id) {
+    return this.tagMap[id] !== undefined;
+  };
+  /* caching layer checking id+name to already have a corresponding tag and injected rules */
+
+
+  StyleSheet.prototype.hasNameForId = function hasNameForId(id, name) {
+    /* exception for rehydrated names which are checked separately */
+    if (this.ignoreRehydratedNames[id] === undefined && this.rehydratedNames[name]) {
+      return true;
+    }
+
+    var tag = this.tagMap[id];
+    return tag !== undefined && tag.hasNameForId(id, name);
+  };
+  /* registers a componentId and registers it on its tag */
+
+
+  StyleSheet.prototype.deferredInject = function deferredInject(id, cssRules) {
+    /* don't inject when the id is already registered */
+    if (this.tagMap[id] !== undefined) return;
+    var clones = this.clones;
+
+    for (var i = 0; i < clones.length; i += 1) {
+      clones[i].deferredInject(id, cssRules);
+    }
+
+    this.getTagForId(id).insertMarker(id);
+    this.deferred[id] = cssRules;
+  };
+  /* injects rules for a given id with a name that will need to be cached */
+
+
+  StyleSheet.prototype.inject = function inject(id, cssRules, name) {
+    var clones = this.clones;
+
+    for (var i = 0; i < clones.length; i += 1) {
+      clones[i].inject(id, cssRules, name);
+    }
+
+    var tag = this.getTagForId(id);
+    /* add deferred rules for component */
+
+    if (this.deferred[id] !== undefined) {
+      // Combine passed cssRules with previously deferred CSS rules
+      // NOTE: We cannot mutate the deferred array itself as all clones
+      // do the same (see clones[i].inject)
+      var rules = this.deferred[id].concat(cssRules);
+      tag.insertRules(id, rules, name);
+      this.deferred[id] = undefined;
+    } else {
+      tag.insertRules(id, cssRules, name);
+    }
+  };
+  /* removes all rules for a given id, which doesn't remove its marker but resets it */
+
+
+  StyleSheet.prototype.remove = function remove(id) {
+    var tag = this.tagMap[id];
+    if (tag === undefined) return;
+    var clones = this.clones;
+
+    for (var i = 0; i < clones.length; i += 1) {
+      clones[i].remove(id);
+    }
+    /* remove all rules from the tag */
+
+
+    tag.removeRules(id);
+    /* ignore possible rehydrated names */
+
+    this.ignoreRehydratedNames[id] = true;
+    /* delete possible deferred rules */
+
+    this.deferred[id] = undefined;
+  };
+
+  StyleSheet.prototype.toHTML = function toHTML() {
+    return this.tags.map(function (tag) {
+      return tag.toHTML();
+    }).join('');
+  };
+
+  StyleSheet.prototype.toReactElements = function toReactElements() {
+    var id = this.id;
+    return this.tags.map(function (tag, i) {
+      var key = 'sc-' + id + '-' + i;
+      return (0, _react.cloneElement)(tag.toElement(), {
+        key: key
+      });
+    });
+  };
+
+  createClass(StyleSheet, null, [{
+    key: 'master',
+    get: function get$$1() {
+      return master || (master = new StyleSheet().rehydrate());
+    }
+    /* NOTE: This is just for backwards-compatibility with jest-styled-components */
+
+  }, {
+    key: 'instance',
+    get: function get$$1() {
+      return StyleSheet.master;
+    }
+  }]);
+  return StyleSheet;
+}(); // 
+
+
+var Keyframes = function () {
+  function Keyframes(name, rules) {
+    var _this = this;
+
+    classCallCheck(this, Keyframes);
+
+    this.inject = function (styleSheet) {
+      if (!styleSheet.hasNameForId(_this.id, _this.name)) {
+        styleSheet.inject(_this.id, _this.rules, _this.name);
+      }
+    };
+
+    this.toString = function () {
+      throw new StyledComponentsError(12, String(_this.name));
+    };
+
+    this.name = name;
+    this.rules = rules;
+    this.id = 'sc-keyframes-' + name;
+  }
+
+  Keyframes.prototype.getName = function getName() {
+    return this.name;
+  };
+
+  return Keyframes;
+}(); // 
+
+/**
+ * inlined version of
+ * https://github.com/facebook/fbjs/blob/master/packages/fbjs/src/core/hyphenateStyleName.js
+ */
+
+
+var uppercasePattern = /([A-Z])/g;
+var msPattern = /^ms-/;
+/**
+ * Hyphenates a camelcased CSS property name, for example:
+ *
+ *   > hyphenateStyleName('backgroundColor')
+ *   < "background-color"
+ *   > hyphenateStyleName('MozTransition')
+ *   < "-moz-transition"
+ *   > hyphenateStyleName('msTransition')
+ *   < "-ms-transition"
+ *
+ * As Modernizr suggests (http://modernizr.com/docs/#prefixed), an `ms` prefix
+ * is converted to `-ms-`.
+ *
+ * @param {string} string
+ * @return {string}
+ */
+
+function hyphenateStyleName(string) {
+  return string.replace(uppercasePattern, '-$1').toLowerCase().replace(msPattern, '-ms-');
+} // 
+// Taken from https://github.com/facebook/react/blob/b87aabdfe1b7461e7331abb3601d9e6bb27544bc/packages/react-dom/src/shared/dangerousStyleValue.js
+
+
+function addUnitIfNeeded(name, value) {
+  // https://github.com/amilajack/eslint-plugin-flowtype-errors/issues/133
+  // $FlowFixMe
+  if (value == null || typeof value === 'boolean' || value === '') {
+    return '';
+  }
+
+  if (typeof value === 'number' && value !== 0 && !(name in _unitless.default)) {
+    return value + 'px'; // Presumes implicit 'px' suffix for unitless numbers
+  }
+
+  return String(value).trim();
+} // 
+
+/**
+ * It's falsish not falsy because 0 is allowed.
+ */
+
+
+var isFalsish = function isFalsish(chunk) {
+  return chunk === undefined || chunk === null || chunk === false || chunk === '';
+};
+
+var objToCssArray = function objToCssArray(obj, prevKey) {
+  var rules = [];
+  var keys = Object.keys(obj);
+  keys.forEach(function (key) {
+    if (!isFalsish(obj[key])) {
+      if (isPlainObject(obj[key])) {
+        rules.push.apply(rules, objToCssArray(obj[key], key));
+        return rules;
+      } else if (isFunction(obj[key])) {
+        rules.push(hyphenateStyleName(key) + ':', obj[key], ';');
+        return rules;
+      }
+
+      rules.push(hyphenateStyleName(key) + ': ' + addUnitIfNeeded(key, obj[key]) + ';');
+    }
+
+    return rules;
+  });
+  return prevKey ? [prevKey + ' {'].concat(rules, ['}']) : rules;
+};
+
+function flatten(chunk, executionContext, styleSheet) {
+  if (Array.isArray(chunk)) {
+    var ruleSet = [];
+
+    for (var i = 0, len = chunk.length, result; i < len; i += 1) {
+      result = flatten(chunk[i], executionContext, styleSheet);
+      if (result === null) continue;else if (Array.isArray(result)) ruleSet.push.apply(ruleSet, result);else ruleSet.push(result);
+    }
+
+    return ruleSet;
+  }
+
+  if (isFalsish(chunk)) {
+    return null;
+  }
+  /* Handle other components */
+
+
+  if (isStyledComponent(chunk)) {
+    return '.' + chunk.styledComponentId;
+  }
+  /* Either execute or defer the function */
+
+
+  if (isFunction(chunk)) {
+    if (isStatelessFunction(chunk) && executionContext) {
+      var _result = chunk(executionContext);
+
+      if ("development" !== 'production' && (0, _reactIs.isElement)(_result)) {
+        // eslint-disable-next-line no-console
+        console.warn(getComponentName(chunk) + ' is not a styled component and cannot be referred to via component selector. See https://www.styled-components.com/docs/advanced#referring-to-other-components for more details.');
+      }
+
+      return flatten(_result, executionContext, styleSheet);
+    } else return chunk;
+  }
+
+  if (chunk instanceof Keyframes) {
+    if (styleSheet) {
+      chunk.inject(styleSheet);
+      return chunk.getName();
+    } else return chunk;
+  }
+  /* Handle objects */
+
+
+  return isPlainObject(chunk) ? objToCssArray(chunk) : chunk.toString();
+} // 
+
+
+function css(styles) {
+  for (var _len = arguments.length, interpolations = Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
+    interpolations[_key - 1] = arguments[_key];
+  }
+
+  if (isFunction(styles) || isPlainObject(styles)) {
+    // $FlowFixMe
+    return flatten(interleave(EMPTY_ARRAY, [styles].concat(interpolations)));
+  } // $FlowFixMe
+
+
+  return flatten(interleave(styles, interpolations));
+} // 
+
+
+function constructWithOptions(componentConstructor, tag) {
+  var options = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : EMPTY_OBJECT;
+
+  if (!(0, _reactIs.isValidElementType)(tag)) {
+    throw new StyledComponentsError(1, String(tag));
+  }
+  /* This is callable directly as a template function */
+  // $FlowFixMe: Not typed to avoid destructuring arguments
+
+
+  var templateFunction = function templateFunction() {
+    return componentConstructor(tag, options, css.apply(undefined, arguments));
+  };
+  /* If config methods are called, wrap up a new template function and merge options */
+
+
+  templateFunction.withConfig = function (config) {
+    return constructWithOptions(componentConstructor, tag, _extends({}, options, config));
+  };
+  /* Modify/inject new props at runtime */
+
+
+  templateFunction.attrs = function (attrs) {
+    return constructWithOptions(componentConstructor, tag, _extends({}, options, {
+      attrs: Array.prototype.concat(options.attrs, attrs).filter(Boolean)
+    }));
+  };
+
+  return templateFunction;
+} // 
+// Source: https://github.com/garycourt/murmurhash-js/blob/master/murmurhash2_gc.js
+
+
+function murmurhash(c) {
+  for (var e = c.length | 0, a = e | 0, d = 0, b; e >= 4;) {
+    b = c.charCodeAt(d) & 255 | (c.charCodeAt(++d) & 255) << 8 | (c.charCodeAt(++d) & 255) << 16 | (c.charCodeAt(++d) & 255) << 24, b = 1540483477 * (b & 65535) + ((1540483477 * (b >>> 16) & 65535) << 16), b ^= b >>> 24, b = 1540483477 * (b & 65535) + ((1540483477 * (b >>> 16) & 65535) << 16), a = 1540483477 * (a & 65535) + ((1540483477 * (a >>> 16) & 65535) << 16) ^ b, e -= 4, ++d;
+  }
+
+  switch (e) {
+    case 3:
+      a ^= (c.charCodeAt(d + 2) & 255) << 16;
+
+    case 2:
+      a ^= (c.charCodeAt(d + 1) & 255) << 8;
+
+    case 1:
+      a ^= c.charCodeAt(d) & 255, a = 1540483477 * (a & 65535) + ((1540483477 * (a >>> 16) & 65535) << 16);
+  }
+
+  a ^= a >>> 13;
+  a = 1540483477 * (a & 65535) + ((1540483477 * (a >>> 16) & 65535) << 16);
+  return (a ^ a >>> 15) >>> 0;
+} // 
+
+/* eslint-disable no-bitwise */
+
+/* This is the "capacity" of our alphabet i.e. 2x26 for all letters plus their capitalised
+ * counterparts */
+
+
+var charsLength = 52;
+/* start at 75 for 'a' until 'z' (25) and then start at 65 for capitalised letters */
+
+var getAlphabeticChar = function getAlphabeticChar(code) {
+  return String.fromCharCode(code + (code > 25 ? 39 : 97));
+};
+/* input a number, usually a hash and convert it to base-52 */
+
+
+function generateAlphabeticName(code) {
+  var name = '';
+  var x = void 0;
+  /* get a char and divide by alphabet-length */
+
+  for (x = code; x > charsLength; x = Math.floor(x / charsLength)) {
+    name = getAlphabeticChar(x % charsLength) + name;
+  }
+
+  return getAlphabeticChar(x % charsLength) + name;
+} // 
+
+
+function hasFunctionObjectKey(obj) {
+  // eslint-disable-next-line guard-for-in, no-restricted-syntax
+  for (var key in obj) {
+    if (isFunction(obj[key])) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
+function isStaticRules(rules, attrs) {
+  for (var i = 0; i < rules.length; i += 1) {
+    var rule = rules[i]; // recursive case
+
+    if (Array.isArray(rule) && !isStaticRules(rule, attrs)) {
+      return false;
+    } else if (isFunction(rule) && !isStyledComponent(rule)) {
+      // functions are allowed to be static if they're just being
+      // used to get the classname of a nested styled component
+      return false;
+    }
+  }
+
+  if (attrs.some(function (x) {
+    return isFunction(x) || hasFunctionObjectKey(x);
+  })) return false;
+  return true;
+} // 
+
+/* combines hashStr (murmurhash) and nameGenerator for convenience */
+
+
+var hasher = function hasher(str) {
+  return generateAlphabeticName(murmurhash(str));
+};
+/*
+ ComponentStyle is all the CSS-specific stuff, not
+ the React-specific stuff.
+ */
+
+
+var ComponentStyle = function () {
+  function ComponentStyle(rules, attrs, componentId) {
+    classCallCheck(this, ComponentStyle);
+    this.rules = rules;
+    this.isStatic = "development" === 'production' && isStaticRules(rules, attrs);
+    this.componentId = componentId;
+
+    if (!StyleSheet.master.hasId(componentId)) {
+      StyleSheet.master.deferredInject(componentId, []);
+    }
+  }
+  /*
+   * Flattens a rule set into valid CSS
+   * Hashes it, wraps the whole chunk in a .hash1234 {}
+   * Returns the hash to be injected on render()
+   * */
+
+
+  ComponentStyle.prototype.generateAndInjectStyles = function generateAndInjectStyles(executionContext, styleSheet) {
+    var isStatic = this.isStatic,
+        componentId = this.componentId,
+        lastClassName = this.lastClassName;
+
+    if (IS_BROWSER && isStatic && typeof lastClassName === 'string' && styleSheet.hasNameForId(componentId, lastClassName)) {
+      return lastClassName;
+    }
+
+    var flatCSS = flatten(this.rules, executionContext, styleSheet);
+    var name = hasher(this.componentId + flatCSS.join(''));
+
+    if (!styleSheet.hasNameForId(componentId, name)) {
+      styleSheet.inject(this.componentId, stringifyRules(flatCSS, '.' + name, undefined, componentId), name);
+    }
+
+    this.lastClassName = name;
+    return name;
+  };
+
+  ComponentStyle.generateName = function generateName(str) {
+    return hasher(str);
+  };
+
+  return ComponentStyle;
+}(); // 
+
+
+var LIMIT = 200;
+
+var createWarnTooManyClasses = function (displayName) {
+  var generatedClasses = {};
+  var warningSeen = false;
+  return function (className) {
+    if (!warningSeen) {
+      generatedClasses[className] = true;
+
+      if (Object.keys(generatedClasses).length >= LIMIT) {
+        // Unable to find latestRule in test environment.
+
+        /* eslint-disable no-console, prefer-template */
+        console.warn('Over ' + LIMIT + ' classes were generated for component ' + displayName + '. \n' + 'Consider using the attrs method, together with a style object for frequently changed styles.\n' + 'Example:\n' + '  const Component = styled.div.attrs(props => ({\n' + '    style: {\n' + '      background: props.background,\n' + '    },\n' + '  }))`width: 100%;`\n\n' + '  <Component />');
+        warningSeen = true;
+        generatedClasses = {};
+      }
+    }
+  };
+}; // 
+
+
+var determineTheme = function (props, fallbackTheme) {
+  var defaultProps = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : EMPTY_OBJECT; // Props should take precedence over ThemeProvider, which should take precedence over
+  // defaultProps, but React automatically puts defaultProps on props.
+
+  /* eslint-disable react/prop-types, flowtype-errors/show-errors */
+
+  var isDefaultTheme = defaultProps ? props.theme === defaultProps.theme : false;
+  var theme = props.theme && !isDefaultTheme ? props.theme : fallbackTheme || defaultProps.theme;
+  /* eslint-enable */
+
+  return theme;
+}; // 
+
+
+var escapeRegex = /[[\].#*$><+~=|^:(),"'`-]+/g;
+var dashesAtEnds = /(^-|-$)/g;
+/**
+ * TODO: Explore using CSS.escape when it becomes more available
+ * in evergreen browsers.
+ */
+
+function escape(str) {
+  return str // Replace all possible CSS selectors
+  .replace(escapeRegex, '-') // Remove extraneous hyphens at the start and end
+  .replace(dashesAtEnds, '');
+} // 
+
+
+function isTag(target) {
+  return typeof target === 'string' && ("development" !== 'production' ? target.charAt(0) === target.charAt(0).toLowerCase() : true);
+} // 
+
+
+function generateDisplayName(target) {
+  // $FlowFixMe
+  return isTag(target) ? 'styled.' + target : 'Styled(' + getComponentName(target) + ')';
+}
+
+var _TYPE_STATICS;
+
+var REACT_STATICS = {
+  childContextTypes: true,
+  contextTypes: true,
+  defaultProps: true,
+  displayName: true,
+  getDerivedStateFromProps: true,
+  propTypes: true,
+  type: true
+};
+var KNOWN_STATICS = {
+  name: true,
+  length: true,
+  prototype: true,
+  caller: true,
+  callee: true,
+  arguments: true,
+  arity: true
+};
+var TYPE_STATICS = (_TYPE_STATICS = {}, _TYPE_STATICS[_reactIs.ForwardRef] = {
+  $$typeof: true,
+  render: true
+}, _TYPE_STATICS);
+var defineProperty$1 = Object.defineProperty,
+    getOwnPropertyNames = Object.getOwnPropertyNames,
+    _Object$getOwnPropert = Object.getOwnPropertySymbols,
+    getOwnPropertySymbols = _Object$getOwnPropert === undefined ? function () {
+  return [];
+} : _Object$getOwnPropert,
+    getOwnPropertyDescriptor = Object.getOwnPropertyDescriptor,
+    getPrototypeOf = Object.getPrototypeOf,
+    objectPrototype = Object.prototype;
+var arrayPrototype = Array.prototype;
+
+function hoistNonReactStatics(targetComponent, sourceComponent, blacklist) {
+  if (typeof sourceComponent !== 'string') {
+    // don't hoist over string (html) components
+    var inheritedComponent = getPrototypeOf(sourceComponent);
+
+    if (inheritedComponent && inheritedComponent !== objectPrototype) {
+      hoistNonReactStatics(targetComponent, inheritedComponent, blacklist);
+    }
+
+    var keys = arrayPrototype.concat(getOwnPropertyNames(sourceComponent), // $FlowFixMe
+    getOwnPropertySymbols(sourceComponent));
+    var targetStatics = TYPE_STATICS[targetComponent.$$typeof] || REACT_STATICS;
+    var sourceStatics = TYPE_STATICS[sourceComponent.$$typeof] || REACT_STATICS;
+    var i = keys.length;
+    var descriptor = void 0;
+    var key = void 0; // eslint-disable-next-line no-plusplus
+
+    while (i--) {
+      key = keys[i];
+
+      if ( // $FlowFixMe
+      !KNOWN_STATICS[key] && !(blacklist && blacklist[key]) && !(sourceStatics && sourceStatics[key]) && // $FlowFixMe
+      !(targetStatics && targetStatics[key])) {
+        descriptor = getOwnPropertyDescriptor(sourceComponent, key);
+
+        if (descriptor) {
+          try {
+            // Avoid failures from read-only properties
+            defineProperty$1(targetComponent, key, descriptor);
+          } catch (e) {
+            /* fail silently */
+          }
+        }
+      }
+    }
+
+    return targetComponent;
+  }
+
+  return targetComponent;
+} // 
+
+
+function isDerivedReactComponent(fn) {
+  return !!(fn && fn.prototype && fn.prototype.isReactComponent);
+} // 
+// Helper to call a given function, only once
+
+
+var once = function (cb) {
+  var called = false;
+  return function () {
+    if (!called) {
+      called = true;
+      cb.apply(undefined, arguments);
+    }
+  };
+}; // 
+
+
+var ThemeContext = (0, _react.createContext)();
+exports.ThemeContext = ThemeContext;
+var ThemeConsumer = ThemeContext.Consumer;
+/**
+ * Provide a theme to an entire react component tree via context
+ */
+
+exports.ThemeConsumer = ThemeConsumer;
+
+var ThemeProvider = function (_Component) {
+  inherits(ThemeProvider, _Component);
+
+  function ThemeProvider(props) {
+    classCallCheck(this, ThemeProvider);
+
+    var _this = possibleConstructorReturn(this, _Component.call(this, props));
+
+    _this.getContext = (0, _memoizeOne.default)(_this.getContext.bind(_this));
+    _this.renderInner = _this.renderInner.bind(_this);
+    return _this;
+  }
+
+  ThemeProvider.prototype.render = function render() {
+    if (!this.props.children) return null;
+    return _react.default.createElement(ThemeContext.Consumer, null, this.renderInner);
+  };
+
+  ThemeProvider.prototype.renderInner = function renderInner(outerTheme) {
+    var context = this.getContext(this.props.theme, outerTheme);
+    return _react.default.createElement(ThemeContext.Provider, {
+      value: context
+    }, this.props.children);
+  };
+  /**
+   * Get the theme from the props, supporting both (outerTheme) => {}
+   * as well as object notation
+   */
+
+
+  ThemeProvider.prototype.getTheme = function getTheme(theme, outerTheme) {
+    if (isFunction(theme)) {
+      var mergedTheme = theme(outerTheme);
+
+      if ("development" !== 'production' && (mergedTheme === null || Array.isArray(mergedTheme) || (typeof mergedTheme === 'undefined' ? 'undefined' : _typeof(mergedTheme)) !== 'object')) {
+        throw new StyledComponentsError(7);
+      }
+
+      return mergedTheme;
+    }
+
+    if (theme === null || Array.isArray(theme) || (typeof theme === 'undefined' ? 'undefined' : _typeof(theme)) !== 'object') {
+      throw new StyledComponentsError(8);
+    }
+
+    return _extends({}, outerTheme, theme);
+  };
+
+  ThemeProvider.prototype.getContext = function getContext(theme, outerTheme) {
+    return this.getTheme(theme, outerTheme);
+  };
+
+  return ThemeProvider;
+}(_react.Component); // 
+
+
+exports.ThemeProvider = ThemeProvider;
+var CLOSING_TAG_R = /^\s*<\/[a-z]/i;
+
+var ServerStyleSheet = function () {
+  function ServerStyleSheet() {
+    classCallCheck(this, ServerStyleSheet);
+    /* The master sheet might be reset, so keep a reference here */
+
+    this.masterSheet = StyleSheet.master;
+    this.instance = this.masterSheet.clone();
+    this.sealed = false;
+  }
+  /**
+   * Mark the ServerStyleSheet as being fully emitted and manually GC it from the
+   * StyleSheet singleton.
+   */
+
+
+  ServerStyleSheet.prototype.seal = function seal() {
+    if (!this.sealed) {
+      /* Remove sealed StyleSheets from the master sheet */
+      var index = this.masterSheet.clones.indexOf(this.instance);
+      this.masterSheet.clones.splice(index, 1);
+      this.sealed = true;
+    }
+  };
+
+  ServerStyleSheet.prototype.collectStyles = function collectStyles(children) {
+    if (this.sealed) {
+      throw new StyledComponentsError(2);
+    }
+
+    return _react.default.createElement(StyleSheetManager, {
+      sheet: this.instance
+    }, children);
+  };
+
+  ServerStyleSheet.prototype.getStyleTags = function getStyleTags() {
+    this.seal();
+    return this.instance.toHTML();
+  };
+
+  ServerStyleSheet.prototype.getStyleElement = function getStyleElement() {
+    this.seal();
+    return this.instance.toReactElements();
+  };
+
+  ServerStyleSheet.prototype.interleaveWithNodeStream = function interleaveWithNodeStream(readableStream) {
+    var _this = this;
+
+    {
+      throw new StyledComponentsError(3);
+    }
+    /* the tag index keeps track of which tags have already been emitted */
+
+    var instance = this.instance;
+    var instanceTagIndex = 0;
+    var streamAttr = SC_STREAM_ATTR + '="true"';
+    var transformer = new stream.Transform({
+      transform: function appendStyleChunks(chunk,
+      /* encoding */
+      _, callback) {
+        var tags = instance.tags;
+        var html = '';
+        /* retrieve html for each new style tag */
+
+        for (; instanceTagIndex < tags.length; instanceTagIndex += 1) {
+          var tag = tags[instanceTagIndex];
+          html += tag.toHTML(streamAttr);
+        }
+        /* force our StyleSheets to emit entirely new tags */
+
+
+        instance.sealAllTags();
+        var renderedHtml = chunk.toString();
+        /* prepend style html to chunk, unless the start of the chunk is a closing tag in which case append right after that */
+
+        if (CLOSING_TAG_R.test(renderedHtml)) {
+          var endOfClosingTag = renderedHtml.indexOf('>');
+          this.push(renderedHtml.slice(0, endOfClosingTag + 1) + html + renderedHtml.slice(endOfClosingTag + 1));
+        } else this.push(html + renderedHtml);
+
+        callback();
+      }
+    });
+    readableStream.on('end', function () {
+      return _this.seal();
+    });
+    readableStream.on('error', function (err) {
+      _this.seal(); // forward the error to the transform stream
+
+
+      transformer.emit('error', err);
+    });
+    return readableStream.pipe(transformer);
+  };
+
+  return ServerStyleSheet;
+}(); // 
+
+
+exports.ServerStyleSheet = ServerStyleSheet;
+var StyleSheetContext = (0, _react.createContext)();
+exports.StyleSheetContext = StyleSheetContext;
+var StyleSheetConsumer = StyleSheetContext.Consumer;
+exports.StyleSheetConsumer = StyleSheetConsumer;
+
+var StyleSheetManager = function (_Component) {
+  inherits(StyleSheetManager, _Component);
+
+  function StyleSheetManager(props) {
+    classCallCheck(this, StyleSheetManager);
+
+    var _this = possibleConstructorReturn(this, _Component.call(this, props));
+
+    _this.getContext = (0, _memoizeOne.default)(_this.getContext);
+    return _this;
+  }
+
+  StyleSheetManager.prototype.getContext = function getContext(sheet, target) {
+    if (sheet) {
+      return sheet;
+    } else if (target) {
+      return new StyleSheet(target);
+    } else {
+      throw new StyledComponentsError(4);
+    }
+  };
+
+  StyleSheetManager.prototype.render = function render() {
+    var _props = this.props,
+        children = _props.children,
+        sheet = _props.sheet,
+        target = _props.target;
+    return _react.default.createElement(StyleSheetContext.Provider, {
+      value: this.getContext(sheet, target)
+    }, "development" !== 'production' ? _react.default.Children.only(children) : children);
+  };
+
+  return StyleSheetManager;
+}(_react.Component);
+
+exports.StyleSheetManager = StyleSheetManager;
+"development" !== "production" ? StyleSheetManager.propTypes = {
+  sheet: _propTypes.default.oneOfType([_propTypes.default.instanceOf(StyleSheet), _propTypes.default.instanceOf(ServerStyleSheet)]),
+  target: _propTypes.default.shape({
+    appendChild: _propTypes.default.func.isRequired
+  })
+} : void 0; // 
+
+var THEME_PROP_REGEX = /\.theme[.[]/;
+var identifiers = {};
+/* We depend on components having unique IDs */
+
+function generateId(_ComponentStyle, _displayName, parentComponentId) {
+  var displayName = typeof _displayName !== 'string' ? 'sc' : escape(_displayName);
+  /**
+   * This ensures uniqueness if two components happen to share
+   * the same displayName.
+   */
+
+  var nr = (identifiers[displayName] || 0) + 1;
+  identifiers[displayName] = nr;
+
+  var componentId = displayName + '-' + _ComponentStyle.generateName(displayName + nr);
+
+  return parentComponentId ? parentComponentId + '-' + componentId : componentId;
+} // $FlowFixMe
+
+
+var StyledComponent = function (_Component) {
+  inherits(StyledComponent, _Component);
+
+  function StyledComponent() {
+    classCallCheck(this, StyledComponent);
+
+    var _this = possibleConstructorReturn(this, _Component.call(this));
+
+    _this.attrs = {};
+    _this.renderOuter = _this.renderOuter.bind(_this);
+    _this.renderInner = _this.renderInner.bind(_this);
+
+    if ("development" !== 'production') {
+      _this.warnInnerRef = once(function (displayName) {
+        return (// eslint-disable-next-line no-console
+          console.warn('The "innerRef" API has been removed in styled-components v4 in favor of React 16 ref forwarding, use "ref" instead like a typical component. "innerRef" was detected on component "' + displayName + '".')
+        );
+      });
+      _this.warnAttrsFnObjectKeyDeprecated = once(function (key, displayName) {
+        return (// eslint-disable-next-line no-console
+          console.warn('Functions as object-form attrs({}) keys are now deprecated and will be removed in a future version of styled-components. Switch to the new attrs(props => ({})) syntax instead for easier and more powerful composition. The attrs key in question is "' + key + '" on component "' + displayName + '".', '\n ' + new Error().stack)
+        );
+      });
+      _this.warnNonStyledComponentAttrsObjectKey = once(function (key, displayName) {
+        return (// eslint-disable-next-line no-console
+          console.warn('It looks like you\'ve used a non styled-component as the value for the "' + key + '" prop in an object-form attrs constructor of "' + displayName + '".\n' + 'You should use the new function-form attrs constructor which avoids this issue: attrs(props => ({ yourStuff }))\n' + "To continue using the deprecated object syntax, you'll need to wrap your component prop in a function to make it available inside the styled component (you'll still get the deprecation warning though.)\n" + ('For example, { ' + key + ': () => InnerComponent } instead of { ' + key + ': InnerComponent }'))
+        );
+      });
+    }
+
+    return _this;
+  }
+
+  StyledComponent.prototype.render = function render() {
+    return _react.default.createElement(StyleSheetConsumer, null, this.renderOuter);
+  };
+
+  StyledComponent.prototype.renderOuter = function renderOuter() {
+    var styleSheet = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : StyleSheet.master;
+    this.styleSheet = styleSheet; // No need to subscribe a static component to theme changes, it won't change anything
+
+    if (this.props.forwardedComponent.componentStyle.isStatic) return this.renderInner();
+    return _react.default.createElement(ThemeConsumer, null, this.renderInner);
+  };
+
+  StyledComponent.prototype.renderInner = function renderInner(theme) {
+    var _props$forwardedCompo = this.props.forwardedComponent,
+        componentStyle = _props$forwardedCompo.componentStyle,
+        defaultProps = _props$forwardedCompo.defaultProps,
+        displayName = _props$forwardedCompo.displayName,
+        foldedComponentIds = _props$forwardedCompo.foldedComponentIds,
+        styledComponentId = _props$forwardedCompo.styledComponentId,
+        target = _props$forwardedCompo.target,
+        usesTheme = _props$forwardedCompo.usesTheme;
+    var generatedClassName = void 0;
+    var rawTheme = void 0;
+
+    if (componentStyle.isStatic) {
+      generatedClassName = this.generateAndInjectStyles(EMPTY_OBJECT, this.props);
+    } else {
+      rawTheme = determineTheme(this.props, theme, defaultProps);
+      generatedClassName = this.generateAndInjectStyles(rawTheme || EMPTY_OBJECT, this.props);
+
+      if ("development" !== 'production' && usesTheme && !rawTheme) {
+        console.error('Component \'' + // $FlowFixMe
+        displayName + '\' (.' + styledComponentId + ') references the \'theme\' prop in its styles but no theme was provided via prop or <ThemeProvider>.');
+      }
+    }
+
+    var elementToBeCreated = this.props.as || this.attrs.as || target;
+    var isTargetTag = isTag(elementToBeCreated);
+    var propsForElement = {};
+
+    var computedProps = _extends({}, this.props, this.attrs);
+
+    var key = void 0; // eslint-disable-next-line guard-for-in
+
+    for (key in computedProps) {
+      if ("development" !== 'production' && key === 'innerRef' && isTargetTag) {
+        this.warnInnerRef(displayName);
+      }
+
+      if (key === 'forwardedComponent' || key === 'as') {
+        continue;
+      } else if (key === 'forwardedRef') propsForElement.ref = computedProps[key];else if (key === 'forwardedAs') propsForElement.as = computedProps[key];else if (!isTargetTag || (0, _isPropValid.default)(key)) {
+        // Don't pass through non HTML tags through to HTML elements
+        propsForElement[key] = computedProps[key];
+      }
+    }
+
+    if (this.props.style && this.attrs.style) {
+      propsForElement.style = _extends({}, this.attrs.style, this.props.style);
+    }
+
+    propsForElement.className = Array.prototype.concat(foldedComponentIds, styledComponentId, generatedClassName !== styledComponentId ? generatedClassName : null, this.props.className, this.attrs.className).filter(Boolean).join(' ');
+    return (0, _react.createElement)(elementToBeCreated, propsForElement);
+  };
+
+  StyledComponent.prototype.buildExecutionContext = function buildExecutionContext(theme, props, attrs) {
+    var _this2 = this;
+
+    var context = _extends({}, props, {
+      theme: theme
+    });
+
+    if (!attrs.length) return context;
+    this.attrs = {};
+    attrs.forEach(function (attrDef) {
+      var resolvedAttrDef = attrDef;
+      var attrDefWasFn = false;
+      var attr = void 0;
+      var key = void 0;
+
+      if (isFunction(resolvedAttrDef)) {
+        // $FlowFixMe
+        resolvedAttrDef = resolvedAttrDef(context);
+        attrDefWasFn = true;
+      }
+      /* eslint-disable guard-for-in */
+      // $FlowFixMe
+
+
+      for (key in resolvedAttrDef) {
+        attr = resolvedAttrDef[key];
+
+        if (!attrDefWasFn) {
+          if (isFunction(attr) && !isDerivedReactComponent(attr) && !isStyledComponent(attr)) {
+            if ("development" !== 'production') {
+              _this2.warnAttrsFnObjectKeyDeprecated(key, props.forwardedComponent.displayName);
+            }
+
+            attr = attr(context);
+
+            if ("development" !== 'production' && _react.default.isValidElement(attr)) {
+              _this2.warnNonStyledComponentAttrsObjectKey(key, props.forwardedComponent.displayName);
+            }
+          }
+        }
+
+        _this2.attrs[key] = attr;
+        context[key] = attr;
+      }
+      /* eslint-enable */
+
+    });
+    return context;
+  };
+
+  StyledComponent.prototype.generateAndInjectStyles = function generateAndInjectStyles(theme, props) {
+    var _props$forwardedCompo2 = props.forwardedComponent,
+        attrs = _props$forwardedCompo2.attrs,
+        componentStyle = _props$forwardedCompo2.componentStyle,
+        warnTooManyClasses = _props$forwardedCompo2.warnTooManyClasses; // statically styled-components don't need to build an execution context object,
+    // and shouldn't be increasing the number of class names
+
+    if (componentStyle.isStatic && !attrs.length) {
+      return componentStyle.generateAndInjectStyles(EMPTY_OBJECT, this.styleSheet);
+    }
+
+    var className = componentStyle.generateAndInjectStyles(this.buildExecutionContext(theme, props, attrs), this.styleSheet);
+    if ("development" !== 'production' && warnTooManyClasses) warnTooManyClasses(className);
+    return className;
+  };
+
+  return StyledComponent;
+}(_react.Component);
+
+function createStyledComponent(target, options, rules) {
+  var isTargetStyledComp = isStyledComponent(target);
+  var isClass = !isTag(target);
+  var _options$displayName = options.displayName,
+      displayName = _options$displayName === undefined ? generateDisplayName(target) : _options$displayName,
+      _options$componentId = options.componentId,
+      componentId = _options$componentId === undefined ? generateId(ComponentStyle, options.displayName, options.parentComponentId) : _options$componentId,
+      _options$ParentCompon = options.ParentComponent,
+      ParentComponent = _options$ParentCompon === undefined ? StyledComponent : _options$ParentCompon,
+      _options$attrs = options.attrs,
+      attrs = _options$attrs === undefined ? EMPTY_ARRAY : _options$attrs;
+  var styledComponentId = options.displayName && options.componentId ? escape(options.displayName) + '-' + options.componentId : options.componentId || componentId; // fold the underlying StyledComponent attrs up (implicit extend)
+
+  var finalAttrs = // $FlowFixMe
+  isTargetStyledComp && target.attrs ? Array.prototype.concat(target.attrs, attrs).filter(Boolean) : attrs;
+  var componentStyle = new ComponentStyle(isTargetStyledComp ? // fold the underlying StyledComponent rules up (implicit extend)
+  // $FlowFixMe
+  target.componentStyle.rules.concat(rules) : rules, finalAttrs, styledComponentId);
+  /**
+   * forwardRef creates a new interim component, which we'll take advantage of
+   * instead of extending ParentComponent to create _another_ interim class
+   */
+
+  var WrappedStyledComponent = void 0;
+
+  var forwardRef = function forwardRef(props, ref) {
+    return _react.default.createElement(ParentComponent, _extends({}, props, {
+      forwardedComponent: WrappedStyledComponent,
+      forwardedRef: ref
+    }));
+  };
+
+  forwardRef.displayName = displayName;
+  WrappedStyledComponent = _react.default.forwardRef(forwardRef);
+  WrappedStyledComponent.displayName = displayName; // $FlowFixMe
+
+  WrappedStyledComponent.attrs = finalAttrs; // $FlowFixMe
+
+  WrappedStyledComponent.componentStyle = componentStyle; // $FlowFixMe
+
+  WrappedStyledComponent.foldedComponentIds = isTargetStyledComp ? // $FlowFixMe
+  Array.prototype.concat(target.foldedComponentIds, target.styledComponentId) : EMPTY_ARRAY; // $FlowFixMe
+
+  WrappedStyledComponent.styledComponentId = styledComponentId; // fold the underlying StyledComponent target up since we folded the styles
+  // $FlowFixMe
+
+  WrappedStyledComponent.target = isTargetStyledComp ? target.target : target; // $FlowFixMe
+
+  WrappedStyledComponent.withComponent = function withComponent(tag) {
+    var previousComponentId = options.componentId,
+        optionsToCopy = objectWithoutProperties(options, ['componentId']);
+    var newComponentId = previousComponentId && previousComponentId + '-' + (isTag(tag) ? tag : escape(getComponentName(tag)));
+
+    var newOptions = _extends({}, optionsToCopy, {
+      attrs: finalAttrs,
+      componentId: newComponentId,
+      ParentComponent: ParentComponent
+    });
+
+    return createStyledComponent(tag, newOptions, rules);
+  }; // $FlowFixMe
+
+
+  Object.defineProperty(WrappedStyledComponent, 'defaultProps', {
+    get: function get$$1() {
+      return this._foldedDefaultProps;
+    },
+    set: function set$$1(obj) {
+      // $FlowFixMe
+      this._foldedDefaultProps = isTargetStyledComp ? (0, _mergeAnything.default)(target.defaultProps, obj) : obj;
+    }
+  });
+
+  if ("development" !== 'production') {
+    // $FlowFixMe
+    WrappedStyledComponent.usesTheme = componentStyle.rules.some(function (x) {
+      return isFunction(x) && THEME_PROP_REGEX.test(x.toString());
+    }); // $FlowFixMe
+
+    WrappedStyledComponent.warnTooManyClasses = createWarnTooManyClasses(displayName);
+  } // $FlowFixMe
+
+
+  WrappedStyledComponent.toString = function () {
+    return '.' + WrappedStyledComponent.styledComponentId;
+  };
+
+  if (isClass) {
+    hoistNonReactStatics(WrappedStyledComponent, target, {
+      // all SC-specific things should not be hoisted
+      attrs: true,
+      componentStyle: true,
+      displayName: true,
+      foldedComponentIds: true,
+      styledComponentId: true,
+      target: true,
+      withComponent: true
+    });
+  }
+
+  return WrappedStyledComponent;
+} // 
+// Thanks to ReactDOMFactories for this handy list!
+
+
+var domElements = ['a', 'abbr', 'address', 'area', 'article', 'aside', 'audio', 'b', 'base', 'bdi', 'bdo', 'big', 'blockquote', 'body', 'br', 'button', 'canvas', 'caption', 'cite', 'code', 'col', 'colgroup', 'data', 'datalist', 'dd', 'del', 'details', 'dfn', 'dialog', 'div', 'dl', 'dt', 'em', 'embed', 'fieldset', 'figcaption', 'figure', 'footer', 'form', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'head', 'header', 'hgroup', 'hr', 'html', 'i', 'iframe', 'img', 'input', 'ins', 'kbd', 'keygen', 'label', 'legend', 'li', 'link', 'main', 'map', 'mark', 'marquee', 'menu', 'menuitem', 'meta', 'meter', 'nav', 'noscript', 'object', 'ol', 'optgroup', 'option', 'output', 'p', 'param', 'picture', 'pre', 'progress', 'q', 'rp', 'rt', 'ruby', 's', 'samp', 'script', 'section', 'select', 'small', 'source', 'span', 'strong', 'style', 'sub', 'summary', 'sup', 'table', 'tbody', 'td', 'textarea', 'tfoot', 'th', 'thead', 'time', 'title', 'tr', 'track', 'u', 'ul', 'var', 'video', 'wbr', // SVG
+'circle', 'clipPath', 'defs', 'ellipse', 'foreignObject', 'g', 'image', 'line', 'linearGradient', 'marker', 'mask', 'path', 'pattern', 'polygon', 'polyline', 'radialGradient', 'rect', 'stop', 'svg', 'text', 'tspan']; // 
+
+var styled = function styled(tag) {
+  return constructWithOptions(createStyledComponent, tag);
+}; // Shorthands for all valid HTML Elements
+
+
+domElements.forEach(function (domElement) {
+  styled[domElement] = styled(domElement);
+}); // 
+
+var GlobalStyle = function () {
+  function GlobalStyle(rules, componentId) {
+    classCallCheck(this, GlobalStyle);
+    this.rules = rules;
+    this.componentId = componentId;
+    this.isStatic = isStaticRules(rules, EMPTY_ARRAY);
+
+    if (!StyleSheet.master.hasId(componentId)) {
+      StyleSheet.master.deferredInject(componentId, []);
+    }
+  }
+
+  GlobalStyle.prototype.createStyles = function createStyles(executionContext, styleSheet) {
+    var flatCSS = flatten(this.rules, executionContext, styleSheet);
+    var css = stringifyRules(flatCSS, '');
+    styleSheet.inject(this.componentId, css);
+  };
+
+  GlobalStyle.prototype.removeStyles = function removeStyles(styleSheet) {
+    var componentId = this.componentId;
+
+    if (styleSheet.hasId(componentId)) {
+      styleSheet.remove(componentId);
+    }
+  }; // TODO: overwrite in-place instead of remove+create?
+
+
+  GlobalStyle.prototype.renderStyles = function renderStyles(executionContext, styleSheet) {
+    this.removeStyles(styleSheet);
+    this.createStyles(executionContext, styleSheet);
+  };
+
+  return GlobalStyle;
+}(); // 
+// place our cache into shared context so it'll persist between HMRs
+
+
+if (IS_BROWSER) {
+  window.scCGSHMRCache = {};
+}
+
+function createGlobalStyle(strings) {
+  for (var _len = arguments.length, interpolations = Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
+    interpolations[_key - 1] = arguments[_key];
+  }
+
+  var rules = css.apply(undefined, [strings].concat(interpolations));
+  var id = 'sc-global-' + murmurhash(JSON.stringify(rules));
+  var style = new GlobalStyle(rules, id);
+
+  var GlobalStyleComponent = function (_React$Component) {
+    inherits(GlobalStyleComponent, _React$Component);
+
+    function GlobalStyleComponent(props) {
+      classCallCheck(this, GlobalStyleComponent);
+
+      var _this = possibleConstructorReturn(this, _React$Component.call(this, props));
+
+      var _this$constructor = _this.constructor,
+          globalStyle = _this$constructor.globalStyle,
+          styledComponentId = _this$constructor.styledComponentId;
+
+      if (IS_BROWSER) {
+        window.scCGSHMRCache[styledComponentId] = (window.scCGSHMRCache[styledComponentId] || 0) + 1;
+      }
+      /**
+       * This fixes HMR compatibility. Don't ask me why, but this combination of
+       * caching the closure variables via statics and then persisting the statics in
+       * state works across HMR where no other combination did. ¯\_(ツ)_/¯
+       */
+
+
+      _this.state = {
+        globalStyle: globalStyle,
+        styledComponentId: styledComponentId
+      };
+      return _this;
+    }
+
+    GlobalStyleComponent.prototype.componentWillUnmount = function componentWillUnmount() {
+      if (window.scCGSHMRCache[this.state.styledComponentId]) {
+        window.scCGSHMRCache[this.state.styledComponentId] -= 1;
+      }
+      /**
+       * Depending on the order "render" is called this can cause the styles to be lost
+       * until the next render pass of the remaining instance, which may
+       * not be immediate.
+       */
+
+
+      if (window.scCGSHMRCache[this.state.styledComponentId] === 0) {
+        this.state.globalStyle.removeStyles(this.styleSheet);
+      }
+    };
+
+    GlobalStyleComponent.prototype.render = function render() {
+      var _this2 = this;
+
+      if ("development" !== 'production' && _react.default.Children.count(this.props.children)) {
+        // eslint-disable-next-line no-console
+        console.warn('The global style component ' + this.state.styledComponentId + ' was given child JSX. createGlobalStyle does not render children.');
+      }
+
+      return _react.default.createElement(StyleSheetConsumer, null, function (styleSheet) {
+        _this2.styleSheet = styleSheet || StyleSheet.master;
+        var globalStyle = _this2.state.globalStyle;
+
+        if (globalStyle.isStatic) {
+          globalStyle.renderStyles(STATIC_EXECUTION_CONTEXT, _this2.styleSheet);
+          return null;
+        } else {
+          return _react.default.createElement(ThemeConsumer, null, function (theme) {
+            // $FlowFixMe
+            var defaultProps = _this2.constructor.defaultProps;
+
+            var context = _extends({}, _this2.props);
+
+            if (typeof theme !== 'undefined') {
+              context.theme = determineTheme(_this2.props, theme, defaultProps);
+            }
+
+            globalStyle.renderStyles(context, _this2.styleSheet);
+            return null;
+          });
+        }
+      });
+    };
+
+    return GlobalStyleComponent;
+  }(_react.default.Component);
+
+  GlobalStyleComponent.globalStyle = style;
+  GlobalStyleComponent.styledComponentId = id;
+  return GlobalStyleComponent;
+} // 
+
+
+var replaceWhitespace = function replaceWhitespace(str) {
+  return str.replace(/\s|\\n/g, '');
+};
+
+function keyframes(strings) {
+  /* Warning if you've used keyframes on React Native */
+  if ("development" !== 'production' && typeof navigator !== 'undefined' && navigator.product === 'ReactNative') {
+    // eslint-disable-next-line no-console
+    console.warn('`keyframes` cannot be used on ReactNative, only on the web. To do animation in ReactNative please use Animated.');
+  }
+
+  for (var _len = arguments.length, interpolations = Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
+    interpolations[_key - 1] = arguments[_key];
+  }
+
+  var rules = css.apply(undefined, [strings].concat(interpolations));
+  var name = generateAlphabeticName(murmurhash(replaceWhitespace(JSON.stringify(rules))));
+  return new Keyframes(name, stringifyRules(rules, name, '@keyframes'));
+} // 
+
+
+var withTheme = function (Component$$1) {
+  var WithTheme = _react.default.forwardRef(function (props, ref) {
+    return _react.default.createElement(ThemeConsumer, null, function (theme) {
+      // $FlowFixMe
+      var defaultProps = Component$$1.defaultProps;
+      var themeProp = determineTheme(props, theme, defaultProps);
+
+      if ("development" !== 'production' && themeProp === undefined) {
+        // eslint-disable-next-line no-console
+        console.warn('[withTheme] You are not using a ThemeProvider nor passing a theme prop or a theme in defaultProps in component class "' + getComponentName(Component$$1) + '"');
+      }
+
+      return _react.default.createElement(Component$$1, _extends({}, props, {
+        theme: themeProp,
+        ref: ref
+      }));
+    });
+  });
+
+  hoistNonReactStatics(WithTheme, Component$$1);
+  WithTheme.displayName = 'WithTheme(' + getComponentName(Component$$1) + ')';
+  return WithTheme;
+}; // 
+
+/* eslint-disable */
+
+
+exports.withTheme = withTheme;
+var __DO_NOT_USE_OR_YOU_WILL_BE_HAUNTED_BY_SPOOKY_GHOSTS = {
+  StyleSheet: StyleSheet
+}; // 
+
+/* Warning if you've imported this file on React Native */
+
+exports.__DO_NOT_USE_OR_YOU_WILL_BE_HAUNTED_BY_SPOOKY_GHOSTS = __DO_NOT_USE_OR_YOU_WILL_BE_HAUNTED_BY_SPOOKY_GHOSTS;
+
+if ("development" !== 'production' && typeof navigator !== 'undefined' && navigator.product === 'ReactNative') {
+  // eslint-disable-next-line no-console
+  console.warn("It looks like you've imported 'styled-components' on React Native.\n" + "Perhaps you're looking to import 'styled-components/native'?\n" + 'Read more about this at https://www.styled-components.com/docs/basics#react-native');
+}
+/* Warning if there are several instances of styled-components */
+
+
+if ("development" !== 'production' && "development" !== 'test' && typeof window !== 'undefined' && typeof navigator !== 'undefined' && typeof navigator.userAgent === 'string' && navigator.userAgent.indexOf('Node.js') === -1 && navigator.userAgent.indexOf('jsdom') === -1) {
+  window['__styled-components-init__'] = window['__styled-components-init__'] || 0;
+
+  if (window['__styled-components-init__'] === 1) {
+    // eslint-disable-next-line no-console
+    console.warn("It looks like there are several instances of 'styled-components' initialized in this application. " + 'This may cause dynamic styles not rendering properly, errors happening during rehydration process ' + 'and makes your application bigger without a good reason.\n\n' + 'See https://s-c.sh/2BAXzed for more info.');
+  }
+
+  window['__styled-components-init__'] += 1;
+} //
+
+
+var _default = styled;
+exports.default = _default;
+},{"stylis/stylis.min":"../node_modules/stylis/stylis.min.js","stylis-rule-sheet":"../node_modules/stylis-rule-sheet/index.js","react":"../node_modules/react/index.js","@emotion/unitless":"../node_modules/@emotion/unitless/dist/unitless.browser.esm.js","react-is":"../node_modules/react-is/index.js","memoize-one":"../node_modules/memoize-one/dist/memoize-one.esm.js","prop-types":"../node_modules/prop-types/index.js","@emotion/is-prop-valid":"../node_modules/@emotion/is-prop-valid/dist/is-prop-valid.browser.esm.js","merge-anything":"../node_modules/merge-anything/dist/index.esm.js","process":"../node_modules/process/browser.js"}],"../node_modules/@babel/runtime/helpers/esm/objectWithoutProperties.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -43198,851 +46836,7 @@ function withStyles(stylesOrCreator, options) {
 
 var _default = withStyles;
 exports.default = _default;
-},{"@babel/runtime/helpers/esm/extends":"../node_modules/@babel/runtime/helpers/esm/extends.js","@material-ui/styles":"../node_modules/@material-ui/core/node_modules/@material-ui/styles/esm/index.js","./defaultTheme":"../node_modules/@material-ui/core/esm/styles/defaultTheme.js"}],"../node_modules/@material-ui/core/esm/styles/useTheme.js":[function(require,module,exports) {
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.default = useTheme;
-
-var _styles = require("@material-ui/styles");
-
-var _defaultTheme = _interopRequireDefault(require("./defaultTheme"));
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-function useTheme() {
-  return (0, _styles.useTheme)() || _defaultTheme.default;
-}
-},{"@material-ui/styles":"../node_modules/@material-ui/core/node_modules/@material-ui/styles/esm/index.js","./defaultTheme":"../node_modules/@material-ui/core/esm/styles/defaultTheme.js"}],"../node_modules/@material-ui/core/esm/Paper/Paper.js":[function(require,module,exports) {
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.default = exports.styles = void 0;
-
-var _objectWithoutProperties2 = _interopRequireDefault(require("@babel/runtime/helpers/esm/objectWithoutProperties"));
-
-var _extends2 = _interopRequireDefault(require("@babel/runtime/helpers/esm/extends"));
-
-var _react = _interopRequireDefault(require("react"));
-
-var _propTypes = _interopRequireDefault(require("prop-types"));
-
-var _clsx = _interopRequireDefault(require("clsx"));
-
-var _withStyles = _interopRequireDefault(require("../styles/withStyles"));
-
-var _useTheme = _interopRequireDefault(require("../styles/useTheme"));
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-var styles = function styles(theme) {
-  var elevations = {};
-  theme.shadows.forEach(function (shadow, index) {
-    elevations["elevation".concat(index)] = {
-      boxShadow: shadow
-    };
-  });
-  return (0, _extends2.default)({
-    /* Styles applied to the root element. */
-    root: {
-      backgroundColor: theme.palette.background.paper,
-      color: theme.palette.text.primary,
-      transition: theme.transitions.create('box-shadow')
-    },
-
-    /* Styles applied to the root element if `square={false}`. */
-    rounded: {
-      borderRadius: theme.shape.borderRadius
-    }
-  }, elevations);
-};
-
-exports.styles = styles;
-
-var Paper = _react.default.forwardRef(function Paper(props, ref) {
-  var classes = props.classes,
-      classNameProp = props.className,
-      _props$component = props.component,
-      Component = _props$component === void 0 ? 'div' : _props$component,
-      _props$square = props.square,
-      square = _props$square === void 0 ? false : _props$square,
-      _props$elevation = props.elevation,
-      elevation = _props$elevation === void 0 ? 1 : _props$elevation,
-      other = (0, _objectWithoutProperties2.default)(props, ["classes", "className", "component", "square", "elevation"]);
-  var theme = (0, _useTheme.default)();
-
-  if ("development" !== 'production') {
-    if (!theme.shadows[elevation]) {
-      console.error("Material-UI: this elevation `".concat(elevation, "` is not implemented."));
-    }
-  }
-
-  var className = (0, _clsx.default)(classes.root, classes["elevation".concat(elevation)], classNameProp, !square && classes.rounded);
-  return _react.default.createElement(Component, (0, _extends2.default)({
-    className: className,
-    ref: ref
-  }, other));
-});
-
-"development" !== "production" ? Paper.propTypes = {
-  /**
-   * The content of the component.
-   */
-  children: _propTypes.default.node,
-
-  /**
-   * Override or extend the styles applied to the component.
-   * See [CSS API](#css) below for more details.
-   */
-  classes: _propTypes.default.object.isRequired,
-
-  /**
-   * @ignore
-   */
-  className: _propTypes.default.string,
-
-  /**
-   * The component used for the root node.
-   * Either a string to use a DOM element or a component.
-   */
-  component: _propTypes.default.elementType,
-
-  /**
-   * Shadow depth, corresponds to `dp` in the spec.
-   * It accepts values between 0 and 24 inclusive.
-   */
-  elevation: _propTypes.default.number,
-
-  /**
-   * If `true`, rounded corners are disabled.
-   */
-  square: _propTypes.default.bool
-} : void 0;
-
-var _default = (0, _withStyles.default)(styles, {
-  name: 'MuiPaper'
-})(Paper);
-
-exports.default = _default;
-},{"@babel/runtime/helpers/esm/objectWithoutProperties":"../node_modules/@babel/runtime/helpers/esm/objectWithoutProperties.js","@babel/runtime/helpers/esm/extends":"../node_modules/@babel/runtime/helpers/esm/extends.js","react":"../node_modules/react/index.js","prop-types":"../node_modules/prop-types/index.js","clsx":"../node_modules/clsx/dist/clsx.m.js","../styles/withStyles":"../node_modules/@material-ui/core/esm/styles/withStyles.js","../styles/useTheme":"../node_modules/@material-ui/core/esm/styles/useTheme.js"}],"../node_modules/@material-ui/core/esm/Paper/index.js":[function(require,module,exports) {
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-Object.defineProperty(exports, "default", {
-  enumerable: true,
-  get: function () {
-    return _Paper.default;
-  }
-});
-
-var _Paper = _interopRequireDefault(require("./Paper"));
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-},{"./Paper":"../node_modules/@material-ui/core/esm/Paper/Paper.js"}],"../node_modules/@material-ui/core/esm/utils/debounce.js":[function(require,module,exports) {
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.default = debounce;
-
-// Corresponds to 10 frames at 60 Hz.
-// A few bytes payload overhead when lodash/debounce is ~3 kB and debounce ~300 B.
-function debounce(func) {
-  var wait = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 166;
-  var timeout;
-
-  function debounced() {
-    for (var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++) {
-      args[_key] = arguments[_key];
-    } // eslint-disable-next-line consistent-this
-
-
-    var that = this;
-
-    var later = function later() {
-      func.apply(that, args);
-    };
-
-    clearTimeout(timeout);
-    timeout = setTimeout(later, wait);
-  }
-
-  debounced.clear = function () {
-    clearTimeout(timeout);
-  };
-
-  return debounced;
-}
-},{}],"../node_modules/@material-ui/core/esm/utils/ownerDocument.js":[function(require,module,exports) {
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.default = void 0;
-
-function ownerDocument(node) {
-  return node && node.ownerDocument || document;
-}
-
-var _default = ownerDocument;
-exports.default = _default;
-},{}],"../node_modules/@material-ui/core/esm/utils/ownerWindow.js":[function(require,module,exports) {
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.default = void 0;
-
-var _ownerDocument = _interopRequireDefault(require("./ownerDocument"));
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-function ownerWindow(node) {
-  var doc = (0, _ownerDocument.default)(node);
-  return doc.defaultView || window;
-}
-
-var _default = ownerWindow;
-exports.default = _default;
-},{"./ownerDocument":"../node_modules/@material-ui/core/esm/utils/ownerDocument.js"}],"../node_modules/normalize-scroll-left/esm/main.js":[function(require,module,exports) {
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports._setScrollType = _setScrollType;
-exports.detectScrollType = detectScrollType;
-exports.getNormalizedScrollLeft = getNormalizedScrollLeft;
-exports.setNormalizedScrollLeft = setNormalizedScrollLeft;
-// Based on https://github.com/react-bootstrap/dom-helpers/blob/master/src/util/inDOM.js
-var inDOM = !!(typeof window !== 'undefined' && window.document && window.document.createElement);
-var cachedType;
-
-function _setScrollType(type) {
-  cachedType = type;
-} // Based on the jquery plugin https://github.com/othree/jquery.rtl-scroll-type
-
-
-function detectScrollType() {
-  if (cachedType) {
-    return cachedType;
-  }
-
-  if (!inDOM || !window.document.body) {
-    return 'indeterminate';
-  }
-
-  var dummy = window.document.createElement('div');
-  dummy.appendChild(document.createTextNode('ABCD'));
-  dummy.dir = 'rtl';
-  dummy.style.fontSize = '14px';
-  dummy.style.width = '4px';
-  dummy.style.height = '1px';
-  dummy.style.position = 'absolute';
-  dummy.style.top = '-1000px';
-  dummy.style.overflow = 'scroll';
-  document.body.appendChild(dummy);
-  cachedType = 'reverse';
-
-  if (dummy.scrollLeft > 0) {
-    cachedType = 'default';
-  } else {
-    dummy.scrollLeft = 1;
-
-    if (dummy.scrollLeft === 0) {
-      cachedType = 'negative';
-    }
-  }
-
-  document.body.removeChild(dummy);
-  return cachedType;
-} // Based on https://stackoverflow.com/a/24394376
-
-
-function getNormalizedScrollLeft(element, direction) {
-  var scrollLeft = element.scrollLeft; // Perform the calculations only when direction is rtl to avoid messing up the ltr bahavior
-
-  if (direction !== 'rtl') {
-    return scrollLeft;
-  }
-
-  var type = detectScrollType();
-
-  if (type === 'indeterminate') {
-    return Number.NaN;
-  }
-
-  switch (type) {
-    case 'negative':
-      return element.scrollWidth - element.clientWidth + scrollLeft;
-
-    case 'reverse':
-      return element.scrollWidth - element.clientWidth - scrollLeft;
-  }
-
-  return scrollLeft;
-}
-
-function setNormalizedScrollLeft(element, scrollLeft, direction) {
-  // Perform the calculations only when direction is rtl to avoid messing up the ltr bahavior
-  if (direction !== 'rtl') {
-    element.scrollLeft = scrollLeft;
-    return;
-  }
-
-  var type = detectScrollType();
-
-  if (type === 'indeterminate') {
-    return;
-  }
-
-  switch (type) {
-    case 'negative':
-      element.scrollLeft = element.clientWidth - element.scrollWidth + scrollLeft;
-      break;
-
-    case 'reverse':
-      element.scrollLeft = element.scrollWidth - element.clientWidth - scrollLeft;
-      break;
-
-    default:
-      element.scrollLeft = scrollLeft;
-      break;
-  }
-}
-},{}],"../node_modules/@material-ui/core/esm/internal/animate.js":[function(require,module,exports) {
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.default = animate;
-
-function easeInOutSin(time) {
-  return (1 + Math.sin(Math.PI * time - Math.PI / 2)) / 2;
-}
-
-function animate(property, element, to) {
-  var options = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : {};
-  var cb = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : function () {};
-  var _options$ease = options.ease,
-      ease = _options$ease === void 0 ? easeInOutSin : _options$ease,
-      _options$duration = options.duration,
-      duration = _options$duration === void 0 ? 300 : _options$duration;
-  var start = null;
-  var from = element[property];
-  var cancelled = false;
-
-  var cancel = function cancel() {
-    cancelled = true;
-  };
-
-  var step = function step(timestamp) {
-    if (cancelled) {
-      cb(new Error('Animation cancelled'));
-      return;
-    }
-
-    if (start === null) {
-      start = timestamp;
-    }
-
-    var time = Math.min(1, (timestamp - start) / duration);
-    element[property] = ease(time) * (to - from) + from;
-
-    if (time >= 1) {
-      requestAnimationFrame(function () {
-        cb(null);
-      });
-      return;
-    }
-
-    requestAnimationFrame(step);
-  };
-
-  if (from === to) {
-    cb(new Error('Element already at target position'));
-    return cancel;
-  }
-
-  requestAnimationFrame(step);
-  return cancel;
-}
-},{}],"../node_modules/@material-ui/core/esm/Tabs/ScrollbarSize.js":[function(require,module,exports) {
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.default = ScrollbarSize;
-
-var _extends2 = _interopRequireDefault(require("@babel/runtime/helpers/esm/extends"));
-
-var _objectWithoutProperties2 = _interopRequireDefault(require("@babel/runtime/helpers/esm/objectWithoutProperties"));
-
-var _react = _interopRequireDefault(require("react"));
-
-var _propTypes = _interopRequireDefault(require("prop-types"));
-
-var _debounce = _interopRequireDefault(require("../utils/debounce"));
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-var styles = {
-  width: 99,
-  height: 99,
-  position: 'absolute',
-  top: -9999,
-  overflow: 'scroll'
-};
-/**
- * @ignore - internal component.
- * The component is originates from https://github.com/STORIS/react-scrollbar-size.
- * It has been moved into the core in order to minimize the bundle size.
- */
-
-function ScrollbarSize(props) {
-  var onChange = props.onChange,
-      other = (0, _objectWithoutProperties2.default)(props, ["onChange"]);
-
-  var scrollbarHeight = _react.default.useRef();
-
-  var nodeRef = _react.default.useRef(null);
-
-  var setMeasurements = function setMeasurements() {
-    scrollbarHeight.current = nodeRef.current.offsetHeight - nodeRef.current.clientHeight;
-  };
-
-  _react.default.useEffect(function () {
-    var handleResize = (0, _debounce.default)(function () {
-      var prevHeight = scrollbarHeight.current;
-      setMeasurements();
-
-      if (prevHeight !== scrollbarHeight.current) {
-        onChange(scrollbarHeight.current);
-      }
-    });
-    window.addEventListener('resize', handleResize);
-    return function () {
-      handleResize.clear();
-      window.removeEventListener('resize', handleResize);
-    };
-  }, [onChange]);
-
-  _react.default.useEffect(function () {
-    setMeasurements();
-    onChange(scrollbarHeight.current);
-  }, [onChange]);
-
-  return _react.default.createElement("div", (0, _extends2.default)({
-    style: styles,
-    ref: nodeRef
-  }, other));
-}
-
-"development" !== "production" ? ScrollbarSize.propTypes = {
-  onChange: _propTypes.default.func.isRequired
-} : void 0;
-},{"@babel/runtime/helpers/esm/extends":"../node_modules/@babel/runtime/helpers/esm/extends.js","@babel/runtime/helpers/esm/objectWithoutProperties":"../node_modules/@babel/runtime/helpers/esm/objectWithoutProperties.js","react":"../node_modules/react/index.js","prop-types":"../node_modules/prop-types/index.js","../utils/debounce":"../node_modules/@material-ui/core/esm/utils/debounce.js"}],"../node_modules/@material-ui/core/esm/utils/capitalize.js":[function(require,module,exports) {
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.default = capitalize;
-
-// It should to be noted that this function isn't equivalent to `text-transform: capitalize`.
-//
-// A strict capitalization should uppercase the first letter of each word a the sentence.
-// We only handle the first word.
-function capitalize(string) {
-  if ("development" !== 'production') {
-    if (typeof string !== 'string') {
-      throw new Error('Material-UI: capitalize(string) expects a string argument.');
-    }
-  }
-
-  return string.charAt(0).toUpperCase() + string.slice(1);
-}
-},{}],"../node_modules/@material-ui/core/esm/Tabs/TabIndicator.js":[function(require,module,exports) {
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.default = exports.styles = void 0;
-
-var _extends2 = _interopRequireDefault(require("@babel/runtime/helpers/esm/extends"));
-
-var _objectWithoutProperties2 = _interopRequireDefault(require("@babel/runtime/helpers/esm/objectWithoutProperties"));
-
-var _react = _interopRequireDefault(require("react"));
-
-var _propTypes = _interopRequireDefault(require("prop-types"));
-
-var _clsx = _interopRequireDefault(require("clsx"));
-
-var _withStyles = _interopRequireDefault(require("../styles/withStyles"));
-
-var _capitalize = _interopRequireDefault(require("../utils/capitalize"));
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-var styles = function styles(theme) {
-  return {
-    root: {
-      position: 'absolute',
-      height: 2,
-      bottom: 0,
-      width: '100%',
-      transition: theme.transitions.create()
-    },
-    colorPrimary: {
-      backgroundColor: theme.palette.primary.main
-    },
-    colorSecondary: {
-      backgroundColor: theme.palette.secondary.main
-    },
-    vertical: {
-      height: '100%',
-      width: 2,
-      right: 0
-    }
-  };
-};
-/**
- * @ignore - internal component.
- */
-
-
-exports.styles = styles;
-
-var TabIndicator = _react.default.forwardRef(function TabIndicator(props, ref) {
-  var classes = props.classes,
-      className = props.className,
-      color = props.color,
-      orientation = props.orientation,
-      other = (0, _objectWithoutProperties2.default)(props, ["classes", "className", "color", "orientation"]);
-  return _react.default.createElement("span", (0, _extends2.default)({
-    className: (0, _clsx.default)(classes.root, classes["color".concat((0, _capitalize.default)(color))], className, {
-      vertical: classes.vertical
-    }[orientation]),
-    ref: ref
-  }, other));
-});
-
-"development" !== "production" ? TabIndicator.propTypes = {
-  /**
-   * Override or extend the styles applied to the component.
-   * See [CSS API](#css) below for more details.
-   */
-  classes: _propTypes.default.object.isRequired,
-
-  /**
-   * @ignore
-   */
-  className: _propTypes.default.string,
-
-  /**
-   * @ignore
-   * The color of the tab indicator.
-   */
-  color: _propTypes.default.oneOf(['primary', 'secondary']).isRequired,
-
-  /**
-   * The tabs orientation (layout flow direction).
-   */
-  orientation: _propTypes.default.oneOf(['horizontal', 'vertical']).isRequired
-} : void 0;
-
-var _default = (0, _withStyles.default)(styles, {
-  name: 'PrivateTabIndicator'
-})(TabIndicator);
-
-exports.default = _default;
-},{"@babel/runtime/helpers/esm/extends":"../node_modules/@babel/runtime/helpers/esm/extends.js","@babel/runtime/helpers/esm/objectWithoutProperties":"../node_modules/@babel/runtime/helpers/esm/objectWithoutProperties.js","react":"../node_modules/react/index.js","prop-types":"../node_modules/prop-types/index.js","clsx":"../node_modules/clsx/dist/clsx.m.js","../styles/withStyles":"../node_modules/@material-ui/core/esm/styles/withStyles.js","../utils/capitalize":"../node_modules/@material-ui/core/esm/utils/capitalize.js"}],"../node_modules/@material-ui/core/esm/SvgIcon/SvgIcon.js":[function(require,module,exports) {
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.default = exports.styles = void 0;
-
-var _extends2 = _interopRequireDefault(require("@babel/runtime/helpers/esm/extends"));
-
-var _objectWithoutProperties2 = _interopRequireDefault(require("@babel/runtime/helpers/esm/objectWithoutProperties"));
-
-var _react = _interopRequireDefault(require("react"));
-
-var _propTypes = _interopRequireDefault(require("prop-types"));
-
-var _clsx = _interopRequireDefault(require("clsx"));
-
-var _withStyles = _interopRequireDefault(require("../styles/withStyles"));
-
-var _capitalize = _interopRequireDefault(require("../utils/capitalize"));
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-var styles = function styles(theme) {
-  return {
-    /* Styles applied to the root element. */
-    root: {
-      userSelect: 'none',
-      width: '1em',
-      height: '1em',
-      display: 'inline-block',
-      fill: 'currentColor',
-      flexShrink: 0,
-      fontSize: theme.typography.pxToRem(24),
-      transition: theme.transitions.create('fill', {
-        duration: theme.transitions.duration.shorter
-      })
-    },
-
-    /* Styles applied to the root element if `color="primary"`. */
-    colorPrimary: {
-      color: theme.palette.primary.main
-    },
-
-    /* Styles applied to the root element if `color="secondary"`. */
-    colorSecondary: {
-      color: theme.palette.secondary.main
-    },
-
-    /* Styles applied to the root element if `color="action"`. */
-    colorAction: {
-      color: theme.palette.action.active
-    },
-
-    /* Styles applied to the root element if `color="error"`. */
-    colorError: {
-      color: theme.palette.error.main
-    },
-
-    /* Styles applied to the root element if `color="disabled"`. */
-    colorDisabled: {
-      color: theme.palette.action.disabled
-    },
-
-    /* Styles applied to the root element if `fontSize="inherit"`. */
-    fontSizeInherit: {
-      fontSize: 'inherit'
-    },
-
-    /* Styles applied to the root element if `fontSize="small"`. */
-    fontSizeSmall: {
-      fontSize: theme.typography.pxToRem(20)
-    },
-
-    /* Styles applied to the root element if `fontSize="large"`. */
-    fontSizeLarge: {
-      fontSize: theme.typography.pxToRem(35)
-    }
-  };
-};
-
-exports.styles = styles;
-
-var SvgIcon = _react.default.forwardRef(function SvgIcon(props, ref) {
-  var children = props.children,
-      classes = props.classes,
-      className = props.className,
-      _props$color = props.color,
-      color = _props$color === void 0 ? 'inherit' : _props$color,
-      _props$component = props.component,
-      Component = _props$component === void 0 ? 'svg' : _props$component,
-      _props$fontSize = props.fontSize,
-      fontSize = _props$fontSize === void 0 ? 'default' : _props$fontSize,
-      htmlColor = props.htmlColor,
-      titleAccess = props.titleAccess,
-      _props$viewBox = props.viewBox,
-      viewBox = _props$viewBox === void 0 ? '0 0 24 24' : _props$viewBox,
-      other = (0, _objectWithoutProperties2.default)(props, ["children", "classes", "className", "color", "component", "fontSize", "htmlColor", "titleAccess", "viewBox"]);
-  return _react.default.createElement(Component, (0, _extends2.default)({
-    className: (0, _clsx.default)(classes.root, className, color !== 'inherit' && classes["color".concat((0, _capitalize.default)(color))], fontSize !== 'default' && classes["fontSize".concat((0, _capitalize.default)(fontSize))]),
-    focusable: "false",
-    viewBox: viewBox,
-    color: htmlColor,
-    "aria-hidden": titleAccess ? 'false' : 'true',
-    role: titleAccess ? 'img' : 'presentation',
-    ref: ref
-  }, other), children, titleAccess ? _react.default.createElement("title", null, titleAccess) : null);
-});
-
-"development" !== "production" ? SvgIcon.propTypes = {
-  // ----------------------------- Warning --------------------------------
-  // | These PropTypes are generated from the TypeScript type definitions |
-  // |     To update them edit the d.ts file and run "yarn proptypes"     |
-  // ----------------------------------------------------------------------
-
-  /**
-   * Node passed into the SVG element.
-   */
-  children: _propTypes.default.node,
-
-  /**
-   * Override or extend the styles applied to the component.
-   * See [CSS API](#css) below for more details.
-   */
-  classes: _propTypes.default.object,
-
-  /**
-   * @ignore
-   */
-  className: _propTypes.default.string,
-
-  /**
-   * The color of the component. It supports those theme colors that make sense for this component.
-   * You can use the `htmlColor` prop to apply a color attribute to the SVG element.
-   */
-  color: _propTypes.default.oneOf(['action', 'disabled', 'error', 'inherit', 'primary', 'secondary']),
-
-  /**
-   * The component used for the root node.
-   * Either a string to use a DOM element or a component.
-   */
-  component: _propTypes.default.elementType,
-
-  /**
-   * The fontSize applied to the icon. Defaults to 24px, but can be configure to inherit font size.
-   */
-  fontSize: _propTypes.default.oneOf(['default', 'inherit', 'large', 'small']),
-
-  /**
-   * Applies a color attribute to the SVG element.
-   */
-  htmlColor: _propTypes.default.string,
-
-  /**
-   * The shape-rendering attribute. The behavior of the different options is described on the
-   * [MDN Web Docs](https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/shape-rendering).
-   * If you are having issues with blurry icons you should investigate this property.
-   */
-  shapeRendering: _propTypes.default.string,
-
-  /**
-   * Provides a human-readable title for the element that contains it.
-   * https://www.w3.org/TR/SVG-access/#Equivalent
-   */
-  titleAccess: _propTypes.default.string,
-
-  /**
-   * Allows you to redefine what the coordinates without units mean inside an SVG element.
-   * For example, if the SVG element is 500 (width) by 200 (height),
-   * and you pass viewBox="0 0 50 20",
-   * this means that the coordinates inside the SVG will go from the top left corner (0,0)
-   * to bottom right (50,20) and each unit will be worth 10px.
-   */
-  viewBox: _propTypes.default.string
-} : void 0;
-SvgIcon.muiName = 'SvgIcon';
-
-var _default = (0, _withStyles.default)(styles, {
-  name: 'MuiSvgIcon'
-})(SvgIcon);
-
-exports.default = _default;
-},{"@babel/runtime/helpers/esm/extends":"../node_modules/@babel/runtime/helpers/esm/extends.js","@babel/runtime/helpers/esm/objectWithoutProperties":"../node_modules/@babel/runtime/helpers/esm/objectWithoutProperties.js","react":"../node_modules/react/index.js","prop-types":"../node_modules/prop-types/index.js","clsx":"../node_modules/clsx/dist/clsx.m.js","../styles/withStyles":"../node_modules/@material-ui/core/esm/styles/withStyles.js","../utils/capitalize":"../node_modules/@material-ui/core/esm/utils/capitalize.js"}],"../node_modules/@material-ui/core/esm/SvgIcon/index.js":[function(require,module,exports) {
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-Object.defineProperty(exports, "default", {
-  enumerable: true,
-  get: function () {
-    return _SvgIcon.default;
-  }
-});
-
-var _SvgIcon = _interopRequireDefault(require("./SvgIcon"));
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-},{"./SvgIcon":"../node_modules/@material-ui/core/esm/SvgIcon/SvgIcon.js"}],"../node_modules/@material-ui/core/esm/internal/svg-icons/createSvgIcon.js":[function(require,module,exports) {
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.default = createSvgIcon;
-
-var _extends2 = _interopRequireDefault(require("@babel/runtime/helpers/esm/extends"));
-
-var _react = _interopRequireDefault(require("react"));
-
-var _SvgIcon = _interopRequireDefault(require("../../SvgIcon"));
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-function createSvgIcon(path, displayName) {
-  var Component = _react.default.memo(_react.default.forwardRef(function (props, ref) {
-    return _react.default.createElement(_SvgIcon.default, (0, _extends2.default)({}, props, {
-      ref: ref
-    }), path);
-  }));
-
-  if ("development" !== 'production') {
-    Component.displayName = "".concat(displayName, "Icon");
-  }
-
-  Component.muiName = _SvgIcon.default.muiName;
-  return Component;
-}
-},{"@babel/runtime/helpers/esm/extends":"../node_modules/@babel/runtime/helpers/esm/extends.js","react":"../node_modules/react/index.js","../../SvgIcon":"../node_modules/@material-ui/core/esm/SvgIcon/index.js"}],"../node_modules/@material-ui/core/esm/internal/svg-icons/KeyboardArrowLeft.js":[function(require,module,exports) {
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.default = void 0;
-
-var _react = _interopRequireDefault(require("react"));
-
-var _createSvgIcon = _interopRequireDefault(require("./createSvgIcon"));
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-/**
- * @ignore - internal component.
- */
-var _default = (0, _createSvgIcon.default)(_react.default.createElement("path", {
-  d: "M15.41 16.09l-4.58-4.59 4.58-4.59L14 5.5l-6 6 6 6z"
-}), 'KeyboardArrowLeft');
-
-exports.default = _default;
-},{"react":"../node_modules/react/index.js","./createSvgIcon":"../node_modules/@material-ui/core/esm/internal/svg-icons/createSvgIcon.js"}],"../node_modules/@material-ui/core/esm/internal/svg-icons/KeyboardArrowRight.js":[function(require,module,exports) {
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.default = void 0;
-
-var _react = _interopRequireDefault(require("react"));
-
-var _createSvgIcon = _interopRequireDefault(require("./createSvgIcon"));
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-/**
- * @ignore - internal component.
- */
-var _default = (0, _createSvgIcon.default)(_react.default.createElement("path", {
-  d: "M8.59 16.34l4.58-4.59-4.58-4.59L10 5.75l6 6-6 6z"
-}), 'KeyboardArrowRight');
-
-exports.default = _default;
-},{"react":"../node_modules/react/index.js","./createSvgIcon":"../node_modules/@material-ui/core/esm/internal/svg-icons/createSvgIcon.js"}],"../node_modules/@material-ui/core/esm/utils/setRef.js":[function(require,module,exports) {
+},{"@babel/runtime/helpers/esm/extends":"../node_modules/@babel/runtime/helpers/esm/extends.js","@material-ui/styles":"../node_modules/@material-ui/core/node_modules/@material-ui/styles/esm/index.js","./defaultTheme":"../node_modules/@material-ui/core/esm/styles/defaultTheme.js"}],"../node_modules/@material-ui/core/esm/utils/setRef.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -47242,7 +50036,1587 @@ Object.defineProperty(exports, "default", {
 var _ButtonBase = _interopRequireDefault(require("./ButtonBase"));
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-},{"./ButtonBase":"../node_modules/@material-ui/core/esm/ButtonBase/ButtonBase.js"}],"../node_modules/@material-ui/core/esm/Tabs/TabScrollButton.js":[function(require,module,exports) {
+},{"./ButtonBase":"../node_modules/@material-ui/core/esm/ButtonBase/ButtonBase.js"}],"../node_modules/@material-ui/core/esm/utils/capitalize.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = capitalize;
+
+// It should to be noted that this function isn't equivalent to `text-transform: capitalize`.
+//
+// A strict capitalization should uppercase the first letter of each word a the sentence.
+// We only handle the first word.
+function capitalize(string) {
+  if ("development" !== 'production') {
+    if (typeof string !== 'string') {
+      throw new Error('Material-UI: capitalize(string) expects a string argument.');
+    }
+  }
+
+  return string.charAt(0).toUpperCase() + string.slice(1);
+}
+},{}],"../node_modules/@material-ui/core/esm/Button/Button.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = exports.styles = void 0;
+
+var _objectWithoutProperties2 = _interopRequireDefault(require("@babel/runtime/helpers/esm/objectWithoutProperties"));
+
+var _extends2 = _interopRequireDefault(require("@babel/runtime/helpers/esm/extends"));
+
+var _react = _interopRequireDefault(require("react"));
+
+var _propTypes = _interopRequireDefault(require("prop-types"));
+
+var _clsx = _interopRequireDefault(require("clsx"));
+
+var _withStyles = _interopRequireDefault(require("../styles/withStyles"));
+
+var _colorManipulator = require("../styles/colorManipulator");
+
+var _ButtonBase = _interopRequireDefault(require("../ButtonBase"));
+
+var _capitalize = _interopRequireDefault(require("../utils/capitalize"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var styles = function styles(theme) {
+  return {
+    /* Styles applied to the root element. */
+    root: (0, _extends2.default)({}, theme.typography.button, {
+      boxSizing: 'border-box',
+      minWidth: 64,
+      padding: '6px 16px',
+      borderRadius: theme.shape.borderRadius,
+      color: theme.palette.text.primary,
+      transition: theme.transitions.create(['background-color', 'box-shadow', 'border'], {
+        duration: theme.transitions.duration.short
+      }),
+      '&:hover': {
+        textDecoration: 'none',
+        backgroundColor: (0, _colorManipulator.fade)(theme.palette.text.primary, theme.palette.action.hoverOpacity),
+        // Reset on touch devices, it doesn't add specificity
+        '@media (hover: none)': {
+          backgroundColor: 'transparent'
+        },
+        '&$disabled': {
+          backgroundColor: 'transparent'
+        }
+      },
+      '&$disabled': {
+        color: theme.palette.action.disabled
+      }
+    }),
+
+    /* Styles applied to the span element that wraps the children. */
+    label: {
+      width: '100%',
+      // Ensure the correct width for iOS Safari
+      display: 'inherit',
+      alignItems: 'inherit',
+      justifyContent: 'inherit'
+    },
+
+    /* Styles applied to the root element if `variant="text"`. */
+    text: {
+      padding: '6px 8px'
+    },
+
+    /* Styles applied to the root element if `variant="text"` and `color="primary"`. */
+    textPrimary: {
+      color: theme.palette.primary.main,
+      '&:hover': {
+        backgroundColor: (0, _colorManipulator.fade)(theme.palette.primary.main, theme.palette.action.hoverOpacity),
+        // Reset on touch devices, it doesn't add specificity
+        '@media (hover: none)': {
+          backgroundColor: 'transparent'
+        }
+      }
+    },
+
+    /* Styles applied to the root element if `variant="text"` and `color="secondary"`. */
+    textSecondary: {
+      color: theme.palette.secondary.main,
+      '&:hover': {
+        backgroundColor: (0, _colorManipulator.fade)(theme.palette.secondary.main, theme.palette.action.hoverOpacity),
+        // Reset on touch devices, it doesn't add specificity
+        '@media (hover: none)': {
+          backgroundColor: 'transparent'
+        }
+      }
+    },
+
+    /* Styles applied to the root element if `variant="outlined"`. */
+    outlined: {
+      padding: '5px 15px',
+      border: "1px solid ".concat(theme.palette.type === 'light' ? 'rgba(0, 0, 0, 0.23)' : 'rgba(255, 255, 255, 0.23)'),
+      '&$disabled': {
+        border: "1px solid ".concat(theme.palette.action.disabled)
+      }
+    },
+
+    /* Styles applied to the root element if `variant="outlined"` and `color="primary"`. */
+    outlinedPrimary: {
+      color: theme.palette.primary.main,
+      border: "1px solid ".concat((0, _colorManipulator.fade)(theme.palette.primary.main, 0.5)),
+      '&:hover': {
+        border: "1px solid ".concat(theme.palette.primary.main),
+        backgroundColor: (0, _colorManipulator.fade)(theme.palette.primary.main, theme.palette.action.hoverOpacity),
+        // Reset on touch devices, it doesn't add specificity
+        '@media (hover: none)': {
+          backgroundColor: 'transparent'
+        }
+      }
+    },
+
+    /* Styles applied to the root element if `variant="outlined"` and `color="secondary"`. */
+    outlinedSecondary: {
+      color: theme.palette.secondary.main,
+      border: "1px solid ".concat((0, _colorManipulator.fade)(theme.palette.secondary.main, 0.5)),
+      '&:hover': {
+        border: "1px solid ".concat(theme.palette.secondary.main),
+        backgroundColor: (0, _colorManipulator.fade)(theme.palette.secondary.main, theme.palette.action.hoverOpacity),
+        // Reset on touch devices, it doesn't add specificity
+        '@media (hover: none)': {
+          backgroundColor: 'transparent'
+        }
+      },
+      '&$disabled': {
+        border: "1px solid ".concat(theme.palette.action.disabled)
+      }
+    },
+
+    /* Styles applied to the root element if `variant="contained"`. */
+    contained: {
+      color: theme.palette.getContrastText(theme.palette.grey[300]),
+      backgroundColor: theme.palette.grey[300],
+      boxShadow: theme.shadows[2],
+      '&:hover': {
+        backgroundColor: theme.palette.grey.A100,
+        boxShadow: theme.shadows[4],
+        // Reset on touch devices, it doesn't add specificity
+        '@media (hover: none)': {
+          boxShadow: theme.shadows[2],
+          backgroundColor: theme.palette.grey[300]
+        },
+        '&$disabled': {
+          backgroundColor: theme.palette.action.disabledBackground
+        }
+      },
+      '&$focusVisible': {
+        boxShadow: theme.shadows[6]
+      },
+      '&:active': {
+        boxShadow: theme.shadows[8]
+      },
+      '&$disabled': {
+        color: theme.palette.action.disabled,
+        boxShadow: theme.shadows[0],
+        backgroundColor: theme.palette.action.disabledBackground
+      }
+    },
+
+    /* Styles applied to the root element if `variant="contained"` and `color="primary"`. */
+    containedPrimary: {
+      color: theme.palette.primary.contrastText,
+      backgroundColor: theme.palette.primary.main,
+      '&:hover': {
+        backgroundColor: theme.palette.primary.dark,
+        // Reset on touch devices, it doesn't add specificity
+        '@media (hover: none)': {
+          backgroundColor: theme.palette.primary.main
+        }
+      }
+    },
+
+    /* Styles applied to the root element if `variant="contained"` and `color="secondary"`. */
+    containedSecondary: {
+      color: theme.palette.secondary.contrastText,
+      backgroundColor: theme.palette.secondary.main,
+      '&:hover': {
+        backgroundColor: theme.palette.secondary.dark,
+        // Reset on touch devices, it doesn't add specificity
+        '@media (hover: none)': {
+          backgroundColor: theme.palette.secondary.main
+        }
+      }
+    },
+
+    /* Pseudo-class applied to the ButtonBase root element if the button is keyboard focused. */
+    focusVisible: {},
+
+    /* Pseudo-class applied to the root element if `disabled={true}`. */
+    disabled: {},
+
+    /* Styles applied to the root element if `color="inherit"`. */
+    colorInherit: {
+      color: 'inherit',
+      borderColor: 'currentColor'
+    },
+
+    /* Styles applied to the root element if `size="small"` and `variant="text"`. */
+    textSizeSmall: {
+      padding: '4px 5px',
+      fontSize: theme.typography.pxToRem(13)
+    },
+
+    /* Styles applied to the root element if `size="large"` and `variant="text"`. */
+    textSizeLarge: {
+      padding: '8px 11px',
+      fontSize: theme.typography.pxToRem(15)
+    },
+
+    /* Styles applied to the root element if `size="small"` and `variant="outlined"`. */
+    outlinedSizeSmall: {
+      padding: '3px 9px',
+      fontSize: theme.typography.pxToRem(13)
+    },
+
+    /* Styles applied to the root element if `size="large"` and `variant="outlined"`. */
+    outlinedSizeLarge: {
+      padding: '7px 21px',
+      fontSize: theme.typography.pxToRem(15)
+    },
+
+    /* Styles applied to the root element if `size="small"` and `variant="contained"`. */
+    containedSizeSmall: {
+      padding: '4px 10px',
+      fontSize: theme.typography.pxToRem(13)
+    },
+
+    /* Styles applied to the root element if `size="large"` and `variant="contained"`. */
+    containedSizeLarge: {
+      padding: '8px 22px',
+      fontSize: theme.typography.pxToRem(15)
+    },
+
+    /* Styles applied to the root element if `size="small"`. */
+    sizeSmall: {},
+
+    /* Styles applied to the root element if `size="large"`. */
+    sizeLarge: {},
+
+    /* Styles applied to the root element if `fullWidth={true}`. */
+    fullWidth: {
+      width: '100%'
+    },
+
+    /* Styles applied to the startIcon element if supplied. */
+    startIcon: {
+      display: 'inherit',
+      marginRight: 8,
+      marginLeft: -4
+    },
+
+    /* Styles applied to the endIcon element if supplied. */
+    endIcon: {
+      display: 'inherit',
+      marginRight: -4,
+      marginLeft: 8
+    },
+
+    /* Styles applied to the icon element if supplied and `size="small"`. */
+    iconSizeSmall: {
+      '& > *:first-child': {
+        fontSize: 18
+      }
+    },
+
+    /* Styles applied to the icon element if supplied and `size="medium"`. */
+    iconSizeMedium: {
+      '& > *:first-child': {
+        fontSize: 20
+      }
+    },
+
+    /* Styles applied to the icon element if supplied and `size="large"`. */
+    iconSizeLarge: {
+      '& > *:first-child': {
+        fontSize: 22
+      }
+    }
+  };
+};
+
+exports.styles = styles;
+
+var Button = _react.default.forwardRef(function Button(props, ref) {
+  var children = props.children,
+      classes = props.classes,
+      className = props.className,
+      _props$color = props.color,
+      color = _props$color === void 0 ? 'default' : _props$color,
+      _props$component = props.component,
+      component = _props$component === void 0 ? 'button' : _props$component,
+      _props$disabled = props.disabled,
+      disabled = _props$disabled === void 0 ? false : _props$disabled,
+      _props$disableFocusRi = props.disableFocusRipple,
+      disableFocusRipple = _props$disableFocusRi === void 0 ? false : _props$disableFocusRi,
+      endIconProp = props.endIcon,
+      focusVisibleClassName = props.focusVisibleClassName,
+      _props$fullWidth = props.fullWidth,
+      fullWidth = _props$fullWidth === void 0 ? false : _props$fullWidth,
+      _props$size = props.size,
+      size = _props$size === void 0 ? 'medium' : _props$size,
+      startIconProp = props.startIcon,
+      _props$type = props.type,
+      type = _props$type === void 0 ? 'button' : _props$type,
+      _props$variant = props.variant,
+      variant = _props$variant === void 0 ? 'text' : _props$variant,
+      other = (0, _objectWithoutProperties2.default)(props, ["children", "classes", "className", "color", "component", "disabled", "disableFocusRipple", "endIcon", "focusVisibleClassName", "fullWidth", "size", "startIcon", "type", "variant"]);
+
+  var startIcon = startIconProp && _react.default.createElement("span", {
+    className: (0, _clsx.default)(classes.startIcon, classes["iconSize".concat((0, _capitalize.default)(size))])
+  }, startIconProp);
+
+  var endIcon = endIconProp && _react.default.createElement("span", {
+    className: (0, _clsx.default)(classes.endIcon, classes["iconSize".concat((0, _capitalize.default)(size))])
+  }, endIconProp);
+
+  return _react.default.createElement(_ButtonBase.default, (0, _extends2.default)({
+    className: (0, _clsx.default)(classes.root, classes[variant], className, color === 'inherit' ? classes.colorInherit : color !== 'default' && classes["".concat(variant).concat((0, _capitalize.default)(color))], size !== 'medium' && [classes["".concat(variant, "Size").concat((0, _capitalize.default)(size))], classes["size".concat((0, _capitalize.default)(size))]], disabled && classes.disabled, fullWidth && classes.fullWidth),
+    component: component,
+    disabled: disabled,
+    focusRipple: !disableFocusRipple,
+    focusVisibleClassName: (0, _clsx.default)(classes.focusVisible, focusVisibleClassName),
+    ref: ref,
+    type: type
+  }, other), _react.default.createElement("span", {
+    className: classes.label
+  }, startIcon, children, endIcon));
+});
+
+"development" !== "production" ? Button.propTypes = {
+  /**
+   * The content of the button.
+   */
+  children: _propTypes.default.node.isRequired,
+
+  /**
+   * Override or extend the styles applied to the component.
+   * See [CSS API](#css) below for more details.
+   */
+  classes: _propTypes.default.object.isRequired,
+
+  /**
+   * @ignore
+   */
+  className: _propTypes.default.string,
+
+  /**
+   * The color of the component. It supports those theme colors that make sense for this component.
+   */
+  color: _propTypes.default.oneOf(['default', 'inherit', 'primary', 'secondary']),
+
+  /**
+   * The component used for the root node.
+   * Either a string to use a DOM element or a component.
+   */
+  component: _propTypes.default.elementType,
+
+  /**
+   * If `true`, the button will be disabled.
+   */
+  disabled: _propTypes.default.bool,
+
+  /**
+   * If `true`, the  keyboard focus ripple will be disabled.
+   * `disableRipple` must also be true.
+   */
+  disableFocusRipple: _propTypes.default.bool,
+
+  /**
+   * If `true`, the ripple effect will be disabled.
+   *
+   * ⚠️ Without a ripple there is no styling for :focus-visible by default. Be sure
+   * to highlight the element by applying separate styles with the `focusVisibleClassName`.
+   */
+  disableRipple: _propTypes.default.bool,
+
+  /**
+   * Element placed after the children.
+   */
+  endIcon: _propTypes.default.node,
+
+  /**
+   * @ignore
+   */
+  focusVisibleClassName: _propTypes.default.string,
+
+  /**
+   * If `true`, the button will take up the full width of its container.
+   */
+  fullWidth: _propTypes.default.bool,
+
+  /**
+   * The URL to link to when the button is clicked.
+   * If defined, an `a` element will be used as the root node.
+   */
+  href: _propTypes.default.string,
+
+  /**
+   * The size of the button.
+   * `small` is equivalent to the dense button styling.
+   */
+  size: _propTypes.default.oneOf(['small', 'medium', 'large']),
+
+  /**
+   * Element placed before the children.
+   */
+  startIcon: _propTypes.default.node,
+
+  /**
+   * @ignore
+   */
+  type: _propTypes.default.string,
+
+  /**
+   * The variant to use.
+   */
+  variant: _propTypes.default.oneOf(['text', 'outlined', 'contained'])
+} : void 0;
+
+var _default = (0, _withStyles.default)(styles, {
+  name: 'MuiButton'
+})(Button);
+
+exports.default = _default;
+},{"@babel/runtime/helpers/esm/objectWithoutProperties":"../node_modules/@babel/runtime/helpers/esm/objectWithoutProperties.js","@babel/runtime/helpers/esm/extends":"../node_modules/@babel/runtime/helpers/esm/extends.js","react":"../node_modules/react/index.js","prop-types":"../node_modules/prop-types/index.js","clsx":"../node_modules/clsx/dist/clsx.m.js","../styles/withStyles":"../node_modules/@material-ui/core/esm/styles/withStyles.js","../styles/colorManipulator":"../node_modules/@material-ui/core/esm/styles/colorManipulator.js","../ButtonBase":"../node_modules/@material-ui/core/esm/ButtonBase/index.js","../utils/capitalize":"../node_modules/@material-ui/core/esm/utils/capitalize.js"}],"../node_modules/@material-ui/core/esm/Button/index.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+Object.defineProperty(exports, "default", {
+  enumerable: true,
+  get: function () {
+    return _Button.default;
+  }
+});
+
+var _Button = _interopRequireDefault(require("./Button"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+},{"./Button":"../node_modules/@material-ui/core/esm/Button/Button.js"}],"components/common/Homepage.jsx":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var _react = _interopRequireWildcard(require("react"));
+
+var _universalCookie = _interopRequireDefault(require("universal-cookie"));
+
+var _reactRouterDom = require("react-router-dom");
+
+var _styledComponents = _interopRequireDefault(require("styled-components"));
+
+var _Button = _interopRequireDefault(require("@material-ui/core/Button"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _getRequireWildcardCache() { if (typeof WeakMap !== "function") return null; var cache = new WeakMap(); _getRequireWildcardCache = function () { return cache; }; return cache; }
+
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } var cache = _getRequireWildcardCache(); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; if (obj != null) { var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } } newObj.default = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
+
+function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _nonIterableRest(); }
+
+function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance"); }
+
+function _iterableToArrayLimit(arr, i) { if (!(Symbol.iterator in Object(arr) || Object.prototype.toString.call(arr) === "[object Arguments]")) { return; } var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"] != null) _i["return"](); } finally { if (_d) throw _e; } } return _arr; }
+
+function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
+
+function _templateObject2() {
+  var data = _taggedTemplateLiteral(["\n  line-height: 1.31;\n  margin: 53px;\n"]);
+
+  _templateObject2 = function _templateObject2() {
+    return data;
+  };
+
+  return data;
+}
+
+function _templateObject() {
+  var data = _taggedTemplateLiteral(["\n  display: flex;\n  justify-content: space-around;\n  margin-top: 339px;\n"]);
+
+  _templateObject = function _templateObject() {
+    return data;
+  };
+
+  return data;
+}
+
+function _taggedTemplateLiteral(strings, raw) { if (!raw) { raw = strings.slice(0); } return Object.freeze(Object.defineProperties(strings, { raw: { value: Object.freeze(raw) } })); }
+
+var Wrapper = _styledComponents.default.div(_templateObject());
+
+var BodyText = _styledComponents.default.div(_templateObject2());
+
+var Homepage = function Homepage() {
+  var _useState = (0, _react.useState)('homepage'),
+      _useState2 = _slicedToArray(_useState, 2),
+      reroute = _useState2[0],
+      setReroute = _useState2[1];
+
+  var userTestReroute = function userTestReroute() {
+    setReroute('usertest');
+  };
+
+  var playgroundReroute = function playgroundReroute() {
+    setReroute('playground');
+  };
+
+  var renderSwitch = function renderSwitch() {
+    switch (reroute) {
+      case 'usertest':
+        return _react.default.createElement(_reactRouterDom.Redirect, {
+          to: "/usertest"
+        });
+
+      case 'playground':
+        return _react.default.createElement(_reactRouterDom.Redirect, {
+          to: "/playground"
+        });
+
+      default:
+        return _react.default.createElement(Wrapper, null, _react.default.createElement(_Button.default, {
+          variant: "outlined",
+          type: "button",
+          onClick: userTestReroute
+        }, _react.default.createElement(BodyText, null, "user test")), _react.default.createElement(_Button.default, {
+          variant: "outlined",
+          type: "button",
+          onClick: playgroundReroute
+        }, _react.default.createElement(BodyText, null, " playground")));
+    }
+  };
+
+  var cookies = new _universalCookie.default();
+
+  if (cookies.get('email')) {
+    return renderSwitch();
+  }
+
+  return _react.default.createElement(_reactRouterDom.Redirect, {
+    to: "/"
+  });
+};
+
+var _default = Homepage;
+exports.default = _default;
+},{"react":"../node_modules/react/index.js","universal-cookie":"../node_modules/universal-cookie/es6/index.js","react-router-dom":"../node_modules/react-router-dom/esm/react-router-dom.js","styled-components":"../node_modules/styled-components/dist/styled-components.browser.esm.js","@material-ui/core/Button":"../node_modules/@material-ui/core/esm/Button/index.js"}],"../node_modules/react-google-login/dist/google-login.js":[function(require,module,exports) {
+var define;
+!function(e,t){"object"==typeof exports&&"object"==typeof module?module.exports=t(require("react")):"function"==typeof define&&define.amd?define(["react"],t):"object"==typeof exports?exports.GoogleLogin=t(require("react")):e.GoogleLogin=t(e.react)}("undefined"!=typeof self?self:this,(function(e){return o={},t.m=n=[function(t){t.exports=e},function(e,t,n){e.exports=n(2)()},function(e,t,n){"use strict";function o(){}function i(){}var r=n(3);i.resetWarningCache=o,e.exports=function(){function e(e,t,n,o,i,a){if(a!==r){var c=Error("Calling PropTypes validators directly is not supported by the `prop-types` package. Use PropTypes.checkPropTypes() to call them. Read more at http://fb.me/use-check-prop-types");throw c.name="Invariant Violation",c}}function t(){return e}var n={array:e.isRequired=e,bool:e,func:e,number:e,object:e,string:e,symbol:e,any:e,arrayOf:t,element:e,elementType:e,instanceOf:t,node:e,objectOf:t,oneOf:t,oneOfType:t,shape:t,exact:t,checkPropTypes:i,resetWarningCache:o};return n.PropTypes=n}},function(e){"use strict";e.exports="SECRET_DO_NOT_PASS_THIS_OR_YOU_WILL_BE_FIRED"},function(e,t,n){"use strict";function o(e){return(o="function"==typeof Symbol&&"symbol"==typeof Symbol.iterator?function(e){return typeof e}:function(e){return e&&"function"==typeof Symbol&&e.constructor===Symbol&&e!==Symbol.prototype?"symbol":typeof e})(e)}function i(e,t){for(var n=0;n<t.length;n++){var o=t[n];o.enumerable=o.enumerable||!1,o.configurable=!0,"value"in o&&(o.writable=!0),Object.defineProperty(e,o.key,o)}}function r(e){return(r=Object.setPrototypeOf?Object.getPrototypeOf:function(e){return e.__proto__||Object.getPrototypeOf(e)})(e)}function a(e){if(void 0===e)throw new ReferenceError("this hasn't been initialised - super() hasn't been called");return e}function c(e,t){return(c=Object.setPrototypeOf||function(e,t){return e.__proto__=t,e})(e,t)}function s(e){return(s="function"==typeof Symbol&&"symbol"==typeof Symbol.iterator?function(e){return typeof e}:function(e){return e&&"function"==typeof Symbol&&e.constructor===Symbol&&e!==Symbol.prototype?"symbol":typeof e})(e)}function u(e,t){for(var n=0;n<t.length;n++){var o=t[n];o.enumerable=o.enumerable||!1,o.configurable=!0,"value"in o&&(o.writable=!0),Object.defineProperty(e,o.key,o)}}function l(e){return(l=Object.setPrototypeOf?Object.getPrototypeOf:function(e){return e.__proto__||Object.getPrototypeOf(e)})(e)}function f(e){if(void 0===e)throw new ReferenceError("this hasn't been initialised - super() hasn't been called");return e}function p(e,t){return(p=Object.setPrototypeOf||function(e,t){return e.__proto__=t,e})(e,t)}function d(e){return h.a.createElement("div",{style:{marginRight:10,background:e.active?"#eee":"#fff",padding:10,borderRadius:2}},h.a.createElement("svg",{width:"18",height:"18",xmlns:"http://www.w3.org/2000/svg"},h.a.createElement("g",{fill:"#000",fillRule:"evenodd"},h.a.createElement("path",{d:"M9 3.48c1.69 0 2.83.73 3.48 1.34l2.54-2.48C13.46.89 11.43 0 9 0 5.48 0 2.44 2.02.96 4.96l2.91 2.26C4.6 5.05 6.62 3.48 9 3.48z",fill:"#EA4335"}),h.a.createElement("path",{d:"M17.64 9.2c0-.74-.06-1.28-.19-1.84H9v3.34h4.96c-.1.83-.64 2.08-1.84 2.92l2.84 2.2c1.7-1.57 2.68-3.88 2.68-6.62z",fill:"#4285F4"}),h.a.createElement("path",{d:"M3.88 10.78A5.54 5.54 0 0 1 3.58 9c0-.62.11-1.22.29-1.78L.96 4.96A9.008 9.008 0 0 0 0 9c0 1.45.35 2.82.96 4.04l2.92-2.26z",fill:"#FBBC05"}),h.a.createElement("path",{d:"M9 18c2.43 0 4.47-.8 5.96-2.18l-2.84-2.2c-.76.53-1.78.9-3.12.9-2.38 0-4.4-1.57-5.12-3.74L.97 13.04C2.45 15.98 5.48 18 9 18z",fill:"#34A853"}),h.a.createElement("path",{fill:"none",d:"M0 0h18v18H0z"}))))}function g(e){return h.a.createElement("span",{style:{paddingRight:10,fontWeight:500,paddingLeft:e.icon?0:10,paddingTop:10,paddingBottom:10}},e.children)}function y(e,t,n,o,i){var r=e.getElementsByTagName(t)[0],a=r,c=r;(c=e.createElement(t)).id=n,c.src=o,a&&a.parentNode?a.parentNode.insertBefore(c,a):e.head.appendChild(c),c.onload=i}n.r(t);var b=n(0),h=n.n(b),m=(n(1),function(){function e(t){var n;return function(e,t){if(!(e instanceof t))throw new TypeError("Cannot call a class as a function")}(this,e),(n=function(e,t){return!t||"object"!==o(t)&&"function"!=typeof t?a(e):t}(this,r(e).call(this,t))).signIn=n.signIn.bind(a(n)),n.enableButton=n.enableButton.bind(a(n)),n.state={disabled:!0,hovered:!1,active:!1},n}return function(e,t){if("function"!=typeof t&&null!==t)throw new TypeError("Super expression must either be null or a function");e.prototype=Object.create(t&&t.prototype,{constructor:{value:e,writable:!0,configurable:!0}}),t&&c(e,t)}(e,b.Component),function(e,t,n){t&&i(e.prototype,t)}(e,[{key:"componentDidMount",value:function(){var e=this,t=this.props,n=t.clientId,o=t.cookiePolicy,i=t.loginHint,r=t.hostedDomain,a=t.autoLoad,c=t.isSignedIn,s=t.fetchBasicProfile,u=t.redirectUri,l=t.discoveryDocs,f=t.onFailure,p=t.uxMode,d=t.scope,g=t.accessType,b=t.responseType;y(document,"script","google-login",t.jsSrc,(function(){var t={client_id:n,cookie_policy:o,login_hint:i,hosted_domain:r,fetch_basic_profile:s,discoveryDocs:l,ux_mode:p,redirect_uri:u,scope:d,access_type:g};"code"===b&&(t.access_type="offline"),window.gapi.load("auth2",(function(){e.enableButton(),window.gapi.auth2.getAuthInstance()||window.gapi.auth2.init(t).then((function(t){c&&t.isSignedIn.get()&&e.handleSigninSuccess(t.currentUser.get())}),(function(e){return f(e)})),a&&e.signIn()}))}))}},{key:"componentWillUnmount",value:function(){this.enableButton=function(){};try{var e=document.getElementById("google-login");e.parentNode.removeChild(e)}catch(e){}}},{key:"enableButton",value:function(){this.setState({disabled:!1})}},{key:"signIn",value:function(e){var t=this;if(e&&e.preventDefault(),!this.state.disabled){var n=window.gapi.auth2.getAuthInstance(),o=this.props,i=o.onSuccess,r=o.onFailure,a=o.responseType,c={prompt:o.prompt};(0,o.onRequest)(),"code"===a?n.grantOfflineAccess(c).then((function(e){return i(e)}),(function(e){return r(e)})):n.signIn(c).then((function(e){return t.handleSigninSuccess(e)}),(function(e){return r(e)}))}}},{key:"handleSigninSuccess",value:function(e){var t=e.getBasicProfile(),n=e.getAuthResponse();e.googleId=t.getId(),e.tokenObj=n,e.tokenId=n.id_token,e.accessToken=n.access_token,e.profileObj={googleId:t.getId(),imageUrl:t.getImageUrl(),email:t.getEmail(),name:t.getName(),givenName:t.getGivenName(),familyName:t.getFamilyName()},this.props.onSuccess(e)}},{key:"render",value:function(){var e=this,t=this.props,n=t.tag,o=t.type,i=t.className,r=t.disabledStyle,a=t.buttonText,c=t.children,s=t.render,u=t.theme,l=t.icon,f=this.state.disabled||this.props.disabled;if(s)return s({onClick:this.signIn,disabled:f});var p={backgroundColor:"dark"===u?"rgb(66, 133, 244)":"#fff",display:"inline-flex",alignItems:"center",color:"dark"===u?"#fff":"rgba(0, 0, 0, .54)",boxShadow:"0 2px 2px 0 rgba(0, 0, 0, .24), 0 0 1px 0 rgba(0, 0, 0, .24)",padding:0,borderRadius:2,border:"1px solid transparent",fontSize:14,fontWeight:"500",fontFamily:"Roboto, sans-serif"},y={cursor:"pointer",backgroundColor:"dark"===u?"#3367D6":"#eee",color:"dark"===u?"#fff":"rgba(0, 0, 0, .54)",opacity:1},b=f?Object.assign({},p,r):e.state.active?Object.assign({},p,y):e.state.hovered?Object.assign({},p,{cursor:"pointer",opacity:.9}):p;return h.a.createElement(n,{onMouseEnter:function(){return e.setState({hovered:!0})},onMouseLeave:function(){return e.setState({hovered:!1,active:!1})},onMouseDown:function(){return e.setState({active:!0})},onMouseUp:function(){return e.setState({active:!1})},onClick:this.signIn,style:b,type:o,disabled:f,className:i},[l&&h.a.createElement(d,{key:1,active:this.state.active}),h.a.createElement(g,{icon:l,key:2},c||a)])}}]),e}());m.defaultProps={type:"button",tag:"button",buttonText:"Sign in with Google",scope:"profile email",accessType:"online",prompt:"",cookiePolicy:"single_host_origin",fetchBasicProfile:!0,isSignedIn:!1,uxMode:"popup",disabledStyle:{opacity:.6},icon:!0,theme:"light",onRequest:function(){},jsSrc:"https://apis.google.com/js/api.js"};var v=m,S=function(){function e(t){var n;return function(e,t){if(!(e instanceof t))throw new TypeError("Cannot call a class as a function")}(this,e),(n=function(e,t){return!t||"object"!==s(t)&&"function"!=typeof t?f(e):t}(this,l(e).call(this,t))).signOut=n.signOut.bind(f(n)),n.enableButton=n.enableButton.bind(f(n)),n.state={disabled:!0,hovered:!1,active:!1},n}return function(e,t){if("function"!=typeof t&&null!==t)throw new TypeError("Super expression must either be null or a function");e.prototype=Object.create(t&&t.prototype,{constructor:{value:e,writable:!0,configurable:!0}}),t&&p(e,t)}(e,b.Component),function(e,t,n){t&&u(e.prototype,t)}(e,[{key:"componentDidMount",value:function(){var e=this,t=this.props,n=t.onFailure,o=t.isSignedIn,i=t.clientId,r=t.cookiePolicy,a=t.loginHint,c=t.hostedDomain,s=t.fetchBasicProfile,u=t.discoveryDocs,l=t.uxMode,f=t.redirectUri,p=t.scope,d=t.accessType;y(document,"script","google-login",t.jsSrc,(function(){var t={client_id:i,cookie_policy:r,login_hint:a,hosted_domain:c,fetch_basic_profile:s,discoveryDocs:u,ux_mode:l,redirect_uri:f,scope:p,access_type:d};window.gapi.load("auth2",(function(){e.enableButton(),window.gapi.auth2.getAuthInstance()||window.gapi.auth2.init(t).then((function(t){o&&t.isSignedIn.get()&&e.handleSigninSuccess(t.currentUser.get())}),(function(e){return n(e)}))}))}))}},{key:"componentWillUnmount",value:function(){this.enableButton=function(){};try{var e=document.getElementById("google-login");e.parentNode.removeChild(e)}catch(e){}}},{key:"enableButton",value:function(){this.setState({disabled:!1})}},{key:"signOut",value:function(){if(window.gapi){var e=window.gapi.auth2.getAuthInstance();null!=e&&e.signOut().then(e.disconnect().then(this.props.onLogoutSuccess))}}},{key:"render",value:function(){var e=this,t=this.props,n=t.tag,o=t.type,i=t.className,r=t.disabledStyle,a=t.buttonText,c=t.children,s=t.render,u=t.theme,l=t.icon,f=this.state.disabled||this.props.disabled;if(s)return s({onClick:this.signOut,disabled:f});var p={backgroundColor:"dark"===u?"rgb(66, 133, 244)":"#fff",display:"inline-flex",alignItems:"center",color:"dark"===u?"#fff":"rgba(0, 0, 0, .54)",boxShadow:"0 2px 2px 0 rgba(0, 0, 0, .24), 0 0 1px 0 rgba(0, 0, 0, .24)",padding:0,borderRadius:2,border:"1px solid transparent",fontSize:14,fontWeight:"500",fontFamily:"Roboto, sans-serif"},y={cursor:"pointer",backgroundColor:"dark"===u?"#3367D6":"#eee",color:"dark"===u?"#fff":"rgba(0, 0, 0, .54)",opacity:1},b=f?Object.assign({},p,r):e.state.active?Object.assign({},p,y):e.state.hovered?Object.assign({},p,{cursor:"pointer",opacity:.9}):p;return h.a.createElement(n,{onMouseEnter:function(){return e.setState({hovered:!0})},onMouseLeave:function(){return e.setState({hovered:!1,active:!1})},onMouseDown:function(){return e.setState({active:!0})},onMouseUp:function(){return e.setState({active:!1})},onClick:this.signOut,style:b,type:o,disabled:f,className:i},[l&&h.a.createElement(d,{key:1,active:this.state.active}),h.a.createElement(g,{icon:l,key:2},c||a)])}}]),e}();S.defaultProps={type:"button",tag:"button",buttonText:"Logout of Google",disabledStyle:{opacity:.6},icon:!0,theme:"light",jsSrc:"https://apis.google.com/js/api.js"};var _=S;n.d(t,"default",(function(){return v})),n.d(t,"GoogleLogin",(function(){return v})),n.d(t,"GoogleLogout",(function(){return _}))}],t.c=o,t.d=function(e,n,o){t.o(e,n)||Object.defineProperty(e,n,{enumerable:!0,get:o})},t.r=function(e){"undefined"!=typeof Symbol&&Symbol.toStringTag&&Object.defineProperty(e,Symbol.toStringTag,{value:"Module"}),Object.defineProperty(e,"__esModule",{value:!0})},t.t=function(e,n){if(1&n&&(e=t(e)),8&n)return e;if(4&n&&"object"==typeof e&&e&&e.__esModule)return e;var o=Object.create(null);if(t.r(o),Object.defineProperty(o,"default",{enumerable:!0,value:e}),2&n&&"string"!=typeof e)for(var i in e)t.d(o,i,function(t){return e[t]}.bind(null,i));return o},t.n=function(e){var n=e&&e.__esModule?function(){return e.default}:function(){return e};return t.d(n,"a",n),n},t.o=function(e,t){return Object.prototype.hasOwnProperty.call(e,t)},t.p="",t(t.s=4);function t(e){if(o[e])return o[e].exports;var i=o[e]={i:e,l:!1,exports:{}};return n[e].call(i.exports,i,i.exports,t),i.l=!0,i.exports}var n,o}));
+},{"react":"../node_modules/react/index.js"}],"components/googleoauth/OAuth.jsx":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var _react = _interopRequireWildcard(require("react"));
+
+var _reactGoogleLogin = require("react-google-login");
+
+var _styledComponents = _interopRequireDefault(require("styled-components"));
+
+var _reactRouterDom = require("react-router-dom");
+
+var _universalCookie = _interopRequireDefault(require("universal-cookie"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _getRequireWildcardCache() { if (typeof WeakMap !== "function") return null; var cache = new WeakMap(); _getRequireWildcardCache = function () { return cache; }; return cache; }
+
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } var cache = _getRequireWildcardCache(); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; if (obj != null) { var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } } newObj.default = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
+
+function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _nonIterableRest(); }
+
+function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance"); }
+
+function _iterableToArrayLimit(arr, i) { if (!(Symbol.iterator in Object(arr) || Object.prototype.toString.call(arr) === "[object Arguments]")) { return; } var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"] != null) _i["return"](); } finally { if (_d) throw _e; } } return _arr; }
+
+function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
+
+function _templateObject2() {
+  var data = _taggedTemplateLiteral(["\n  text-align: center;\n"]);
+
+  _templateObject2 = function _templateObject2() {
+    return data;
+  };
+
+  return data;
+}
+
+function _templateObject() {
+  var data = _taggedTemplateLiteral(["\n  width: 243px;\n  height: 66px;\n  align-self: center;\n  justify-content: center;\n"]);
+
+  _templateObject = function _templateObject() {
+    return data;
+  };
+
+  return data;
+}
+
+function _taggedTemplateLiteral(strings, raw) { if (!raw) { raw = strings.slice(0); } return Object.freeze(Object.defineProperties(strings, { raw: { value: Object.freeze(raw) } })); }
+
+var GoogleSignIn = _styledComponents.default.button(_templateObject());
+
+var Wrapper = _styledComponents.default.div(_templateObject2());
+
+var OAuth = function OAuth() {
+  var _useState = (0, _react.useState)(false),
+      _useState2 = _slicedToArray(_useState, 2),
+      isAuthenticated = _useState2[0],
+      setIsAuthenticated = _useState2[1];
+
+  var cookies = new _universalCookie.default();
+
+  var oAuthSuccess = function oAuthSuccess(response) {
+    var expirationTime = new Date();
+    expirationTime.setTime(expirationTime.getTime() + 3600 * 1000);
+    cookies.set('email', response.getBasicProfile().getEmail(), {
+      path: '/',
+      expires: expirationTime
+    });
+    fetch('https://mqp-server.herokuapp.com/saveuser', {
+      method: 'post',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        email: response.getBasicProfile().getEmail()
+      })
+    }).then(function (res) {
+      return res.json();
+    });
+    setIsAuthenticated(true);
+  };
+
+  var oAuthFailure = function oAuthFailure(response) {
+    cookies.remove('email');
+    setIsAuthenticated(false);
+  };
+
+  return _react.default.createElement(_react.default.Fragment, null, isAuthenticated ? _react.default.createElement(_reactRouterDom.Redirect, {
+    to: "/success"
+  }) : _react.default.createElement(Wrapper, null, _react.default.createElement(_reactGoogleLogin.GoogleLogin, {
+    clientId: "1024058665172-o9pn5n310kl728dtq22r36opsmiq1k4j.apps.googleusercontent.com",
+    buttonText: "Sign in with Google",
+    onSuccess: oAuthSuccess,
+    onFailure: oAuthFailure,
+    cookiePolicy: "single_host_origin",
+    tag: GoogleSignIn
+  })));
+};
+
+var _default = OAuth;
+exports.default = _default;
+},{"react":"../node_modules/react/index.js","react-google-login":"../node_modules/react-google-login/dist/google-login.js","styled-components":"../node_modules/styled-components/dist/styled-components.browser.esm.js","react-router-dom":"../node_modules/react-router-dom/esm/react-router-dom.js","universal-cookie":"../node_modules/universal-cookie/es6/index.js"}],"components/googleoauth/SignInPage.jsx":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var _react = _interopRequireDefault(require("react"));
+
+var _styledComponents = _interopRequireDefault(require("styled-components"));
+
+var _universalCookie = _interopRequireDefault(require("universal-cookie"));
+
+var _reactRouterDom = require("react-router-dom");
+
+var _OAuth = _interopRequireDefault(require("./OAuth"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _templateObject3() {
+  var data = _taggedTemplateLiteral(["\n  display: flex;\n  justify-content: center;\n  margin-top: 339px;\n"]);
+
+  _templateObject3 = function _templateObject3() {
+    return data;
+  };
+
+  return data;
+}
+
+function _templateObject2() {
+  var data = _taggedTemplateLiteral(["\n  display: flex;\n  flex-direction: column;\n  text-align: center;\n  width: 452px;\n"]);
+
+  _templateObject2 = function _templateObject2() {
+    return data;
+  };
+
+  return data;
+}
+
+function _templateObject() {
+  var data = _taggedTemplateLiteral(["\n  font-size: 30px;\n  font-weight: 300;\n  line-height: 1.3;\n  margin-bottom: 16px;\n"]);
+
+  _templateObject = function _templateObject() {
+    return data;
+  };
+
+  return data;
+}
+
+function _taggedTemplateLiteral(strings, raw) { if (!raw) { raw = strings.slice(0); } return Object.freeze(Object.defineProperties(strings, { raw: { value: Object.freeze(raw) } })); }
+
+var Title = _styledComponents.default.div(_templateObject());
+
+var Column = _styledComponents.default.div(_templateObject2());
+
+var Wrapper = _styledComponents.default.div(_templateObject3());
+
+var SignInPage = function SignInPage() {
+  var cookies = new _universalCookie.default();
+
+  if (cookies.get('email')) {
+    return _react.default.createElement(_reactRouterDom.Redirect, {
+      to: "/success"
+    });
+  }
+
+  return _react.default.createElement(Wrapper, null, _react.default.createElement(Column, null, _react.default.createElement(Title, null, "Welcome to Language"), _react.default.createElement(_OAuth.default, null)));
+};
+
+var _default = SignInPage;
+exports.default = _default;
+},{"react":"../node_modules/react/index.js","styled-components":"../node_modules/styled-components/dist/styled-components.browser.esm.js","universal-cookie":"../node_modules/universal-cookie/es6/index.js","react-router-dom":"../node_modules/react-router-dom/esm/react-router-dom.js","./OAuth":"components/googleoauth/OAuth.jsx"}],"../node_modules/@material-ui/core/esm/styles/useTheme.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = useTheme;
+
+var _styles = require("@material-ui/styles");
+
+var _defaultTheme = _interopRequireDefault(require("./defaultTheme"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function useTheme() {
+  return (0, _styles.useTheme)() || _defaultTheme.default;
+}
+},{"@material-ui/styles":"../node_modules/@material-ui/core/node_modules/@material-ui/styles/esm/index.js","./defaultTheme":"../node_modules/@material-ui/core/esm/styles/defaultTheme.js"}],"../node_modules/@material-ui/core/esm/Paper/Paper.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = exports.styles = void 0;
+
+var _objectWithoutProperties2 = _interopRequireDefault(require("@babel/runtime/helpers/esm/objectWithoutProperties"));
+
+var _extends2 = _interopRequireDefault(require("@babel/runtime/helpers/esm/extends"));
+
+var _react = _interopRequireDefault(require("react"));
+
+var _propTypes = _interopRequireDefault(require("prop-types"));
+
+var _clsx = _interopRequireDefault(require("clsx"));
+
+var _withStyles = _interopRequireDefault(require("../styles/withStyles"));
+
+var _useTheme = _interopRequireDefault(require("../styles/useTheme"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var styles = function styles(theme) {
+  var elevations = {};
+  theme.shadows.forEach(function (shadow, index) {
+    elevations["elevation".concat(index)] = {
+      boxShadow: shadow
+    };
+  });
+  return (0, _extends2.default)({
+    /* Styles applied to the root element. */
+    root: {
+      backgroundColor: theme.palette.background.paper,
+      color: theme.palette.text.primary,
+      transition: theme.transitions.create('box-shadow')
+    },
+
+    /* Styles applied to the root element if `square={false}`. */
+    rounded: {
+      borderRadius: theme.shape.borderRadius
+    }
+  }, elevations);
+};
+
+exports.styles = styles;
+
+var Paper = _react.default.forwardRef(function Paper(props, ref) {
+  var classes = props.classes,
+      classNameProp = props.className,
+      _props$component = props.component,
+      Component = _props$component === void 0 ? 'div' : _props$component,
+      _props$square = props.square,
+      square = _props$square === void 0 ? false : _props$square,
+      _props$elevation = props.elevation,
+      elevation = _props$elevation === void 0 ? 1 : _props$elevation,
+      other = (0, _objectWithoutProperties2.default)(props, ["classes", "className", "component", "square", "elevation"]);
+  var theme = (0, _useTheme.default)();
+
+  if ("development" !== 'production') {
+    if (!theme.shadows[elevation]) {
+      console.error("Material-UI: this elevation `".concat(elevation, "` is not implemented."));
+    }
+  }
+
+  var className = (0, _clsx.default)(classes.root, classes["elevation".concat(elevation)], classNameProp, !square && classes.rounded);
+  return _react.default.createElement(Component, (0, _extends2.default)({
+    className: className,
+    ref: ref
+  }, other));
+});
+
+"development" !== "production" ? Paper.propTypes = {
+  /**
+   * The content of the component.
+   */
+  children: _propTypes.default.node,
+
+  /**
+   * Override or extend the styles applied to the component.
+   * See [CSS API](#css) below for more details.
+   */
+  classes: _propTypes.default.object.isRequired,
+
+  /**
+   * @ignore
+   */
+  className: _propTypes.default.string,
+
+  /**
+   * The component used for the root node.
+   * Either a string to use a DOM element or a component.
+   */
+  component: _propTypes.default.elementType,
+
+  /**
+   * Shadow depth, corresponds to `dp` in the spec.
+   * It accepts values between 0 and 24 inclusive.
+   */
+  elevation: _propTypes.default.number,
+
+  /**
+   * If `true`, rounded corners are disabled.
+   */
+  square: _propTypes.default.bool
+} : void 0;
+
+var _default = (0, _withStyles.default)(styles, {
+  name: 'MuiPaper'
+})(Paper);
+
+exports.default = _default;
+},{"@babel/runtime/helpers/esm/objectWithoutProperties":"../node_modules/@babel/runtime/helpers/esm/objectWithoutProperties.js","@babel/runtime/helpers/esm/extends":"../node_modules/@babel/runtime/helpers/esm/extends.js","react":"../node_modules/react/index.js","prop-types":"../node_modules/prop-types/index.js","clsx":"../node_modules/clsx/dist/clsx.m.js","../styles/withStyles":"../node_modules/@material-ui/core/esm/styles/withStyles.js","../styles/useTheme":"../node_modules/@material-ui/core/esm/styles/useTheme.js"}],"../node_modules/@material-ui/core/esm/Paper/index.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+Object.defineProperty(exports, "default", {
+  enumerable: true,
+  get: function () {
+    return _Paper.default;
+  }
+});
+
+var _Paper = _interopRequireDefault(require("./Paper"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+},{"./Paper":"../node_modules/@material-ui/core/esm/Paper/Paper.js"}],"../node_modules/@material-ui/core/esm/utils/debounce.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = debounce;
+
+// Corresponds to 10 frames at 60 Hz.
+// A few bytes payload overhead when lodash/debounce is ~3 kB and debounce ~300 B.
+function debounce(func) {
+  var wait = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 166;
+  var timeout;
+
+  function debounced() {
+    for (var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++) {
+      args[_key] = arguments[_key];
+    } // eslint-disable-next-line consistent-this
+
+
+    var that = this;
+
+    var later = function later() {
+      func.apply(that, args);
+    };
+
+    clearTimeout(timeout);
+    timeout = setTimeout(later, wait);
+  }
+
+  debounced.clear = function () {
+    clearTimeout(timeout);
+  };
+
+  return debounced;
+}
+},{}],"../node_modules/@material-ui/core/esm/utils/ownerDocument.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+function ownerDocument(node) {
+  return node && node.ownerDocument || document;
+}
+
+var _default = ownerDocument;
+exports.default = _default;
+},{}],"../node_modules/@material-ui/core/esm/utils/ownerWindow.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var _ownerDocument = _interopRequireDefault(require("./ownerDocument"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function ownerWindow(node) {
+  var doc = (0, _ownerDocument.default)(node);
+  return doc.defaultView || window;
+}
+
+var _default = ownerWindow;
+exports.default = _default;
+},{"./ownerDocument":"../node_modules/@material-ui/core/esm/utils/ownerDocument.js"}],"../node_modules/normalize-scroll-left/esm/main.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports._setScrollType = _setScrollType;
+exports.detectScrollType = detectScrollType;
+exports.getNormalizedScrollLeft = getNormalizedScrollLeft;
+exports.setNormalizedScrollLeft = setNormalizedScrollLeft;
+// Based on https://github.com/react-bootstrap/dom-helpers/blob/master/src/util/inDOM.js
+var inDOM = !!(typeof window !== 'undefined' && window.document && window.document.createElement);
+var cachedType;
+
+function _setScrollType(type) {
+  cachedType = type;
+} // Based on the jquery plugin https://github.com/othree/jquery.rtl-scroll-type
+
+
+function detectScrollType() {
+  if (cachedType) {
+    return cachedType;
+  }
+
+  if (!inDOM || !window.document.body) {
+    return 'indeterminate';
+  }
+
+  var dummy = window.document.createElement('div');
+  dummy.appendChild(document.createTextNode('ABCD'));
+  dummy.dir = 'rtl';
+  dummy.style.fontSize = '14px';
+  dummy.style.width = '4px';
+  dummy.style.height = '1px';
+  dummy.style.position = 'absolute';
+  dummy.style.top = '-1000px';
+  dummy.style.overflow = 'scroll';
+  document.body.appendChild(dummy);
+  cachedType = 'reverse';
+
+  if (dummy.scrollLeft > 0) {
+    cachedType = 'default';
+  } else {
+    dummy.scrollLeft = 1;
+
+    if (dummy.scrollLeft === 0) {
+      cachedType = 'negative';
+    }
+  }
+
+  document.body.removeChild(dummy);
+  return cachedType;
+} // Based on https://stackoverflow.com/a/24394376
+
+
+function getNormalizedScrollLeft(element, direction) {
+  var scrollLeft = element.scrollLeft; // Perform the calculations only when direction is rtl to avoid messing up the ltr bahavior
+
+  if (direction !== 'rtl') {
+    return scrollLeft;
+  }
+
+  var type = detectScrollType();
+
+  if (type === 'indeterminate') {
+    return Number.NaN;
+  }
+
+  switch (type) {
+    case 'negative':
+      return element.scrollWidth - element.clientWidth + scrollLeft;
+
+    case 'reverse':
+      return element.scrollWidth - element.clientWidth - scrollLeft;
+  }
+
+  return scrollLeft;
+}
+
+function setNormalizedScrollLeft(element, scrollLeft, direction) {
+  // Perform the calculations only when direction is rtl to avoid messing up the ltr bahavior
+  if (direction !== 'rtl') {
+    element.scrollLeft = scrollLeft;
+    return;
+  }
+
+  var type = detectScrollType();
+
+  if (type === 'indeterminate') {
+    return;
+  }
+
+  switch (type) {
+    case 'negative':
+      element.scrollLeft = element.clientWidth - element.scrollWidth + scrollLeft;
+      break;
+
+    case 'reverse':
+      element.scrollLeft = element.scrollWidth - element.clientWidth - scrollLeft;
+      break;
+
+    default:
+      element.scrollLeft = scrollLeft;
+      break;
+  }
+}
+},{}],"../node_modules/@material-ui/core/esm/internal/animate.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = animate;
+
+function easeInOutSin(time) {
+  return (1 + Math.sin(Math.PI * time - Math.PI / 2)) / 2;
+}
+
+function animate(property, element, to) {
+  var options = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : {};
+  var cb = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : function () {};
+  var _options$ease = options.ease,
+      ease = _options$ease === void 0 ? easeInOutSin : _options$ease,
+      _options$duration = options.duration,
+      duration = _options$duration === void 0 ? 300 : _options$duration;
+  var start = null;
+  var from = element[property];
+  var cancelled = false;
+
+  var cancel = function cancel() {
+    cancelled = true;
+  };
+
+  var step = function step(timestamp) {
+    if (cancelled) {
+      cb(new Error('Animation cancelled'));
+      return;
+    }
+
+    if (start === null) {
+      start = timestamp;
+    }
+
+    var time = Math.min(1, (timestamp - start) / duration);
+    element[property] = ease(time) * (to - from) + from;
+
+    if (time >= 1) {
+      requestAnimationFrame(function () {
+        cb(null);
+      });
+      return;
+    }
+
+    requestAnimationFrame(step);
+  };
+
+  if (from === to) {
+    cb(new Error('Element already at target position'));
+    return cancel;
+  }
+
+  requestAnimationFrame(step);
+  return cancel;
+}
+},{}],"../node_modules/@material-ui/core/esm/Tabs/ScrollbarSize.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = ScrollbarSize;
+
+var _extends2 = _interopRequireDefault(require("@babel/runtime/helpers/esm/extends"));
+
+var _objectWithoutProperties2 = _interopRequireDefault(require("@babel/runtime/helpers/esm/objectWithoutProperties"));
+
+var _react = _interopRequireDefault(require("react"));
+
+var _propTypes = _interopRequireDefault(require("prop-types"));
+
+var _debounce = _interopRequireDefault(require("../utils/debounce"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var styles = {
+  width: 99,
+  height: 99,
+  position: 'absolute',
+  top: -9999,
+  overflow: 'scroll'
+};
+/**
+ * @ignore - internal component.
+ * The component is originates from https://github.com/STORIS/react-scrollbar-size.
+ * It has been moved into the core in order to minimize the bundle size.
+ */
+
+function ScrollbarSize(props) {
+  var onChange = props.onChange,
+      other = (0, _objectWithoutProperties2.default)(props, ["onChange"]);
+
+  var scrollbarHeight = _react.default.useRef();
+
+  var nodeRef = _react.default.useRef(null);
+
+  var setMeasurements = function setMeasurements() {
+    scrollbarHeight.current = nodeRef.current.offsetHeight - nodeRef.current.clientHeight;
+  };
+
+  _react.default.useEffect(function () {
+    var handleResize = (0, _debounce.default)(function () {
+      var prevHeight = scrollbarHeight.current;
+      setMeasurements();
+
+      if (prevHeight !== scrollbarHeight.current) {
+        onChange(scrollbarHeight.current);
+      }
+    });
+    window.addEventListener('resize', handleResize);
+    return function () {
+      handleResize.clear();
+      window.removeEventListener('resize', handleResize);
+    };
+  }, [onChange]);
+
+  _react.default.useEffect(function () {
+    setMeasurements();
+    onChange(scrollbarHeight.current);
+  }, [onChange]);
+
+  return _react.default.createElement("div", (0, _extends2.default)({
+    style: styles,
+    ref: nodeRef
+  }, other));
+}
+
+"development" !== "production" ? ScrollbarSize.propTypes = {
+  onChange: _propTypes.default.func.isRequired
+} : void 0;
+},{"@babel/runtime/helpers/esm/extends":"../node_modules/@babel/runtime/helpers/esm/extends.js","@babel/runtime/helpers/esm/objectWithoutProperties":"../node_modules/@babel/runtime/helpers/esm/objectWithoutProperties.js","react":"../node_modules/react/index.js","prop-types":"../node_modules/prop-types/index.js","../utils/debounce":"../node_modules/@material-ui/core/esm/utils/debounce.js"}],"../node_modules/@material-ui/core/esm/Tabs/TabIndicator.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = exports.styles = void 0;
+
+var _extends2 = _interopRequireDefault(require("@babel/runtime/helpers/esm/extends"));
+
+var _objectWithoutProperties2 = _interopRequireDefault(require("@babel/runtime/helpers/esm/objectWithoutProperties"));
+
+var _react = _interopRequireDefault(require("react"));
+
+var _propTypes = _interopRequireDefault(require("prop-types"));
+
+var _clsx = _interopRequireDefault(require("clsx"));
+
+var _withStyles = _interopRequireDefault(require("../styles/withStyles"));
+
+var _capitalize = _interopRequireDefault(require("../utils/capitalize"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var styles = function styles(theme) {
+  return {
+    root: {
+      position: 'absolute',
+      height: 2,
+      bottom: 0,
+      width: '100%',
+      transition: theme.transitions.create()
+    },
+    colorPrimary: {
+      backgroundColor: theme.palette.primary.main
+    },
+    colorSecondary: {
+      backgroundColor: theme.palette.secondary.main
+    },
+    vertical: {
+      height: '100%',
+      width: 2,
+      right: 0
+    }
+  };
+};
+/**
+ * @ignore - internal component.
+ */
+
+
+exports.styles = styles;
+
+var TabIndicator = _react.default.forwardRef(function TabIndicator(props, ref) {
+  var classes = props.classes,
+      className = props.className,
+      color = props.color,
+      orientation = props.orientation,
+      other = (0, _objectWithoutProperties2.default)(props, ["classes", "className", "color", "orientation"]);
+  return _react.default.createElement("span", (0, _extends2.default)({
+    className: (0, _clsx.default)(classes.root, classes["color".concat((0, _capitalize.default)(color))], className, {
+      vertical: classes.vertical
+    }[orientation]),
+    ref: ref
+  }, other));
+});
+
+"development" !== "production" ? TabIndicator.propTypes = {
+  /**
+   * Override or extend the styles applied to the component.
+   * See [CSS API](#css) below for more details.
+   */
+  classes: _propTypes.default.object.isRequired,
+
+  /**
+   * @ignore
+   */
+  className: _propTypes.default.string,
+
+  /**
+   * @ignore
+   * The color of the tab indicator.
+   */
+  color: _propTypes.default.oneOf(['primary', 'secondary']).isRequired,
+
+  /**
+   * The tabs orientation (layout flow direction).
+   */
+  orientation: _propTypes.default.oneOf(['horizontal', 'vertical']).isRequired
+} : void 0;
+
+var _default = (0, _withStyles.default)(styles, {
+  name: 'PrivateTabIndicator'
+})(TabIndicator);
+
+exports.default = _default;
+},{"@babel/runtime/helpers/esm/extends":"../node_modules/@babel/runtime/helpers/esm/extends.js","@babel/runtime/helpers/esm/objectWithoutProperties":"../node_modules/@babel/runtime/helpers/esm/objectWithoutProperties.js","react":"../node_modules/react/index.js","prop-types":"../node_modules/prop-types/index.js","clsx":"../node_modules/clsx/dist/clsx.m.js","../styles/withStyles":"../node_modules/@material-ui/core/esm/styles/withStyles.js","../utils/capitalize":"../node_modules/@material-ui/core/esm/utils/capitalize.js"}],"../node_modules/@material-ui/core/esm/SvgIcon/SvgIcon.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = exports.styles = void 0;
+
+var _extends2 = _interopRequireDefault(require("@babel/runtime/helpers/esm/extends"));
+
+var _objectWithoutProperties2 = _interopRequireDefault(require("@babel/runtime/helpers/esm/objectWithoutProperties"));
+
+var _react = _interopRequireDefault(require("react"));
+
+var _propTypes = _interopRequireDefault(require("prop-types"));
+
+var _clsx = _interopRequireDefault(require("clsx"));
+
+var _withStyles = _interopRequireDefault(require("../styles/withStyles"));
+
+var _capitalize = _interopRequireDefault(require("../utils/capitalize"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var styles = function styles(theme) {
+  return {
+    /* Styles applied to the root element. */
+    root: {
+      userSelect: 'none',
+      width: '1em',
+      height: '1em',
+      display: 'inline-block',
+      fill: 'currentColor',
+      flexShrink: 0,
+      fontSize: theme.typography.pxToRem(24),
+      transition: theme.transitions.create('fill', {
+        duration: theme.transitions.duration.shorter
+      })
+    },
+
+    /* Styles applied to the root element if `color="primary"`. */
+    colorPrimary: {
+      color: theme.palette.primary.main
+    },
+
+    /* Styles applied to the root element if `color="secondary"`. */
+    colorSecondary: {
+      color: theme.palette.secondary.main
+    },
+
+    /* Styles applied to the root element if `color="action"`. */
+    colorAction: {
+      color: theme.palette.action.active
+    },
+
+    /* Styles applied to the root element if `color="error"`. */
+    colorError: {
+      color: theme.palette.error.main
+    },
+
+    /* Styles applied to the root element if `color="disabled"`. */
+    colorDisabled: {
+      color: theme.palette.action.disabled
+    },
+
+    /* Styles applied to the root element if `fontSize="inherit"`. */
+    fontSizeInherit: {
+      fontSize: 'inherit'
+    },
+
+    /* Styles applied to the root element if `fontSize="small"`. */
+    fontSizeSmall: {
+      fontSize: theme.typography.pxToRem(20)
+    },
+
+    /* Styles applied to the root element if `fontSize="large"`. */
+    fontSizeLarge: {
+      fontSize: theme.typography.pxToRem(35)
+    }
+  };
+};
+
+exports.styles = styles;
+
+var SvgIcon = _react.default.forwardRef(function SvgIcon(props, ref) {
+  var children = props.children,
+      classes = props.classes,
+      className = props.className,
+      _props$color = props.color,
+      color = _props$color === void 0 ? 'inherit' : _props$color,
+      _props$component = props.component,
+      Component = _props$component === void 0 ? 'svg' : _props$component,
+      _props$fontSize = props.fontSize,
+      fontSize = _props$fontSize === void 0 ? 'default' : _props$fontSize,
+      htmlColor = props.htmlColor,
+      titleAccess = props.titleAccess,
+      _props$viewBox = props.viewBox,
+      viewBox = _props$viewBox === void 0 ? '0 0 24 24' : _props$viewBox,
+      other = (0, _objectWithoutProperties2.default)(props, ["children", "classes", "className", "color", "component", "fontSize", "htmlColor", "titleAccess", "viewBox"]);
+  return _react.default.createElement(Component, (0, _extends2.default)({
+    className: (0, _clsx.default)(classes.root, className, color !== 'inherit' && classes["color".concat((0, _capitalize.default)(color))], fontSize !== 'default' && classes["fontSize".concat((0, _capitalize.default)(fontSize))]),
+    focusable: "false",
+    viewBox: viewBox,
+    color: htmlColor,
+    "aria-hidden": titleAccess ? 'false' : 'true',
+    role: titleAccess ? 'img' : 'presentation',
+    ref: ref
+  }, other), children, titleAccess ? _react.default.createElement("title", null, titleAccess) : null);
+});
+
+"development" !== "production" ? SvgIcon.propTypes = {
+  // ----------------------------- Warning --------------------------------
+  // | These PropTypes are generated from the TypeScript type definitions |
+  // |     To update them edit the d.ts file and run "yarn proptypes"     |
+  // ----------------------------------------------------------------------
+
+  /**
+   * Node passed into the SVG element.
+   */
+  children: _propTypes.default.node,
+
+  /**
+   * Override or extend the styles applied to the component.
+   * See [CSS API](#css) below for more details.
+   */
+  classes: _propTypes.default.object,
+
+  /**
+   * @ignore
+   */
+  className: _propTypes.default.string,
+
+  /**
+   * The color of the component. It supports those theme colors that make sense for this component.
+   * You can use the `htmlColor` prop to apply a color attribute to the SVG element.
+   */
+  color: _propTypes.default.oneOf(['action', 'disabled', 'error', 'inherit', 'primary', 'secondary']),
+
+  /**
+   * The component used for the root node.
+   * Either a string to use a DOM element or a component.
+   */
+  component: _propTypes.default.elementType,
+
+  /**
+   * The fontSize applied to the icon. Defaults to 24px, but can be configure to inherit font size.
+   */
+  fontSize: _propTypes.default.oneOf(['default', 'inherit', 'large', 'small']),
+
+  /**
+   * Applies a color attribute to the SVG element.
+   */
+  htmlColor: _propTypes.default.string,
+
+  /**
+   * The shape-rendering attribute. The behavior of the different options is described on the
+   * [MDN Web Docs](https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/shape-rendering).
+   * If you are having issues with blurry icons you should investigate this property.
+   */
+  shapeRendering: _propTypes.default.string,
+
+  /**
+   * Provides a human-readable title for the element that contains it.
+   * https://www.w3.org/TR/SVG-access/#Equivalent
+   */
+  titleAccess: _propTypes.default.string,
+
+  /**
+   * Allows you to redefine what the coordinates without units mean inside an SVG element.
+   * For example, if the SVG element is 500 (width) by 200 (height),
+   * and you pass viewBox="0 0 50 20",
+   * this means that the coordinates inside the SVG will go from the top left corner (0,0)
+   * to bottom right (50,20) and each unit will be worth 10px.
+   */
+  viewBox: _propTypes.default.string
+} : void 0;
+SvgIcon.muiName = 'SvgIcon';
+
+var _default = (0, _withStyles.default)(styles, {
+  name: 'MuiSvgIcon'
+})(SvgIcon);
+
+exports.default = _default;
+},{"@babel/runtime/helpers/esm/extends":"../node_modules/@babel/runtime/helpers/esm/extends.js","@babel/runtime/helpers/esm/objectWithoutProperties":"../node_modules/@babel/runtime/helpers/esm/objectWithoutProperties.js","react":"../node_modules/react/index.js","prop-types":"../node_modules/prop-types/index.js","clsx":"../node_modules/clsx/dist/clsx.m.js","../styles/withStyles":"../node_modules/@material-ui/core/esm/styles/withStyles.js","../utils/capitalize":"../node_modules/@material-ui/core/esm/utils/capitalize.js"}],"../node_modules/@material-ui/core/esm/SvgIcon/index.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+Object.defineProperty(exports, "default", {
+  enumerable: true,
+  get: function () {
+    return _SvgIcon.default;
+  }
+});
+
+var _SvgIcon = _interopRequireDefault(require("./SvgIcon"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+},{"./SvgIcon":"../node_modules/@material-ui/core/esm/SvgIcon/SvgIcon.js"}],"../node_modules/@material-ui/core/esm/internal/svg-icons/createSvgIcon.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = createSvgIcon;
+
+var _extends2 = _interopRequireDefault(require("@babel/runtime/helpers/esm/extends"));
+
+var _react = _interopRequireDefault(require("react"));
+
+var _SvgIcon = _interopRequireDefault(require("../../SvgIcon"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function createSvgIcon(path, displayName) {
+  var Component = _react.default.memo(_react.default.forwardRef(function (props, ref) {
+    return _react.default.createElement(_SvgIcon.default, (0, _extends2.default)({}, props, {
+      ref: ref
+    }), path);
+  }));
+
+  if ("development" !== 'production') {
+    Component.displayName = "".concat(displayName, "Icon");
+  }
+
+  Component.muiName = _SvgIcon.default.muiName;
+  return Component;
+}
+},{"@babel/runtime/helpers/esm/extends":"../node_modules/@babel/runtime/helpers/esm/extends.js","react":"../node_modules/react/index.js","../../SvgIcon":"../node_modules/@material-ui/core/esm/SvgIcon/index.js"}],"../node_modules/@material-ui/core/esm/internal/svg-icons/KeyboardArrowLeft.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var _react = _interopRequireDefault(require("react"));
+
+var _createSvgIcon = _interopRequireDefault(require("./createSvgIcon"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+/**
+ * @ignore - internal component.
+ */
+var _default = (0, _createSvgIcon.default)(_react.default.createElement("path", {
+  d: "M15.41 16.09l-4.58-4.59 4.58-4.59L14 5.5l-6 6 6 6z"
+}), 'KeyboardArrowLeft');
+
+exports.default = _default;
+},{"react":"../node_modules/react/index.js","./createSvgIcon":"../node_modules/@material-ui/core/esm/internal/svg-icons/createSvgIcon.js"}],"../node_modules/@material-ui/core/esm/internal/svg-icons/KeyboardArrowRight.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var _react = _interopRequireDefault(require("react"));
+
+var _createSvgIcon = _interopRequireDefault(require("./createSvgIcon"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+/**
+ * @ignore - internal component.
+ */
+var _default = (0, _createSvgIcon.default)(_react.default.createElement("path", {
+  d: "M8.59 16.34l4.58-4.59-4.58-4.59L10 5.75l6 6-6 6z"
+}), 'KeyboardArrowRight');
+
+exports.default = _default;
+},{"react":"../node_modules/react/index.js","./createSvgIcon":"../node_modules/@material-ui/core/esm/internal/svg-icons/createSvgIcon.js"}],"../node_modules/@material-ui/core/esm/Tabs/TabScrollButton.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -55299,216 +59673,7 @@ function parseOrigin(origin) {
   return result
 }
 
-},{"unist-util-stringify-position":"../node_modules/unist-util-stringify-position/index.js"}],"../node_modules/process/browser.js":[function(require,module,exports) {
-
-// shim for using process in browser
-var process = module.exports = {}; // cached from whatever global is present so that test runners that stub it
-// don't break things.  But we need to wrap it in a try catch in case it is
-// wrapped in strict mode code which doesn't define any globals.  It's inside a
-// function because try/catches deoptimize in certain engines.
-
-var cachedSetTimeout;
-var cachedClearTimeout;
-
-function defaultSetTimout() {
-  throw new Error('setTimeout has not been defined');
-}
-
-function defaultClearTimeout() {
-  throw new Error('clearTimeout has not been defined');
-}
-
-(function () {
-  try {
-    if (typeof setTimeout === 'function') {
-      cachedSetTimeout = setTimeout;
-    } else {
-      cachedSetTimeout = defaultSetTimout;
-    }
-  } catch (e) {
-    cachedSetTimeout = defaultSetTimout;
-  }
-
-  try {
-    if (typeof clearTimeout === 'function') {
-      cachedClearTimeout = clearTimeout;
-    } else {
-      cachedClearTimeout = defaultClearTimeout;
-    }
-  } catch (e) {
-    cachedClearTimeout = defaultClearTimeout;
-  }
-})();
-
-function runTimeout(fun) {
-  if (cachedSetTimeout === setTimeout) {
-    //normal enviroments in sane situations
-    return setTimeout(fun, 0);
-  } // if setTimeout wasn't available but was latter defined
-
-
-  if ((cachedSetTimeout === defaultSetTimout || !cachedSetTimeout) && setTimeout) {
-    cachedSetTimeout = setTimeout;
-    return setTimeout(fun, 0);
-  }
-
-  try {
-    // when when somebody has screwed with setTimeout but no I.E. maddness
-    return cachedSetTimeout(fun, 0);
-  } catch (e) {
-    try {
-      // When we are in I.E. but the script has been evaled so I.E. doesn't trust the global object when called normally
-      return cachedSetTimeout.call(null, fun, 0);
-    } catch (e) {
-      // same as above but when it's a version of I.E. that must have the global object for 'this', hopfully our context correct otherwise it will throw a global error
-      return cachedSetTimeout.call(this, fun, 0);
-    }
-  }
-}
-
-function runClearTimeout(marker) {
-  if (cachedClearTimeout === clearTimeout) {
-    //normal enviroments in sane situations
-    return clearTimeout(marker);
-  } // if clearTimeout wasn't available but was latter defined
-
-
-  if ((cachedClearTimeout === defaultClearTimeout || !cachedClearTimeout) && clearTimeout) {
-    cachedClearTimeout = clearTimeout;
-    return clearTimeout(marker);
-  }
-
-  try {
-    // when when somebody has screwed with setTimeout but no I.E. maddness
-    return cachedClearTimeout(marker);
-  } catch (e) {
-    try {
-      // When we are in I.E. but the script has been evaled so I.E. doesn't  trust the global object when called normally
-      return cachedClearTimeout.call(null, marker);
-    } catch (e) {
-      // same as above but when it's a version of I.E. that must have the global object for 'this', hopfully our context correct otherwise it will throw a global error.
-      // Some versions of I.E. have different rules for clearTimeout vs setTimeout
-      return cachedClearTimeout.call(this, marker);
-    }
-  }
-}
-
-var queue = [];
-var draining = false;
-var currentQueue;
-var queueIndex = -1;
-
-function cleanUpNextTick() {
-  if (!draining || !currentQueue) {
-    return;
-  }
-
-  draining = false;
-
-  if (currentQueue.length) {
-    queue = currentQueue.concat(queue);
-  } else {
-    queueIndex = -1;
-  }
-
-  if (queue.length) {
-    drainQueue();
-  }
-}
-
-function drainQueue() {
-  if (draining) {
-    return;
-  }
-
-  var timeout = runTimeout(cleanUpNextTick);
-  draining = true;
-  var len = queue.length;
-
-  while (len) {
-    currentQueue = queue;
-    queue = [];
-
-    while (++queueIndex < len) {
-      if (currentQueue) {
-        currentQueue[queueIndex].run();
-      }
-    }
-
-    queueIndex = -1;
-    len = queue.length;
-  }
-
-  currentQueue = null;
-  draining = false;
-  runClearTimeout(timeout);
-}
-
-process.nextTick = function (fun) {
-  var args = new Array(arguments.length - 1);
-
-  if (arguments.length > 1) {
-    for (var i = 1; i < arguments.length; i++) {
-      args[i - 1] = arguments[i];
-    }
-  }
-
-  queue.push(new Item(fun, args));
-
-  if (queue.length === 1 && !draining) {
-    runTimeout(drainQueue);
-  }
-}; // v8 likes predictible objects
-
-
-function Item(fun, array) {
-  this.fun = fun;
-  this.array = array;
-}
-
-Item.prototype.run = function () {
-  this.fun.apply(null, this.array);
-};
-
-process.title = 'browser';
-process.env = {};
-process.argv = [];
-process.version = ''; // empty string to avoid regexp issues
-
-process.versions = {};
-
-function noop() {}
-
-process.on = noop;
-process.addListener = noop;
-process.once = noop;
-process.off = noop;
-process.removeListener = noop;
-process.removeAllListeners = noop;
-process.emit = noop;
-process.prependListener = noop;
-process.prependOnceListener = noop;
-
-process.listeners = function (name) {
-  return [];
-};
-
-process.binding = function (name) {
-  throw new Error('process.binding is not supported');
-};
-
-process.cwd = function () {
-  return '/';
-};
-
-process.chdir = function (dir) {
-  throw new Error('process.chdir is not supported');
-};
-
-process.umask = function () {
-  return 0;
-};
-},{}],"../node_modules/path-browserify/index.js":[function(require,module,exports) {
+},{"unist-util-stringify-position":"../node_modules/unist-util-stringify-position/index.js"}],"../node_modules/path-browserify/index.js":[function(require,module,exports) {
 var process = require("process");
 // .dirname, .basename, and .extname methods are extracted from Node.js v8.11.1,
 // backported and transplited with Babel, with backwards-compat fixes
@@ -63701,3436 +67866,7 @@ ReactMarkdown.types = allTypes;
 ReactMarkdown.renderers = defaultRenderers;
 ReactMarkdown.uriTransformer = uriTransformer;
 module.exports = ReactMarkdown;
-},{"xtend":"../node_modules/xtend/immutable.js","unified":"../node_modules/unified/index.js","remark-parse":"../node_modules/remark-parse/index.js","prop-types":"../node_modules/prop-types/index.js","mdast-add-list-metadata":"../node_modules/mdast-add-list-metadata/index.js","./plugins/naive-html":"../node_modules/react-markdown/lib/plugins/naive-html.js","./plugins/disallow-node":"../node_modules/react-markdown/lib/plugins/disallow-node.js","./ast-to-react":"../node_modules/react-markdown/lib/ast-to-react.js","./wrap-table-rows":"../node_modules/react-markdown/lib/wrap-table-rows.js","./get-definitions":"../node_modules/react-markdown/lib/get-definitions.js","./uri-transformer":"../node_modules/react-markdown/lib/uri-transformer.js","./renderers":"../node_modules/react-markdown/lib/renderers.js","./symbols":"../node_modules/react-markdown/lib/symbols.js"}],"../node_modules/stylis/stylis.min.js":[function(require,module,exports) {
-var define;
-!function(e){"object"==typeof exports&&"undefined"!=typeof module?module.exports=e(null):"function"==typeof define&&define.amd?define(e(null)):window.stylis=e(null)}(function e(a){"use strict";var r=/^\0+/g,c=/[\0\r\f]/g,s=/: */g,t=/zoo|gra/,i=/([,: ])(transform)/g,f=/,+\s*(?![^(]*[)])/g,n=/ +\s*(?![^(]*[)])/g,l=/ *[\0] */g,o=/,\r+?/g,h=/([\t\r\n ])*\f?&/g,u=/:global\(((?:[^\(\)\[\]]*|\[.*\]|\([^\(\)]*\))*)\)/g,d=/\W+/g,b=/@(k\w+)\s*(\S*)\s*/,p=/::(place)/g,k=/:(read-only)/g,g=/\s+(?=[{\];=:>])/g,A=/([[}=:>])\s+/g,C=/(\{[^{]+?);(?=\})/g,w=/\s{2,}/g,v=/([^\(])(:+) */g,m=/[svh]\w+-[tblr]{2}/,x=/\(\s*(.*)\s*\)/g,$=/([\s\S]*?);/g,y=/-self|flex-/g,O=/[^]*?(:[rp][el]a[\w-]+)[^]*/,j=/stretch|:\s*\w+\-(?:conte|avail)/,z=/([^-])(image-set\()/,N="-webkit-",S="-moz-",F="-ms-",W=59,q=125,B=123,D=40,E=41,G=91,H=93,I=10,J=13,K=9,L=64,M=32,P=38,Q=45,R=95,T=42,U=44,V=58,X=39,Y=34,Z=47,_=62,ee=43,ae=126,re=0,ce=12,se=11,te=107,ie=109,fe=115,ne=112,le=111,oe=105,he=99,ue=100,de=112,be=1,pe=1,ke=0,ge=1,Ae=1,Ce=1,we=0,ve=0,me=0,xe=[],$e=[],ye=0,Oe=null,je=-2,ze=-1,Ne=0,Se=1,Fe=2,We=3,qe=0,Be=1,De="",Ee="",Ge="";function He(e,a,s,t,i){for(var f,n,o=0,h=0,u=0,d=0,g=0,A=0,C=0,w=0,m=0,$=0,y=0,O=0,j=0,z=0,R=0,we=0,$e=0,Oe=0,je=0,ze=s.length,Je=ze-1,Re="",Te="",Ue="",Ve="",Xe="",Ye="";R<ze;){if(C=s.charCodeAt(R),R===Je)if(h+d+u+o!==0){if(0!==h)C=h===Z?I:Z;d=u=o=0,ze++,Je++}if(h+d+u+o===0){if(R===Je){if(we>0)Te=Te.replace(c,"");if(Te.trim().length>0){switch(C){case M:case K:case W:case J:case I:break;default:Te+=s.charAt(R)}C=W}}if(1===$e)switch(C){case B:case q:case W:case Y:case X:case D:case E:case U:$e=0;case K:case J:case I:case M:break;default:for($e=0,je=R,g=C,R--,C=W;je<ze;)switch(s.charCodeAt(je++)){case I:case J:case W:++R,C=g,je=ze;break;case V:if(we>0)++R,C=g;case B:je=ze}}switch(C){case B:for(g=(Te=Te.trim()).charCodeAt(0),y=1,je=++R;R<ze;){switch(C=s.charCodeAt(R)){case B:y++;break;case q:y--;break;case Z:switch(A=s.charCodeAt(R+1)){case T:case Z:R=Qe(A,R,Je,s)}break;case G:C++;case D:C++;case Y:case X:for(;R++<Je&&s.charCodeAt(R)!==C;);}if(0===y)break;R++}if(Ue=s.substring(je,R),g===re)g=(Te=Te.replace(r,"").trim()).charCodeAt(0);switch(g){case L:if(we>0)Te=Te.replace(c,"");switch(A=Te.charCodeAt(1)){case ue:case ie:case fe:case Q:f=a;break;default:f=xe}if(je=(Ue=He(a,f,Ue,A,i+1)).length,me>0&&0===je)je=Te.length;if(ye>0)if(f=Ie(xe,Te,Oe),n=Pe(We,Ue,f,a,pe,be,je,A,i,t),Te=f.join(""),void 0!==n)if(0===(je=(Ue=n.trim()).length))A=0,Ue="";if(je>0)switch(A){case fe:Te=Te.replace(x,Me);case ue:case ie:case Q:Ue=Te+"{"+Ue+"}";break;case te:if(Ue=(Te=Te.replace(b,"$1 $2"+(Be>0?De:"")))+"{"+Ue+"}",1===Ae||2===Ae&&Le("@"+Ue,3))Ue="@"+N+Ue+"@"+Ue;else Ue="@"+Ue;break;default:if(Ue=Te+Ue,t===de)Ve+=Ue,Ue=""}else Ue="";break;default:Ue=He(a,Ie(a,Te,Oe),Ue,t,i+1)}Xe+=Ue,O=0,$e=0,z=0,we=0,Oe=0,j=0,Te="",Ue="",C=s.charCodeAt(++R);break;case q:case W:if((je=(Te=(we>0?Te.replace(c,""):Te).trim()).length)>1){if(0===z)if((g=Te.charCodeAt(0))===Q||g>96&&g<123)je=(Te=Te.replace(" ",":")).length;if(ye>0)if(void 0!==(n=Pe(Se,Te,a,e,pe,be,Ve.length,t,i,t)))if(0===(je=(Te=n.trim()).length))Te="\0\0";switch(g=Te.charCodeAt(0),A=Te.charCodeAt(1),g){case re:break;case L:if(A===oe||A===he){Ye+=Te+s.charAt(R);break}default:if(Te.charCodeAt(je-1)===V)break;Ve+=Ke(Te,g,A,Te.charCodeAt(2))}}O=0,$e=0,z=0,we=0,Oe=0,Te="",C=s.charCodeAt(++R)}}switch(C){case J:case I:if(h+d+u+o+ve===0)switch($){case E:case X:case Y:case L:case ae:case _:case T:case ee:case Z:case Q:case V:case U:case W:case B:case q:break;default:if(z>0)$e=1}if(h===Z)h=0;else if(ge+O===0&&t!==te&&Te.length>0)we=1,Te+="\0";if(ye*qe>0)Pe(Ne,Te,a,e,pe,be,Ve.length,t,i,t);be=1,pe++;break;case W:case q:if(h+d+u+o===0){be++;break}default:switch(be++,Re=s.charAt(R),C){case K:case M:if(d+o+h===0)switch(w){case U:case V:case K:case M:Re="";break;default:if(C!==M)Re=" "}break;case re:Re="\\0";break;case ce:Re="\\f";break;case se:Re="\\v";break;case P:if(d+h+o===0&&ge>0)Oe=1,we=1,Re="\f"+Re;break;case 108:if(d+h+o+ke===0&&z>0)switch(R-z){case 2:if(w===ne&&s.charCodeAt(R-3)===V)ke=w;case 8:if(m===le)ke=m}break;case V:if(d+h+o===0)z=R;break;case U:if(h+u+d+o===0)we=1,Re+="\r";break;case Y:case X:if(0===h)d=d===C?0:0===d?C:d;break;case G:if(d+h+u===0)o++;break;case H:if(d+h+u===0)o--;break;case E:if(d+h+o===0)u--;break;case D:if(d+h+o===0){if(0===O)switch(2*w+3*m){case 533:break;default:y=0,O=1}u++}break;case L:if(h+u+d+o+z+j===0)j=1;break;case T:case Z:if(d+o+u>0)break;switch(h){case 0:switch(2*C+3*s.charCodeAt(R+1)){case 235:h=Z;break;case 220:je=R,h=T}break;case T:if(C===Z&&w===T&&je+2!==R){if(33===s.charCodeAt(je+2))Ve+=s.substring(je,R+1);Re="",h=0}}}if(0===h){if(ge+d+o+j===0&&t!==te&&C!==W)switch(C){case U:case ae:case _:case ee:case E:case D:if(0===O){switch(w){case K:case M:case I:case J:Re+="\0";break;default:Re="\0"+Re+(C===U?"":"\0")}we=1}else switch(C){case D:if(z+7===R&&108===w)z=0;O=++y;break;case E:if(0==(O=--y))we=1,Re+="\0"}break;case K:case M:switch(w){case re:case B:case q:case W:case U:case ce:case K:case M:case I:case J:break;default:if(0===O)we=1,Re+="\0"}}if(Te+=Re,C!==M&&C!==K)$=C}}m=w,w=C,R++}if(je=Ve.length,me>0)if(0===je&&0===Xe.length&&0===a[0].length==false)if(t!==ie||1===a.length&&(ge>0?Ee:Ge)===a[0])je=a.join(",").length+2;if(je>0){if(f=0===ge&&t!==te?function(e){for(var a,r,s=0,t=e.length,i=Array(t);s<t;++s){for(var f=e[s].split(l),n="",o=0,h=0,u=0,d=0,b=f.length;o<b;++o){if(0===(h=(r=f[o]).length)&&b>1)continue;if(u=n.charCodeAt(n.length-1),d=r.charCodeAt(0),a="",0!==o)switch(u){case T:case ae:case _:case ee:case M:case D:break;default:a=" "}switch(d){case P:r=a+Ee;case ae:case _:case ee:case M:case E:case D:break;case G:r=a+r+Ee;break;case V:switch(2*r.charCodeAt(1)+3*r.charCodeAt(2)){case 530:if(Ce>0){r=a+r.substring(8,h-1);break}default:if(o<1||f[o-1].length<1)r=a+Ee+r}break;case U:a="";default:if(h>1&&r.indexOf(":")>0)r=a+r.replace(v,"$1"+Ee+"$2");else r=a+r+Ee}n+=r}i[s]=n.replace(c,"").trim()}return i}(a):a,ye>0)if(void 0!==(n=Pe(Fe,Ve,f,e,pe,be,je,t,i,t))&&0===(Ve=n).length)return Ye+Ve+Xe;if(Ve=f.join(",")+"{"+Ve+"}",Ae*ke!=0){if(2===Ae&&!Le(Ve,2))ke=0;switch(ke){case le:Ve=Ve.replace(k,":"+S+"$1")+Ve;break;case ne:Ve=Ve.replace(p,"::"+N+"input-$1")+Ve.replace(p,"::"+S+"$1")+Ve.replace(p,":"+F+"input-$1")+Ve}ke=0}}return Ye+Ve+Xe}function Ie(e,a,r){var c=a.trim().split(o),s=c,t=c.length,i=e.length;switch(i){case 0:case 1:for(var f=0,n=0===i?"":e[0]+" ";f<t;++f)s[f]=Je(n,s[f],r,i).trim();break;default:f=0;var l=0;for(s=[];f<t;++f)for(var h=0;h<i;++h)s[l++]=Je(e[h]+" ",c[f],r,i).trim()}return s}function Je(e,a,r,c){var s=a,t=s.charCodeAt(0);if(t<33)t=(s=s.trim()).charCodeAt(0);switch(t){case P:switch(ge+c){case 0:case 1:if(0===e.trim().length)break;default:return s.replace(h,"$1"+e.trim())}break;case V:switch(s.charCodeAt(1)){case 103:if(Ce>0&&ge>0)return s.replace(u,"$1").replace(h,"$1"+Ge);break;default:return e.trim()+s.replace(h,"$1"+e.trim())}default:if(r*ge>0&&s.indexOf("\f")>0)return s.replace(h,(e.charCodeAt(0)===V?"":"$1")+e.trim())}return e+s}function Ke(e,a,r,c){var l,o=0,h=e+";",u=2*a+3*r+4*c;if(944===u)return function(e){var a=e.length,r=e.indexOf(":",9)+1,c=e.substring(0,r).trim(),s=e.substring(r,a-1).trim();switch(e.charCodeAt(9)*Be){case 0:break;case Q:if(110!==e.charCodeAt(10))break;default:for(var t=s.split((s="",f)),i=0,r=0,a=t.length;i<a;r=0,++i){for(var l=t[i],o=l.split(n);l=o[r];){var h=l.charCodeAt(0);if(1===Be&&(h>L&&h<90||h>96&&h<123||h===R||h===Q&&l.charCodeAt(1)!==Q))switch(isNaN(parseFloat(l))+(-1!==l.indexOf("("))){case 1:switch(l){case"infinite":case"alternate":case"backwards":case"running":case"normal":case"forwards":case"both":case"none":case"linear":case"ease":case"ease-in":case"ease-out":case"ease-in-out":case"paused":case"reverse":case"alternate-reverse":case"inherit":case"initial":case"unset":case"step-start":case"step-end":break;default:l+=De}}o[r++]=l}s+=(0===i?"":",")+o.join(" ")}}if(s=c+s+";",1===Ae||2===Ae&&Le(s,1))return N+s+s;return s}(h);else if(0===Ae||2===Ae&&!Le(h,1))return h;switch(u){case 1015:return 97===h.charCodeAt(10)?N+h+h:h;case 951:return 116===h.charCodeAt(3)?N+h+h:h;case 963:return 110===h.charCodeAt(5)?N+h+h:h;case 1009:if(100!==h.charCodeAt(4))break;case 969:case 942:return N+h+h;case 978:return N+h+S+h+h;case 1019:case 983:return N+h+S+h+F+h+h;case 883:if(h.charCodeAt(8)===Q)return N+h+h;if(h.indexOf("image-set(",11)>0)return h.replace(z,"$1"+N+"$2")+h;return h;case 932:if(h.charCodeAt(4)===Q)switch(h.charCodeAt(5)){case 103:return N+"box-"+h.replace("-grow","")+N+h+F+h.replace("grow","positive")+h;case 115:return N+h+F+h.replace("shrink","negative")+h;case 98:return N+h+F+h.replace("basis","preferred-size")+h}return N+h+F+h+h;case 964:return N+h+F+"flex-"+h+h;case 1023:if(99!==h.charCodeAt(8))break;return l=h.substring(h.indexOf(":",15)).replace("flex-","").replace("space-between","justify"),N+"box-pack"+l+N+h+F+"flex-pack"+l+h;case 1005:return t.test(h)?h.replace(s,":"+N)+h.replace(s,":"+S)+h:h;case 1e3:switch(o=(l=h.substring(13).trim()).indexOf("-")+1,l.charCodeAt(0)+l.charCodeAt(o)){case 226:l=h.replace(m,"tb");break;case 232:l=h.replace(m,"tb-rl");break;case 220:l=h.replace(m,"lr");break;default:return h}return N+h+F+l+h;case 1017:if(-1===h.indexOf("sticky",9))return h;case 975:switch(o=(h=e).length-10,u=(l=(33===h.charCodeAt(o)?h.substring(0,o):h).substring(e.indexOf(":",7)+1).trim()).charCodeAt(0)+(0|l.charCodeAt(7))){case 203:if(l.charCodeAt(8)<111)break;case 115:h=h.replace(l,N+l)+";"+h;break;case 207:case 102:h=h.replace(l,N+(u>102?"inline-":"")+"box")+";"+h.replace(l,N+l)+";"+h.replace(l,F+l+"box")+";"+h}return h+";";case 938:if(h.charCodeAt(5)===Q)switch(h.charCodeAt(6)){case 105:return l=h.replace("-items",""),N+h+N+"box-"+l+F+"flex-"+l+h;case 115:return N+h+F+"flex-item-"+h.replace(y,"")+h;default:return N+h+F+"flex-line-pack"+h.replace("align-content","").replace(y,"")+h}break;case 973:case 989:if(h.charCodeAt(3)!==Q||122===h.charCodeAt(4))break;case 931:case 953:if(true===j.test(e))if(115===(l=e.substring(e.indexOf(":")+1)).charCodeAt(0))return Ke(e.replace("stretch","fill-available"),a,r,c).replace(":fill-available",":stretch");else return h.replace(l,N+l)+h.replace(l,S+l.replace("fill-",""))+h;break;case 962:if(h=N+h+(102===h.charCodeAt(5)?F+h:"")+h,r+c===211&&105===h.charCodeAt(13)&&h.indexOf("transform",10)>0)return h.substring(0,h.indexOf(";",27)+1).replace(i,"$1"+N+"$2")+h}return h}function Le(e,a){var r=e.indexOf(1===a?":":"{"),c=e.substring(0,3!==a?r:10),s=e.substring(r+1,e.length-1);return Oe(2!==a?c:c.replace(O,"$1"),s,a)}function Me(e,a){var r=Ke(a,a.charCodeAt(0),a.charCodeAt(1),a.charCodeAt(2));return r!==a+";"?r.replace($," or ($1)").substring(4):"("+a+")"}function Pe(e,a,r,c,s,t,i,f,n,l){for(var o,h=0,u=a;h<ye;++h)switch(o=$e[h].call(Te,e,u,r,c,s,t,i,f,n,l)){case void 0:case false:case true:case null:break;default:u=o}if(u!==a)return u}function Qe(e,a,r,c){for(var s=a+1;s<r;++s)switch(c.charCodeAt(s)){case Z:if(e===T)if(c.charCodeAt(s-1)===T&&a+2!==s)return s+1;break;case I:if(e===Z)return s+1}return s}function Re(e){for(var a in e){var r=e[a];switch(a){case"keyframe":Be=0|r;break;case"global":Ce=0|r;break;case"cascade":ge=0|r;break;case"compress":we=0|r;break;case"semicolon":ve=0|r;break;case"preserve":me=0|r;break;case"prefix":if(Oe=null,!r)Ae=0;else if("function"!=typeof r)Ae=1;else Ae=2,Oe=r}}return Re}function Te(a,r){if(void 0!==this&&this.constructor===Te)return e(a);var s=a,t=s.charCodeAt(0);if(t<33)t=(s=s.trim()).charCodeAt(0);if(Be>0)De=s.replace(d,t===G?"":"-");if(t=1,1===ge)Ge=s;else Ee=s;var i,f=[Ge];if(ye>0)if(void 0!==(i=Pe(ze,r,f,f,pe,be,0,0,0,0))&&"string"==typeof i)r=i;var n=He(xe,f,r,0,0);if(ye>0)if(void 0!==(i=Pe(je,n,f,f,pe,be,n.length,0,0,0))&&"string"!=typeof(n=i))t=0;return De="",Ge="",Ee="",ke=0,pe=1,be=1,we*t==0?n:n.replace(c,"").replace(g,"").replace(A,"$1").replace(C,"$1").replace(w," ")}if(Te.use=function e(a){switch(a){case void 0:case null:ye=$e.length=0;break;default:if("function"==typeof a)$e[ye++]=a;else if("object"==typeof a)for(var r=0,c=a.length;r<c;++r)e(a[r]);else qe=0|!!a}return e},Te.set=Re,void 0!==a)Re(a);return Te});
-
-},{}],"../node_modules/stylis-rule-sheet/index.js":[function(require,module,exports) {
-var define;
-(function (factory) {
-	typeof exports === 'object' && typeof module !== 'undefined' ? (module['exports'] = factory()) :
-		typeof define === 'function' && define['amd'] ? define(factory()) :
-			(window['stylisRuleSheet'] = factory())
-}(function () {
-
-	'use strict'
-
-	return function (insertRule) {
-		var delimiter = '/*|*/'
-		var needle = delimiter+'}'
-
-		function toSheet (block) {
-			if (block)
-				try {
-					insertRule(block + '}')
-				} catch (e) {}
-		}
-
-		return function ruleSheet (context, content, selectors, parents, line, column, length, ns, depth, at) {
-			switch (context) {
-				// property
-				case 1:
-					// @import
-					if (depth === 0 && content.charCodeAt(0) === 64)
-						return insertRule(content+';'), ''
-					break
-				// selector
-				case 2:
-					if (ns === 0)
-						return content + delimiter
-					break
-				// at-rule
-				case 3:
-					switch (ns) {
-						// @font-face, @page
-						case 102:
-						case 112:
-							return insertRule(selectors[0]+content), ''
-						default:
-							return content + (at === 0 ? delimiter : '')
-					}
-				case -2:
-					content.split(needle).forEach(toSheet)
-			}
-		}
-	}
-}))
-
-},{}],"../node_modules/@emotion/unitless/dist/unitless.browser.esm.js":[function(require,module,exports) {
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.default = void 0;
-var unitlessKeys = {
-  animationIterationCount: 1,
-  borderImageOutset: 1,
-  borderImageSlice: 1,
-  borderImageWidth: 1,
-  boxFlex: 1,
-  boxFlexGroup: 1,
-  boxOrdinalGroup: 1,
-  columnCount: 1,
-  columns: 1,
-  flex: 1,
-  flexGrow: 1,
-  flexPositive: 1,
-  flexShrink: 1,
-  flexNegative: 1,
-  flexOrder: 1,
-  gridRow: 1,
-  gridRowEnd: 1,
-  gridRowSpan: 1,
-  gridRowStart: 1,
-  gridColumn: 1,
-  gridColumnEnd: 1,
-  gridColumnSpan: 1,
-  gridColumnStart: 1,
-  msGridRow: 1,
-  msGridRowSpan: 1,
-  msGridColumn: 1,
-  msGridColumnSpan: 1,
-  fontWeight: 1,
-  lineHeight: 1,
-  opacity: 1,
-  order: 1,
-  orphans: 1,
-  tabSize: 1,
-  widows: 1,
-  zIndex: 1,
-  zoom: 1,
-  WebkitLineClamp: 1,
-  // SVG-related properties
-  fillOpacity: 1,
-  floodOpacity: 1,
-  stopOpacity: 1,
-  strokeDasharray: 1,
-  strokeDashoffset: 1,
-  strokeMiterlimit: 1,
-  strokeOpacity: 1,
-  strokeWidth: 1
-};
-var _default = unitlessKeys;
-exports.default = _default;
-},{}],"../node_modules/memoize-one/dist/memoize-one.esm.js":[function(require,module,exports) {
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.default = void 0;
-
-function areInputsEqual(newInputs, lastInputs) {
-  if (newInputs.length !== lastInputs.length) {
-    return false;
-  }
-
-  for (var i = 0; i < newInputs.length; i++) {
-    if (newInputs[i] !== lastInputs[i]) {
-      return false;
-    }
-  }
-
-  return true;
-}
-
-function memoizeOne(resultFn, isEqual) {
-  if (isEqual === void 0) {
-    isEqual = areInputsEqual;
-  }
-
-  var lastThis;
-  var lastArgs = [];
-  var lastResult;
-  var calledOnce = false;
-
-  function memoized() {
-    var newArgs = [];
-
-    for (var _i = 0; _i < arguments.length; _i++) {
-      newArgs[_i] = arguments[_i];
-    }
-
-    if (calledOnce && lastThis === this && isEqual(newArgs, lastArgs)) {
-      return lastResult;
-    }
-
-    lastResult = resultFn.apply(this, newArgs);
-    calledOnce = true;
-    lastThis = this;
-    lastArgs = newArgs;
-    return lastResult;
-  }
-
-  return memoized;
-}
-
-var _default = memoizeOne;
-exports.default = _default;
-},{}],"../node_modules/@emotion/memoize/dist/memoize.browser.esm.js":[function(require,module,exports) {
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.default = void 0;
-
-function memoize(fn) {
-  var cache = {};
-  return function (arg) {
-    if (cache[arg] === undefined) cache[arg] = fn(arg);
-    return cache[arg];
-  };
-}
-
-var _default = memoize;
-exports.default = _default;
-},{}],"../node_modules/@emotion/is-prop-valid/dist/is-prop-valid.browser.esm.js":[function(require,module,exports) {
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.default = void 0;
-
-var _memoize = _interopRequireDefault(require("@emotion/memoize"));
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-var reactPropsRegex = /^((children|dangerouslySetInnerHTML|key|ref|autoFocus|defaultValue|defaultChecked|innerHTML|suppressContentEditableWarning|suppressHydrationWarning|valueLink|accept|acceptCharset|accessKey|action|allow|allowUserMedia|allowPaymentRequest|allowFullScreen|allowTransparency|alt|async|autoComplete|autoPlay|capture|cellPadding|cellSpacing|challenge|charSet|checked|cite|classID|className|cols|colSpan|content|contentEditable|contextMenu|controls|controlsList|coords|crossOrigin|data|dateTime|decoding|default|defer|dir|disabled|download|draggable|encType|form|formAction|formEncType|formMethod|formNoValidate|formTarget|frameBorder|headers|height|hidden|high|href|hrefLang|htmlFor|httpEquiv|id|inputMode|integrity|is|keyParams|keyType|kind|label|lang|list|loading|loop|low|marginHeight|marginWidth|max|maxLength|media|mediaGroup|method|min|minLength|multiple|muted|name|nonce|noValidate|open|optimum|pattern|placeholder|playsInline|poster|preload|profile|radioGroup|readOnly|referrerPolicy|rel|required|reversed|role|rows|rowSpan|sandbox|scope|scoped|scrolling|seamless|selected|shape|size|sizes|slot|span|spellCheck|src|srcDoc|srcLang|srcSet|start|step|style|summary|tabIndex|target|title|type|useMap|value|width|wmode|wrap|about|datatype|inlist|prefix|property|resource|typeof|vocab|autoCapitalize|autoCorrect|autoSave|color|itemProp|itemScope|itemType|itemID|itemRef|results|security|unselectable|accentHeight|accumulate|additive|alignmentBaseline|allowReorder|alphabetic|amplitude|arabicForm|ascent|attributeName|attributeType|autoReverse|azimuth|baseFrequency|baselineShift|baseProfile|bbox|begin|bias|by|calcMode|capHeight|clip|clipPathUnits|clipPath|clipRule|colorInterpolation|colorInterpolationFilters|colorProfile|colorRendering|contentScriptType|contentStyleType|cursor|cx|cy|d|decelerate|descent|diffuseConstant|direction|display|divisor|dominantBaseline|dur|dx|dy|edgeMode|elevation|enableBackground|end|exponent|externalResourcesRequired|fill|fillOpacity|fillRule|filter|filterRes|filterUnits|floodColor|floodOpacity|focusable|fontFamily|fontSize|fontSizeAdjust|fontStretch|fontStyle|fontVariant|fontWeight|format|from|fr|fx|fy|g1|g2|glyphName|glyphOrientationHorizontal|glyphOrientationVertical|glyphRef|gradientTransform|gradientUnits|hanging|horizAdvX|horizOriginX|ideographic|imageRendering|in|in2|intercept|k|k1|k2|k3|k4|kernelMatrix|kernelUnitLength|kerning|keyPoints|keySplines|keyTimes|lengthAdjust|letterSpacing|lightingColor|limitingConeAngle|local|markerEnd|markerMid|markerStart|markerHeight|markerUnits|markerWidth|mask|maskContentUnits|maskUnits|mathematical|mode|numOctaves|offset|opacity|operator|order|orient|orientation|origin|overflow|overlinePosition|overlineThickness|panose1|paintOrder|pathLength|patternContentUnits|patternTransform|patternUnits|pointerEvents|points|pointsAtX|pointsAtY|pointsAtZ|preserveAlpha|preserveAspectRatio|primitiveUnits|r|radius|refX|refY|renderingIntent|repeatCount|repeatDur|requiredExtensions|requiredFeatures|restart|result|rotate|rx|ry|scale|seed|shapeRendering|slope|spacing|specularConstant|specularExponent|speed|spreadMethod|startOffset|stdDeviation|stemh|stemv|stitchTiles|stopColor|stopOpacity|strikethroughPosition|strikethroughThickness|string|stroke|strokeDasharray|strokeDashoffset|strokeLinecap|strokeLinejoin|strokeMiterlimit|strokeOpacity|strokeWidth|surfaceScale|systemLanguage|tableValues|targetX|targetY|textAnchor|textDecoration|textRendering|textLength|to|transform|u1|u2|underlinePosition|underlineThickness|unicode|unicodeBidi|unicodeRange|unitsPerEm|vAlphabetic|vHanging|vIdeographic|vMathematical|values|vectorEffect|version|vertAdvY|vertOriginX|vertOriginY|viewBox|viewTarget|visibility|widths|wordSpacing|writingMode|x|xHeight|x1|x2|xChannelSelector|xlinkActuate|xlinkArcrole|xlinkHref|xlinkRole|xlinkShow|xlinkTitle|xlinkType|xmlBase|xmlns|xmlnsXlink|xmlLang|xmlSpace|y|y1|y2|yChannelSelector|z|zoomAndPan|for|class|autofocus)|(([Dd][Aa][Tt][Aa]|[Aa][Rr][Ii][Aa]|x)-.*))$/; // https://esbench.com/bench/5bfee68a4cd7e6009ef61d23
-
-var index = (0, _memoize.default)(function (prop) {
-  return reactPropsRegex.test(prop) || prop.charCodeAt(0) === 111
-  /* o */
-  && prop.charCodeAt(1) === 110
-  /* n */
-  && prop.charCodeAt(2) < 91;
-}
-/* Z+1 */
-);
-var _default = index;
-exports.default = _default;
-},{"@emotion/memoize":"../node_modules/@emotion/memoize/dist/memoize.browser.esm.js"}],"../node_modules/is-what/dist/index.esm.js":[function(require,module,exports) {
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.getType = getType;
-exports.isUndefined = isUndefined;
-exports.isNull = isNull;
-exports.isPlainObject = isPlainObject;
-exports.isObject = isObject;
-exports.isAnyObject = isAnyObject;
-exports.isObjectLike = isObjectLike;
-exports.isFunction = isFunction;
-exports.isArray = isArray;
-exports.isString = isString;
-exports.isFullString = isFullString;
-exports.isEmptyString = isEmptyString;
-exports.isNumber = isNumber;
-exports.isBoolean = isBoolean;
-exports.isRegExp = isRegExp;
-exports.isDate = isDate;
-exports.isSymbol = isSymbol;
-exports.isPrimitive = isPrimitive;
-exports.isType = isType;
-
-/**
- * Returns the object type of the given payload
- *
- * @param {*} payload
- * @returns {string}
- */
-function getType(payload) {
-  return Object.prototype.toString.call(payload).slice(8, -1);
-}
-/**
- * Returns whether the payload is undefined
- *
- * @param {*} payload
- * @returns {payload is undefined}
- */
-
-
-function isUndefined(payload) {
-  return getType(payload) === 'Undefined';
-}
-/**
- * Returns whether the payload is null
- *
- * @param {*} payload
- * @returns {payload is null}
- */
-
-
-function isNull(payload) {
-  return getType(payload) === 'Null';
-}
-/**
- * Returns whether the payload is a plain JavaScript object (excluding special classes or objects with other prototypes)
- *
- * @param {*} payload
- * @returns {payload is {[key: string]: any}}
- */
-
-
-function isPlainObject(payload) {
-  if (getType(payload) !== 'Object') return false;
-  return payload.constructor === Object && Object.getPrototypeOf(payload) === Object.prototype;
-}
-/**
- * Returns whether the payload is a plain JavaScript object (excluding special classes or objects with other prototypes)
- *
- * @param {*} payload
- * @returns {payload is {[key: string]: any}}
- */
-
-
-function isObject(payload) {
-  return isPlainObject(payload);
-}
-/**
- * Returns whether the payload is an any kind of object (including special classes or objects with different prototypes)
- *
- * @param {*} payload
- * @returns {payload is {[key: string]: any}}
- */
-
-
-function isAnyObject(payload) {
-  return getType(payload) === 'Object';
-}
-/**
- * Returns whether the payload is an object like a type passed in < >
- *
- * Usage: isObjectLike<{id: any}>(payload) // will make sure it's an object and has an `id` prop.
- *
- * @template T this must be passed in < >
- * @param {*} payload
- * @returns {payload is T}
- */
-
-
-function isObjectLike(payload) {
-  return isAnyObject(payload);
-}
-/**
- * Returns whether the payload is a function
- *
- * @param {*} payload
- * @returns {payload is Function}
- */
-
-
-function isFunction(payload) {
-  return getType(payload) === 'Function';
-}
-/**
- * Returns whether the payload is an array
- *
- * @param {*} payload
- * @returns {payload is undefined}
- */
-
-
-function isArray(payload) {
-  return getType(payload) === 'Array';
-}
-/**
- * Returns whether the payload is a string
- *
- * @param {*} payload
- * @returns {payload is string}
- */
-
-
-function isString(payload) {
-  return getType(payload) === 'String';
-}
-/**
- * Returns whether the payload is a string, BUT returns false for ''
- *
- * @param {*} payload
- * @returns {payload is string}
- */
-
-
-function isFullString(payload) {
-  return isString(payload) && payload !== '';
-}
-/**
- * Returns whether the payload is ''
- *
- * @param {*} payload
- * @returns {payload is string}
- */
-
-
-function isEmptyString(payload) {
-  return payload === '';
-}
-/**
- * Returns whether the payload is a number
- *
- * This will return false for NaN
- *
- * @param {*} payload
- * @returns {payload is number}
- */
-
-
-function isNumber(payload) {
-  return getType(payload) === 'Number' && !isNaN(payload);
-}
-/**
- * Returns whether the payload is a boolean
- *
- * @param {*} payload
- * @returns {payload is boolean}
- */
-
-
-function isBoolean(payload) {
-  return getType(payload) === 'Boolean';
-}
-/**
- * Returns whether the payload is a regular expression
- *
- * @param {*} payload
- * @returns {payload is RegExp}
- */
-
-
-function isRegExp(payload) {
-  return getType(payload) === 'RegExp';
-}
-/**
- * Returns whether the payload is a date, and that the date is Valid
- *
- * @param {*} payload
- * @returns {payload is Date}
- */
-
-
-function isDate(payload) {
-  return getType(payload) === 'Date' && !isNaN(payload);
-}
-/**
- * Returns whether the payload is a Symbol
- *
- * @param {*} payload
- * @returns {payload is symbol}
- */
-
-
-function isSymbol(payload) {
-  return getType(payload) === 'Symbol';
-}
-/**
- * Returns whether the payload is a primitive type (eg. Boolean | Null | Undefined | Number | String | Symbol)
- *
- * @param {*} payload
- * @returns {(payload is boolean | null | undefined | number | string | symbol)}
- */
-
-
-function isPrimitive(payload) {
-  return isBoolean(payload) || isNull(payload) || isUndefined(payload) || isNumber(payload) || isString(payload) || isSymbol(payload);
-}
-/**
- * Does a generic check to check that the given payload is of a given type.
- * In cases like Number, it will return true for NaN as NaN is a Number (thanks javascript!);
- * It will, however, differentiate between object and null
- *
- * @template T
- * @param {*} payload
- * @param {T} type
- * @throws {TypeError} Will throw type error if type is an invalid type
- * @returns {payload is T}
- */
-
-
-function isType(payload, type) {
-  if (!(type instanceof Function)) {
-    throw new TypeError('Type must be a function');
-  }
-
-  if (!type.hasOwnProperty('prototype')) {
-    throw new TypeError('Type is not a class');
-  } // Classes usually have names (as functions usually have names)
-
-
-  var name = type.name;
-  return getType(payload) === name || Boolean(payload && payload.constructor === type);
-}
-},{}],"../node_modules/merge-anything/dist/index.esm.js":[function(require,module,exports) {
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.merge = merge;
-exports.concatArrays = concatArrays;
-exports.default = void 0;
-
-var _isWhat = require("is-what");
-
-function assignProp(carry, key, newVal, originalObject) {
-  var propType = originalObject.propertyIsEnumerable(key) ? 'enumerable' : 'nonenumerable';
-  if (propType === 'enumerable') carry[key] = newVal;
-
-  if (propType === 'nonenumerable') {
-    Object.defineProperty(carry, key, {
-      value: newVal,
-      enumerable: false,
-      writable: true,
-      configurable: true
-    });
-  }
-}
-
-function mergeRecursively(origin, newComer, extensions) {
-  // work directly on newComer if its not an object
-  if (!(0, _isWhat.isPlainObject)(newComer)) {
-    // extend merge rules
-    if (extensions && (0, _isWhat.isArray)(extensions)) {
-      extensions.forEach(function (extend) {
-        newComer = extend(origin, newComer);
-      });
-    }
-
-    return newComer;
-  } // define newObject to merge all values upon
-
-
-  var newObject = {};
-
-  if ((0, _isWhat.isPlainObject)(origin)) {
-    var props_1 = Object.getOwnPropertyNames(origin);
-    var symbols_1 = Object.getOwnPropertySymbols(origin);
-    newObject = props_1.concat(symbols_1).reduce(function (carry, key) {
-      // @ts-ignore
-      var targetVal = origin[key];
-
-      if (!(0, _isWhat.isSymbol)(key) && !Object.getOwnPropertyNames(newComer).includes(key) || (0, _isWhat.isSymbol)(key) && !Object.getOwnPropertySymbols(newComer).includes(key)) {
-        assignProp(carry, key, targetVal, origin);
-      }
-
-      return carry;
-    }, {});
-  }
-
-  var props = Object.getOwnPropertyNames(newComer);
-  var symbols = Object.getOwnPropertySymbols(newComer);
-  var result = props.concat(symbols).reduce(function (carry, key) {
-    // re-define the origin and newComer as targetVal and newVal
-    var newVal = newComer[key];
-    var targetVal = (0, _isWhat.isPlainObject)(origin) ? // @ts-ignore
-    origin[key] : undefined; // extend merge rules
-
-    if (extensions && (0, _isWhat.isArray)(extensions)) {
-      extensions.forEach(function (extend) {
-        newVal = extend(targetVal, newVal);
-      });
-    } // When newVal is an object do the merge recursively
-
-
-    if (targetVal !== undefined && (0, _isWhat.isPlainObject)(newVal)) {
-      newVal = mergeRecursively(targetVal, newVal, extensions);
-    }
-
-    assignProp(carry, key, newVal, newComer);
-    return carry;
-  }, newObject);
-  return result;
-}
-/**
- * Merge anything recursively.
- * Objects get merged, special objects (classes etc.) are re-assigned "as is".
- * Basic types overwrite objects or other basic types.
- *
- * @param {(IConfig | any)} origin
- * @param {...any[]} newComers
- * @returns the result
- */
-
-
-function merge(origin) {
-  var newComers = [];
-
-  for (var _i = 1; _i < arguments.length; _i++) {
-    newComers[_i - 1] = arguments[_i];
-  }
-
-  var extensions = null;
-  var base = origin;
-
-  if ((0, _isWhat.isPlainObject)(origin) && origin.extensions && Object.keys(origin).length === 1) {
-    base = {};
-    extensions = origin.extensions;
-  }
-
-  return newComers.reduce(function (result, newComer) {
-    return mergeRecursively(result, newComer, extensions);
-  }, base);
-}
-
-function concatArrays(originVal, newVal) {
-  if ((0, _isWhat.isArray)(originVal) && (0, _isWhat.isArray)(newVal)) {
-    // concat logic
-    return originVal.concat(newVal);
-  }
-
-  return newVal; // always return newVal as fallback!!
-}
-
-var _default = merge;
-exports.default = _default;
-},{"is-what":"../node_modules/is-what/dist/index.esm.js"}],"../node_modules/styled-components/dist/styled-components.browser.esm.js":[function(require,module,exports) {
-var process = require("process");
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.createGlobalStyle = createGlobalStyle;
-exports.css = css;
-exports.isStyledComponent = isStyledComponent;
-exports.keyframes = keyframes;
-exports.__DO_NOT_USE_OR_YOU_WILL_BE_HAUNTED_BY_SPOOKY_GHOSTS = exports.withTheme = exports.ThemeProvider = exports.ThemeContext = exports.ThemeConsumer = exports.StyleSheetManager = exports.StyleSheetContext = exports.StyleSheetConsumer = exports.ServerStyleSheet = exports.default = void 0;
-
-var _stylis = _interopRequireDefault(require("stylis/stylis.min"));
-
-var _stylisRuleSheet = _interopRequireDefault(require("stylis-rule-sheet"));
-
-var _react = _interopRequireWildcard(require("react"));
-
-var _unitless = _interopRequireDefault(require("@emotion/unitless"));
-
-var _reactIs = require("react-is");
-
-var _memoizeOne = _interopRequireDefault(require("memoize-one"));
-
-var _propTypes = _interopRequireDefault(require("prop-types"));
-
-var _isPropValid = _interopRequireDefault(require("@emotion/is-prop-valid"));
-
-var _mergeAnything = _interopRequireDefault(require("merge-anything"));
-
-function _getRequireWildcardCache() { if (typeof WeakMap !== "function") return null; var cache = new WeakMap(); _getRequireWildcardCache = function () { return cache; }; return cache; }
-
-function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } var cache = _getRequireWildcardCache(); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; if (obj != null) { var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } } newObj.default = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-// 
-var interleave = function (strings, interpolations) {
-  var result = [strings[0]];
-
-  for (var i = 0, len = interpolations.length; i < len; i += 1) {
-    result.push(interpolations[i], strings[i + 1]);
-  }
-
-  return result;
-};
-
-var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) {
-  return typeof obj;
-} : function (obj) {
-  return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj;
-};
-
-var classCallCheck = function (instance, Constructor) {
-  if (!(instance instanceof Constructor)) {
-    throw new TypeError("Cannot call a class as a function");
-  }
-};
-
-var createClass = function () {
-  function defineProperties(target, props) {
-    for (var i = 0; i < props.length; i++) {
-      var descriptor = props[i];
-      descriptor.enumerable = descriptor.enumerable || false;
-      descriptor.configurable = true;
-      if ("value" in descriptor) descriptor.writable = true;
-      Object.defineProperty(target, descriptor.key, descriptor);
-    }
-  }
-
-  return function (Constructor, protoProps, staticProps) {
-    if (protoProps) defineProperties(Constructor.prototype, protoProps);
-    if (staticProps) defineProperties(Constructor, staticProps);
-    return Constructor;
-  };
-}();
-
-var _extends = Object.assign || function (target) {
-  for (var i = 1; i < arguments.length; i++) {
-    var source = arguments[i];
-
-    for (var key in source) {
-      if (Object.prototype.hasOwnProperty.call(source, key)) {
-        target[key] = source[key];
-      }
-    }
-  }
-
-  return target;
-};
-
-var inherits = function (subClass, superClass) {
-  if (typeof superClass !== "function" && superClass !== null) {
-    throw new TypeError("Super expression must either be null or a function, not " + typeof superClass);
-  }
-
-  subClass.prototype = Object.create(superClass && superClass.prototype, {
-    constructor: {
-      value: subClass,
-      enumerable: false,
-      writable: true,
-      configurable: true
-    }
-  });
-  if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass;
-};
-
-var objectWithoutProperties = function (obj, keys) {
-  var target = {};
-
-  for (var i in obj) {
-    if (keys.indexOf(i) >= 0) continue;
-    if (!Object.prototype.hasOwnProperty.call(obj, i)) continue;
-    target[i] = obj[i];
-  }
-
-  return target;
-};
-
-var possibleConstructorReturn = function (self, call) {
-  if (!self) {
-    throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
-  }
-
-  return call && (typeof call === "object" || typeof call === "function") ? call : self;
-}; // 
-
-
-var isPlainObject = function (x) {
-  return (typeof x === 'undefined' ? 'undefined' : _typeof(x)) === 'object' && x.constructor === Object;
-}; // 
-
-
-var EMPTY_ARRAY = Object.freeze([]);
-var EMPTY_OBJECT = Object.freeze({}); // 
-
-function isFunction(test) {
-  return typeof test === 'function';
-} // 
-
-
-function getComponentName(target) {
-  return ("development" !== 'production' ? typeof target === 'string' && target : false) || target.displayName || target.name || 'Component';
-} // 
-
-
-function isStatelessFunction(test) {
-  return typeof test === 'function' && !(test.prototype && test.prototype.isReactComponent);
-} // 
-
-
-function isStyledComponent(target) {
-  return target && typeof target.styledComponentId === 'string';
-} // 
-
-
-var SC_ATTR = typeof process !== 'undefined' && (undefined || undefined) || 'data-styled';
-var SC_VERSION_ATTR = 'data-styled-version';
-var SC_STREAM_ATTR = 'data-styled-streamed';
-var IS_BROWSER = typeof window !== 'undefined' && 'HTMLElement' in window;
-var DISABLE_SPEEDY = typeof SC_DISABLE_SPEEDY === 'boolean' && SC_DISABLE_SPEEDY || typeof process !== 'undefined' && (undefined || undefined) || "development" !== 'production'; // Shared empty execution context when generating static styles
-
-var STATIC_EXECUTION_CONTEXT = {}; // 
-
-/**
- * Parse errors.md and turn it into a simple hash of code: message
- */
-
-var ERRORS = "development" !== 'production' ? {
-  "1": "Cannot create styled-component for component: %s.\n\n",
-  "2": "Can't collect styles once you've consumed a `ServerStyleSheet`'s styles! `ServerStyleSheet` is a one off instance for each server-side render cycle.\n\n- Are you trying to reuse it across renders?\n- Are you accidentally calling collectStyles twice?\n\n",
-  "3": "Streaming SSR is only supported in a Node.js environment; Please do not try to call this method in the browser.\n\n",
-  "4": "The `StyleSheetManager` expects a valid target or sheet prop!\n\n- Does this error occur on the client and is your target falsy?\n- Does this error occur on the server and is the sheet falsy?\n\n",
-  "5": "The clone method cannot be used on the client!\n\n- Are you running in a client-like environment on the server?\n- Are you trying to run SSR on the client?\n\n",
-  "6": "Trying to insert a new style tag, but the given Node is unmounted!\n\n- Are you using a custom target that isn't mounted?\n- Does your document not have a valid head element?\n- Have you accidentally removed a style tag manually?\n\n",
-  "7": "ThemeProvider: Please return an object from your \"theme\" prop function, e.g.\n\n```js\ntheme={() => ({})}\n```\n\n",
-  "8": "ThemeProvider: Please make your \"theme\" prop an object.\n\n",
-  "9": "Missing document `<head>`\n\n",
-  "10": "Cannot find a StyleSheet instance. Usually this happens if there are multiple copies of styled-components loaded at once. Check out this issue for how to troubleshoot and fix the common cases where this situation can happen: https://github.com/styled-components/styled-components/issues/1941#issuecomment-417862021\n\n",
-  "11": "_This error was replaced with a dev-time warning, it will be deleted for v4 final._ [createGlobalStyle] received children which will not be rendered. Please use the component without passing children elements.\n\n",
-  "12": "It seems you are interpolating a keyframe declaration (%s) into an untagged string. This was supported in styled-components v3, but is not longer supported in v4 as keyframes are now injected on-demand. Please wrap your string in the css\\`\\` helper which ensures the styles are injected correctly. See https://www.styled-components.com/docs/api#css\n\n",
-  "13": "%s is not a styled component and cannot be referred to via component selector. See https://www.styled-components.com/docs/advanced#referring-to-other-components for more details.\n"
-} : {};
-/**
- * super basic version of sprintf
- */
-
-function format() {
-  var a = arguments.length <= 0 ? undefined : arguments[0];
-  var b = [];
-
-  for (var c = 1, len = arguments.length; c < len; c += 1) {
-    b.push(arguments.length <= c ? undefined : arguments[c]);
-  }
-
-  b.forEach(function (d) {
-    a = a.replace(/%[a-z]/, d);
-  });
-  return a;
-}
-/**
- * Create an error file out of errors.md for development and a simple web link to the full errors
- * in production mode.
- */
-
-
-var StyledComponentsError = function (_Error) {
-  inherits(StyledComponentsError, _Error);
-
-  function StyledComponentsError(code) {
-    classCallCheck(this, StyledComponentsError);
-
-    for (var _len = arguments.length, interpolations = Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
-      interpolations[_key - 1] = arguments[_key];
-    }
-
-    if ("development" === 'production') {
-      var _this = possibleConstructorReturn(this, _Error.call(this, 'An error occurred. See https://github.com/styled-components/styled-components/blob/master/packages/styled-components/src/utils/errors.md#' + code + ' for more information.' + (interpolations.length > 0 ? ' Additional arguments: ' + interpolations.join(', ') : '')));
-    } else {
-      var _this = possibleConstructorReturn(this, _Error.call(this, format.apply(undefined, [ERRORS[code]].concat(interpolations)).trim()));
-    }
-
-    return possibleConstructorReturn(_this);
-  }
-
-  return StyledComponentsError;
-}(Error); // 
-
-
-var SC_COMPONENT_ID = /^[^\S\n]*?\/\* sc-component-id:\s*(\S+)\s+\*\//gm;
-
-var extractComps = function (maybeCSS) {
-  var css = '' + (maybeCSS || ''); // Definitely a string, and a clone
-
-  var existingComponents = [];
-  css.replace(SC_COMPONENT_ID, function (match, componentId, matchIndex) {
-    existingComponents.push({
-      componentId: componentId,
-      matchIndex: matchIndex
-    });
-    return match;
-  });
-  return existingComponents.map(function (_ref, i) {
-    var componentId = _ref.componentId,
-        matchIndex = _ref.matchIndex;
-    var nextComp = existingComponents[i + 1];
-    var cssFromDOM = nextComp ? css.slice(matchIndex, nextComp.matchIndex) : css.slice(matchIndex);
-    return {
-      componentId: componentId,
-      cssFromDOM: cssFromDOM
-    };
-  });
-}; // 
-
-
-var COMMENT_REGEX = /^\s*\/\/.*$/gm; // NOTE: This stylis instance is only used to split rules from SSR'd style tags
-
-var stylisSplitter = new _stylis.default({
-  global: false,
-  cascade: true,
-  keyframe: false,
-  prefix: false,
-  compress: false,
-  semicolon: true
-});
-var stylis = new _stylis.default({
-  global: false,
-  cascade: true,
-  keyframe: false,
-  prefix: true,
-  compress: false,
-  semicolon: false // NOTE: This means "autocomplete missing semicolons"
-
-}); // Wrap `insertRulePlugin to build a list of rules,
-// and then make our own plugin to return the rules. This
-// makes it easier to hook into the existing SSR architecture
-
-var parsingRules = []; // eslint-disable-next-line consistent-return
-
-var returnRulesPlugin = function returnRulesPlugin(context) {
-  if (context === -2) {
-    var parsedRules = parsingRules;
-    parsingRules = [];
-    return parsedRules;
-  }
-};
-
-var parseRulesPlugin = (0, _stylisRuleSheet.default)(function (rule) {
-  parsingRules.push(rule);
-});
-
-var _componentId = void 0;
-
-var _selector = void 0;
-
-var _selectorRegexp = void 0;
-
-var selfReferenceReplacer = function selfReferenceReplacer(match, offset, string) {
-  if ( // the first self-ref is always untouched
-  offset > 0 && // there should be at least two self-refs to do a replacement (.b > .b)
-  string.slice(0, offset).indexOf(_selector) !== -1 && // no consecutive self refs (.b.b); that is a precedence boost and treated differently
-  string.slice(offset - _selector.length, offset) !== _selector) {
-    return '.' + _componentId;
-  }
-
-  return match;
-};
-/**
- * When writing a style like
- *
- * & + & {
- *   color: red;
- * }
- *
- * The second ampersand should be a reference to the static component class. stylis
- * has no knowledge of static class so we have to intelligently replace the base selector.
- */
-
-
-var selfReferenceReplacementPlugin = function selfReferenceReplacementPlugin(context, _, selectors) {
-  if (context === 2 && selectors.length && selectors[0].lastIndexOf(_selector) > 0) {
-    // eslint-disable-next-line no-param-reassign
-    selectors[0] = selectors[0].replace(_selectorRegexp, selfReferenceReplacer);
-  }
-};
-
-stylis.use([selfReferenceReplacementPlugin, parseRulesPlugin, returnRulesPlugin]);
-stylisSplitter.use([parseRulesPlugin, returnRulesPlugin]);
-
-var splitByRules = function splitByRules(css) {
-  return stylisSplitter('', css);
-};
-
-function stringifyRules(rules, selector, prefix) {
-  var componentId = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : '&';
-  var flatCSS = rules.join('').replace(COMMENT_REGEX, ''); // replace JS comments
-
-  var cssStr = selector && prefix ? prefix + ' ' + selector + ' { ' + flatCSS + ' }' : flatCSS; // stylis has no concept of state to be passed to plugins
-  // but since JS is single=threaded, we can rely on that to ensure
-  // these properties stay in sync with the current stylis run
-
-  _componentId = componentId;
-  _selector = selector;
-  _selectorRegexp = new RegExp('\\' + _selector + '\\b', 'g');
-  return stylis(prefix || !selector ? '' : selector, cssStr);
-} // 
-
-/* eslint-disable camelcase, no-undef */
-
-
-var getNonce = function () {
-  return typeof __webpack_nonce__ !== 'undefined' ? __webpack_nonce__ : null;
-}; // 
-
-/* These are helpers for the StyleTags to keep track of the injected
- * rule names for each (component) ID that they're keeping track of.
- * They're crucial for detecting whether a name has already been
- * injected.
- * (This excludes rehydrated names) */
-
-/* adds a new ID:name pairing to a names dictionary */
-
-
-var addNameForId = function addNameForId(names, id, name) {
-  if (name) {
-    // eslint-disable-next-line no-param-reassign
-    var namesForId = names[id] || (names[id] = Object.create(null));
-    namesForId[name] = true;
-  }
-};
-/* resets an ID entirely by overwriting it in the dictionary */
-
-
-var resetIdNames = function resetIdNames(names, id) {
-  // eslint-disable-next-line no-param-reassign
-  names[id] = Object.create(null);
-};
-/* factory for a names dictionary checking the existance of an ID:name pairing */
-
-
-var hasNameForId = function hasNameForId(names) {
-  return function (id, name) {
-    return names[id] !== undefined && names[id][name];
-  };
-};
-/* stringifies names for the html/element output */
-
-
-var stringifyNames = function stringifyNames(names) {
-  var str = ''; // eslint-disable-next-line guard-for-in
-
-  for (var id in names) {
-    str += Object.keys(names[id]).join(' ') + ' ';
-  }
-
-  return str.trim();
-};
-/* clones the nested names dictionary */
-
-
-var cloneNames = function cloneNames(names) {
-  var clone = Object.create(null); // eslint-disable-next-line guard-for-in
-
-  for (var id in names) {
-    clone[id] = _extends({}, names[id]);
-  }
-
-  return clone;
-}; // 
-
-/* These are helpers that deal with the insertRule (aka speedy) API
- * They are used in the StyleTags and specifically the speedy tag
- */
-
-/* retrieve a sheet for a given style tag */
-
-
-var sheetForTag = function sheetForTag(tag) {
-  // $FlowFixMe
-  if (tag.sheet) return tag.sheet;
-  /* Firefox quirk requires us to step through all stylesheets to find one owned by the given tag */
-
-  var size = tag.ownerDocument.styleSheets.length;
-
-  for (var i = 0; i < size; i += 1) {
-    var sheet = tag.ownerDocument.styleSheets[i]; // $FlowFixMe
-
-    if (sheet.ownerNode === tag) return sheet;
-  }
-  /* we should always be able to find a tag */
-
-
-  throw new StyledComponentsError(10);
-};
-/* insert a rule safely and return whether it was actually injected */
-
-
-var safeInsertRule = function safeInsertRule(sheet, cssRule, index) {
-  /* abort early if cssRule string is falsy */
-  if (!cssRule) return false;
-  var maxIndex = sheet.cssRules.length;
-
-  try {
-    /* use insertRule and cap passed index with maxIndex (no of cssRules) */
-    sheet.insertRule(cssRule, index <= maxIndex ? index : maxIndex);
-  } catch (err) {
-    /* any error indicates an invalid rule */
-    return false;
-  }
-
-  return true;
-};
-/* deletes `size` rules starting from `removalIndex` */
-
-
-var deleteRules = function deleteRules(sheet, removalIndex, size) {
-  var lowerBound = removalIndex - size;
-
-  for (var i = removalIndex; i > lowerBound; i -= 1) {
-    sheet.deleteRule(i);
-  }
-}; // 
-
-/* this marker separates component styles and is important for rehydration */
-
-
-var makeTextMarker = function makeTextMarker(id) {
-  return '\n/* sc-component-id: ' + id + ' */\n';
-};
-/* add up all numbers in array up until and including the index */
-
-
-var addUpUntilIndex = function addUpUntilIndex(sizes, index) {
-  var totalUpToIndex = 0;
-
-  for (var i = 0; i <= index; i += 1) {
-    totalUpToIndex += sizes[i];
-  }
-
-  return totalUpToIndex;
-};
-/* create a new style tag after lastEl */
-
-
-var makeStyleTag = function makeStyleTag(target, tagEl, insertBefore) {
-  var targetDocument = document;
-  if (target) targetDocument = target.ownerDocument;else if (tagEl) targetDocument = tagEl.ownerDocument;
-  var el = targetDocument.createElement('style');
-  el.setAttribute(SC_ATTR, '');
-  el.setAttribute(SC_VERSION_ATTR, "4.4.0");
-  var nonce = getNonce();
-
-  if (nonce) {
-    el.setAttribute('nonce', nonce);
-  }
-  /* Work around insertRule quirk in EdgeHTML */
-
-
-  el.appendChild(targetDocument.createTextNode(''));
-
-  if (target && !tagEl) {
-    /* Append to target when no previous element was passed */
-    target.appendChild(el);
-  } else {
-    if (!tagEl || !target || !tagEl.parentNode) {
-      throw new StyledComponentsError(6);
-    }
-    /* Insert new style tag after the previous one */
-
-
-    tagEl.parentNode.insertBefore(el, insertBefore ? tagEl : tagEl.nextSibling);
-  }
-
-  return el;
-};
-/* takes a css factory function and outputs an html styled tag factory */
-
-
-var wrapAsHtmlTag = function wrapAsHtmlTag(css, names) {
-  return function (additionalAttrs) {
-    var nonce = getNonce();
-    var attrs = [nonce && 'nonce="' + nonce + '"', SC_ATTR + '="' + stringifyNames(names) + '"', SC_VERSION_ATTR + '="' + "4.4.0" + '"', additionalAttrs];
-    var htmlAttr = attrs.filter(Boolean).join(' ');
-    return '<style ' + htmlAttr + '>' + css() + '</style>';
-  };
-};
-/* takes a css factory function and outputs an element factory */
-
-
-var wrapAsElement = function wrapAsElement(css, names) {
-  return function () {
-    var _props;
-
-    var props = (_props = {}, _props[SC_ATTR] = stringifyNames(names), _props[SC_VERSION_ATTR] = "4.4.0", _props);
-    var nonce = getNonce();
-
-    if (nonce) {
-      // $FlowFixMe
-      props.nonce = nonce;
-    } // eslint-disable-next-line react/no-danger
-
-
-    return _react.default.createElement('style', _extends({}, props, {
-      dangerouslySetInnerHTML: {
-        __html: css()
-      }
-    }));
-  };
-};
-
-var getIdsFromMarkersFactory = function getIdsFromMarkersFactory(markers) {
-  return function () {
-    return Object.keys(markers);
-  };
-};
-/* speedy tags utilise insertRule */
-
-
-var makeSpeedyTag = function makeSpeedyTag(el, getImportRuleTag) {
-  var names = Object.create(null);
-  var markers = Object.create(null);
-  var sizes = [];
-  var extractImport = getImportRuleTag !== undefined;
-  /* indicates whether getImportRuleTag was called */
-
-  var usedImportRuleTag = false;
-
-  var insertMarker = function insertMarker(id) {
-    var prev = markers[id];
-
-    if (prev !== undefined) {
-      return prev;
-    }
-
-    markers[id] = sizes.length;
-    sizes.push(0);
-    resetIdNames(names, id);
-    return markers[id];
-  };
-
-  var insertRules = function insertRules(id, cssRules, name) {
-    var marker = insertMarker(id);
-    var sheet = sheetForTag(el);
-    var insertIndex = addUpUntilIndex(sizes, marker);
-    var injectedRules = 0;
-    var importRules = [];
-    var cssRulesSize = cssRules.length;
-
-    for (var i = 0; i < cssRulesSize; i += 1) {
-      var cssRule = cssRules[i];
-      var mayHaveImport = extractImport;
-      /* @import rules are reordered to appear first */
-
-      if (mayHaveImport && cssRule.indexOf('@import') !== -1) {
-        importRules.push(cssRule);
-      } else if (safeInsertRule(sheet, cssRule, insertIndex + injectedRules)) {
-        mayHaveImport = false;
-        injectedRules += 1;
-      }
-    }
-
-    if (extractImport && importRules.length > 0) {
-      usedImportRuleTag = true; // $FlowFixMe
-
-      getImportRuleTag().insertRules(id + '-import', importRules);
-    }
-
-    sizes[marker] += injectedRules;
-    /* add up no of injected rules */
-
-    addNameForId(names, id, name);
-  };
-
-  var removeRules = function removeRules(id) {
-    var marker = markers[id];
-    if (marker === undefined) return; // $FlowFixMe
-
-    if (el.isConnected === false) return;
-    var size = sizes[marker];
-    var sheet = sheetForTag(el);
-    var removalIndex = addUpUntilIndex(sizes, marker) - 1;
-    deleteRules(sheet, removalIndex, size);
-    sizes[marker] = 0;
-    resetIdNames(names, id);
-
-    if (extractImport && usedImportRuleTag) {
-      // $FlowFixMe
-      getImportRuleTag().removeRules(id + '-import');
-    }
-  };
-
-  var css = function css() {
-    var _sheetForTag = sheetForTag(el),
-        cssRules = _sheetForTag.cssRules;
-
-    var str = ''; // eslint-disable-next-line guard-for-in
-
-    for (var id in markers) {
-      str += makeTextMarker(id);
-      var marker = markers[id];
-      var end = addUpUntilIndex(sizes, marker);
-      var size = sizes[marker];
-
-      for (var i = end - size; i < end; i += 1) {
-        var rule = cssRules[i];
-
-        if (rule !== undefined) {
-          str += rule.cssText;
-        }
-      }
-    }
-
-    return str;
-  };
-
-  return {
-    clone: function clone() {
-      throw new StyledComponentsError(5);
-    },
-    css: css,
-    getIds: getIdsFromMarkersFactory(markers),
-    hasNameForId: hasNameForId(names),
-    insertMarker: insertMarker,
-    insertRules: insertRules,
-    removeRules: removeRules,
-    sealed: false,
-    styleTag: el,
-    toElement: wrapAsElement(css, names),
-    toHTML: wrapAsHtmlTag(css, names)
-  };
-};
-
-var makeTextNode = function makeTextNode(targetDocument, id) {
-  return targetDocument.createTextNode(makeTextMarker(id));
-};
-
-var makeBrowserTag = function makeBrowserTag(el, getImportRuleTag) {
-  var names = Object.create(null);
-  var markers = Object.create(null);
-  var extractImport = getImportRuleTag !== undefined;
-  /* indicates whether getImportRuleTag was called */
-
-  var usedImportRuleTag = false;
-
-  var insertMarker = function insertMarker(id) {
-    var prev = markers[id];
-
-    if (prev !== undefined) {
-      return prev;
-    }
-
-    markers[id] = makeTextNode(el.ownerDocument, id);
-    el.appendChild(markers[id]);
-    names[id] = Object.create(null);
-    return markers[id];
-  };
-
-  var insertRules = function insertRules(id, cssRules, name) {
-    var marker = insertMarker(id);
-    var importRules = [];
-    var cssRulesSize = cssRules.length;
-
-    for (var i = 0; i < cssRulesSize; i += 1) {
-      var rule = cssRules[i];
-      var mayHaveImport = extractImport;
-
-      if (mayHaveImport && rule.indexOf('@import') !== -1) {
-        importRules.push(rule);
-      } else {
-        mayHaveImport = false;
-        var separator = i === cssRulesSize - 1 ? '' : ' ';
-        marker.appendData('' + rule + separator);
-      }
-    }
-
-    addNameForId(names, id, name);
-
-    if (extractImport && importRules.length > 0) {
-      usedImportRuleTag = true; // $FlowFixMe
-
-      getImportRuleTag().insertRules(id + '-import', importRules);
-    }
-  };
-
-  var removeRules = function removeRules(id) {
-    var marker = markers[id];
-    if (marker === undefined) return;
-    /* create new empty text node and replace the current one */
-
-    var newMarker = makeTextNode(el.ownerDocument, id);
-    el.replaceChild(newMarker, marker);
-    markers[id] = newMarker;
-    resetIdNames(names, id);
-
-    if (extractImport && usedImportRuleTag) {
-      // $FlowFixMe
-      getImportRuleTag().removeRules(id + '-import');
-    }
-  };
-
-  var css = function css() {
-    var str = ''; // eslint-disable-next-line guard-for-in
-
-    for (var id in markers) {
-      str += markers[id].data;
-    }
-
-    return str;
-  };
-
-  return {
-    clone: function clone() {
-      throw new StyledComponentsError(5);
-    },
-    css: css,
-    getIds: getIdsFromMarkersFactory(markers),
-    hasNameForId: hasNameForId(names),
-    insertMarker: insertMarker,
-    insertRules: insertRules,
-    removeRules: removeRules,
-    sealed: false,
-    styleTag: el,
-    toElement: wrapAsElement(css, names),
-    toHTML: wrapAsHtmlTag(css, names)
-  };
-};
-
-var makeServerTag = function makeServerTag(namesArg, markersArg) {
-  var names = namesArg === undefined ? Object.create(null) : namesArg;
-  var markers = markersArg === undefined ? Object.create(null) : markersArg;
-
-  var insertMarker = function insertMarker(id) {
-    var prev = markers[id];
-
-    if (prev !== undefined) {
-      return prev;
-    }
-
-    return markers[id] = [''];
-  };
-
-  var insertRules = function insertRules(id, cssRules, name) {
-    var marker = insertMarker(id);
-    marker[0] += cssRules.join(' ');
-    addNameForId(names, id, name);
-  };
-
-  var removeRules = function removeRules(id) {
-    var marker = markers[id];
-    if (marker === undefined) return;
-    marker[0] = '';
-    resetIdNames(names, id);
-  };
-
-  var css = function css() {
-    var str = ''; // eslint-disable-next-line guard-for-in
-
-    for (var id in markers) {
-      var cssForId = markers[id][0];
-
-      if (cssForId) {
-        str += makeTextMarker(id) + cssForId;
-      }
-    }
-
-    return str;
-  };
-
-  var clone = function clone() {
-    var namesClone = cloneNames(names);
-    var markersClone = Object.create(null); // eslint-disable-next-line guard-for-in
-
-    for (var id in markers) {
-      markersClone[id] = [markers[id][0]];
-    }
-
-    return makeServerTag(namesClone, markersClone);
-  };
-
-  var tag = {
-    clone: clone,
-    css: css,
-    getIds: getIdsFromMarkersFactory(markers),
-    hasNameForId: hasNameForId(names),
-    insertMarker: insertMarker,
-    insertRules: insertRules,
-    removeRules: removeRules,
-    sealed: false,
-    styleTag: null,
-    toElement: wrapAsElement(css, names),
-    toHTML: wrapAsHtmlTag(css, names)
-  };
-  return tag;
-};
-
-var makeTag = function makeTag(target, tagEl, forceServer, insertBefore, getImportRuleTag) {
-  if (IS_BROWSER && !forceServer) {
-    var el = makeStyleTag(target, tagEl, insertBefore);
-
-    if (DISABLE_SPEEDY) {
-      return makeBrowserTag(el, getImportRuleTag);
-    } else {
-      return makeSpeedyTag(el, getImportRuleTag);
-    }
-  }
-
-  return makeServerTag();
-};
-
-var rehydrate = function rehydrate(tag, els, extracted) {
-  /* add all extracted components to the new tag */
-  for (var i = 0, len = extracted.length; i < len; i += 1) {
-    var _extracted$i = extracted[i],
-        componentId = _extracted$i.componentId,
-        cssFromDOM = _extracted$i.cssFromDOM;
-    var cssRules = splitByRules(cssFromDOM);
-    tag.insertRules(componentId, cssRules);
-  }
-  /* remove old HTMLStyleElements, since they have been rehydrated */
-
-
-  for (var _i = 0, _len = els.length; _i < _len; _i += 1) {
-    var el = els[_i];
-
-    if (el.parentNode) {
-      el.parentNode.removeChild(el);
-    }
-  }
-}; // 
-
-
-var SPLIT_REGEX = /\s+/;
-/* determine the maximum number of components before tags are sharded */
-
-var MAX_SIZE = void 0;
-
-if (IS_BROWSER) {
-  /* in speedy mode we can keep a lot more rules in a sheet before a slowdown can be expected */
-  MAX_SIZE = DISABLE_SPEEDY ? 40 : 1000;
-} else {
-  /* for servers we do not need to shard at all */
-  MAX_SIZE = -1;
-}
-
-var sheetRunningId = 0;
-var master = void 0;
-
-var StyleSheet = function () {
-  /* a map from ids to tags */
-
-  /* deferred rules for a given id */
-
-  /* this is used for not reinjecting rules via hasNameForId() */
-
-  /* when rules for an id are removed using remove() we have to ignore rehydratedNames for it */
-
-  /* a list of tags belonging to this StyleSheet */
-
-  /* a tag for import rules */
-
-  /* current capacity until a new tag must be created */
-
-  /* children (aka clones) of this StyleSheet inheriting all and future injections */
-  function StyleSheet() {
-    var _this = this;
-
-    var target = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : IS_BROWSER ? document.head : null;
-    var forceServer = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
-    classCallCheck(this, StyleSheet);
-
-    this.getImportRuleTag = function () {
-      var importRuleTag = _this.importRuleTag;
-
-      if (importRuleTag !== undefined) {
-        return importRuleTag;
-      }
-
-      var firstTag = _this.tags[0];
-      var insertBefore = true;
-      return _this.importRuleTag = makeTag(_this.target, firstTag ? firstTag.styleTag : null, _this.forceServer, insertBefore);
-    };
-
-    sheetRunningId += 1;
-    this.id = sheetRunningId;
-    this.forceServer = forceServer;
-    this.target = forceServer ? null : target;
-    this.tagMap = {};
-    this.deferred = {};
-    this.rehydratedNames = {};
-    this.ignoreRehydratedNames = {};
-    this.tags = [];
-    this.capacity = 1;
-    this.clones = [];
-  }
-  /* rehydrate all SSR'd style tags */
-
-
-  StyleSheet.prototype.rehydrate = function rehydrate$$1() {
-    if (!IS_BROWSER || this.forceServer) return this;
-    var els = [];
-    var extracted = [];
-    var isStreamed = false;
-    /* retrieve all of our SSR style elements from the DOM */
-
-    var nodes = document.querySelectorAll('style[' + SC_ATTR + '][' + SC_VERSION_ATTR + '="' + "4.4.0" + '"]');
-    var nodesSize = nodes.length;
-    /* abort rehydration if no previous style tags were found */
-
-    if (!nodesSize) return this;
-
-    for (var i = 0; i < nodesSize; i += 1) {
-      var el = nodes[i];
-      /* check if style tag is a streamed tag */
-
-      if (!isStreamed) isStreamed = !!el.getAttribute(SC_STREAM_ATTR);
-      /* retrieve all component names */
-
-      var elNames = (el.getAttribute(SC_ATTR) || '').trim().split(SPLIT_REGEX);
-      var elNamesSize = elNames.length;
-
-      for (var j = 0, name; j < elNamesSize; j += 1) {
-        name = elNames[j];
-        /* add rehydrated name to sheet to avoid re-adding styles */
-
-        this.rehydratedNames[name] = true;
-      }
-      /* extract all components and their CSS */
-
-
-      extracted.push.apply(extracted, extractComps(el.textContent));
-      /* store original HTMLStyleElement */
-
-      els.push(el);
-    }
-    /* abort rehydration if nothing was extracted */
-
-
-    var extractedSize = extracted.length;
-    if (!extractedSize) return this;
-    /* create a tag to be used for rehydration */
-
-    var tag = this.makeTag(null);
-    rehydrate(tag, els, extracted);
-    /* reset capacity and adjust MAX_SIZE by the initial size of the rehydration */
-
-    this.capacity = Math.max(1, MAX_SIZE - extractedSize);
-    this.tags.push(tag);
-    /* retrieve all component ids */
-
-    for (var _j = 0; _j < extractedSize; _j += 1) {
-      this.tagMap[extracted[_j].componentId] = tag;
-    }
-
-    return this;
-  };
-  /* retrieve a "master" instance of StyleSheet which is typically used when no other is available
-   * The master StyleSheet is targeted by createGlobalStyle, keyframes, and components outside of any
-    * StyleSheetManager's context */
-
-  /* reset the internal "master" instance */
-
-
-  StyleSheet.reset = function reset() {
-    var forceServer = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : false;
-    master = new StyleSheet(undefined, forceServer).rehydrate();
-  };
-  /* adds "children" to the StyleSheet that inherit all of the parents' rules
-   * while their own rules do not affect the parent */
-
-
-  StyleSheet.prototype.clone = function clone() {
-    var sheet = new StyleSheet(this.target, this.forceServer);
-    /* add to clone array */
-
-    this.clones.push(sheet);
-    /* clone all tags */
-
-    sheet.tags = this.tags.map(function (tag) {
-      var ids = tag.getIds();
-      var newTag = tag.clone();
-      /* reconstruct tagMap */
-
-      for (var i = 0; i < ids.length; i += 1) {
-        sheet.tagMap[ids[i]] = newTag;
-      }
-
-      return newTag;
-    });
-    /* clone other maps */
-
-    sheet.rehydratedNames = _extends({}, this.rehydratedNames);
-    sheet.deferred = _extends({}, this.deferred);
-    return sheet;
-  };
-  /* force StyleSheet to create a new tag on the next injection */
-
-
-  StyleSheet.prototype.sealAllTags = function sealAllTags() {
-    this.capacity = 1;
-    this.tags.forEach(function (tag) {
-      // eslint-disable-next-line no-param-reassign
-      tag.sealed = true;
-    });
-  };
-
-  StyleSheet.prototype.makeTag = function makeTag$$1(tag) {
-    var lastEl = tag ? tag.styleTag : null;
-    var insertBefore = false;
-    return makeTag(this.target, lastEl, this.forceServer, insertBefore, this.getImportRuleTag);
-  };
-  /* get a tag for a given componentId, assign the componentId to one, or shard */
-
-
-  StyleSheet.prototype.getTagForId = function getTagForId(id) {
-    /* simply return a tag, when the componentId was already assigned one */
-    var prev = this.tagMap[id];
-
-    if (prev !== undefined && !prev.sealed) {
-      return prev;
-    }
-
-    var tag = this.tags[this.tags.length - 1];
-    /* shard (create a new tag) if the tag is exhausted (See MAX_SIZE) */
-
-    this.capacity -= 1;
-
-    if (this.capacity === 0) {
-      this.capacity = MAX_SIZE;
-      tag = this.makeTag(tag);
-      this.tags.push(tag);
-    }
-
-    return this.tagMap[id] = tag;
-  };
-  /* mainly for createGlobalStyle to check for its id */
-
-
-  StyleSheet.prototype.hasId = function hasId(id) {
-    return this.tagMap[id] !== undefined;
-  };
-  /* caching layer checking id+name to already have a corresponding tag and injected rules */
-
-
-  StyleSheet.prototype.hasNameForId = function hasNameForId(id, name) {
-    /* exception for rehydrated names which are checked separately */
-    if (this.ignoreRehydratedNames[id] === undefined && this.rehydratedNames[name]) {
-      return true;
-    }
-
-    var tag = this.tagMap[id];
-    return tag !== undefined && tag.hasNameForId(id, name);
-  };
-  /* registers a componentId and registers it on its tag */
-
-
-  StyleSheet.prototype.deferredInject = function deferredInject(id, cssRules) {
-    /* don't inject when the id is already registered */
-    if (this.tagMap[id] !== undefined) return;
-    var clones = this.clones;
-
-    for (var i = 0; i < clones.length; i += 1) {
-      clones[i].deferredInject(id, cssRules);
-    }
-
-    this.getTagForId(id).insertMarker(id);
-    this.deferred[id] = cssRules;
-  };
-  /* injects rules for a given id with a name that will need to be cached */
-
-
-  StyleSheet.prototype.inject = function inject(id, cssRules, name) {
-    var clones = this.clones;
-
-    for (var i = 0; i < clones.length; i += 1) {
-      clones[i].inject(id, cssRules, name);
-    }
-
-    var tag = this.getTagForId(id);
-    /* add deferred rules for component */
-
-    if (this.deferred[id] !== undefined) {
-      // Combine passed cssRules with previously deferred CSS rules
-      // NOTE: We cannot mutate the deferred array itself as all clones
-      // do the same (see clones[i].inject)
-      var rules = this.deferred[id].concat(cssRules);
-      tag.insertRules(id, rules, name);
-      this.deferred[id] = undefined;
-    } else {
-      tag.insertRules(id, cssRules, name);
-    }
-  };
-  /* removes all rules for a given id, which doesn't remove its marker but resets it */
-
-
-  StyleSheet.prototype.remove = function remove(id) {
-    var tag = this.tagMap[id];
-    if (tag === undefined) return;
-    var clones = this.clones;
-
-    for (var i = 0; i < clones.length; i += 1) {
-      clones[i].remove(id);
-    }
-    /* remove all rules from the tag */
-
-
-    tag.removeRules(id);
-    /* ignore possible rehydrated names */
-
-    this.ignoreRehydratedNames[id] = true;
-    /* delete possible deferred rules */
-
-    this.deferred[id] = undefined;
-  };
-
-  StyleSheet.prototype.toHTML = function toHTML() {
-    return this.tags.map(function (tag) {
-      return tag.toHTML();
-    }).join('');
-  };
-
-  StyleSheet.prototype.toReactElements = function toReactElements() {
-    var id = this.id;
-    return this.tags.map(function (tag, i) {
-      var key = 'sc-' + id + '-' + i;
-      return (0, _react.cloneElement)(tag.toElement(), {
-        key: key
-      });
-    });
-  };
-
-  createClass(StyleSheet, null, [{
-    key: 'master',
-    get: function get$$1() {
-      return master || (master = new StyleSheet().rehydrate());
-    }
-    /* NOTE: This is just for backwards-compatibility with jest-styled-components */
-
-  }, {
-    key: 'instance',
-    get: function get$$1() {
-      return StyleSheet.master;
-    }
-  }]);
-  return StyleSheet;
-}(); // 
-
-
-var Keyframes = function () {
-  function Keyframes(name, rules) {
-    var _this = this;
-
-    classCallCheck(this, Keyframes);
-
-    this.inject = function (styleSheet) {
-      if (!styleSheet.hasNameForId(_this.id, _this.name)) {
-        styleSheet.inject(_this.id, _this.rules, _this.name);
-      }
-    };
-
-    this.toString = function () {
-      throw new StyledComponentsError(12, String(_this.name));
-    };
-
-    this.name = name;
-    this.rules = rules;
-    this.id = 'sc-keyframes-' + name;
-  }
-
-  Keyframes.prototype.getName = function getName() {
-    return this.name;
-  };
-
-  return Keyframes;
-}(); // 
-
-/**
- * inlined version of
- * https://github.com/facebook/fbjs/blob/master/packages/fbjs/src/core/hyphenateStyleName.js
- */
-
-
-var uppercasePattern = /([A-Z])/g;
-var msPattern = /^ms-/;
-/**
- * Hyphenates a camelcased CSS property name, for example:
- *
- *   > hyphenateStyleName('backgroundColor')
- *   < "background-color"
- *   > hyphenateStyleName('MozTransition')
- *   < "-moz-transition"
- *   > hyphenateStyleName('msTransition')
- *   < "-ms-transition"
- *
- * As Modernizr suggests (http://modernizr.com/docs/#prefixed), an `ms` prefix
- * is converted to `-ms-`.
- *
- * @param {string} string
- * @return {string}
- */
-
-function hyphenateStyleName(string) {
-  return string.replace(uppercasePattern, '-$1').toLowerCase().replace(msPattern, '-ms-');
-} // 
-// Taken from https://github.com/facebook/react/blob/b87aabdfe1b7461e7331abb3601d9e6bb27544bc/packages/react-dom/src/shared/dangerousStyleValue.js
-
-
-function addUnitIfNeeded(name, value) {
-  // https://github.com/amilajack/eslint-plugin-flowtype-errors/issues/133
-  // $FlowFixMe
-  if (value == null || typeof value === 'boolean' || value === '') {
-    return '';
-  }
-
-  if (typeof value === 'number' && value !== 0 && !(name in _unitless.default)) {
-    return value + 'px'; // Presumes implicit 'px' suffix for unitless numbers
-  }
-
-  return String(value).trim();
-} // 
-
-/**
- * It's falsish not falsy because 0 is allowed.
- */
-
-
-var isFalsish = function isFalsish(chunk) {
-  return chunk === undefined || chunk === null || chunk === false || chunk === '';
-};
-
-var objToCssArray = function objToCssArray(obj, prevKey) {
-  var rules = [];
-  var keys = Object.keys(obj);
-  keys.forEach(function (key) {
-    if (!isFalsish(obj[key])) {
-      if (isPlainObject(obj[key])) {
-        rules.push.apply(rules, objToCssArray(obj[key], key));
-        return rules;
-      } else if (isFunction(obj[key])) {
-        rules.push(hyphenateStyleName(key) + ':', obj[key], ';');
-        return rules;
-      }
-
-      rules.push(hyphenateStyleName(key) + ': ' + addUnitIfNeeded(key, obj[key]) + ';');
-    }
-
-    return rules;
-  });
-  return prevKey ? [prevKey + ' {'].concat(rules, ['}']) : rules;
-};
-
-function flatten(chunk, executionContext, styleSheet) {
-  if (Array.isArray(chunk)) {
-    var ruleSet = [];
-
-    for (var i = 0, len = chunk.length, result; i < len; i += 1) {
-      result = flatten(chunk[i], executionContext, styleSheet);
-      if (result === null) continue;else if (Array.isArray(result)) ruleSet.push.apply(ruleSet, result);else ruleSet.push(result);
-    }
-
-    return ruleSet;
-  }
-
-  if (isFalsish(chunk)) {
-    return null;
-  }
-  /* Handle other components */
-
-
-  if (isStyledComponent(chunk)) {
-    return '.' + chunk.styledComponentId;
-  }
-  /* Either execute or defer the function */
-
-
-  if (isFunction(chunk)) {
-    if (isStatelessFunction(chunk) && executionContext) {
-      var _result = chunk(executionContext);
-
-      if ("development" !== 'production' && (0, _reactIs.isElement)(_result)) {
-        // eslint-disable-next-line no-console
-        console.warn(getComponentName(chunk) + ' is not a styled component and cannot be referred to via component selector. See https://www.styled-components.com/docs/advanced#referring-to-other-components for more details.');
-      }
-
-      return flatten(_result, executionContext, styleSheet);
-    } else return chunk;
-  }
-
-  if (chunk instanceof Keyframes) {
-    if (styleSheet) {
-      chunk.inject(styleSheet);
-      return chunk.getName();
-    } else return chunk;
-  }
-  /* Handle objects */
-
-
-  return isPlainObject(chunk) ? objToCssArray(chunk) : chunk.toString();
-} // 
-
-
-function css(styles) {
-  for (var _len = arguments.length, interpolations = Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
-    interpolations[_key - 1] = arguments[_key];
-  }
-
-  if (isFunction(styles) || isPlainObject(styles)) {
-    // $FlowFixMe
-    return flatten(interleave(EMPTY_ARRAY, [styles].concat(interpolations)));
-  } // $FlowFixMe
-
-
-  return flatten(interleave(styles, interpolations));
-} // 
-
-
-function constructWithOptions(componentConstructor, tag) {
-  var options = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : EMPTY_OBJECT;
-
-  if (!(0, _reactIs.isValidElementType)(tag)) {
-    throw new StyledComponentsError(1, String(tag));
-  }
-  /* This is callable directly as a template function */
-  // $FlowFixMe: Not typed to avoid destructuring arguments
-
-
-  var templateFunction = function templateFunction() {
-    return componentConstructor(tag, options, css.apply(undefined, arguments));
-  };
-  /* If config methods are called, wrap up a new template function and merge options */
-
-
-  templateFunction.withConfig = function (config) {
-    return constructWithOptions(componentConstructor, tag, _extends({}, options, config));
-  };
-  /* Modify/inject new props at runtime */
-
-
-  templateFunction.attrs = function (attrs) {
-    return constructWithOptions(componentConstructor, tag, _extends({}, options, {
-      attrs: Array.prototype.concat(options.attrs, attrs).filter(Boolean)
-    }));
-  };
-
-  return templateFunction;
-} // 
-// Source: https://github.com/garycourt/murmurhash-js/blob/master/murmurhash2_gc.js
-
-
-function murmurhash(c) {
-  for (var e = c.length | 0, a = e | 0, d = 0, b; e >= 4;) {
-    b = c.charCodeAt(d) & 255 | (c.charCodeAt(++d) & 255) << 8 | (c.charCodeAt(++d) & 255) << 16 | (c.charCodeAt(++d) & 255) << 24, b = 1540483477 * (b & 65535) + ((1540483477 * (b >>> 16) & 65535) << 16), b ^= b >>> 24, b = 1540483477 * (b & 65535) + ((1540483477 * (b >>> 16) & 65535) << 16), a = 1540483477 * (a & 65535) + ((1540483477 * (a >>> 16) & 65535) << 16) ^ b, e -= 4, ++d;
-  }
-
-  switch (e) {
-    case 3:
-      a ^= (c.charCodeAt(d + 2) & 255) << 16;
-
-    case 2:
-      a ^= (c.charCodeAt(d + 1) & 255) << 8;
-
-    case 1:
-      a ^= c.charCodeAt(d) & 255, a = 1540483477 * (a & 65535) + ((1540483477 * (a >>> 16) & 65535) << 16);
-  }
-
-  a ^= a >>> 13;
-  a = 1540483477 * (a & 65535) + ((1540483477 * (a >>> 16) & 65535) << 16);
-  return (a ^ a >>> 15) >>> 0;
-} // 
-
-/* eslint-disable no-bitwise */
-
-/* This is the "capacity" of our alphabet i.e. 2x26 for all letters plus their capitalised
- * counterparts */
-
-
-var charsLength = 52;
-/* start at 75 for 'a' until 'z' (25) and then start at 65 for capitalised letters */
-
-var getAlphabeticChar = function getAlphabeticChar(code) {
-  return String.fromCharCode(code + (code > 25 ? 39 : 97));
-};
-/* input a number, usually a hash and convert it to base-52 */
-
-
-function generateAlphabeticName(code) {
-  var name = '';
-  var x = void 0;
-  /* get a char and divide by alphabet-length */
-
-  for (x = code; x > charsLength; x = Math.floor(x / charsLength)) {
-    name = getAlphabeticChar(x % charsLength) + name;
-  }
-
-  return getAlphabeticChar(x % charsLength) + name;
-} // 
-
-
-function hasFunctionObjectKey(obj) {
-  // eslint-disable-next-line guard-for-in, no-restricted-syntax
-  for (var key in obj) {
-    if (isFunction(obj[key])) {
-      return true;
-    }
-  }
-
-  return false;
-}
-
-function isStaticRules(rules, attrs) {
-  for (var i = 0; i < rules.length; i += 1) {
-    var rule = rules[i]; // recursive case
-
-    if (Array.isArray(rule) && !isStaticRules(rule, attrs)) {
-      return false;
-    } else if (isFunction(rule) && !isStyledComponent(rule)) {
-      // functions are allowed to be static if they're just being
-      // used to get the classname of a nested styled component
-      return false;
-    }
-  }
-
-  if (attrs.some(function (x) {
-    return isFunction(x) || hasFunctionObjectKey(x);
-  })) return false;
-  return true;
-} // 
-
-/* combines hashStr (murmurhash) and nameGenerator for convenience */
-
-
-var hasher = function hasher(str) {
-  return generateAlphabeticName(murmurhash(str));
-};
-/*
- ComponentStyle is all the CSS-specific stuff, not
- the React-specific stuff.
- */
-
-
-var ComponentStyle = function () {
-  function ComponentStyle(rules, attrs, componentId) {
-    classCallCheck(this, ComponentStyle);
-    this.rules = rules;
-    this.isStatic = "development" === 'production' && isStaticRules(rules, attrs);
-    this.componentId = componentId;
-
-    if (!StyleSheet.master.hasId(componentId)) {
-      StyleSheet.master.deferredInject(componentId, []);
-    }
-  }
-  /*
-   * Flattens a rule set into valid CSS
-   * Hashes it, wraps the whole chunk in a .hash1234 {}
-   * Returns the hash to be injected on render()
-   * */
-
-
-  ComponentStyle.prototype.generateAndInjectStyles = function generateAndInjectStyles(executionContext, styleSheet) {
-    var isStatic = this.isStatic,
-        componentId = this.componentId,
-        lastClassName = this.lastClassName;
-
-    if (IS_BROWSER && isStatic && typeof lastClassName === 'string' && styleSheet.hasNameForId(componentId, lastClassName)) {
-      return lastClassName;
-    }
-
-    var flatCSS = flatten(this.rules, executionContext, styleSheet);
-    var name = hasher(this.componentId + flatCSS.join(''));
-
-    if (!styleSheet.hasNameForId(componentId, name)) {
-      styleSheet.inject(this.componentId, stringifyRules(flatCSS, '.' + name, undefined, componentId), name);
-    }
-
-    this.lastClassName = name;
-    return name;
-  };
-
-  ComponentStyle.generateName = function generateName(str) {
-    return hasher(str);
-  };
-
-  return ComponentStyle;
-}(); // 
-
-
-var LIMIT = 200;
-
-var createWarnTooManyClasses = function (displayName) {
-  var generatedClasses = {};
-  var warningSeen = false;
-  return function (className) {
-    if (!warningSeen) {
-      generatedClasses[className] = true;
-
-      if (Object.keys(generatedClasses).length >= LIMIT) {
-        // Unable to find latestRule in test environment.
-
-        /* eslint-disable no-console, prefer-template */
-        console.warn('Over ' + LIMIT + ' classes were generated for component ' + displayName + '. \n' + 'Consider using the attrs method, together with a style object for frequently changed styles.\n' + 'Example:\n' + '  const Component = styled.div.attrs(props => ({\n' + '    style: {\n' + '      background: props.background,\n' + '    },\n' + '  }))`width: 100%;`\n\n' + '  <Component />');
-        warningSeen = true;
-        generatedClasses = {};
-      }
-    }
-  };
-}; // 
-
-
-var determineTheme = function (props, fallbackTheme) {
-  var defaultProps = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : EMPTY_OBJECT; // Props should take precedence over ThemeProvider, which should take precedence over
-  // defaultProps, but React automatically puts defaultProps on props.
-
-  /* eslint-disable react/prop-types, flowtype-errors/show-errors */
-
-  var isDefaultTheme = defaultProps ? props.theme === defaultProps.theme : false;
-  var theme = props.theme && !isDefaultTheme ? props.theme : fallbackTheme || defaultProps.theme;
-  /* eslint-enable */
-
-  return theme;
-}; // 
-
-
-var escapeRegex = /[[\].#*$><+~=|^:(),"'`-]+/g;
-var dashesAtEnds = /(^-|-$)/g;
-/**
- * TODO: Explore using CSS.escape when it becomes more available
- * in evergreen browsers.
- */
-
-function escape(str) {
-  return str // Replace all possible CSS selectors
-  .replace(escapeRegex, '-') // Remove extraneous hyphens at the start and end
-  .replace(dashesAtEnds, '');
-} // 
-
-
-function isTag(target) {
-  return typeof target === 'string' && ("development" !== 'production' ? target.charAt(0) === target.charAt(0).toLowerCase() : true);
-} // 
-
-
-function generateDisplayName(target) {
-  // $FlowFixMe
-  return isTag(target) ? 'styled.' + target : 'Styled(' + getComponentName(target) + ')';
-}
-
-var _TYPE_STATICS;
-
-var REACT_STATICS = {
-  childContextTypes: true,
-  contextTypes: true,
-  defaultProps: true,
-  displayName: true,
-  getDerivedStateFromProps: true,
-  propTypes: true,
-  type: true
-};
-var KNOWN_STATICS = {
-  name: true,
-  length: true,
-  prototype: true,
-  caller: true,
-  callee: true,
-  arguments: true,
-  arity: true
-};
-var TYPE_STATICS = (_TYPE_STATICS = {}, _TYPE_STATICS[_reactIs.ForwardRef] = {
-  $$typeof: true,
-  render: true
-}, _TYPE_STATICS);
-var defineProperty$1 = Object.defineProperty,
-    getOwnPropertyNames = Object.getOwnPropertyNames,
-    _Object$getOwnPropert = Object.getOwnPropertySymbols,
-    getOwnPropertySymbols = _Object$getOwnPropert === undefined ? function () {
-  return [];
-} : _Object$getOwnPropert,
-    getOwnPropertyDescriptor = Object.getOwnPropertyDescriptor,
-    getPrototypeOf = Object.getPrototypeOf,
-    objectPrototype = Object.prototype;
-var arrayPrototype = Array.prototype;
-
-function hoistNonReactStatics(targetComponent, sourceComponent, blacklist) {
-  if (typeof sourceComponent !== 'string') {
-    // don't hoist over string (html) components
-    var inheritedComponent = getPrototypeOf(sourceComponent);
-
-    if (inheritedComponent && inheritedComponent !== objectPrototype) {
-      hoistNonReactStatics(targetComponent, inheritedComponent, blacklist);
-    }
-
-    var keys = arrayPrototype.concat(getOwnPropertyNames(sourceComponent), // $FlowFixMe
-    getOwnPropertySymbols(sourceComponent));
-    var targetStatics = TYPE_STATICS[targetComponent.$$typeof] || REACT_STATICS;
-    var sourceStatics = TYPE_STATICS[sourceComponent.$$typeof] || REACT_STATICS;
-    var i = keys.length;
-    var descriptor = void 0;
-    var key = void 0; // eslint-disable-next-line no-plusplus
-
-    while (i--) {
-      key = keys[i];
-
-      if ( // $FlowFixMe
-      !KNOWN_STATICS[key] && !(blacklist && blacklist[key]) && !(sourceStatics && sourceStatics[key]) && // $FlowFixMe
-      !(targetStatics && targetStatics[key])) {
-        descriptor = getOwnPropertyDescriptor(sourceComponent, key);
-
-        if (descriptor) {
-          try {
-            // Avoid failures from read-only properties
-            defineProperty$1(targetComponent, key, descriptor);
-          } catch (e) {
-            /* fail silently */
-          }
-        }
-      }
-    }
-
-    return targetComponent;
-  }
-
-  return targetComponent;
-} // 
-
-
-function isDerivedReactComponent(fn) {
-  return !!(fn && fn.prototype && fn.prototype.isReactComponent);
-} // 
-// Helper to call a given function, only once
-
-
-var once = function (cb) {
-  var called = false;
-  return function () {
-    if (!called) {
-      called = true;
-      cb.apply(undefined, arguments);
-    }
-  };
-}; // 
-
-
-var ThemeContext = (0, _react.createContext)();
-exports.ThemeContext = ThemeContext;
-var ThemeConsumer = ThemeContext.Consumer;
-/**
- * Provide a theme to an entire react component tree via context
- */
-
-exports.ThemeConsumer = ThemeConsumer;
-
-var ThemeProvider = function (_Component) {
-  inherits(ThemeProvider, _Component);
-
-  function ThemeProvider(props) {
-    classCallCheck(this, ThemeProvider);
-
-    var _this = possibleConstructorReturn(this, _Component.call(this, props));
-
-    _this.getContext = (0, _memoizeOne.default)(_this.getContext.bind(_this));
-    _this.renderInner = _this.renderInner.bind(_this);
-    return _this;
-  }
-
-  ThemeProvider.prototype.render = function render() {
-    if (!this.props.children) return null;
-    return _react.default.createElement(ThemeContext.Consumer, null, this.renderInner);
-  };
-
-  ThemeProvider.prototype.renderInner = function renderInner(outerTheme) {
-    var context = this.getContext(this.props.theme, outerTheme);
-    return _react.default.createElement(ThemeContext.Provider, {
-      value: context
-    }, this.props.children);
-  };
-  /**
-   * Get the theme from the props, supporting both (outerTheme) => {}
-   * as well as object notation
-   */
-
-
-  ThemeProvider.prototype.getTheme = function getTheme(theme, outerTheme) {
-    if (isFunction(theme)) {
-      var mergedTheme = theme(outerTheme);
-
-      if ("development" !== 'production' && (mergedTheme === null || Array.isArray(mergedTheme) || (typeof mergedTheme === 'undefined' ? 'undefined' : _typeof(mergedTheme)) !== 'object')) {
-        throw new StyledComponentsError(7);
-      }
-
-      return mergedTheme;
-    }
-
-    if (theme === null || Array.isArray(theme) || (typeof theme === 'undefined' ? 'undefined' : _typeof(theme)) !== 'object') {
-      throw new StyledComponentsError(8);
-    }
-
-    return _extends({}, outerTheme, theme);
-  };
-
-  ThemeProvider.prototype.getContext = function getContext(theme, outerTheme) {
-    return this.getTheme(theme, outerTheme);
-  };
-
-  return ThemeProvider;
-}(_react.Component); // 
-
-
-exports.ThemeProvider = ThemeProvider;
-var CLOSING_TAG_R = /^\s*<\/[a-z]/i;
-
-var ServerStyleSheet = function () {
-  function ServerStyleSheet() {
-    classCallCheck(this, ServerStyleSheet);
-    /* The master sheet might be reset, so keep a reference here */
-
-    this.masterSheet = StyleSheet.master;
-    this.instance = this.masterSheet.clone();
-    this.sealed = false;
-  }
-  /**
-   * Mark the ServerStyleSheet as being fully emitted and manually GC it from the
-   * StyleSheet singleton.
-   */
-
-
-  ServerStyleSheet.prototype.seal = function seal() {
-    if (!this.sealed) {
-      /* Remove sealed StyleSheets from the master sheet */
-      var index = this.masterSheet.clones.indexOf(this.instance);
-      this.masterSheet.clones.splice(index, 1);
-      this.sealed = true;
-    }
-  };
-
-  ServerStyleSheet.prototype.collectStyles = function collectStyles(children) {
-    if (this.sealed) {
-      throw new StyledComponentsError(2);
-    }
-
-    return _react.default.createElement(StyleSheetManager, {
-      sheet: this.instance
-    }, children);
-  };
-
-  ServerStyleSheet.prototype.getStyleTags = function getStyleTags() {
-    this.seal();
-    return this.instance.toHTML();
-  };
-
-  ServerStyleSheet.prototype.getStyleElement = function getStyleElement() {
-    this.seal();
-    return this.instance.toReactElements();
-  };
-
-  ServerStyleSheet.prototype.interleaveWithNodeStream = function interleaveWithNodeStream(readableStream) {
-    var _this = this;
-
-    {
-      throw new StyledComponentsError(3);
-    }
-    /* the tag index keeps track of which tags have already been emitted */
-
-    var instance = this.instance;
-    var instanceTagIndex = 0;
-    var streamAttr = SC_STREAM_ATTR + '="true"';
-    var transformer = new stream.Transform({
-      transform: function appendStyleChunks(chunk,
-      /* encoding */
-      _, callback) {
-        var tags = instance.tags;
-        var html = '';
-        /* retrieve html for each new style tag */
-
-        for (; instanceTagIndex < tags.length; instanceTagIndex += 1) {
-          var tag = tags[instanceTagIndex];
-          html += tag.toHTML(streamAttr);
-        }
-        /* force our StyleSheets to emit entirely new tags */
-
-
-        instance.sealAllTags();
-        var renderedHtml = chunk.toString();
-        /* prepend style html to chunk, unless the start of the chunk is a closing tag in which case append right after that */
-
-        if (CLOSING_TAG_R.test(renderedHtml)) {
-          var endOfClosingTag = renderedHtml.indexOf('>');
-          this.push(renderedHtml.slice(0, endOfClosingTag + 1) + html + renderedHtml.slice(endOfClosingTag + 1));
-        } else this.push(html + renderedHtml);
-
-        callback();
-      }
-    });
-    readableStream.on('end', function () {
-      return _this.seal();
-    });
-    readableStream.on('error', function (err) {
-      _this.seal(); // forward the error to the transform stream
-
-
-      transformer.emit('error', err);
-    });
-    return readableStream.pipe(transformer);
-  };
-
-  return ServerStyleSheet;
-}(); // 
-
-
-exports.ServerStyleSheet = ServerStyleSheet;
-var StyleSheetContext = (0, _react.createContext)();
-exports.StyleSheetContext = StyleSheetContext;
-var StyleSheetConsumer = StyleSheetContext.Consumer;
-exports.StyleSheetConsumer = StyleSheetConsumer;
-
-var StyleSheetManager = function (_Component) {
-  inherits(StyleSheetManager, _Component);
-
-  function StyleSheetManager(props) {
-    classCallCheck(this, StyleSheetManager);
-
-    var _this = possibleConstructorReturn(this, _Component.call(this, props));
-
-    _this.getContext = (0, _memoizeOne.default)(_this.getContext);
-    return _this;
-  }
-
-  StyleSheetManager.prototype.getContext = function getContext(sheet, target) {
-    if (sheet) {
-      return sheet;
-    } else if (target) {
-      return new StyleSheet(target);
-    } else {
-      throw new StyledComponentsError(4);
-    }
-  };
-
-  StyleSheetManager.prototype.render = function render() {
-    var _props = this.props,
-        children = _props.children,
-        sheet = _props.sheet,
-        target = _props.target;
-    return _react.default.createElement(StyleSheetContext.Provider, {
-      value: this.getContext(sheet, target)
-    }, "development" !== 'production' ? _react.default.Children.only(children) : children);
-  };
-
-  return StyleSheetManager;
-}(_react.Component);
-
-exports.StyleSheetManager = StyleSheetManager;
-"development" !== "production" ? StyleSheetManager.propTypes = {
-  sheet: _propTypes.default.oneOfType([_propTypes.default.instanceOf(StyleSheet), _propTypes.default.instanceOf(ServerStyleSheet)]),
-  target: _propTypes.default.shape({
-    appendChild: _propTypes.default.func.isRequired
-  })
-} : void 0; // 
-
-var THEME_PROP_REGEX = /\.theme[.[]/;
-var identifiers = {};
-/* We depend on components having unique IDs */
-
-function generateId(_ComponentStyle, _displayName, parentComponentId) {
-  var displayName = typeof _displayName !== 'string' ? 'sc' : escape(_displayName);
-  /**
-   * This ensures uniqueness if two components happen to share
-   * the same displayName.
-   */
-
-  var nr = (identifiers[displayName] || 0) + 1;
-  identifiers[displayName] = nr;
-
-  var componentId = displayName + '-' + _ComponentStyle.generateName(displayName + nr);
-
-  return parentComponentId ? parentComponentId + '-' + componentId : componentId;
-} // $FlowFixMe
-
-
-var StyledComponent = function (_Component) {
-  inherits(StyledComponent, _Component);
-
-  function StyledComponent() {
-    classCallCheck(this, StyledComponent);
-
-    var _this = possibleConstructorReturn(this, _Component.call(this));
-
-    _this.attrs = {};
-    _this.renderOuter = _this.renderOuter.bind(_this);
-    _this.renderInner = _this.renderInner.bind(_this);
-
-    if ("development" !== 'production') {
-      _this.warnInnerRef = once(function (displayName) {
-        return (// eslint-disable-next-line no-console
-          console.warn('The "innerRef" API has been removed in styled-components v4 in favor of React 16 ref forwarding, use "ref" instead like a typical component. "innerRef" was detected on component "' + displayName + '".')
-        );
-      });
-      _this.warnAttrsFnObjectKeyDeprecated = once(function (key, displayName) {
-        return (// eslint-disable-next-line no-console
-          console.warn('Functions as object-form attrs({}) keys are now deprecated and will be removed in a future version of styled-components. Switch to the new attrs(props => ({})) syntax instead for easier and more powerful composition. The attrs key in question is "' + key + '" on component "' + displayName + '".', '\n ' + new Error().stack)
-        );
-      });
-      _this.warnNonStyledComponentAttrsObjectKey = once(function (key, displayName) {
-        return (// eslint-disable-next-line no-console
-          console.warn('It looks like you\'ve used a non styled-component as the value for the "' + key + '" prop in an object-form attrs constructor of "' + displayName + '".\n' + 'You should use the new function-form attrs constructor which avoids this issue: attrs(props => ({ yourStuff }))\n' + "To continue using the deprecated object syntax, you'll need to wrap your component prop in a function to make it available inside the styled component (you'll still get the deprecation warning though.)\n" + ('For example, { ' + key + ': () => InnerComponent } instead of { ' + key + ': InnerComponent }'))
-        );
-      });
-    }
-
-    return _this;
-  }
-
-  StyledComponent.prototype.render = function render() {
-    return _react.default.createElement(StyleSheetConsumer, null, this.renderOuter);
-  };
-
-  StyledComponent.prototype.renderOuter = function renderOuter() {
-    var styleSheet = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : StyleSheet.master;
-    this.styleSheet = styleSheet; // No need to subscribe a static component to theme changes, it won't change anything
-
-    if (this.props.forwardedComponent.componentStyle.isStatic) return this.renderInner();
-    return _react.default.createElement(ThemeConsumer, null, this.renderInner);
-  };
-
-  StyledComponent.prototype.renderInner = function renderInner(theme) {
-    var _props$forwardedCompo = this.props.forwardedComponent,
-        componentStyle = _props$forwardedCompo.componentStyle,
-        defaultProps = _props$forwardedCompo.defaultProps,
-        displayName = _props$forwardedCompo.displayName,
-        foldedComponentIds = _props$forwardedCompo.foldedComponentIds,
-        styledComponentId = _props$forwardedCompo.styledComponentId,
-        target = _props$forwardedCompo.target,
-        usesTheme = _props$forwardedCompo.usesTheme;
-    var generatedClassName = void 0;
-    var rawTheme = void 0;
-
-    if (componentStyle.isStatic) {
-      generatedClassName = this.generateAndInjectStyles(EMPTY_OBJECT, this.props);
-    } else {
-      rawTheme = determineTheme(this.props, theme, defaultProps);
-      generatedClassName = this.generateAndInjectStyles(rawTheme || EMPTY_OBJECT, this.props);
-
-      if ("development" !== 'production' && usesTheme && !rawTheme) {
-        console.error('Component \'' + // $FlowFixMe
-        displayName + '\' (.' + styledComponentId + ') references the \'theme\' prop in its styles but no theme was provided via prop or <ThemeProvider>.');
-      }
-    }
-
-    var elementToBeCreated = this.props.as || this.attrs.as || target;
-    var isTargetTag = isTag(elementToBeCreated);
-    var propsForElement = {};
-
-    var computedProps = _extends({}, this.props, this.attrs);
-
-    var key = void 0; // eslint-disable-next-line guard-for-in
-
-    for (key in computedProps) {
-      if ("development" !== 'production' && key === 'innerRef' && isTargetTag) {
-        this.warnInnerRef(displayName);
-      }
-
-      if (key === 'forwardedComponent' || key === 'as') {
-        continue;
-      } else if (key === 'forwardedRef') propsForElement.ref = computedProps[key];else if (key === 'forwardedAs') propsForElement.as = computedProps[key];else if (!isTargetTag || (0, _isPropValid.default)(key)) {
-        // Don't pass through non HTML tags through to HTML elements
-        propsForElement[key] = computedProps[key];
-      }
-    }
-
-    if (this.props.style && this.attrs.style) {
-      propsForElement.style = _extends({}, this.attrs.style, this.props.style);
-    }
-
-    propsForElement.className = Array.prototype.concat(foldedComponentIds, styledComponentId, generatedClassName !== styledComponentId ? generatedClassName : null, this.props.className, this.attrs.className).filter(Boolean).join(' ');
-    return (0, _react.createElement)(elementToBeCreated, propsForElement);
-  };
-
-  StyledComponent.prototype.buildExecutionContext = function buildExecutionContext(theme, props, attrs) {
-    var _this2 = this;
-
-    var context = _extends({}, props, {
-      theme: theme
-    });
-
-    if (!attrs.length) return context;
-    this.attrs = {};
-    attrs.forEach(function (attrDef) {
-      var resolvedAttrDef = attrDef;
-      var attrDefWasFn = false;
-      var attr = void 0;
-      var key = void 0;
-
-      if (isFunction(resolvedAttrDef)) {
-        // $FlowFixMe
-        resolvedAttrDef = resolvedAttrDef(context);
-        attrDefWasFn = true;
-      }
-      /* eslint-disable guard-for-in */
-      // $FlowFixMe
-
-
-      for (key in resolvedAttrDef) {
-        attr = resolvedAttrDef[key];
-
-        if (!attrDefWasFn) {
-          if (isFunction(attr) && !isDerivedReactComponent(attr) && !isStyledComponent(attr)) {
-            if ("development" !== 'production') {
-              _this2.warnAttrsFnObjectKeyDeprecated(key, props.forwardedComponent.displayName);
-            }
-
-            attr = attr(context);
-
-            if ("development" !== 'production' && _react.default.isValidElement(attr)) {
-              _this2.warnNonStyledComponentAttrsObjectKey(key, props.forwardedComponent.displayName);
-            }
-          }
-        }
-
-        _this2.attrs[key] = attr;
-        context[key] = attr;
-      }
-      /* eslint-enable */
-
-    });
-    return context;
-  };
-
-  StyledComponent.prototype.generateAndInjectStyles = function generateAndInjectStyles(theme, props) {
-    var _props$forwardedCompo2 = props.forwardedComponent,
-        attrs = _props$forwardedCompo2.attrs,
-        componentStyle = _props$forwardedCompo2.componentStyle,
-        warnTooManyClasses = _props$forwardedCompo2.warnTooManyClasses; // statically styled-components don't need to build an execution context object,
-    // and shouldn't be increasing the number of class names
-
-    if (componentStyle.isStatic && !attrs.length) {
-      return componentStyle.generateAndInjectStyles(EMPTY_OBJECT, this.styleSheet);
-    }
-
-    var className = componentStyle.generateAndInjectStyles(this.buildExecutionContext(theme, props, attrs), this.styleSheet);
-    if ("development" !== 'production' && warnTooManyClasses) warnTooManyClasses(className);
-    return className;
-  };
-
-  return StyledComponent;
-}(_react.Component);
-
-function createStyledComponent(target, options, rules) {
-  var isTargetStyledComp = isStyledComponent(target);
-  var isClass = !isTag(target);
-  var _options$displayName = options.displayName,
-      displayName = _options$displayName === undefined ? generateDisplayName(target) : _options$displayName,
-      _options$componentId = options.componentId,
-      componentId = _options$componentId === undefined ? generateId(ComponentStyle, options.displayName, options.parentComponentId) : _options$componentId,
-      _options$ParentCompon = options.ParentComponent,
-      ParentComponent = _options$ParentCompon === undefined ? StyledComponent : _options$ParentCompon,
-      _options$attrs = options.attrs,
-      attrs = _options$attrs === undefined ? EMPTY_ARRAY : _options$attrs;
-  var styledComponentId = options.displayName && options.componentId ? escape(options.displayName) + '-' + options.componentId : options.componentId || componentId; // fold the underlying StyledComponent attrs up (implicit extend)
-
-  var finalAttrs = // $FlowFixMe
-  isTargetStyledComp && target.attrs ? Array.prototype.concat(target.attrs, attrs).filter(Boolean) : attrs;
-  var componentStyle = new ComponentStyle(isTargetStyledComp ? // fold the underlying StyledComponent rules up (implicit extend)
-  // $FlowFixMe
-  target.componentStyle.rules.concat(rules) : rules, finalAttrs, styledComponentId);
-  /**
-   * forwardRef creates a new interim component, which we'll take advantage of
-   * instead of extending ParentComponent to create _another_ interim class
-   */
-
-  var WrappedStyledComponent = void 0;
-
-  var forwardRef = function forwardRef(props, ref) {
-    return _react.default.createElement(ParentComponent, _extends({}, props, {
-      forwardedComponent: WrappedStyledComponent,
-      forwardedRef: ref
-    }));
-  };
-
-  forwardRef.displayName = displayName;
-  WrappedStyledComponent = _react.default.forwardRef(forwardRef);
-  WrappedStyledComponent.displayName = displayName; // $FlowFixMe
-
-  WrappedStyledComponent.attrs = finalAttrs; // $FlowFixMe
-
-  WrappedStyledComponent.componentStyle = componentStyle; // $FlowFixMe
-
-  WrappedStyledComponent.foldedComponentIds = isTargetStyledComp ? // $FlowFixMe
-  Array.prototype.concat(target.foldedComponentIds, target.styledComponentId) : EMPTY_ARRAY; // $FlowFixMe
-
-  WrappedStyledComponent.styledComponentId = styledComponentId; // fold the underlying StyledComponent target up since we folded the styles
-  // $FlowFixMe
-
-  WrappedStyledComponent.target = isTargetStyledComp ? target.target : target; // $FlowFixMe
-
-  WrappedStyledComponent.withComponent = function withComponent(tag) {
-    var previousComponentId = options.componentId,
-        optionsToCopy = objectWithoutProperties(options, ['componentId']);
-    var newComponentId = previousComponentId && previousComponentId + '-' + (isTag(tag) ? tag : escape(getComponentName(tag)));
-
-    var newOptions = _extends({}, optionsToCopy, {
-      attrs: finalAttrs,
-      componentId: newComponentId,
-      ParentComponent: ParentComponent
-    });
-
-    return createStyledComponent(tag, newOptions, rules);
-  }; // $FlowFixMe
-
-
-  Object.defineProperty(WrappedStyledComponent, 'defaultProps', {
-    get: function get$$1() {
-      return this._foldedDefaultProps;
-    },
-    set: function set$$1(obj) {
-      // $FlowFixMe
-      this._foldedDefaultProps = isTargetStyledComp ? (0, _mergeAnything.default)(target.defaultProps, obj) : obj;
-    }
-  });
-
-  if ("development" !== 'production') {
-    // $FlowFixMe
-    WrappedStyledComponent.usesTheme = componentStyle.rules.some(function (x) {
-      return isFunction(x) && THEME_PROP_REGEX.test(x.toString());
-    }); // $FlowFixMe
-
-    WrappedStyledComponent.warnTooManyClasses = createWarnTooManyClasses(displayName);
-  } // $FlowFixMe
-
-
-  WrappedStyledComponent.toString = function () {
-    return '.' + WrappedStyledComponent.styledComponentId;
-  };
-
-  if (isClass) {
-    hoistNonReactStatics(WrappedStyledComponent, target, {
-      // all SC-specific things should not be hoisted
-      attrs: true,
-      componentStyle: true,
-      displayName: true,
-      foldedComponentIds: true,
-      styledComponentId: true,
-      target: true,
-      withComponent: true
-    });
-  }
-
-  return WrappedStyledComponent;
-} // 
-// Thanks to ReactDOMFactories for this handy list!
-
-
-var domElements = ['a', 'abbr', 'address', 'area', 'article', 'aside', 'audio', 'b', 'base', 'bdi', 'bdo', 'big', 'blockquote', 'body', 'br', 'button', 'canvas', 'caption', 'cite', 'code', 'col', 'colgroup', 'data', 'datalist', 'dd', 'del', 'details', 'dfn', 'dialog', 'div', 'dl', 'dt', 'em', 'embed', 'fieldset', 'figcaption', 'figure', 'footer', 'form', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'head', 'header', 'hgroup', 'hr', 'html', 'i', 'iframe', 'img', 'input', 'ins', 'kbd', 'keygen', 'label', 'legend', 'li', 'link', 'main', 'map', 'mark', 'marquee', 'menu', 'menuitem', 'meta', 'meter', 'nav', 'noscript', 'object', 'ol', 'optgroup', 'option', 'output', 'p', 'param', 'picture', 'pre', 'progress', 'q', 'rp', 'rt', 'ruby', 's', 'samp', 'script', 'section', 'select', 'small', 'source', 'span', 'strong', 'style', 'sub', 'summary', 'sup', 'table', 'tbody', 'td', 'textarea', 'tfoot', 'th', 'thead', 'time', 'title', 'tr', 'track', 'u', 'ul', 'var', 'video', 'wbr', // SVG
-'circle', 'clipPath', 'defs', 'ellipse', 'foreignObject', 'g', 'image', 'line', 'linearGradient', 'marker', 'mask', 'path', 'pattern', 'polygon', 'polyline', 'radialGradient', 'rect', 'stop', 'svg', 'text', 'tspan']; // 
-
-var styled = function styled(tag) {
-  return constructWithOptions(createStyledComponent, tag);
-}; // Shorthands for all valid HTML Elements
-
-
-domElements.forEach(function (domElement) {
-  styled[domElement] = styled(domElement);
-}); // 
-
-var GlobalStyle = function () {
-  function GlobalStyle(rules, componentId) {
-    classCallCheck(this, GlobalStyle);
-    this.rules = rules;
-    this.componentId = componentId;
-    this.isStatic = isStaticRules(rules, EMPTY_ARRAY);
-
-    if (!StyleSheet.master.hasId(componentId)) {
-      StyleSheet.master.deferredInject(componentId, []);
-    }
-  }
-
-  GlobalStyle.prototype.createStyles = function createStyles(executionContext, styleSheet) {
-    var flatCSS = flatten(this.rules, executionContext, styleSheet);
-    var css = stringifyRules(flatCSS, '');
-    styleSheet.inject(this.componentId, css);
-  };
-
-  GlobalStyle.prototype.removeStyles = function removeStyles(styleSheet) {
-    var componentId = this.componentId;
-
-    if (styleSheet.hasId(componentId)) {
-      styleSheet.remove(componentId);
-    }
-  }; // TODO: overwrite in-place instead of remove+create?
-
-
-  GlobalStyle.prototype.renderStyles = function renderStyles(executionContext, styleSheet) {
-    this.removeStyles(styleSheet);
-    this.createStyles(executionContext, styleSheet);
-  };
-
-  return GlobalStyle;
-}(); // 
-// place our cache into shared context so it'll persist between HMRs
-
-
-if (IS_BROWSER) {
-  window.scCGSHMRCache = {};
-}
-
-function createGlobalStyle(strings) {
-  for (var _len = arguments.length, interpolations = Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
-    interpolations[_key - 1] = arguments[_key];
-  }
-
-  var rules = css.apply(undefined, [strings].concat(interpolations));
-  var id = 'sc-global-' + murmurhash(JSON.stringify(rules));
-  var style = new GlobalStyle(rules, id);
-
-  var GlobalStyleComponent = function (_React$Component) {
-    inherits(GlobalStyleComponent, _React$Component);
-
-    function GlobalStyleComponent(props) {
-      classCallCheck(this, GlobalStyleComponent);
-
-      var _this = possibleConstructorReturn(this, _React$Component.call(this, props));
-
-      var _this$constructor = _this.constructor,
-          globalStyle = _this$constructor.globalStyle,
-          styledComponentId = _this$constructor.styledComponentId;
-
-      if (IS_BROWSER) {
-        window.scCGSHMRCache[styledComponentId] = (window.scCGSHMRCache[styledComponentId] || 0) + 1;
-      }
-      /**
-       * This fixes HMR compatibility. Don't ask me why, but this combination of
-       * caching the closure variables via statics and then persisting the statics in
-       * state works across HMR where no other combination did. ¯\_(ツ)_/¯
-       */
-
-
-      _this.state = {
-        globalStyle: globalStyle,
-        styledComponentId: styledComponentId
-      };
-      return _this;
-    }
-
-    GlobalStyleComponent.prototype.componentWillUnmount = function componentWillUnmount() {
-      if (window.scCGSHMRCache[this.state.styledComponentId]) {
-        window.scCGSHMRCache[this.state.styledComponentId] -= 1;
-      }
-      /**
-       * Depending on the order "render" is called this can cause the styles to be lost
-       * until the next render pass of the remaining instance, which may
-       * not be immediate.
-       */
-
-
-      if (window.scCGSHMRCache[this.state.styledComponentId] === 0) {
-        this.state.globalStyle.removeStyles(this.styleSheet);
-      }
-    };
-
-    GlobalStyleComponent.prototype.render = function render() {
-      var _this2 = this;
-
-      if ("development" !== 'production' && _react.default.Children.count(this.props.children)) {
-        // eslint-disable-next-line no-console
-        console.warn('The global style component ' + this.state.styledComponentId + ' was given child JSX. createGlobalStyle does not render children.');
-      }
-
-      return _react.default.createElement(StyleSheetConsumer, null, function (styleSheet) {
-        _this2.styleSheet = styleSheet || StyleSheet.master;
-        var globalStyle = _this2.state.globalStyle;
-
-        if (globalStyle.isStatic) {
-          globalStyle.renderStyles(STATIC_EXECUTION_CONTEXT, _this2.styleSheet);
-          return null;
-        } else {
-          return _react.default.createElement(ThemeConsumer, null, function (theme) {
-            // $FlowFixMe
-            var defaultProps = _this2.constructor.defaultProps;
-
-            var context = _extends({}, _this2.props);
-
-            if (typeof theme !== 'undefined') {
-              context.theme = determineTheme(_this2.props, theme, defaultProps);
-            }
-
-            globalStyle.renderStyles(context, _this2.styleSheet);
-            return null;
-          });
-        }
-      });
-    };
-
-    return GlobalStyleComponent;
-  }(_react.default.Component);
-
-  GlobalStyleComponent.globalStyle = style;
-  GlobalStyleComponent.styledComponentId = id;
-  return GlobalStyleComponent;
-} // 
-
-
-var replaceWhitespace = function replaceWhitespace(str) {
-  return str.replace(/\s|\\n/g, '');
-};
-
-function keyframes(strings) {
-  /* Warning if you've used keyframes on React Native */
-  if ("development" !== 'production' && typeof navigator !== 'undefined' && navigator.product === 'ReactNative') {
-    // eslint-disable-next-line no-console
-    console.warn('`keyframes` cannot be used on ReactNative, only on the web. To do animation in ReactNative please use Animated.');
-  }
-
-  for (var _len = arguments.length, interpolations = Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
-    interpolations[_key - 1] = arguments[_key];
-  }
-
-  var rules = css.apply(undefined, [strings].concat(interpolations));
-  var name = generateAlphabeticName(murmurhash(replaceWhitespace(JSON.stringify(rules))));
-  return new Keyframes(name, stringifyRules(rules, name, '@keyframes'));
-} // 
-
-
-var withTheme = function (Component$$1) {
-  var WithTheme = _react.default.forwardRef(function (props, ref) {
-    return _react.default.createElement(ThemeConsumer, null, function (theme) {
-      // $FlowFixMe
-      var defaultProps = Component$$1.defaultProps;
-      var themeProp = determineTheme(props, theme, defaultProps);
-
-      if ("development" !== 'production' && themeProp === undefined) {
-        // eslint-disable-next-line no-console
-        console.warn('[withTheme] You are not using a ThemeProvider nor passing a theme prop or a theme in defaultProps in component class "' + getComponentName(Component$$1) + '"');
-      }
-
-      return _react.default.createElement(Component$$1, _extends({}, props, {
-        theme: themeProp,
-        ref: ref
-      }));
-    });
-  });
-
-  hoistNonReactStatics(WithTheme, Component$$1);
-  WithTheme.displayName = 'WithTheme(' + getComponentName(Component$$1) + ')';
-  return WithTheme;
-}; // 
-
-/* eslint-disable */
-
-
-exports.withTheme = withTheme;
-var __DO_NOT_USE_OR_YOU_WILL_BE_HAUNTED_BY_SPOOKY_GHOSTS = {
-  StyleSheet: StyleSheet
-}; // 
-
-/* Warning if you've imported this file on React Native */
-
-exports.__DO_NOT_USE_OR_YOU_WILL_BE_HAUNTED_BY_SPOOKY_GHOSTS = __DO_NOT_USE_OR_YOU_WILL_BE_HAUNTED_BY_SPOOKY_GHOSTS;
-
-if ("development" !== 'production' && typeof navigator !== 'undefined' && navigator.product === 'ReactNative') {
-  // eslint-disable-next-line no-console
-  console.warn("It looks like you've imported 'styled-components' on React Native.\n" + "Perhaps you're looking to import 'styled-components/native'?\n" + 'Read more about this at https://www.styled-components.com/docs/basics#react-native');
-}
-/* Warning if there are several instances of styled-components */
-
-
-if ("development" !== 'production' && "development" !== 'test' && typeof window !== 'undefined' && typeof navigator !== 'undefined' && typeof navigator.userAgent === 'string' && navigator.userAgent.indexOf('Node.js') === -1 && navigator.userAgent.indexOf('jsdom') === -1) {
-  window['__styled-components-init__'] = window['__styled-components-init__'] || 0;
-
-  if (window['__styled-components-init__'] === 1) {
-    // eslint-disable-next-line no-console
-    console.warn("It looks like there are several instances of 'styled-components' initialized in this application. " + 'This may cause dynamic styles not rendering properly, errors happening during rehydration process ' + 'and makes your application bigger without a good reason.\n\n' + 'See https://s-c.sh/2BAXzed for more info.');
-  }
-
-  window['__styled-components-init__'] += 1;
-} //
-
-
-var _default = styled;
-exports.default = _default;
-},{"stylis/stylis.min":"../node_modules/stylis/stylis.min.js","stylis-rule-sheet":"../node_modules/stylis-rule-sheet/index.js","react":"../node_modules/react/index.js","@emotion/unitless":"../node_modules/@emotion/unitless/dist/unitless.browser.esm.js","react-is":"../node_modules/react-is/index.js","memoize-one":"../node_modules/memoize-one/dist/memoize-one.esm.js","prop-types":"../node_modules/prop-types/index.js","@emotion/is-prop-valid":"../node_modules/@emotion/is-prop-valid/dist/is-prop-valid.browser.esm.js","merge-anything":"../node_modules/merge-anything/dist/index.esm.js","process":"../node_modules/process/browser.js"}],"../node_modules/cookie/index.js":[function(require,module,exports) {
-/*!
- * cookie
- * Copyright(c) 2012-2014 Roman Shtylman
- * Copyright(c) 2015 Douglas Christopher Wilson
- * MIT Licensed
- */
-'use strict';
-/**
- * Module exports.
- * @public
- */
-
-exports.parse = parse;
-exports.serialize = serialize;
-/**
- * Module variables.
- * @private
- */
-
-var decode = decodeURIComponent;
-var encode = encodeURIComponent;
-var pairSplitRegExp = /; */;
-/**
- * RegExp to match field-content in RFC 7230 sec 3.2
- *
- * field-content = field-vchar [ 1*( SP / HTAB ) field-vchar ]
- * field-vchar   = VCHAR / obs-text
- * obs-text      = %x80-FF
- */
-
-var fieldContentRegExp = /^[\u0009\u0020-\u007e\u0080-\u00ff]+$/;
-/**
- * Parse a cookie header.
- *
- * Parse the given cookie header string into an object
- * The object has the various cookies as keys(names) => values
- *
- * @param {string} str
- * @param {object} [options]
- * @return {object}
- * @public
- */
-
-function parse(str, options) {
-  if (typeof str !== 'string') {
-    throw new TypeError('argument str must be a string');
-  }
-
-  var obj = {};
-  var opt = options || {};
-  var pairs = str.split(pairSplitRegExp);
-  var dec = opt.decode || decode;
-
-  for (var i = 0; i < pairs.length; i++) {
-    var pair = pairs[i];
-    var eq_idx = pair.indexOf('='); // skip things that don't look like key=value
-
-    if (eq_idx < 0) {
-      continue;
-    }
-
-    var key = pair.substr(0, eq_idx).trim();
-    var val = pair.substr(++eq_idx, pair.length).trim(); // quoted values
-
-    if ('"' == val[0]) {
-      val = val.slice(1, -1);
-    } // only assign once
-
-
-    if (undefined == obj[key]) {
-      obj[key] = tryDecode(val, dec);
-    }
-  }
-
-  return obj;
-}
-/**
- * Serialize data into a cookie header.
- *
- * Serialize the a name value pair into a cookie string suitable for
- * http headers. An optional options object specified cookie parameters.
- *
- * serialize('foo', 'bar', { httpOnly: true })
- *   => "foo=bar; httpOnly"
- *
- * @param {string} name
- * @param {string} val
- * @param {object} [options]
- * @return {string}
- * @public
- */
-
-
-function serialize(name, val, options) {
-  var opt = options || {};
-  var enc = opt.encode || encode;
-
-  if (typeof enc !== 'function') {
-    throw new TypeError('option encode is invalid');
-  }
-
-  if (!fieldContentRegExp.test(name)) {
-    throw new TypeError('argument name is invalid');
-  }
-
-  var value = enc(val);
-
-  if (value && !fieldContentRegExp.test(value)) {
-    throw new TypeError('argument val is invalid');
-  }
-
-  var str = name + '=' + value;
-
-  if (null != opt.maxAge) {
-    var maxAge = opt.maxAge - 0;
-    if (isNaN(maxAge)) throw new Error('maxAge should be a Number');
-    str += '; Max-Age=' + Math.floor(maxAge);
-  }
-
-  if (opt.domain) {
-    if (!fieldContentRegExp.test(opt.domain)) {
-      throw new TypeError('option domain is invalid');
-    }
-
-    str += '; Domain=' + opt.domain;
-  }
-
-  if (opt.path) {
-    if (!fieldContentRegExp.test(opt.path)) {
-      throw new TypeError('option path is invalid');
-    }
-
-    str += '; Path=' + opt.path;
-  }
-
-  if (opt.expires) {
-    if (typeof opt.expires.toUTCString !== 'function') {
-      throw new TypeError('option expires is invalid');
-    }
-
-    str += '; Expires=' + opt.expires.toUTCString();
-  }
-
-  if (opt.httpOnly) {
-    str += '; HttpOnly';
-  }
-
-  if (opt.secure) {
-    str += '; Secure';
-  }
-
-  if (opt.sameSite) {
-    var sameSite = typeof opt.sameSite === 'string' ? opt.sameSite.toLowerCase() : opt.sameSite;
-
-    switch (sameSite) {
-      case true:
-        str += '; SameSite=Strict';
-        break;
-
-      case 'lax':
-        str += '; SameSite=Lax';
-        break;
-
-      case 'strict':
-        str += '; SameSite=Strict';
-        break;
-
-      case 'none':
-        str += '; SameSite=None';
-        break;
-
-      default:
-        throw new TypeError('option sameSite is invalid');
-    }
-  }
-
-  return str;
-}
-/**
- * Try decoding a string using a decoding function.
- *
- * @param {string} str
- * @param {function} decode
- * @private
- */
-
-
-function tryDecode(str, decode) {
-  try {
-    return decode(str);
-  } catch (e) {
-    return str;
-  }
-}
-},{}],"../node_modules/universal-cookie/es6/utils.js":[function(require,module,exports) {
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.hasDocumentCookie = hasDocumentCookie;
-exports.cleanCookies = cleanCookies;
-exports.parseCookies = parseCookies;
-exports.isParsingCookie = isParsingCookie;
-exports.readCookie = readCookie;
-
-var cookie = _interopRequireWildcard(require("cookie"));
-
-function _getRequireWildcardCache() { if (typeof WeakMap !== "function") return null; var cache = new WeakMap(); _getRequireWildcardCache = function () { return cache; }; return cache; }
-
-function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } var cache = _getRequireWildcardCache(); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; if (obj != null) { var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } } newObj.default = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
-
-function hasDocumentCookie() {
-  // JSDOM does not support changing cookies, disable it for tests
-  if (isJsDom()) {
-    return false;
-  } // Can we get/set cookies on document.cookie?
-
-
-  return typeof document === 'object' && typeof document.cookie === 'string';
-}
-
-function isJsDom() {
-  if (typeof navigator !== 'object' || typeof navigator.userAgent !== 'string') {
-    return false;
-  }
-
-  return navigator.userAgent.indexOf('Node.js') >= 0 || navigator.userAgent.indexOf('jsdom') >= 0;
-}
-
-function cleanCookies() {
-  document.cookie.split(';').forEach(function (c) {
-    document.cookie = c.replace(/^ +/, '').replace(/=.*/, '=;expires=' + new Date().toUTCString() + ';path=/');
-  });
-}
-
-function parseCookies(cookies) {
-  if (typeof cookies === 'string') {
-    return cookie.parse(cookies);
-  } else if (typeof cookies === 'object' && cookies !== null) {
-    return cookies;
-  } else {
-    return {};
-  }
-}
-
-function isParsingCookie(value, doNotParse) {
-  if (typeof doNotParse === 'undefined') {
-    // We guess if the cookie start with { or [, it has been serialized
-    doNotParse = !value || value[0] !== '{' && value[0] !== '[' && value[0] !== '"';
-  }
-
-  return !doNotParse;
-}
-
-function readCookie(value, options) {
-  if (options === void 0) {
-    options = {};
-  }
-
-  var cleanValue = cleanupCookieValue(value);
-
-  if (isParsingCookie(cleanValue, options.doNotParse)) {
-    try {
-      return JSON.parse(cleanValue);
-    } catch (e) {// At least we tried
-    }
-  } // Ignore clean value if we failed the deserialization
-  // It is not relevant anymore to trim those values
-
-
-  return value;
-}
-
-function cleanupCookieValue(value) {
-  // express prepend j: before serializing a cookie
-  if (value && value[0] === 'j' && value[1] === ':') {
-    return value.substr(2);
-  }
-
-  return value;
-}
-},{"cookie":"../node_modules/cookie/index.js"}],"../node_modules/universal-cookie/es6/Cookies.js":[function(require,module,exports) {
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.default = void 0;
-
-var cookie = _interopRequireWildcard(require("cookie"));
-
-var _utils = require("./utils");
-
-function _getRequireWildcardCache() { if (typeof WeakMap !== "function") return null; var cache = new WeakMap(); _getRequireWildcardCache = function () { return cache; }; return cache; }
-
-function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } var cache = _getRequireWildcardCache(); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; if (obj != null) { var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } } newObj.default = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
-
-// We can't please Rollup and TypeScript at the same time
-// Only way to make both of them work
-var objectAssign = require('object-assign');
-
-var Cookies =
-/** @class */
-function () {
-  function Cookies(cookies) {
-    var _this = this;
-
-    this.changeListeners = [];
-    this.HAS_DOCUMENT_COOKIE = false;
-    this.cookies = (0, _utils.parseCookies)(cookies);
-    new Promise(function () {
-      _this.HAS_DOCUMENT_COOKIE = (0, _utils.hasDocumentCookie)();
-    }).catch(function () {});
-  }
-
-  Cookies.prototype._updateBrowserValues = function () {
-    if (!this.HAS_DOCUMENT_COOKIE) {
-      return;
-    }
-
-    this.cookies = cookie.parse(document.cookie);
-  };
-
-  Cookies.prototype._emitChange = function (params) {
-    for (var i = 0; i < this.changeListeners.length; ++i) {
-      this.changeListeners[i](params);
-    }
-  };
-
-  Cookies.prototype.get = function (name, options) {
-    if (options === void 0) {
-      options = {};
-    }
-
-    this._updateBrowserValues();
-
-    return (0, _utils.readCookie)(this.cookies[name], options);
-  };
-
-  Cookies.prototype.getAll = function (options) {
-    if (options === void 0) {
-      options = {};
-    }
-
-    this._updateBrowserValues();
-
-    var result = {};
-
-    for (var name_1 in this.cookies) {
-      result[name_1] = (0, _utils.readCookie)(this.cookies[name_1], options);
-    }
-
-    return result;
-  };
-
-  Cookies.prototype.set = function (name, value, options) {
-    var _a;
-
-    if (typeof value === 'object') {
-      value = JSON.stringify(value);
-    }
-
-    this.cookies = objectAssign({}, this.cookies, (_a = {}, _a[name] = value, _a));
-
-    if (this.HAS_DOCUMENT_COOKIE) {
-      document.cookie = cookie.serialize(name, value, options);
-    }
-
-    this._emitChange({
-      name: name,
-      value: value,
-      options: options
-    });
-  };
-
-  Cookies.prototype.remove = function (name, options) {
-    var finalOptions = options = objectAssign({}, options, {
-      expires: new Date(1970, 1, 1, 0, 0, 1),
-      maxAge: 0
-    });
-    this.cookies = objectAssign({}, this.cookies);
-    delete this.cookies[name];
-
-    if (this.HAS_DOCUMENT_COOKIE) {
-      document.cookie = cookie.serialize(name, '', finalOptions);
-    }
-
-    this._emitChange({
-      name: name,
-      value: undefined,
-      options: options
-    });
-  };
-
-  Cookies.prototype.addChangeListener = function (callback) {
-    this.changeListeners.push(callback);
-  };
-
-  Cookies.prototype.removeChangeListener = function (callback) {
-    var idx = this.changeListeners.indexOf(callback);
-
-    if (idx >= 0) {
-      this.changeListeners.splice(idx, 1);
-    }
-  };
-
-  return Cookies;
-}();
-
-var _default = Cookies;
-exports.default = _default;
-},{"cookie":"../node_modules/cookie/index.js","./utils":"../node_modules/universal-cookie/es6/utils.js","object-assign":"../node_modules/object-assign/index.js"}],"../node_modules/universal-cookie/es6/index.js":[function(require,module,exports) {
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.default = void 0;
-
-var _Cookies = _interopRequireDefault(require("./Cookies"));
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-var _default = _Cookies.default;
-exports.default = _default;
-},{"./Cookies":"../node_modules/universal-cookie/es6/Cookies.js"}],"../node_modules/@monaco-editor/react/lib/Loading/Loading.js":[function(require,module,exports) {
+},{"xtend":"../node_modules/xtend/immutable.js","unified":"../node_modules/unified/index.js","remark-parse":"../node_modules/remark-parse/index.js","prop-types":"../node_modules/prop-types/index.js","mdast-add-list-metadata":"../node_modules/mdast-add-list-metadata/index.js","./plugins/naive-html":"../node_modules/react-markdown/lib/plugins/naive-html.js","./plugins/disallow-node":"../node_modules/react-markdown/lib/plugins/disallow-node.js","./ast-to-react":"../node_modules/react-markdown/lib/ast-to-react.js","./wrap-table-rows":"../node_modules/react-markdown/lib/wrap-table-rows.js","./get-definitions":"../node_modules/react-markdown/lib/get-definitions.js","./uri-transformer":"../node_modules/react-markdown/lib/uri-transformer.js","./renderers":"../node_modules/react-markdown/lib/renderers.js","./symbols":"../node_modules/react-markdown/lib/symbols.js"}],"../node_modules/@monaco-editor/react/lib/Loading/Loading.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -67965,452 +68701,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 
 var _default = _Editor.default;
 exports.default = _default;
-},{"./Editor":"../node_modules/@monaco-editor/react/lib/Editor/index.js","./DiffEditor":"../node_modules/@monaco-editor/react/lib/DiffEditor/index.js","./ControlledEditor":"../node_modules/@monaco-editor/react/lib/ControlledEditor/index.js","./utils":"../node_modules/@monaco-editor/react/lib/utils/index.js"}],"../node_modules/@material-ui/core/esm/Button/Button.js":[function(require,module,exports) {
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.default = exports.styles = void 0;
-
-var _objectWithoutProperties2 = _interopRequireDefault(require("@babel/runtime/helpers/esm/objectWithoutProperties"));
-
-var _extends2 = _interopRequireDefault(require("@babel/runtime/helpers/esm/extends"));
-
-var _react = _interopRequireDefault(require("react"));
-
-var _propTypes = _interopRequireDefault(require("prop-types"));
-
-var _clsx = _interopRequireDefault(require("clsx"));
-
-var _withStyles = _interopRequireDefault(require("../styles/withStyles"));
-
-var _colorManipulator = require("../styles/colorManipulator");
-
-var _ButtonBase = _interopRequireDefault(require("../ButtonBase"));
-
-var _capitalize = _interopRequireDefault(require("../utils/capitalize"));
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-var styles = function styles(theme) {
-  return {
-    /* Styles applied to the root element. */
-    root: (0, _extends2.default)({}, theme.typography.button, {
-      boxSizing: 'border-box',
-      minWidth: 64,
-      padding: '6px 16px',
-      borderRadius: theme.shape.borderRadius,
-      color: theme.palette.text.primary,
-      transition: theme.transitions.create(['background-color', 'box-shadow', 'border'], {
-        duration: theme.transitions.duration.short
-      }),
-      '&:hover': {
-        textDecoration: 'none',
-        backgroundColor: (0, _colorManipulator.fade)(theme.palette.text.primary, theme.palette.action.hoverOpacity),
-        // Reset on touch devices, it doesn't add specificity
-        '@media (hover: none)': {
-          backgroundColor: 'transparent'
-        },
-        '&$disabled': {
-          backgroundColor: 'transparent'
-        }
-      },
-      '&$disabled': {
-        color: theme.palette.action.disabled
-      }
-    }),
-
-    /* Styles applied to the span element that wraps the children. */
-    label: {
-      width: '100%',
-      // Ensure the correct width for iOS Safari
-      display: 'inherit',
-      alignItems: 'inherit',
-      justifyContent: 'inherit'
-    },
-
-    /* Styles applied to the root element if `variant="text"`. */
-    text: {
-      padding: '6px 8px'
-    },
-
-    /* Styles applied to the root element if `variant="text"` and `color="primary"`. */
-    textPrimary: {
-      color: theme.palette.primary.main,
-      '&:hover': {
-        backgroundColor: (0, _colorManipulator.fade)(theme.palette.primary.main, theme.palette.action.hoverOpacity),
-        // Reset on touch devices, it doesn't add specificity
-        '@media (hover: none)': {
-          backgroundColor: 'transparent'
-        }
-      }
-    },
-
-    /* Styles applied to the root element if `variant="text"` and `color="secondary"`. */
-    textSecondary: {
-      color: theme.palette.secondary.main,
-      '&:hover': {
-        backgroundColor: (0, _colorManipulator.fade)(theme.palette.secondary.main, theme.palette.action.hoverOpacity),
-        // Reset on touch devices, it doesn't add specificity
-        '@media (hover: none)': {
-          backgroundColor: 'transparent'
-        }
-      }
-    },
-
-    /* Styles applied to the root element if `variant="outlined"`. */
-    outlined: {
-      padding: '5px 15px',
-      border: "1px solid ".concat(theme.palette.type === 'light' ? 'rgba(0, 0, 0, 0.23)' : 'rgba(255, 255, 255, 0.23)'),
-      '&$disabled': {
-        border: "1px solid ".concat(theme.palette.action.disabled)
-      }
-    },
-
-    /* Styles applied to the root element if `variant="outlined"` and `color="primary"`. */
-    outlinedPrimary: {
-      color: theme.palette.primary.main,
-      border: "1px solid ".concat((0, _colorManipulator.fade)(theme.palette.primary.main, 0.5)),
-      '&:hover': {
-        border: "1px solid ".concat(theme.palette.primary.main),
-        backgroundColor: (0, _colorManipulator.fade)(theme.palette.primary.main, theme.palette.action.hoverOpacity),
-        // Reset on touch devices, it doesn't add specificity
-        '@media (hover: none)': {
-          backgroundColor: 'transparent'
-        }
-      }
-    },
-
-    /* Styles applied to the root element if `variant="outlined"` and `color="secondary"`. */
-    outlinedSecondary: {
-      color: theme.palette.secondary.main,
-      border: "1px solid ".concat((0, _colorManipulator.fade)(theme.palette.secondary.main, 0.5)),
-      '&:hover': {
-        border: "1px solid ".concat(theme.palette.secondary.main),
-        backgroundColor: (0, _colorManipulator.fade)(theme.palette.secondary.main, theme.palette.action.hoverOpacity),
-        // Reset on touch devices, it doesn't add specificity
-        '@media (hover: none)': {
-          backgroundColor: 'transparent'
-        }
-      },
-      '&$disabled': {
-        border: "1px solid ".concat(theme.palette.action.disabled)
-      }
-    },
-
-    /* Styles applied to the root element if `variant="contained"`. */
-    contained: {
-      color: theme.palette.getContrastText(theme.palette.grey[300]),
-      backgroundColor: theme.palette.grey[300],
-      boxShadow: theme.shadows[2],
-      '&:hover': {
-        backgroundColor: theme.palette.grey.A100,
-        boxShadow: theme.shadows[4],
-        // Reset on touch devices, it doesn't add specificity
-        '@media (hover: none)': {
-          boxShadow: theme.shadows[2],
-          backgroundColor: theme.palette.grey[300]
-        },
-        '&$disabled': {
-          backgroundColor: theme.palette.action.disabledBackground
-        }
-      },
-      '&$focusVisible': {
-        boxShadow: theme.shadows[6]
-      },
-      '&:active': {
-        boxShadow: theme.shadows[8]
-      },
-      '&$disabled': {
-        color: theme.palette.action.disabled,
-        boxShadow: theme.shadows[0],
-        backgroundColor: theme.palette.action.disabledBackground
-      }
-    },
-
-    /* Styles applied to the root element if `variant="contained"` and `color="primary"`. */
-    containedPrimary: {
-      color: theme.palette.primary.contrastText,
-      backgroundColor: theme.palette.primary.main,
-      '&:hover': {
-        backgroundColor: theme.palette.primary.dark,
-        // Reset on touch devices, it doesn't add specificity
-        '@media (hover: none)': {
-          backgroundColor: theme.palette.primary.main
-        }
-      }
-    },
-
-    /* Styles applied to the root element if `variant="contained"` and `color="secondary"`. */
-    containedSecondary: {
-      color: theme.palette.secondary.contrastText,
-      backgroundColor: theme.palette.secondary.main,
-      '&:hover': {
-        backgroundColor: theme.palette.secondary.dark,
-        // Reset on touch devices, it doesn't add specificity
-        '@media (hover: none)': {
-          backgroundColor: theme.palette.secondary.main
-        }
-      }
-    },
-
-    /* Pseudo-class applied to the ButtonBase root element if the button is keyboard focused. */
-    focusVisible: {},
-
-    /* Pseudo-class applied to the root element if `disabled={true}`. */
-    disabled: {},
-
-    /* Styles applied to the root element if `color="inherit"`. */
-    colorInherit: {
-      color: 'inherit',
-      borderColor: 'currentColor'
-    },
-
-    /* Styles applied to the root element if `size="small"` and `variant="text"`. */
-    textSizeSmall: {
-      padding: '4px 5px',
-      fontSize: theme.typography.pxToRem(13)
-    },
-
-    /* Styles applied to the root element if `size="large"` and `variant="text"`. */
-    textSizeLarge: {
-      padding: '8px 11px',
-      fontSize: theme.typography.pxToRem(15)
-    },
-
-    /* Styles applied to the root element if `size="small"` and `variant="outlined"`. */
-    outlinedSizeSmall: {
-      padding: '3px 9px',
-      fontSize: theme.typography.pxToRem(13)
-    },
-
-    /* Styles applied to the root element if `size="large"` and `variant="outlined"`. */
-    outlinedSizeLarge: {
-      padding: '7px 21px',
-      fontSize: theme.typography.pxToRem(15)
-    },
-
-    /* Styles applied to the root element if `size="small"` and `variant="contained"`. */
-    containedSizeSmall: {
-      padding: '4px 10px',
-      fontSize: theme.typography.pxToRem(13)
-    },
-
-    /* Styles applied to the root element if `size="large"` and `variant="contained"`. */
-    containedSizeLarge: {
-      padding: '8px 22px',
-      fontSize: theme.typography.pxToRem(15)
-    },
-
-    /* Styles applied to the root element if `size="small"`. */
-    sizeSmall: {},
-
-    /* Styles applied to the root element if `size="large"`. */
-    sizeLarge: {},
-
-    /* Styles applied to the root element if `fullWidth={true}`. */
-    fullWidth: {
-      width: '100%'
-    },
-
-    /* Styles applied to the startIcon element if supplied. */
-    startIcon: {
-      display: 'inherit',
-      marginRight: 8,
-      marginLeft: -4
-    },
-
-    /* Styles applied to the endIcon element if supplied. */
-    endIcon: {
-      display: 'inherit',
-      marginRight: -4,
-      marginLeft: 8
-    },
-
-    /* Styles applied to the icon element if supplied and `size="small"`. */
-    iconSizeSmall: {
-      '& > *:first-child': {
-        fontSize: 18
-      }
-    },
-
-    /* Styles applied to the icon element if supplied and `size="medium"`. */
-    iconSizeMedium: {
-      '& > *:first-child': {
-        fontSize: 20
-      }
-    },
-
-    /* Styles applied to the icon element if supplied and `size="large"`. */
-    iconSizeLarge: {
-      '& > *:first-child': {
-        fontSize: 22
-      }
-    }
-  };
-};
-
-exports.styles = styles;
-
-var Button = _react.default.forwardRef(function Button(props, ref) {
-  var children = props.children,
-      classes = props.classes,
-      className = props.className,
-      _props$color = props.color,
-      color = _props$color === void 0 ? 'default' : _props$color,
-      _props$component = props.component,
-      component = _props$component === void 0 ? 'button' : _props$component,
-      _props$disabled = props.disabled,
-      disabled = _props$disabled === void 0 ? false : _props$disabled,
-      _props$disableFocusRi = props.disableFocusRipple,
-      disableFocusRipple = _props$disableFocusRi === void 0 ? false : _props$disableFocusRi,
-      endIconProp = props.endIcon,
-      focusVisibleClassName = props.focusVisibleClassName,
-      _props$fullWidth = props.fullWidth,
-      fullWidth = _props$fullWidth === void 0 ? false : _props$fullWidth,
-      _props$size = props.size,
-      size = _props$size === void 0 ? 'medium' : _props$size,
-      startIconProp = props.startIcon,
-      _props$type = props.type,
-      type = _props$type === void 0 ? 'button' : _props$type,
-      _props$variant = props.variant,
-      variant = _props$variant === void 0 ? 'text' : _props$variant,
-      other = (0, _objectWithoutProperties2.default)(props, ["children", "classes", "className", "color", "component", "disabled", "disableFocusRipple", "endIcon", "focusVisibleClassName", "fullWidth", "size", "startIcon", "type", "variant"]);
-
-  var startIcon = startIconProp && _react.default.createElement("span", {
-    className: (0, _clsx.default)(classes.startIcon, classes["iconSize".concat((0, _capitalize.default)(size))])
-  }, startIconProp);
-
-  var endIcon = endIconProp && _react.default.createElement("span", {
-    className: (0, _clsx.default)(classes.endIcon, classes["iconSize".concat((0, _capitalize.default)(size))])
-  }, endIconProp);
-
-  return _react.default.createElement(_ButtonBase.default, (0, _extends2.default)({
-    className: (0, _clsx.default)(classes.root, classes[variant], className, color === 'inherit' ? classes.colorInherit : color !== 'default' && classes["".concat(variant).concat((0, _capitalize.default)(color))], size !== 'medium' && [classes["".concat(variant, "Size").concat((0, _capitalize.default)(size))], classes["size".concat((0, _capitalize.default)(size))]], disabled && classes.disabled, fullWidth && classes.fullWidth),
-    component: component,
-    disabled: disabled,
-    focusRipple: !disableFocusRipple,
-    focusVisibleClassName: (0, _clsx.default)(classes.focusVisible, focusVisibleClassName),
-    ref: ref,
-    type: type
-  }, other), _react.default.createElement("span", {
-    className: classes.label
-  }, startIcon, children, endIcon));
-});
-
-"development" !== "production" ? Button.propTypes = {
-  /**
-   * The content of the button.
-   */
-  children: _propTypes.default.node.isRequired,
-
-  /**
-   * Override or extend the styles applied to the component.
-   * See [CSS API](#css) below for more details.
-   */
-  classes: _propTypes.default.object.isRequired,
-
-  /**
-   * @ignore
-   */
-  className: _propTypes.default.string,
-
-  /**
-   * The color of the component. It supports those theme colors that make sense for this component.
-   */
-  color: _propTypes.default.oneOf(['default', 'inherit', 'primary', 'secondary']),
-
-  /**
-   * The component used for the root node.
-   * Either a string to use a DOM element or a component.
-   */
-  component: _propTypes.default.elementType,
-
-  /**
-   * If `true`, the button will be disabled.
-   */
-  disabled: _propTypes.default.bool,
-
-  /**
-   * If `true`, the  keyboard focus ripple will be disabled.
-   * `disableRipple` must also be true.
-   */
-  disableFocusRipple: _propTypes.default.bool,
-
-  /**
-   * If `true`, the ripple effect will be disabled.
-   *
-   * ⚠️ Without a ripple there is no styling for :focus-visible by default. Be sure
-   * to highlight the element by applying separate styles with the `focusVisibleClassName`.
-   */
-  disableRipple: _propTypes.default.bool,
-
-  /**
-   * Element placed after the children.
-   */
-  endIcon: _propTypes.default.node,
-
-  /**
-   * @ignore
-   */
-  focusVisibleClassName: _propTypes.default.string,
-
-  /**
-   * If `true`, the button will take up the full width of its container.
-   */
-  fullWidth: _propTypes.default.bool,
-
-  /**
-   * The URL to link to when the button is clicked.
-   * If defined, an `a` element will be used as the root node.
-   */
-  href: _propTypes.default.string,
-
-  /**
-   * The size of the button.
-   * `small` is equivalent to the dense button styling.
-   */
-  size: _propTypes.default.oneOf(['small', 'medium', 'large']),
-
-  /**
-   * Element placed before the children.
-   */
-  startIcon: _propTypes.default.node,
-
-  /**
-   * @ignore
-   */
-  type: _propTypes.default.string,
-
-  /**
-   * The variant to use.
-   */
-  variant: _propTypes.default.oneOf(['text', 'outlined', 'contained'])
-} : void 0;
-
-var _default = (0, _withStyles.default)(styles, {
-  name: 'MuiButton'
-})(Button);
-
-exports.default = _default;
-},{"@babel/runtime/helpers/esm/objectWithoutProperties":"../node_modules/@babel/runtime/helpers/esm/objectWithoutProperties.js","@babel/runtime/helpers/esm/extends":"../node_modules/@babel/runtime/helpers/esm/extends.js","react":"../node_modules/react/index.js","prop-types":"../node_modules/prop-types/index.js","clsx":"../node_modules/clsx/dist/clsx.m.js","../styles/withStyles":"../node_modules/@material-ui/core/esm/styles/withStyles.js","../styles/colorManipulator":"../node_modules/@material-ui/core/esm/styles/colorManipulator.js","../ButtonBase":"../node_modules/@material-ui/core/esm/ButtonBase/index.js","../utils/capitalize":"../node_modules/@material-ui/core/esm/utils/capitalize.js"}],"../node_modules/@material-ui/core/esm/Button/index.js":[function(require,module,exports) {
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-Object.defineProperty(exports, "default", {
-  enumerable: true,
-  get: function () {
-    return _Button.default;
-  }
-});
-
-var _Button = _interopRequireDefault(require("./Button"));
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-},{"./Button":"../node_modules/@material-ui/core/esm/Button/Button.js"}],"../node_modules/@material-ui/core/esm/Portal/Portal.js":[function(require,module,exports) {
+},{"./Editor":"../node_modules/@monaco-editor/react/lib/Editor/index.js","./DiffEditor":"../node_modules/@monaco-editor/react/lib/DiffEditor/index.js","./ControlledEditor":"../node_modules/@monaco-editor/react/lib/ControlledEditor/index.js","./utils":"../node_modules/@monaco-editor/react/lib/utils/index.js"}],"../node_modules/@material-ui/core/esm/Portal/Portal.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -84559,8 +84850,6 @@ var _react = _interopRequireWildcard(require("react"));
 
 var _propTypes = _interopRequireDefault(require("prop-types"));
 
-var _universalCookie = _interopRequireDefault(require("universal-cookie"));
-
 var _react2 = _interopRequireWildcard(require("@monaco-editor/react"));
 
 var _Button = _interopRequireDefault(require("@material-ui/core/Button"));
@@ -84798,7 +85087,6 @@ var PlayBox = function PlayBox(_ref) {
     setCurrentValue(newContent);
   };
 
-  var cookies = new _universalCookie.default();
   return _react.default.createElement("div", {
     className: "playBox",
     id: id
@@ -84824,7 +85112,7 @@ var PlayBox = function PlayBox(_ref) {
     type: "button",
     onClick: update,
     disabled: !isEditorReady || buttonState === 'Start'
-  }, 'Update'), isEditorReady && isPlayground && cookies.get('email') ? _react.default.createElement(_MySongs.default, {
+  }, 'Update'), isEditorReady && isPlayground ? _react.default.createElement(_MySongs.default, {
     disabled: !isEditorReady,
     currentContent: valueGetter.current(),
     onContentLoad: loadNewContent
@@ -84841,7 +85129,7 @@ PlayBox.defaltProps = {
 };
 var _default = PlayBox;
 exports.default = _default;
-},{"react":"../node_modules/react/index.js","prop-types":"../node_modules/prop-types/index.js","universal-cookie":"../node_modules/universal-cookie/es6/index.js","@monaco-editor/react":"../node_modules/@monaco-editor/react/lib/index.js","@material-ui/core/Button":"../node_modules/@material-ui/core/esm/Button/index.js","./MySongs":"components/common/MySongs.jsx","tone":"../node_modules/tone/build/Tone.js","../../../language/samples.js":"../language/samples.js","../../../language/language.js":"../language/language.js","./autocomplete.js":"components/common/autocomplete.js","../../../language/defaults.js":"../language/defaults.js"}],"components/tutorial/TutorialText.js":[function(require,module,exports) {
+},{"react":"../node_modules/react/index.js","prop-types":"../node_modules/prop-types/index.js","@monaco-editor/react":"../node_modules/@monaco-editor/react/lib/index.js","@material-ui/core/Button":"../node_modules/@material-ui/core/esm/Button/index.js","./MySongs":"components/common/MySongs.jsx","tone":"../node_modules/tone/build/Tone.js","../../../language/samples.js":"../language/samples.js","../../../language/language.js":"../language/language.js","./autocomplete.js":"components/common/autocomplete.js","../../../language/defaults.js":"../language/defaults.js"}],"components/tutorial/TutorialText.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -84884,7 +85172,7 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.default = void 0;
 
-var _react = _interopRequireWildcard(require("react"));
+var _react = _interopRequireDefault(require("react"));
 
 var _styles = require("@material-ui/core/styles");
 
@@ -84898,57 +85186,11 @@ var _Typography = _interopRequireDefault(require("@material-ui/core/Typography")
 
 var _reactMarkdown = _interopRequireDefault(require("react-markdown"));
 
-var _styledComponents = _interopRequireDefault(require("styled-components"));
-
 var _PlayBox = _interopRequireDefault(require("../common/PlayBox"));
 
 var _TutorialText = require("./TutorialText");
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-function _getRequireWildcardCache() { if (typeof WeakMap !== "function") return null; var cache = new WeakMap(); _getRequireWildcardCache = function () { return cache; }; return cache; }
-
-function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } var cache = _getRequireWildcardCache(); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; if (obj != null) { var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } } newObj.default = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
-
-function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _nonIterableRest(); }
-
-function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance"); }
-
-function _iterableToArrayLimit(arr, i) { if (!(Symbol.iterator in Object(arr) || Object.prototype.toString.call(arr) === "[object Arguments]")) { return; } var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"] != null) _i["return"](); } finally { if (_d) throw _e; } } return _arr; }
-
-function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
-
-function _templateObject3() {
-  var data = _taggedTemplateLiteral(["\n  transform: rotate(-45deg);\n"]);
-
-  _templateObject3 = function _templateObject3() {
-    return data;
-  };
-
-  return data;
-}
-
-function _templateObject2() {
-  var data = _taggedTemplateLiteral(["\n  transform: rotate(135deg);\n"]);
-
-  _templateObject2 = function _templateObject2() {
-    return data;
-  };
-
-  return data;
-}
-
-function _templateObject() {
-  var data = _taggedTemplateLiteral(["\n  box-sizing: border-box;\n  display: inline-block;\n  height: 3vh;\n  width: 3vh;\n  border-style: solid;\n  border-color: black;\n  border-width: 0px 1px 1px 0px;\n  transform: rotate(45deg);\n  transition: border-width 150ms ease-in-out;\n  margin: 2%;\n"]);
-
-  _templateObject = function _templateObject() {
-    return data;
-  };
-
-  return data;
-}
-
-function _taggedTemplateLiteral(strings, raw) { if (!raw) { raw = strings.slice(0); } return Object.freeze(Object.defineProperties(strings, { raw: { value: Object.freeze(raw) } })); }
 
 var theme = (0, _styles.createMuiTheme)({
   palette: {
@@ -84963,159 +85205,15 @@ var theme = (0, _styles.createMuiTheme)({
   }
 });
 
-var Arrow = _styledComponents.default.div(_templateObject());
-
-var LeftArrow = (0, _styledComponents.default)(Arrow)(_templateObject2());
-var RightArrow = (0, _styledComponents.default)(Arrow)(_templateObject3());
-
 var Tutorial = function Tutorial() {
-  var _useState = (0, _react.useState)(0),
-      _useState2 = _slicedToArray(_useState, 2),
-      currentBox = _useState2[0],
-      setCurrentBox = _useState2[1];
-
-  var maxCount = 9;
-
-  var decreaseCount = function decreaseCount() {
-    if (currentBox === 0) {
-      setCurrentBox(maxCount);
-    } else {
-      setCurrentBox(currentBox - 1);
-    }
-  };
-
-  var increaseCount = function increaseCount() {
-    if (currentBox === maxCount) {
-      setCurrentBox(0);
-    } else {
-      setCurrentBox(currentBox + 1);
-    }
-  };
-
-  var boxChange = function boxChange() {
-    var min = 0;
-
-    switch (currentBox) {
-      case min:
-        return _react.default.createElement(_react.default.Fragment, null, _react.default.createElement(_reactMarkdown.default, {
-          source: _TutorialText.welcome
-        }), _react.default.createElement(_PlayBox.default, {
-          id: "welcomeTutBox",
-          value: _TutorialText.examplesong
-        }));
-
-      case min + 1:
-        return _react.default.createElement(_react.default.Fragment, null, _react.default.createElement(_reactMarkdown.default, {
-          source: "## Notes"
-        }), _react.default.createElement(_reactMarkdown.default, {
-          source: _TutorialText.tutorial1
-        }), _react.default.createElement(_PlayBox.default, {
-          id: "firtsTutBox",
-          value: "\"c e g\" >> soft"
-        }));
-
-      case min + 2:
-        return _react.default.createElement(_react.default.Fragment, null, _react.default.createElement(_reactMarkdown.default, {
-          source: "## Notes"
-        }), _react.default.createElement(_reactMarkdown.default, {
-          source: _TutorialText.tutorial2
-        }), _react.default.createElement(_PlayBox.default, {
-          id: "secondTutBox",
-          value: "\"f# Bb c#+\" >> triangle"
-        }));
-
-      case min + 3:
-        return _react.default.createElement(_react.default.Fragment, null, _react.default.createElement(_reactMarkdown.default, {
-          source: "## Notes"
-        }), _react.default.createElement(_reactMarkdown.default, {
-          source: _TutorialText.tutorialaltchars
-        }), _react.default.createElement(_PlayBox.default, {
-          id: "altcharsTutBox",
-          value: "\"f# ~ Bb c#+ _\" >> triangle"
-        }));
-
-      case min + 4:
-        return _react.default.createElement(_react.default.Fragment, null, _react.default.createElement(_reactMarkdown.default, {
-          source: "## Notes"
-        }), _react.default.createElement(_reactMarkdown.default, {
-          source: _TutorialText.tutorialdrums
-        }), _react.default.createElement(_PlayBox.default, {
-          id: "drumsTutBox",
-          value: _TutorialText.exampledrums
-        }));
-
-      case min + 5:
-        return _react.default.createElement(_react.default.Fragment, null, _react.default.createElement(_reactMarkdown.default, {
-          source: "## Sequences"
-        }), _react.default.createElement(_reactMarkdown.default, {
-          source: _TutorialText.tutorialmods
-        }), _react.default.createElement(_PlayBox.default, {
-          id: "modTutBox",
-          value: "\"c e g\" >> octave +2 >> pitch -- >> triangle"
-        }));
-
-      case min + 6:
-        return _react.default.createElement(_react.default.Fragment, null, _react.default.createElement(_reactMarkdown.default, {
-          source: "## Sequences"
-        }), _react.default.createElement(_reactMarkdown.default, {
-          source: _TutorialText.tutorialduration
-        }), _react.default.createElement(_PlayBox.default, {
-          id: "durationTutBox",
-          value: "\"c e g\" >> octave +2 >> pitch -- >> duration .25 >> triangle"
-        }));
-
-      case min + 7:
-        return _react.default.createElement(_react.default.Fragment, null, _react.default.createElement(_reactMarkdown.default, {
-          source: "## Beyond"
-        }), _react.default.createElement(_reactMarkdown.default, {
-          source: _TutorialText.tutorialmult
-        }), _react.default.createElement(_PlayBox.default, {
-          id: "fourthTutBox",
-          value: "\"c e f g\" >> soft >> pitch +7 >> triangle"
-        }));
-
-      case min + 8:
-        return _react.default.createElement(_react.default.Fragment, null, _react.default.createElement(_reactMarkdown.default, {
-          source: "## Beyond"
-        }), _react.default.createElement(_reactMarkdown.default, {
-          source: _TutorialText.tutorialpatterns
-        }), _react.default.createElement(_PlayBox.default, {
-          id: "fifthTutBox",
-          value: _TutorialText.examplepatterns
-        }));
-
-      case min + 9:
-        return _react.default.createElement(_react.default.Fragment, null, _react.default.createElement(_reactMarkdown.default, {
-          source: "## Beyond"
-        }), _react.default.createElement(_reactMarkdown.default, {
-          source: _TutorialText.tutorialconclusion
-        }), _react.default.createElement(_PlayBox.default, {
-          id: "sixthTutBox",
-          value: _TutorialText.examplesong2
-        }));
-
-      default:
-        return _react.default.createElement(_react.default.Fragment, null, _react.default.createElement(_reactMarkdown.default, {
-          source: _TutorialText.welcome
-        }), _react.default.createElement(_PlayBox.default, {
-          id: "welcomeTutBox",
-          value: _TutorialText.examplesong
-        }));
-    }
-  };
-
-  return _react.default.createElement(_react.default.Fragment, null, _react.default.createElement(_styles2.ThemeProvider, {
+  return _react.default.createElement(_styles2.ThemeProvider, {
     theme: theme
   }, _react.default.createElement(_Typography.default, {
     component: "div"
   }, _react.default.createElement(_Box.default, {
     display: "flex",
     justifyContent: "center"
-  }, _react.default.createElement(LeftArrow, {
-    onClick: function onClick() {
-      return decreaseCount();
-    }
-  }), _react.default.createElement(_Box.default, {
+  }, _react.default.createElement(_Box.default, {
     display: "flex",
     flexWrap: "wrap",
     justifyContent: "center",
@@ -85127,16 +85225,65 @@ var Tutorial = function Tutorial() {
     css: {
       maxWidth: 500
     }
-  }, boxChange()), _react.default.createElement(RightArrow, {
-    onClick: function onClick() {
-      return increaseCount();
-    }
+  }, _react.default.createElement(_reactMarkdown.default, {
+    source: _TutorialText.welcome
+  }), _react.default.createElement(_PlayBox.default, {
+    id: "welcomeTutBox",
+    value: _TutorialText.examplesong
+  }), _react.default.createElement(_reactMarkdown.default, {
+    source: "## Notes"
+  }), _react.default.createElement(_reactMarkdown.default, {
+    source: _TutorialText.tutorial1
+  }), _react.default.createElement(_PlayBox.default, {
+    id: "firtsTutBox",
+    value: "\"c e g\" >> soft"
+  }), _react.default.createElement(_reactMarkdown.default, {
+    source: _TutorialText.tutorial2
+  }), _react.default.createElement(_PlayBox.default, {
+    id: "secondTutBox",
+    value: "\"f# Bb c#+\" >> triangle"
+  }), _react.default.createElement(_reactMarkdown.default, {
+    source: _TutorialText.tutorialaltchars
+  }), _react.default.createElement(_PlayBox.default, {
+    id: "altcharsTutBox",
+    value: "\"f# ~ Bb c#+ _\" >> triangle"
+  }), _react.default.createElement(_reactMarkdown.default, {
+    source: _TutorialText.tutorialdrums
+  }), _react.default.createElement(_PlayBox.default, {
+    id: "drumsTutBox",
+    value: _TutorialText.exampledrums
+  }), _react.default.createElement(_reactMarkdown.default, {
+    source: "## Sequences"
+  }), _react.default.createElement(_reactMarkdown.default, {
+    source: _TutorialText.tutorialmods
+  }), _react.default.createElement(_PlayBox.default, {
+    id: "modTutBox",
+    value: "\"c e g\" >> octave +2 >> pitch -- >> duration .25 >> triangle"
+  }), _react.default.createElement(_reactMarkdown.default, {
+    source: _TutorialText.tutorialduration
+  }), _react.default.createElement("br", null), _react.default.createElement(_reactMarkdown.default, {
+    source: "## Beyond"
+  }), _react.default.createElement(_reactMarkdown.default, {
+    source: _TutorialText.tutorialmult
+  }), _react.default.createElement(_PlayBox.default, {
+    id: "fourthTutBox",
+    value: "\"c e f g\" >> soft >> pitch +7 >> triangle"
+  }), _react.default.createElement(_reactMarkdown.default, {
+    source: _TutorialText.tutorialpatterns
+  }), _react.default.createElement(_PlayBox.default, {
+    id: "fifthTutBox",
+    value: _TutorialText.examplepatterns
+  }), _react.default.createElement(_reactMarkdown.default, {
+    source: _TutorialText.tutorialconclusion
+  }), _react.default.createElement(_PlayBox.default, {
+    id: "sixthTutBox",
+    value: _TutorialText.examplesong2
   })))));
 };
 
 var _default = Tutorial;
 exports.default = _default;
-},{"react":"../node_modules/react/index.js","@material-ui/core/styles":"../node_modules/@material-ui/core/esm/styles/index.js","@material-ui/core/colors/blueGrey":"../node_modules/@material-ui/core/colors/blueGrey.js","@material-ui/styles":"../node_modules/@material-ui/styles/esm/index.js","@material-ui/core/Box":"../node_modules/@material-ui/core/esm/Box/index.js","@material-ui/core/Typography":"../node_modules/@material-ui/core/esm/Typography/index.js","react-markdown":"../node_modules/react-markdown/lib/react-markdown.js","styled-components":"../node_modules/styled-components/dist/styled-components.browser.esm.js","../common/PlayBox":"components/common/PlayBox.jsx","./TutorialText":"components/tutorial/TutorialText.js"}],"components/playground/Playground.jsx":[function(require,module,exports) {
+},{"react":"../node_modules/react/index.js","@material-ui/core/styles":"../node_modules/@material-ui/core/esm/styles/index.js","@material-ui/core/colors/blueGrey":"../node_modules/@material-ui/core/colors/blueGrey.js","@material-ui/styles":"../node_modules/@material-ui/styles/esm/index.js","@material-ui/core/Box":"../node_modules/@material-ui/core/esm/Box/index.js","@material-ui/core/Typography":"../node_modules/@material-ui/core/esm/Typography/index.js","react-markdown":"../node_modules/react-markdown/lib/react-markdown.js","../common/PlayBox":"components/common/PlayBox.jsx","./TutorialText":"components/tutorial/TutorialText.js"}],"components/playground/Playground.jsx":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -85146,20 +85293,32 @@ exports.default = void 0;
 
 var _react = _interopRequireDefault(require("react"));
 
+var _reactRouterDom = require("react-router-dom");
+
+var _universalCookie = _interopRequireDefault(require("universal-cookie"));
+
 var _PlayBox = _interopRequireDefault(require("../common/PlayBox"));
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 var Playground = function Playground() {
-  return _react.default.createElement(_PlayBox.default, {
-    id: "fullBox",
-    isPlayground: true
+  var cookies = new _universalCookie.default();
+
+  if (cookies.get('email')) {
+    return _react.default.createElement(_PlayBox.default, {
+      id: "fullBox",
+      isPlayground: true
+    });
+  }
+
+  return _react.default.createElement(_reactRouterDom.Redirect, {
+    to: "/"
   });
 };
 
 var _default = Playground;
 exports.default = _default;
-},{"react":"../node_modules/react/index.js","../common/PlayBox":"components/common/PlayBox.jsx"}],"components/usertesting/instructions.js":[function(require,module,exports) {
+},{"react":"../node_modules/react/index.js","react-router-dom":"../node_modules/react-router-dom/esm/react-router-dom.js","universal-cookie":"../node_modules/universal-cookie/es6/index.js","../common/PlayBox":"components/common/PlayBox.jsx"}],"components/usertesting/instructions.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -85366,284 +85525,29 @@ exports.default = void 0;
 
 var _react = _interopRequireDefault(require("react"));
 
+var _universalCookie = _interopRequireDefault(require("universal-cookie"));
+
+var _reactRouterDom = require("react-router-dom");
+
 var _UTNavigation = _interopRequireDefault(require("./UTNavigation"));
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 var UTHomepage = function UTHomepage() {
-  return _react.default.createElement(_UTNavigation.default, null);
+  var cookies = new _universalCookie.default();
+
+  if (cookies.get('email')) {
+    return _react.default.createElement(_UTNavigation.default, null);
+  }
+
+  return _react.default.createElement(_reactRouterDom.Redirect, {
+    to: "/"
+  });
 };
 
 var _default = UTHomepage;
 exports.default = _default;
-},{"react":"../node_modules/react/index.js","./UTNavigation":"components/usertesting/UTNavigation.jsx"}],"components/LandingPage/intro.js":[function(require,module,exports) {
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.intro = void 0;
-var intro = 'Welcome to *Language*! We are excited for you to explore your musical abilities with our simple syntax and interface. This project is still in development, and we hope that you can help us in the process!';
-exports.intro = intro;
-},{}],"components/LandingPage/LandingPage.jsx":[function(require,module,exports) {
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.default = void 0;
-
-var _react = _interopRequireWildcard(require("react"));
-
-var _reactMarkdown = _interopRequireDefault(require("react-markdown"));
-
-var _reactRouterDom = require("react-router-dom");
-
-var _styledComponents = _interopRequireDefault(require("styled-components"));
-
-var _Button = _interopRequireDefault(require("@material-ui/core/Button"));
-
-var _intro = require("./intro");
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-function _getRequireWildcardCache() { if (typeof WeakMap !== "function") return null; var cache = new WeakMap(); _getRequireWildcardCache = function () { return cache; }; return cache; }
-
-function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } var cache = _getRequireWildcardCache(); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; if (obj != null) { var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } } newObj.default = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
-
-function _templateObject2() {
-  var data = _taggedTemplateLiteral(["\n  display: flex;\n  width: 30vw;\n  flex-wrap: wrap;\n  align-content: center;\n  justify-content: center;\n"]);
-
-  _templateObject2 = function _templateObject2() {
-    return data;
-  };
-
-  return data;
-}
-
-function _templateObject() {
-  var data = _taggedTemplateLiteral(["\n  display:flex;\n  justify-content:space-around;\n  align-content: center;\n  height: 90vh;\n"]);
-
-  _templateObject = function _templateObject() {
-    return data;
-  };
-
-  return data;
-}
-
-function _taggedTemplateLiteral(strings, raw) { if (!raw) { raw = strings.slice(0); } return Object.freeze(Object.defineProperties(strings, { raw: { value: Object.freeze(raw) } })); }
-
-var Wrapper = _styledComponents.default.section(_templateObject());
-
-var Half = _styledComponents.default.section(_templateObject2());
-
-var LandingPage = function LandingPage() {
-  return _react.default.createElement(Wrapper, null, _react.default.createElement(Half, null, _react.default.createElement(_reactMarkdown.default, {
-    source: _intro.intro
-  })));
-};
-
-var _default = LandingPage;
-exports.default = _default;
-},{"react":"../node_modules/react/index.js","react-markdown":"../node_modules/react-markdown/lib/react-markdown.js","react-router-dom":"../node_modules/react-router-dom/esm/react-router-dom.js","styled-components":"../node_modules/styled-components/dist/styled-components.browser.esm.js","@material-ui/core/Button":"../node_modules/@material-ui/core/esm/Button/index.js","./intro":"components/LandingPage/intro.js"}],"../node_modules/react-google-login/dist/google-login.js":[function(require,module,exports) {
-var define;
-!function(e,t){"object"==typeof exports&&"object"==typeof module?module.exports=t(require("react")):"function"==typeof define&&define.amd?define(["react"],t):"object"==typeof exports?exports.GoogleLogin=t(require("react")):e.GoogleLogin=t(e.react)}("undefined"!=typeof self?self:this,(function(e){return o={},t.m=n=[function(t){t.exports=e},function(e,t,n){e.exports=n(2)()},function(e,t,n){"use strict";function o(){}function i(){}var r=n(3);i.resetWarningCache=o,e.exports=function(){function e(e,t,n,o,i,a){if(a!==r){var c=Error("Calling PropTypes validators directly is not supported by the `prop-types` package. Use PropTypes.checkPropTypes() to call them. Read more at http://fb.me/use-check-prop-types");throw c.name="Invariant Violation",c}}function t(){return e}var n={array:e.isRequired=e,bool:e,func:e,number:e,object:e,string:e,symbol:e,any:e,arrayOf:t,element:e,elementType:e,instanceOf:t,node:e,objectOf:t,oneOf:t,oneOfType:t,shape:t,exact:t,checkPropTypes:i,resetWarningCache:o};return n.PropTypes=n}},function(e){"use strict";e.exports="SECRET_DO_NOT_PASS_THIS_OR_YOU_WILL_BE_FIRED"},function(e,t,n){"use strict";function o(e){return(o="function"==typeof Symbol&&"symbol"==typeof Symbol.iterator?function(e){return typeof e}:function(e){return e&&"function"==typeof Symbol&&e.constructor===Symbol&&e!==Symbol.prototype?"symbol":typeof e})(e)}function i(e,t){for(var n=0;n<t.length;n++){var o=t[n];o.enumerable=o.enumerable||!1,o.configurable=!0,"value"in o&&(o.writable=!0),Object.defineProperty(e,o.key,o)}}function r(e){return(r=Object.setPrototypeOf?Object.getPrototypeOf:function(e){return e.__proto__||Object.getPrototypeOf(e)})(e)}function a(e){if(void 0===e)throw new ReferenceError("this hasn't been initialised - super() hasn't been called");return e}function c(e,t){return(c=Object.setPrototypeOf||function(e,t){return e.__proto__=t,e})(e,t)}function s(e){return(s="function"==typeof Symbol&&"symbol"==typeof Symbol.iterator?function(e){return typeof e}:function(e){return e&&"function"==typeof Symbol&&e.constructor===Symbol&&e!==Symbol.prototype?"symbol":typeof e})(e)}function u(e,t){for(var n=0;n<t.length;n++){var o=t[n];o.enumerable=o.enumerable||!1,o.configurable=!0,"value"in o&&(o.writable=!0),Object.defineProperty(e,o.key,o)}}function l(e){return(l=Object.setPrototypeOf?Object.getPrototypeOf:function(e){return e.__proto__||Object.getPrototypeOf(e)})(e)}function f(e){if(void 0===e)throw new ReferenceError("this hasn't been initialised - super() hasn't been called");return e}function p(e,t){return(p=Object.setPrototypeOf||function(e,t){return e.__proto__=t,e})(e,t)}function d(e){return h.a.createElement("div",{style:{marginRight:10,background:e.active?"#eee":"#fff",padding:10,borderRadius:2}},h.a.createElement("svg",{width:"18",height:"18",xmlns:"http://www.w3.org/2000/svg"},h.a.createElement("g",{fill:"#000",fillRule:"evenodd"},h.a.createElement("path",{d:"M9 3.48c1.69 0 2.83.73 3.48 1.34l2.54-2.48C13.46.89 11.43 0 9 0 5.48 0 2.44 2.02.96 4.96l2.91 2.26C4.6 5.05 6.62 3.48 9 3.48z",fill:"#EA4335"}),h.a.createElement("path",{d:"M17.64 9.2c0-.74-.06-1.28-.19-1.84H9v3.34h4.96c-.1.83-.64 2.08-1.84 2.92l2.84 2.2c1.7-1.57 2.68-3.88 2.68-6.62z",fill:"#4285F4"}),h.a.createElement("path",{d:"M3.88 10.78A5.54 5.54 0 0 1 3.58 9c0-.62.11-1.22.29-1.78L.96 4.96A9.008 9.008 0 0 0 0 9c0 1.45.35 2.82.96 4.04l2.92-2.26z",fill:"#FBBC05"}),h.a.createElement("path",{d:"M9 18c2.43 0 4.47-.8 5.96-2.18l-2.84-2.2c-.76.53-1.78.9-3.12.9-2.38 0-4.4-1.57-5.12-3.74L.97 13.04C2.45 15.98 5.48 18 9 18z",fill:"#34A853"}),h.a.createElement("path",{fill:"none",d:"M0 0h18v18H0z"}))))}function g(e){return h.a.createElement("span",{style:{paddingRight:10,fontWeight:500,paddingLeft:e.icon?0:10,paddingTop:10,paddingBottom:10}},e.children)}function y(e,t,n,o,i){var r=e.getElementsByTagName(t)[0],a=r,c=r;(c=e.createElement(t)).id=n,c.src=o,a&&a.parentNode?a.parentNode.insertBefore(c,a):e.head.appendChild(c),c.onload=i}n.r(t);var b=n(0),h=n.n(b),m=(n(1),function(){function e(t){var n;return function(e,t){if(!(e instanceof t))throw new TypeError("Cannot call a class as a function")}(this,e),(n=function(e,t){return!t||"object"!==o(t)&&"function"!=typeof t?a(e):t}(this,r(e).call(this,t))).signIn=n.signIn.bind(a(n)),n.enableButton=n.enableButton.bind(a(n)),n.state={disabled:!0,hovered:!1,active:!1},n}return function(e,t){if("function"!=typeof t&&null!==t)throw new TypeError("Super expression must either be null or a function");e.prototype=Object.create(t&&t.prototype,{constructor:{value:e,writable:!0,configurable:!0}}),t&&c(e,t)}(e,b.Component),function(e,t,n){t&&i(e.prototype,t)}(e,[{key:"componentDidMount",value:function(){var e=this,t=this.props,n=t.clientId,o=t.cookiePolicy,i=t.loginHint,r=t.hostedDomain,a=t.autoLoad,c=t.isSignedIn,s=t.fetchBasicProfile,u=t.redirectUri,l=t.discoveryDocs,f=t.onFailure,p=t.uxMode,d=t.scope,g=t.accessType,b=t.responseType;y(document,"script","google-login",t.jsSrc,(function(){var t={client_id:n,cookie_policy:o,login_hint:i,hosted_domain:r,fetch_basic_profile:s,discoveryDocs:l,ux_mode:p,redirect_uri:u,scope:d,access_type:g};"code"===b&&(t.access_type="offline"),window.gapi.load("auth2",(function(){e.enableButton(),window.gapi.auth2.getAuthInstance()||window.gapi.auth2.init(t).then((function(t){c&&t.isSignedIn.get()&&e.handleSigninSuccess(t.currentUser.get())}),(function(e){return f(e)})),a&&e.signIn()}))}))}},{key:"componentWillUnmount",value:function(){this.enableButton=function(){};try{var e=document.getElementById("google-login");e.parentNode.removeChild(e)}catch(e){}}},{key:"enableButton",value:function(){this.setState({disabled:!1})}},{key:"signIn",value:function(e){var t=this;if(e&&e.preventDefault(),!this.state.disabled){var n=window.gapi.auth2.getAuthInstance(),o=this.props,i=o.onSuccess,r=o.onFailure,a=o.responseType,c={prompt:o.prompt};(0,o.onRequest)(),"code"===a?n.grantOfflineAccess(c).then((function(e){return i(e)}),(function(e){return r(e)})):n.signIn(c).then((function(e){return t.handleSigninSuccess(e)}),(function(e){return r(e)}))}}},{key:"handleSigninSuccess",value:function(e){var t=e.getBasicProfile(),n=e.getAuthResponse();e.googleId=t.getId(),e.tokenObj=n,e.tokenId=n.id_token,e.accessToken=n.access_token,e.profileObj={googleId:t.getId(),imageUrl:t.getImageUrl(),email:t.getEmail(),name:t.getName(),givenName:t.getGivenName(),familyName:t.getFamilyName()},this.props.onSuccess(e)}},{key:"render",value:function(){var e=this,t=this.props,n=t.tag,o=t.type,i=t.className,r=t.disabledStyle,a=t.buttonText,c=t.children,s=t.render,u=t.theme,l=t.icon,f=this.state.disabled||this.props.disabled;if(s)return s({onClick:this.signIn,disabled:f});var p={backgroundColor:"dark"===u?"rgb(66, 133, 244)":"#fff",display:"inline-flex",alignItems:"center",color:"dark"===u?"#fff":"rgba(0, 0, 0, .54)",boxShadow:"0 2px 2px 0 rgba(0, 0, 0, .24), 0 0 1px 0 rgba(0, 0, 0, .24)",padding:0,borderRadius:2,border:"1px solid transparent",fontSize:14,fontWeight:"500",fontFamily:"Roboto, sans-serif"},y={cursor:"pointer",backgroundColor:"dark"===u?"#3367D6":"#eee",color:"dark"===u?"#fff":"rgba(0, 0, 0, .54)",opacity:1},b=f?Object.assign({},p,r):e.state.active?Object.assign({},p,y):e.state.hovered?Object.assign({},p,{cursor:"pointer",opacity:.9}):p;return h.a.createElement(n,{onMouseEnter:function(){return e.setState({hovered:!0})},onMouseLeave:function(){return e.setState({hovered:!1,active:!1})},onMouseDown:function(){return e.setState({active:!0})},onMouseUp:function(){return e.setState({active:!1})},onClick:this.signIn,style:b,type:o,disabled:f,className:i},[l&&h.a.createElement(d,{key:1,active:this.state.active}),h.a.createElement(g,{icon:l,key:2},c||a)])}}]),e}());m.defaultProps={type:"button",tag:"button",buttonText:"Sign in with Google",scope:"profile email",accessType:"online",prompt:"",cookiePolicy:"single_host_origin",fetchBasicProfile:!0,isSignedIn:!1,uxMode:"popup",disabledStyle:{opacity:.6},icon:!0,theme:"light",onRequest:function(){},jsSrc:"https://apis.google.com/js/api.js"};var v=m,S=function(){function e(t){var n;return function(e,t){if(!(e instanceof t))throw new TypeError("Cannot call a class as a function")}(this,e),(n=function(e,t){return!t||"object"!==s(t)&&"function"!=typeof t?f(e):t}(this,l(e).call(this,t))).signOut=n.signOut.bind(f(n)),n.enableButton=n.enableButton.bind(f(n)),n.state={disabled:!0,hovered:!1,active:!1},n}return function(e,t){if("function"!=typeof t&&null!==t)throw new TypeError("Super expression must either be null or a function");e.prototype=Object.create(t&&t.prototype,{constructor:{value:e,writable:!0,configurable:!0}}),t&&p(e,t)}(e,b.Component),function(e,t,n){t&&u(e.prototype,t)}(e,[{key:"componentDidMount",value:function(){var e=this,t=this.props,n=t.onFailure,o=t.isSignedIn,i=t.clientId,r=t.cookiePolicy,a=t.loginHint,c=t.hostedDomain,s=t.fetchBasicProfile,u=t.discoveryDocs,l=t.uxMode,f=t.redirectUri,p=t.scope,d=t.accessType;y(document,"script","google-login",t.jsSrc,(function(){var t={client_id:i,cookie_policy:r,login_hint:a,hosted_domain:c,fetch_basic_profile:s,discoveryDocs:u,ux_mode:l,redirect_uri:f,scope:p,access_type:d};window.gapi.load("auth2",(function(){e.enableButton(),window.gapi.auth2.getAuthInstance()||window.gapi.auth2.init(t).then((function(t){o&&t.isSignedIn.get()&&e.handleSigninSuccess(t.currentUser.get())}),(function(e){return n(e)}))}))}))}},{key:"componentWillUnmount",value:function(){this.enableButton=function(){};try{var e=document.getElementById("google-login");e.parentNode.removeChild(e)}catch(e){}}},{key:"enableButton",value:function(){this.setState({disabled:!1})}},{key:"signOut",value:function(){if(window.gapi){var e=window.gapi.auth2.getAuthInstance();null!=e&&e.signOut().then(e.disconnect().then(this.props.onLogoutSuccess))}}},{key:"render",value:function(){var e=this,t=this.props,n=t.tag,o=t.type,i=t.className,r=t.disabledStyle,a=t.buttonText,c=t.children,s=t.render,u=t.theme,l=t.icon,f=this.state.disabled||this.props.disabled;if(s)return s({onClick:this.signOut,disabled:f});var p={backgroundColor:"dark"===u?"rgb(66, 133, 244)":"#fff",display:"inline-flex",alignItems:"center",color:"dark"===u?"#fff":"rgba(0, 0, 0, .54)",boxShadow:"0 2px 2px 0 rgba(0, 0, 0, .24), 0 0 1px 0 rgba(0, 0, 0, .24)",padding:0,borderRadius:2,border:"1px solid transparent",fontSize:14,fontWeight:"500",fontFamily:"Roboto, sans-serif"},y={cursor:"pointer",backgroundColor:"dark"===u?"#3367D6":"#eee",color:"dark"===u?"#fff":"rgba(0, 0, 0, .54)",opacity:1},b=f?Object.assign({},p,r):e.state.active?Object.assign({},p,y):e.state.hovered?Object.assign({},p,{cursor:"pointer",opacity:.9}):p;return h.a.createElement(n,{onMouseEnter:function(){return e.setState({hovered:!0})},onMouseLeave:function(){return e.setState({hovered:!1,active:!1})},onMouseDown:function(){return e.setState({active:!0})},onMouseUp:function(){return e.setState({active:!1})},onClick:this.signOut,style:b,type:o,disabled:f,className:i},[l&&h.a.createElement(d,{key:1,active:this.state.active}),h.a.createElement(g,{icon:l,key:2},c||a)])}}]),e}();S.defaultProps={type:"button",tag:"button",buttonText:"Logout of Google",disabledStyle:{opacity:.6},icon:!0,theme:"light",jsSrc:"https://apis.google.com/js/api.js"};var _=S;n.d(t,"default",(function(){return v})),n.d(t,"GoogleLogin",(function(){return v})),n.d(t,"GoogleLogout",(function(){return _}))}],t.c=o,t.d=function(e,n,o){t.o(e,n)||Object.defineProperty(e,n,{enumerable:!0,get:o})},t.r=function(e){"undefined"!=typeof Symbol&&Symbol.toStringTag&&Object.defineProperty(e,Symbol.toStringTag,{value:"Module"}),Object.defineProperty(e,"__esModule",{value:!0})},t.t=function(e,n){if(1&n&&(e=t(e)),8&n)return e;if(4&n&&"object"==typeof e&&e&&e.__esModule)return e;var o=Object.create(null);if(t.r(o),Object.defineProperty(o,"default",{enumerable:!0,value:e}),2&n&&"string"!=typeof e)for(var i in e)t.d(o,i,function(t){return e[t]}.bind(null,i));return o},t.n=function(e){var n=e&&e.__esModule?function(){return e.default}:function(){return e};return t.d(n,"a",n),n},t.o=function(e,t){return Object.prototype.hasOwnProperty.call(e,t)},t.p="",t(t.s=4);function t(e){if(o[e])return o[e].exports;var i=o[e]={i:e,l:!1,exports:{}};return n[e].call(i.exports,i,i.exports,t),i.l=!0,i.exports}var n,o}));
-},{"react":"../node_modules/react/index.js"}],"components/googleoauth/OAuth.jsx":[function(require,module,exports) {
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.default = void 0;
-
-var _react = _interopRequireWildcard(require("react"));
-
-var _reactGoogleLogin = require("react-google-login");
-
-var _universalCookie = _interopRequireDefault(require("universal-cookie"));
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-function _getRequireWildcardCache() { if (typeof WeakMap !== "function") return null; var cache = new WeakMap(); _getRequireWildcardCache = function () { return cache; }; return cache; }
-
-function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } var cache = _getRequireWildcardCache(); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; if (obj != null) { var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } } newObj.default = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
-
-function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _nonIterableRest(); }
-
-function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance"); }
-
-function _iterableToArrayLimit(arr, i) { if (!(Symbol.iterator in Object(arr) || Object.prototype.toString.call(arr) === "[object Arguments]")) { return; } var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"] != null) _i["return"](); } finally { if (_d) throw _e; } } return _arr; }
-
-function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
-
-var OAuth = function OAuth() {
-  var _useState = (0, _react.useState)(false),
-      _useState2 = _slicedToArray(_useState, 2),
-      isAuthenticated = _useState2[0],
-      setIsAuthenticated = _useState2[1];
-
-  var cookies = new _universalCookie.default();
-
-  var oAuthSuccess = function oAuthSuccess(response) {
-    var expirationTime = new Date();
-    expirationTime.setTime(expirationTime.getTime() + 3600 * 1000);
-    cookies.set('email', response.getBasicProfile().getEmail(), {
-      path: '/',
-      expires: expirationTime
-    });
-    fetch('https://mqp-server.herokuapp.com/saveuser', {
-      method: 'post',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        email: response.getBasicProfile().getEmail()
-      })
-    }).then(function (res) {
-      return res.json();
-    });
-    setIsAuthenticated(true);
-    window.location.reload();
-  };
-
-  var logout = function logout() {
-    cookies.remove('email');
-    setIsAuthenticated(false);
-    window.location.reload();
-  };
-
-  return _react.default.createElement(_react.default.Fragment, null, cookies.get('email') ? _react.default.createElement(_reactGoogleLogin.GoogleLogout, {
-    clientId: "1024058665172-o9pn5n310kl728dtq22r36opsmiq1k4j.apps.googleusercontent.com",
-    buttonText: "Logout",
-    onLogoutSuccess: logout
-  }) : _react.default.createElement(_reactGoogleLogin.GoogleLogin, {
-    clientId: "1024058665172-o9pn5n310kl728dtq22r36opsmiq1k4j.apps.googleusercontent.com",
-    buttonText: "Login",
-    onSuccess: oAuthSuccess,
-    onFailure: logout,
-    cookiePolicy: "single_host_origin"
-  }));
-};
-
-var _default = OAuth;
-exports.default = _default;
-},{"react":"../node_modules/react/index.js","react-google-login":"../node_modules/react-google-login/dist/google-login.js","universal-cookie":"../node_modules/universal-cookie/es6/index.js"}],"components/common/Navbar.jsx":[function(require,module,exports) {
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.default = void 0;
-
-var _react = _interopRequireDefault(require("react"));
-
-var _Button = _interopRequireDefault(require("@material-ui/core/Button"));
-
-var _reactRouterDom = require("react-router-dom");
-
-var _OAuth = _interopRequireDefault(require("../googleoauth/OAuth"));
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-var Navbar = function Navbar() {
-  return _react.default.createElement(_react.default.Fragment, null, _react.default.createElement(_reactRouterDom.Link, {
-    to: "/"
-  }, _react.default.createElement(_Button.default, {
-    variant: "outlined",
-    type: "button"
-  }, "Home")), _react.default.createElement(_reactRouterDom.Link, {
-    to: "/playground"
-  }, _react.default.createElement(_Button.default, {
-    variant: "outlined",
-    type: "button"
-  }, "Playground")), _react.default.createElement(_reactRouterDom.Link, {
-    to: "/tutorial"
-  }, _react.default.createElement(_Button.default, {
-    variant: "outlined",
-    type: "button"
-  }, "Tutorial")), _react.default.createElement(_reactRouterDom.Link, {
-    to: "/documentation"
-  }, _react.default.createElement(_Button.default, {
-    variant: "outlined",
-    type: "button"
-  }, "Documentation")), _react.default.createElement(_reactRouterDom.Link, {
-    to: "/exercises"
-  }, _react.default.createElement(_Button.default, {
-    variant: "outlined",
-    type: "button"
-  }, "Exercises")), _react.default.createElement(_OAuth.default, null));
-};
-
-var _default = Navbar;
-exports.default = _default;
-},{"react":"../node_modules/react/index.js","@material-ui/core/Button":"../node_modules/@material-ui/core/esm/Button/index.js","react-router-dom":"../node_modules/react-router-dom/esm/react-router-dom.js","../googleoauth/OAuth":"components/googleoauth/OAuth.jsx"}],"components/exercises/exercises.js":[function(require,module,exports) {
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.exercise6 = exports.exercise5 = exports.exercise4 = exports.exercise3 = exports.exercise2 = exports.exercise1 = void 0;
-var exercise1 = 'Play any notes of your choice with any instrument';
-exports.exercise1 = exercise1;
-var exercise2 = 'Play some longer notes, shorter notes, and rests mixed together';
-exports.exercise2 = exercise2;
-var exercise3 = 'Modify your code above to play faster and higher';
-exports.exercise3 = exercise3;
-var exercise4 = 'Make a sick drum beat';
-exports.exercise4 = exercise4;
-var exercise5 = 'Find something in the documentation you didn\'t learn in the tutorial, and use it to play something new';
-exports.exercise5 = exercise5;
-var exercise6 = 'Play a sequence on two different instruments at the same time, modifying it so it sounds different on each of the instruments';
-exports.exercise6 = exercise6;
-},{}],"components/exercises/Exercises.jsx":[function(require,module,exports) {
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.default = void 0;
-
-var _react = _interopRequireDefault(require("react"));
-
-var _reactMarkdown = _interopRequireDefault(require("react-markdown"));
-
-var _exercises = require("./exercises");
-
-var _PlayBox = _interopRequireDefault(require("../common/PlayBox"));
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-var Exercises = function Exercises() {
-  return _react.default.createElement(_react.default.Fragment, null, _react.default.createElement(_reactMarkdown.default, {
-    source: _exercises.exercise1
-  }), _react.default.createElement(_PlayBox.default, {
-    id: "exercise1"
-  }), _react.default.createElement(_reactMarkdown.default, {
-    source: _exercises.exercise2
-  }), _react.default.createElement(_PlayBox.default, {
-    id: "exercise2"
-  }), _react.default.createElement(_reactMarkdown.default, {
-    source: _exercises.exercise3
-  }), _react.default.createElement(_PlayBox.default, {
-    id: "exercise3"
-  }), _react.default.createElement(_reactMarkdown.default, {
-    source: _exercises.exercise4
-  }), _react.default.createElement(_PlayBox.default, {
-    id: "exercise4"
-  }), _react.default.createElement(_reactMarkdown.default, {
-    source: _exercises.exercise5
-  }), _react.default.createElement(_PlayBox.default, {
-    id: "exercise5"
-  }), _react.default.createElement(_reactMarkdown.default, {
-    source: _exercises.exercise6
-  }), _react.default.createElement(_PlayBox.default, {
-    id: "exercise6"
-  }));
-};
-
-var _default = Exercises;
-exports.default = _default;
-},{"react":"../node_modules/react/index.js","react-markdown":"../node_modules/react-markdown/lib/react-markdown.js","./exercises":"components/exercises/exercises.js","../common/PlayBox":"components/common/PlayBox.jsx"}],"App.jsx":[function(require,module,exports) {
+},{"react":"../node_modules/react/index.js","universal-cookie":"../node_modules/universal-cookie/es6/index.js","react-router-dom":"../node_modules/react-router-dom/esm/react-router-dom.js","./UTNavigation":"components/usertesting/UTNavigation.jsx"}],"App.jsx":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -85654,49 +85558,37 @@ exports.default = void 0;
 var _react = _interopRequireDefault(require("react"));
 
 var _reactRouterDom = require("react-router-dom");
+
+var _Homepage = _interopRequireDefault(require("./components/common/Homepage"));
+
+var _SignInPage = _interopRequireDefault(require("./components/googleoauth/SignInPage"));
 
 var _UTHomepage = _interopRequireDefault(require("./components/usertesting/UTHomepage"));
 
 var _Playground = _interopRequireDefault(require("./components/playground/Playground"));
 
-var _LandingPage = _interopRequireDefault(require("./components/LandingPage/LandingPage"));
-
-var _Tutorial = _interopRequireDefault(require("./components/tutorial/Tutorial"));
-
-var _UserDocumentation = _interopRequireDefault(require("./components/documentation/UserDocumentation"));
-
-var _Navbar = _interopRequireDefault(require("./components/common/Navbar"));
-
-var _Exercises = _interopRequireDefault(require("./components/exercises/Exercises"));
-
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 var App = function App() {
-  return _react.default.createElement(_reactRouterDom.BrowserRouter, null, _react.default.createElement(_react.default.Fragment, null, _react.default.createElement(_Navbar.default, null), _react.default.createElement(_reactRouterDom.Switch, null, _react.default.createElement(_reactRouterDom.Route, {
+  return _react.default.createElement(_reactRouterDom.BrowserRouter, null, _react.default.createElement(_reactRouterDom.Switch, null, _react.default.createElement(_reactRouterDom.Route, {
     exact: true,
     path: "/",
-    component: _LandingPage.default
+    component: _SignInPage.default
+  }), _react.default.createElement(_reactRouterDom.Route, {
+    path: "/success",
+    component: _Homepage.default
   }), _react.default.createElement(_reactRouterDom.Route, {
     path: "/usertest",
     component: _UTHomepage.default
   }), _react.default.createElement(_reactRouterDom.Route, {
     path: "/playground",
     component: _Playground.default
-  }), _react.default.createElement(_reactRouterDom.Route, {
-    path: "/tutorial",
-    component: _Tutorial.default
-  }), _react.default.createElement(_reactRouterDom.Route, {
-    path: "/exercises",
-    component: _Exercises.default
-  }), _react.default.createElement(_reactRouterDom.Route, {
-    path: "/documentation",
-    component: _UserDocumentation.default
-  }))));
+  })));
 };
 
 var _default = App;
 exports.default = _default;
-},{"react":"../node_modules/react/index.js","react-router-dom":"../node_modules/react-router-dom/esm/react-router-dom.js","./components/usertesting/UTHomepage":"components/usertesting/UTHomepage.jsx","./components/playground/Playground":"components/playground/Playground.jsx","./components/LandingPage/LandingPage":"components/LandingPage/LandingPage.jsx","./components/tutorial/Tutorial":"components/tutorial/Tutorial.jsx","./components/documentation/UserDocumentation":"components/documentation/UserDocumentation.jsx","./components/common/Navbar":"components/common/Navbar.jsx","./components/exercises/Exercises":"components/exercises/Exercises.jsx"}],"index.jsx":[function(require,module,exports) {
+},{"react":"../node_modules/react/index.js","react-router-dom":"../node_modules/react-router-dom/esm/react-router-dom.js","./components/common/Homepage":"components/common/Homepage.jsx","./components/googleoauth/SignInPage":"components/googleoauth/SignInPage.jsx","./components/usertesting/UTHomepage":"components/usertesting/UTHomepage.jsx","./components/playground/Playground":"components/playground/Playground.jsx"}],"index.jsx":[function(require,module,exports) {
 "use strict";
 
 var _react = _interopRequireDefault(require("react"));
@@ -85736,7 +85628,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "44483" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "41327" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};
