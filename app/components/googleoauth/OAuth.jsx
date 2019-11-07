@@ -1,19 +1,6 @@
 import React, { useState } from 'react';
-import { GoogleLogin } from 'react-google-login';
-import styled from 'styled-components';
-import { Redirect } from 'react-router-dom';
+import { GoogleLogin, GoogleLogout } from 'react-google-login';
 import Cookies from 'universal-cookie';
-
-const GoogleSignIn = styled.button`
-  width: 243px;
-  height: 66px;
-  align-self: center;
-  justify-content: center;
-`;
-
-const Wrapper = styled.div`
-  text-align: center;
-`;
 
 const OAuth = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -32,28 +19,33 @@ const OAuth = () => {
     })
       .then((res) => res.json());
     setIsAuthenticated(true);
+    window.location.reload();
   };
 
-  const oAuthFailure = (response) => {
+  const logout = () => {
     cookies.remove('email');
     setIsAuthenticated(false);
+    window.location.reload();
   };
 
   return (
     <>
-      { isAuthenticated
-        ? <Redirect to="/success" />
+      { cookies.get('email')
+        ? (
+          <GoogleLogout
+            clientId="1024058665172-o9pn5n310kl728dtq22r36opsmiq1k4j.apps.googleusercontent.com"
+            buttonText="Logout"
+            onLogoutSuccess={logout}
+          />
+        )
         : (
-          <Wrapper>
-            <GoogleLogin
-              clientId="1024058665172-o9pn5n310kl728dtq22r36opsmiq1k4j.apps.googleusercontent.com"
-              buttonText="Sign in with Google"
-              onSuccess={oAuthSuccess}
-              onFailure={oAuthFailure}
-              cookiePolicy="single_host_origin"
-              tag={GoogleSignIn}
-            />
-          </Wrapper>
+          <GoogleLogin
+            clientId="1024058665172-o9pn5n310kl728dtq22r36opsmiq1k4j.apps.googleusercontent.com"
+            buttonText="Login"
+            onSuccess={oAuthSuccess}
+            onFailure={logout}
+            cookiePolicy="single_host_origin"
+          />
         )}
     </>
   );
