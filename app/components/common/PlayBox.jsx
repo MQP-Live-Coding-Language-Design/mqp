@@ -1,5 +1,6 @@
 import React, { useRef, useState } from 'react';
 import PropTypes from 'prop-types';
+import Cookies from 'universal-cookie';
 import Editor, { monaco } from '@monaco-editor/react';
 import Button from '@material-ui/core/Button';
 import MySongs from './MySongs';
@@ -176,6 +177,8 @@ const PlayBox = ({ id, value, isPlayground }) => {
     setCurrentValue(newContent);
   };
 
+  const cookies = new Cookies();
+
   return (
     <div className="playBox" id={id}>
       <Editor
@@ -196,7 +199,7 @@ const PlayBox = ({ id, value, isPlayground }) => {
         {'Update'}
       </Button>
       {
-        isEditorReady && isPlayground
+        isEditorReady && isPlayground && cookies.get('email')
           ? (
             <MySongs
               disabled={!isEditorReady}
