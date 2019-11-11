@@ -3,6 +3,9 @@ import PropTypes from 'prop-types';
 import Cookies from 'universal-cookie';
 import Editor, { monaco } from '@monaco-editor/react';
 import Button from '@material-ui/core/Button';
+import * as Y from 'yjs';
+import { WebsocketProvider } from 'y-websocket';
+import { MonacoBinding } from 'y-monaco';
 import MySongs from './MySongs';
 
 
@@ -11,6 +14,10 @@ const samples = require('../../../language/samples.js');
 const peg = require('../../../language/language.js');
 const autocomplete = require('./autocomplete.js');
 const defaults = require('../../../language/defaults.js');
+
+const ydoc = new Y.Doc();
+const provider = new WebsocketProvider(`${location.protocol === 'http:' ? 'ws:' : 'wss:'}${location.host}`, 'monaco', ydoc);
+const type = ydoc.getText('monaco');
 
 
 let loaded = false;
@@ -87,6 +94,8 @@ const PlayBox = ({ id, value, isPlayground }) => {
     editor.onDidChangeModelContent(() => {
       clearTimeout(time);
       box.editor.setModelMarkers(editor._modelData.model, 'test', []);
+      const monacoBinding = new MonacoBinding(type, editor.getModel(), new Set([editor]), provider.awareness);
+      provider.connect();
       /* Continuous error checking
       time = setTimeout(() => {
         try {
