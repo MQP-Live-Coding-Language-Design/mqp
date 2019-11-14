@@ -85672,7 +85672,7 @@ var _Exercises = _interopRequireDefault(require("./components/exercises/Exercise
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 var App = function App() {
-  return _react.default.createElement(_reactRouterDom.BrowserRouter, {
+  return _react.default.createElement(_reactRouterDom.HashRouter, {
     basename: "/mqp"
   }, _react.default.createElement(_react.default.Fragment, null, _react.default.createElement(_Navbar.default, null), _react.default.createElement(_reactRouterDom.Switch, null, _react.default.createElement(_reactRouterDom.Route, {
     exact: true,
@@ -85738,7 +85738,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "38041" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "36263" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};
