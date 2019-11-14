@@ -85571,7 +85571,7 @@ var Navbar = function Navbar() {
   }, _react.default.createElement(_Button.default, {
     variant: "outlined",
     type: "button"
-  }, "Exercises")));
+  }, "Exercises")), _react.default.createElement(_OAuth.default, null));
 };
 
 var _default = Navbar;
@@ -85736,7 +85736,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "46109" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "40791" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};
