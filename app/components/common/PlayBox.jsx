@@ -74,7 +74,6 @@ monaco.init()
 const PlayBox = ({ id, value, isPlayground }) => {
   const [isEditorReady, setIsEditorReady] = useState(false);
   const [buttonState, setButtonState] = useState('Start');
-  const [currentValue, setCurrentValue] = useState(value);
   const [runningParts, setParts] = useState([]);
   const [model, setModel] = useState(null);
   const valueGetter = useRef();
@@ -83,7 +82,6 @@ const PlayBox = ({ id, value, isPlayground }) => {
     setModel(editor._modelData.model);
     valueGetter.current = _valueGetter;
     let time;
-    console.log(editor);
     editor.onDidChangeModelContent(() => {
       clearTimeout(time);
       box.editor.setModelMarkers(editor._modelData.model, 'test', []);
@@ -174,7 +172,7 @@ const PlayBox = ({ id, value, isPlayground }) => {
 
   const loadNewContent = (newContent) => {
     stop(true);
-    setCurrentValue(newContent);
+    model.setValue(newContent);
   };
 
   const cookies = new Cookies();
@@ -184,7 +182,7 @@ const PlayBox = ({ id, value, isPlayground }) => {
       <Editor
         height="40vh"
         width="94vw"
-        value={currentValue}
+        value={value}
         language="sicko-mode"
         theme="sicko-theme"
         editorDidMount={handleEditorDidMount}
@@ -216,10 +214,10 @@ const PlayBox = ({ id, value, isPlayground }) => {
 PlayBox.propTypes = {
   id: PropTypes.string.isRequired,
   value: PropTypes.string.isRequired,
-  isPlayground: PropTypes.boolean,
+  isPlayground: PropTypes.bool,
 };
 
-PlayBox.defaltProps = {
+PlayBox.defaultProps = {
   isPlayground: false,
 };
 
