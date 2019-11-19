@@ -9,17 +9,22 @@ const OAuth = () => {
   const oAuthSuccess = (response) => {
     const expirationTime = new Date();
     expirationTime.setTime(expirationTime.getTime() + 3600 * 1000);
-    cookies.set('email', response.getBasicProfile().getEmail(), { path: '/', expires: expirationTime });
+
     fetch('https://mqp-server.herokuapp.com/saveuser', {
+    // fetch('http://localhost:3000/saveuser', {
       method: 'post',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         email: response.getBasicProfile().getEmail(),
+        name: response.getBasicProfile().getName(),
       }),
     })
-      .then((res) => res.json());
-    setIsAuthenticated(true);
-    window.location.reload();
+      .then((res) => {
+        cookies.set('email', response.getBasicProfile().getEmail(), { path: '/', expires: expirationTime });
+        setIsAuthenticated(true);
+        window.location.reload();
+        res.json();
+      });
   };
 
   const logout = () => {
