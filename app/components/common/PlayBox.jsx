@@ -171,7 +171,7 @@ const PlayBox = ({ id, value, isPlayground }) => {
 
   function playAPart(lineNum, theLine, theEditor) {
   //  stopAPart(lineNum);
-    const secQuoteLoc = theLine.lastIndexOf('"');
+    const secQuoteLoc = theLine.lastIndexOf('"') + 1;
     const runningID = getRunningDecorationID(lineNum, theEditor, secQuoteLoc);
     if (runningID === null) { // If there's no decoration there
       const newDecID = theEditor.deltaDecorations([], [{
