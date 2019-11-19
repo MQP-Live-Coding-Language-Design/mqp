@@ -1,9 +1,8 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { GoogleLogin, GoogleLogout } from 'react-google-login';
 import Cookies from 'universal-cookie';
 
 const OAuth = () => {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const cookies = new Cookies();
 
   const oAuthSuccess = (response) => {
@@ -21,7 +20,6 @@ const OAuth = () => {
     })
       .then((res) => {
         cookies.set('email', response.getBasicProfile().getEmail(), { path: '/', expires: expirationTime });
-        setIsAuthenticated(true);
         window.location.reload();
         res.json();
       });
@@ -29,7 +27,6 @@ const OAuth = () => {
 
   const logout = () => {
     cookies.remove('email');
-    setIsAuthenticated(false);
     window.location.reload();
   };
 
