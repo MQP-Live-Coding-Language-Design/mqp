@@ -3,7 +3,6 @@ import ReactMarkdown from 'react-markdown';
 import {
   instruction1, instruction2, instruction3, instruction4, instruction5, instruction6,
 } from './instructions';
-import UIBox from '../ui-box/UIBox';
 import PlayBox from '../common/PlayBox';
 
 
