@@ -14,9 +14,13 @@ const defaults = require('../../../language/defaults.js');
 
 
 let loaded = false;
+
 Tone.Buffer.on('load', () => { loaded = true; });
 
 let box = null;
+
+let allDecs;
+
 monaco.init()
   .then((monacoBox) => {
     box = monacoBox;
@@ -77,14 +81,34 @@ const PlayBox = ({ id, value, isPlayground }) => {
   const [runningParts, setParts] = useState([]);
   const [model, setModel] = useState(null);
   const valueGetter = useRef();
+  let startLine = 0;
+  let endLine = 0;
 
   function handleEditorDidMount(_valueGetter, editor) {
     setModel(editor._modelData.model);
+
+    editor.onKeyDown((e) => {
+      startLine = editor.getSelection().startLineNumber;
+      endLine = editor.getSelection().endLineNumber;
+      if (e.shiftKey && e.metaKey) {
+        checkTone();
+        stopFromClick(editor);
+        startFromClick(editor);
+      } else if (e.metaKey && e._asRuntimeKeybinding.altKey) {
+        checkTone();
+        stopFromClick(editor);
+      } else if (e.metaKey) {
+        allDecs = editor.getModel().getAllDecorations();
+        console.log(allDecs);
+      }
+    });
+
+
     valueGetter.current = _valueGetter;
     let time;
     editor.onDidChangeModelContent(() => {
       clearTimeout(time);
-      box.editor.setModelMarkers(editor._modelData.model, 'test', []);
+      //    box.editor.setModelMarkers(editor._modelData.model, 'test', []);
       /* Continuous error checking
       time = setTimeout(() => {
         try {
@@ -105,7 +129,105 @@ const PlayBox = ({ id, value, isPlayground }) => {
     setIsEditorReady(true);
   }
 
+  function getRunningDecorationID(lineNum, theEditor, secQuoteLoc) {
+    allDecs = theEditor.getModel().getAllDecorations();
+    let returner = null;
+    allDecs.forEach((currDec) => {
+      const currRange = currDec.range;
+      if (currRange.startLineNumber === lineNum && currRange.endLineNumber === lineNum
+        && currRange.startColumn === secQuoteLoc) { // Check if there's a dec at that line at the second quote
+        returner = currDec.id;
+      }
+    });
+    return returner;
+  }
+
+  function stopFromClick(theEditor) {
+    let fullText = valueGetter.current();
+    fullText = fullText.split('\n'); // Split the entire monaco box into lines
+    let i;
+    for (i = startLine; i <= endLine; i += 1) {
+      const theLine = fullText[i - 1];
+      const secQuoteLoc = theLine.lastIndexOf('"');
+      const runningID = getRunningDecorationID(i, theEditor, secQuoteLoc);
+      const theParts = runningParts[runningID];
+      if (theParts) {
+        console.log(theParts);
+        theParts.forEach((part) => {
+          part.stop(true);
+        });
+        runningParts[i] = null;
+      }
+    }
+    console.log(runningParts);
+  }
+
+  function stopAPart(decID) {
+    const parsedVal = runningParts[decID];
+    parsedVal.forEach((part) => { part.stop(true); });
+  }
+
+
+  function playAPart(lineNum, theLine, theEditor) {
+  //  stopAPart(lineNum);
+    const secQuoteLoc = theLine.lastIndexOf('"') + 1;
+    const runningID = getRunningDecorationID(lineNum, theEditor, secQuoteLoc);
+    if (runningID === null) { // If there's no decoration there
+      const newDecID = theEditor.deltaDecorations([], [{
+        ownerID: 2,
+        range: new box.Range(lineNum, secQuoteLoc, lineNum, secQuoteLoc),
+        options: { isWholeLine: true },
+      }]);
+      return newDecID[0];
+    }
+    return runningID; // Return the already running one
+  }
+
+  function startFromClick(theEditor) {
+    try {
+      let i;
+      let fullText = valueGetter.current();
+      fullText = fullText.split('\n'); // Split the entire monaco box into lines
+
+      for (i = startLine; i <= endLine; i += 1) {
+        // TODO: PLACE MARKER
+        const theLine = fullText[i - 1];
+        const parsedVal = peg.parse(theLine);
+        const decID = playAPart(i, theLine, theEditor); // ID of either already playing line or soon to be playing line
+        if (runningParts[decID]) { // It's already playing
+          stopAPart(decID);
+        }
+        runningParts[decID] = parsedVal;
+        parsedVal.forEach((part) => { part.start(true); });
+      }
+      console.log(runningParts);
+    } catch (error) {
+      console.log(error);
+      box.editor.setModelMarkers(model, 'test', [{
+        startLineNumber: error.location.start.line,
+        startColumn: error.location.start.column,
+        endLineNumber: error.location.end.line,
+        endColumn: error.location.end.column,
+        message: error.message,
+        severity: box.MarkerSeverity.Error,
+      }]);
+    }
+  }
+
+  function placeMarker(lineNum) {
+    box.editor.setModelMarkers(model, 'test', [{
+      startLineNumber: lineNum,
+      startColumn: 1,
+      endLineNumber: lineNum,
+      endColumn: 1000,
+      message: 'a message',
+      severity: monaco.Severity.Warning,
+    }]);
+  }
+
   function stop(force) {
+    console.log(runningParts);
+
     runningParts.forEach((part) => {
       part.stop(force);
     });
@@ -133,17 +255,20 @@ const PlayBox = ({ id, value, isPlayground }) => {
   }
 
   function toggle(force) {
-    if (Tone.Transport.state !== 'started') {
-      Tone.Transport.start();
-      Tone.Transport.seconds = Tone.context.now();
-    }
-
+    checkTone();
     if (loaded && Tone.context.state === 'running') {
       if (buttonState === 'Start') {
         start(force);
       } else {
         stop(force);
       }
+    }
+  }
+
+  function checkTone() {
+    if (Tone.Transport.state !== 'started') {
+      Tone.Transport.start();
+      Tone.Transport.seconds = Tone.context.now();
     }
   }
 
@@ -165,7 +290,7 @@ const PlayBox = ({ id, value, isPlayground }) => {
   }
 
   function update() {
-    // ToDo: Find better solution
+    // TODO: : Find better solution
     stop(false);
     start(false);
   }
