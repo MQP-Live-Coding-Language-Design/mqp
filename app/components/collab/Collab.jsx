@@ -17,7 +17,7 @@ const Collab = () => {
 
   return (
     <SplitPane split="vertical" defaultSize={960} onChange={(size) => calculateVW(size)}>
-      <PlayBox id="collabBox" value="// Start making noise" editorWidth={boxWidth} />
+      <PlayBox id="collabBox" value="// Start making noise" editorWidth={boxWidth} isPlayground />
       <Visualizer editorWidth={halfBoxWidth} />
     </SplitPane>
   );
