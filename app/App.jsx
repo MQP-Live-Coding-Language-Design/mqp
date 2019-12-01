@@ -7,6 +7,7 @@ import Tutorial from './components/tutorial/Tutorial';
 import UserDocumentation from './components/documentation/UserDocumentation';
 import Navbar from './components/common/Navbar';
 import Exercises from './components/exercises/Exercises';
+import Collab from './components/collab/Collab';
 
 const App = () => (
   <HashRouter>
@@ -18,6 +19,7 @@ const App = () => (
       <Route path="/tutorial" component={Tutorial} />
       <Route path="/exercises" component={Exercises} />
       <Route path="/documentation" component={UserDocumentation} />
+      <Route path="/collab" component={Collab} />
     </Switch>
   </HashRouter>
 );

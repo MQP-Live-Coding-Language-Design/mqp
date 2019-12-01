@@ -30,6 +30,11 @@ const Navbar = () => (
         Exercises
       </Button>
     </Link>
+    <Link to="/collab">
+      <Button variant="outlined" type="button">
+      Collab
+      </Button>
+    </Link>
     <OAuth />
   </>
 );
