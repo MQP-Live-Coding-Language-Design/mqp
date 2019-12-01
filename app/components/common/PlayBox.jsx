@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import Cookies from 'universal-cookie';
 import Editor, { monaco } from '@monaco-editor/react';
@@ -75,7 +75,9 @@ monaco.init()
   .catch((error) => console.error('An error occurred during initialization of Monaco: ', error));
 
 
-const PlayBox = ({ id, value, isPlayground }) => {
+const PlayBox = ({
+  id, value, isPlayground, isReadOnly, isCollab, editorHeight, editorWidth,
+}) => {
   const [isEditorReady, setIsEditorReady] = useState(false);
   const [buttonState, setButtonState] = useState('Start');
   const [runningParts, setParts] = useState([]);
@@ -106,27 +108,17 @@ const PlayBox = ({ id, value, isPlayground }) => {
 
     valueGetter.current = _valueGetter;
     let time;
-    editor.onDidChangeModelContent(() => {
-      clearTimeout(time);
-      //    box.editor.setModelMarkers(editor._modelData.model, 'test', []);
-      /* Continuous error checking
-      time = setTimeout(() => {
-        try {
-          peg.parse(valueGetter.current());
-        } catch (error) {
-          box.editor.setModelMarkers(editor._modelData.model, 'test', [{
-            startLineNumber: error.location.start.line,
-            startColumn: error.location.start.column,
-            endLineNumber: error.location.end.line,
-            endColumn: error.location.end.column,
-            message: error.message,
-            severity: box.MarkerSeverity.Error,
-          }]);
-        }
-      }, 1500);
-  */
-    });
+    editor.onDidChangeModelContent(() => clearTimeout(time));
+
     setIsEditorReady(true);
+
+    // if (isCollab) {
+    //   setInterval(() => {
+    //     stop(false);
+    //     start(false);
+    //     console.log('mounted');
+    //   }, 6000);
+    // }
   }
 
   function getRunningDecorationID(lineNum, theEditor, secQuoteLoc) {
@@ -226,8 +218,6 @@ const PlayBox = ({ id, value, isPlayground }) => {
   }
 
   function stop(force) {
-    console.log(runningParts);
-
     runningParts.forEach((part) => {
       part.stop(force);
     });
@@ -305,22 +295,31 @@ const PlayBox = ({ id, value, isPlayground }) => {
   return (
     <div className="playBox" id={id}>
       <Editor
-        height="40vh"
-        width="94vw"
+        height={editorHeight}
+        width={editorWidth}
         value={value}
         language="sicko-mode"
         theme="sicko-theme"
         editorDidMount={handleEditorDidMount}
+        options={{ readOnly: isReadOnly }}
       />
-      <Button className={buttonState} type="button" onClick={forceClick} disabled={!isEditorReady} id="trigger">
-        {`force ${buttonState}`}
-      </Button>
-      <Button className={buttonState} type="button" onClick={softClick} disabled={!isEditorReady}>
-        {buttonState}
-      </Button>
-      <Button type="button" onClick={update} disabled={!isEditorReady || buttonState === 'Start'}>
-        {'Update'}
-      </Button>
+      {
+        isCollab
+          ? null
+          : (
+            <>
+              <Button className={buttonState} type="button" onClick={forceClick} disabled={!isEditorReady} id="trigger">
+                {`force ${buttonState}`}
+              </Button>
+              <Button className={buttonState} type="button" onClick={softClick} disabled={!isEditorReady}>
+                {buttonState}
+              </Button>
+              <Button type="button" onClick={update} disabled={!isEditorReady || buttonState === 'Start'}>
+                {'Update'}
+              </Button>
+            </>
+          )
+      }
       {
         isEditorReady && isPlayground && cookies.get('email')
           ? (
@@ -340,10 +339,18 @@ PlayBox.propTypes = {
   id: PropTypes.string.isRequired,
   value: PropTypes.string.isRequired,
   isPlayground: PropTypes.bool,
+  isReadOnly: PropTypes.bool,
+  isCollab: PropTypes.bool,
+  editorHeight: PropTypes.string,
+  editorWidth: PropTypes.string,
 };
 
 PlayBox.defaultProps = {
   isPlayground: false,
+  isReadOnly: false,
+  isCollab: false,
+  editorHeight: '40vh',
+  editorWidth: '94vw',
 };
 
 export default PlayBox;
