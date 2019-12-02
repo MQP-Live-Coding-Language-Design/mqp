@@ -90,6 +90,7 @@ const PlayBox = ({ id, value, isPlayground }) => {
     editor.onKeyDown((e) => {
       startLine = editor.getSelection().startLineNumber;
       endLine = editor.getSelection().endLineNumber;
+      console.log(e);
       if (e.shiftKey && e.metaKey) {
         checkTone();
         stopFromClick(editor);
@@ -135,7 +136,7 @@ const PlayBox = ({ id, value, isPlayground }) => {
     allDecs.forEach((currDec) => {
       const currRange = currDec.range;
       if (currRange.startLineNumber === lineNum && currRange.endLineNumber === lineNum
-        && currRange.startColumn === secQuoteLoc) { // Check if there's a dec at that line at the second quote
+        && currRange.endColumn === secQuoteLoc) { // Check if there's a dec at that line at the second quote
         returner = currDec.id;
       }
     });
@@ -149,7 +150,7 @@ const PlayBox = ({ id, value, isPlayground }) => {
     for (i = startLine; i <= endLine; i += 1) {
       const theLine = fullText[i - 1];
       const secQuoteLoc = theLine.lastIndexOf('"');
-      const runningID = getRunningDecorationID(i, theEditor, secQuoteLoc);
+      const runningID = getRunningDecorationID(i, theEditor, secQuoteLoc + 1);
       const theParts = runningParts[runningID];
       if (theParts) {
         console.log(theParts);
