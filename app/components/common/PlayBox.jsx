@@ -115,14 +115,26 @@ const PlayBox = ({
     setIsEditorReady(true);
 
     if (isCollab) {
+      let boxValue;
+      checkTone();
+      if (loaded && Tone.context.state === 'running') {
+        boxValue = valueGetter.current();
+        const parsedVal = peg.parse(boxValue);
+        parsedVal.forEach((i) => {
+          i.start();
+          runningParts.push(i);
+        });
+      }
       setInterval(() => {
         checkTone();
-        if (loaded && Tone.context.state === 'running') {
+        if (loaded && Tone.context.state === 'running' && valueGetter.current() !== boxValue) {
+          console.log('updated');
+          boxValue = valueGetter.current();
           const temp = [];
           while (runningParts.length > 0) {
             temp.push(runningParts.pop());
           }
-          const parsedVal = peg.parse(valueGetter.current());
+          const parsedVal = peg.parse(boxValue);
           parsedVal.forEach((i) => {
             i.start();
             runningParts.push(i);
