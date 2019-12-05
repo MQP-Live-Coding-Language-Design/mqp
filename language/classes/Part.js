@@ -62,6 +62,7 @@ class Part {
     this.running = false;
     if (force) {
       // Permenantly silences instrument
+      this.memory = null;
       this.inst.disconnect();
     }
   }

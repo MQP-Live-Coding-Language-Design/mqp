@@ -33,9 +33,15 @@ const Visualizer = ({ editorWidth }) => {
       });
   };
 
-  useEffect(() => {
+  useEffect(() => { /*
+    const interval = setInterval(() => {
+      getTotalSongs();
+      console.log('fetching');
+    }, 6000);
+    return () => clearInterval(interval); */
     getTotalSongs();
-  });
+    console.log('fetching');
+  }, []);
 
   const deleteVisualizedSong = (song) => {
     const newList = visualizedSongs;

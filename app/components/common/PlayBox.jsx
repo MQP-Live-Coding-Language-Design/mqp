@@ -16,6 +16,7 @@ const defaults = require('../../../language/defaults.js');
 let loaded = false;
 
 Tone.Buffer.on('load', () => { loaded = true; });
+Tone.context.latencyHint = 'playback';
 
 let box = null;
 
@@ -113,13 +114,29 @@ const PlayBox = ({
 
     setIsEditorReady(true);
 
-    // if (isCollab) {
-    //   setInterval(() => {
-    //     stop(false);
-    //     start(false);
-    //     console.log('mounted');
-    //   }, 6000);
-    // }
+    if (isCollab) {
+      setInterval(() => {
+        checkTone();
+        if (loaded && Tone.context.state === 'running') {
+          const temp = [];
+          while (runningParts.length > 0) {
+            temp.push(runningParts.pop());
+          }
+          const parsedVal = peg.parse(valueGetter.current());
+          parsedVal.forEach((i) => {
+            i.start();
+            runningParts.push(i);
+            if (temp.length > 0) {
+              temp.pop().stop(false);
+            }
+          });
+          while (temp.length > 0) {
+            temp.pop().stop(false);
+          }
+          console.log('mounted');
+        }
+      }, 20000);
+    }
   }
 
   function getRunningDecorationID(lineNum, theEditor, secQuoteLoc) {
