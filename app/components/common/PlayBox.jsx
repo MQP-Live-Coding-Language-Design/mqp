@@ -94,11 +94,11 @@ const PlayBox = ({
       startLine = editor.getSelection().startLineNumber;
       endLine = editor.getSelection().endLineNumber;
       console.log(e);
-      if (e.shiftKey && e.metaKey) {
+      if (e.shiftKey && e.ctrlKey) {
         checkTone();
         stopFromClick(editor);
         startFromClick(editor);
-      } else if (e.metaKey && e._asRuntimeKeybinding.altKey) {
+      } else if (e.ctrlKey && e._asRuntimeKeybinding.altKey) {
         checkTone();
         stopFromClick(editor);
       } else if (e.metaKey) {
