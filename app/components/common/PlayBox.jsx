@@ -114,6 +114,8 @@ const PlayBox = ({
 
     setIsEditorReady(true);
 
+    console.log('valuegetter', valueGetter.current());
+
     if (isCollab) {
       let boxValue;
       checkTone();
@@ -355,7 +357,7 @@ const PlayBox = ({
           ? (
             <MySongs
               disabled={!isEditorReady}
-              currentContent={valueGetter.current()}
+              currentContent={() => valueGetter.current()}
               onContentLoad={loadNewContent}
             />
           )
