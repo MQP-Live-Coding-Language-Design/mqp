@@ -16,7 +16,7 @@ const defaults = require('../../../language/defaults.js');
 let loaded = false;
 
 Tone.Buffer.on('load', () => { loaded = true; });
-Tone.context.latencyHint = 'playback';
+Tone.context.latencyHint = 'balanced';
 
 let box = null;
 
@@ -149,7 +149,7 @@ const PlayBox = ({
           }
           console.log('mounted');
         }
-      }, 20000);
+      }, 16180);
     }
   }
 
