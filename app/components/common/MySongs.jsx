@@ -57,18 +57,22 @@ const MySongs = ({ currentContent, onContentLoad }) => {
   };
 
   const updateContent = (song) => {
+    const newContent = currentContent();
     const conf = confirm(`Are you sure you want to update "${song.title.trim()}" with the current content?`);
     if (conf) {
       fetch('https://mqp-server.herokuapp.com/updatecontent', {
         method: 'post',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          songContent: currentContent,
+          songContent: newContent,
           songID: song.songid,
         }),
       })
-        .then((res) => res.json())
+        .then((res) => {
+          res.json();
+        })
         .then(() => {
+          onContentLoad(newContent);
           alert(`Updated "${song.title.trim()}"`);
         });
     }
@@ -91,6 +95,7 @@ const MySongs = ({ currentContent, onContentLoad }) => {
       })
         .then((res) => res.json())
         .then(() => {
+          setNewSongTitle(newSongTitle);
           alert(`Renamed "${song.title.trim()}" to "${newSongTitle}"`);
         });
     }
@@ -140,10 +145,11 @@ const MySongs = ({ currentContent, onContentLoad }) => {
   };
 
   const saveSong = () => {
+    const newContent = currentContent();
     if (newSongTitle === '') {
       alert('Please add a title for your song');
     }
-    if (currentContent === '') {
+    if (newContent === '') {
       alert('Please add content to your song');
     } else {
       fetch('https://mqp-server.herokuapp.com/savesong', {
@@ -151,7 +157,7 @@ const MySongs = ({ currentContent, onContentLoad }) => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           songTitle: newSongTitle,
-          songContent: currentContent,
+          songContent: newContent,
           email,
         }),
       })
@@ -180,7 +186,7 @@ const MySongs = ({ currentContent, onContentLoad }) => {
 };
 
 MySongs.propTypes = {
-  currentContent: PropTypes.string.isRequired,
+  currentContent: PropTypes.func.isRequired,
   onContentLoad: PropTypes.func.isRequired,
 };
 

@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import Cookies from 'universal-cookie';
 import Editor, { monaco } from '@monaco-editor/react';
@@ -16,6 +16,7 @@ const defaults = require('../../../language/defaults.js');
 let loaded = false;
 
 Tone.Buffer.on('load', () => { loaded = true; });
+Tone.context.latencyHint = 'balanced';
 
 let box = null;
 
@@ -75,7 +76,9 @@ monaco.init()
   .catch((error) => console.error('An error occurred during initialization of Monaco: ', error));
 
 
-const PlayBox = ({ id, value, isPlayground }) => {
+const PlayBox = ({
+  id, value, isPlayground, isReadOnly, isCollab, editorHeight, editorWidth,
+}) => {
   const [isEditorReady, setIsEditorReady] = useState(false);
   const [buttonState, setButtonState] = useState('Start');
   const [runningParts, setParts] = useState([]);
@@ -91,11 +94,11 @@ const PlayBox = ({ id, value, isPlayground }) => {
       startLine = editor.getSelection().startLineNumber;
       endLine = editor.getSelection().endLineNumber;
       console.log(e);
-      if (e.shiftKey && e.metaKey) {
+      if (e.shiftKey && e.ctrlKey) {
         checkTone();
         stopFromClick(editor);
         startFromClick(editor);
-      } else if (e.metaKey && e._asRuntimeKeybinding.altKey) {
+      } else if (e.ctrlKey && e._asRuntimeKeybinding.altKey) {
         checkTone();
         stopFromClick(editor);
       } else if (e.metaKey) {
@@ -107,27 +110,47 @@ const PlayBox = ({ id, value, isPlayground }) => {
 
     valueGetter.current = _valueGetter;
     let time;
-    editor.onDidChangeModelContent(() => {
-      clearTimeout(time);
-      //    box.editor.setModelMarkers(editor._modelData.model, 'test', []);
-      /* Continuous error checking
-      time = setTimeout(() => {
-        try {
-          peg.parse(valueGetter.current());
-        } catch (error) {
-          box.editor.setModelMarkers(editor._modelData.model, 'test', [{
-            startLineNumber: error.location.start.line,
-            startColumn: error.location.start.column,
-            endLineNumber: error.location.end.line,
-            endColumn: error.location.end.column,
-            message: error.message,
-            severity: box.MarkerSeverity.Error,
-          }]);
-        }
-      }, 1500);
-  */
-    });
+    editor.onDidChangeModelContent(() => clearTimeout(time));
+
     setIsEditorReady(true);
+
+    console.log('valuegetter', valueGetter.current());
+
+    if (isCollab) {
+      let boxValue;
+      checkTone();
+      if (loaded && Tone.context.state === 'running') {
+        boxValue = valueGetter.current();
+        const parsedVal = peg.parse(boxValue);
+        parsedVal.forEach((i) => {
+          i.start();
+          runningParts.push(i);
+        });
+      }
+      setInterval(() => {
+        checkTone();
+        if (loaded && Tone.context.state === 'running' && valueGetter.current() !== boxValue) {
+          console.log('updated');
+          boxValue = valueGetter.current();
+          const temp = [];
+          while (runningParts.length > 0) {
+            temp.push(runningParts.pop());
+          }
+          const parsedVal = peg.parse(boxValue);
+          parsedVal.forEach((i) => {
+            i.start();
+            runningParts.push(i);
+            if (temp.length > 0) {
+              temp.pop().stop(false);
+            }
+          });
+          while (temp.length > 0) {
+            temp.pop().stop(false);
+          }
+          console.log('mounted');
+        }
+      }, 16180);
+    }
   }
 
   function getRunningDecorationID(lineNum, theEditor, secQuoteLoc) {
@@ -227,8 +250,6 @@ const PlayBox = ({ id, value, isPlayground }) => {
   }
 
   function stop(force) {
-    console.log(runningParts);
-
     runningParts.forEach((part) => {
       part.stop(force);
     });
@@ -306,28 +327,37 @@ const PlayBox = ({ id, value, isPlayground }) => {
   return (
     <div className="playBox" id={id}>
       <Editor
-        height="40vh"
-        width="94vw"
+        height={editorHeight}
+        width={editorWidth}
         value={value}
         language="sicko-mode"
         theme="sicko-theme"
         editorDidMount={handleEditorDidMount}
+        options={{ readOnly: isReadOnly }}
       />
-      <Button className={buttonState} type="button" onClick={forceClick} disabled={!isEditorReady} id="trigger">
-        {`force ${buttonState}`}
-      </Button>
-      <Button className={buttonState} type="button" onClick={softClick} disabled={!isEditorReady}>
-        {buttonState}
-      </Button>
-      <Button type="button" onClick={update} disabled={!isEditorReady || buttonState === 'Start'}>
-        {'Update'}
-      </Button>
+      {
+        isCollab
+          ? null
+          : (
+            <>
+              <Button className={buttonState} type="button" onClick={forceClick} disabled={!isEditorReady} id="trigger">
+                {`force ${buttonState}`}
+              </Button>
+              <Button className={buttonState} type="button" onClick={softClick} disabled={!isEditorReady}>
+                {buttonState}
+              </Button>
+              <Button type="button" onClick={update} disabled={!isEditorReady || buttonState === 'Start'}>
+                {'Update'}
+              </Button>
+            </>
+          )
+      }
       {
         isEditorReady && isPlayground && cookies.get('email')
           ? (
             <MySongs
               disabled={!isEditorReady}
-              currentContent={valueGetter.current()}
+              currentContent={() => valueGetter.current()}
               onContentLoad={loadNewContent}
             />
           )
@@ -341,10 +371,18 @@ PlayBox.propTypes = {
   id: PropTypes.string.isRequired,
   value: PropTypes.string.isRequired,
   isPlayground: PropTypes.bool,
+  isReadOnly: PropTypes.bool,
+  isCollab: PropTypes.bool,
+  editorHeight: PropTypes.string,
+  editorWidth: PropTypes.string,
 };
 
 PlayBox.defaultProps = {
   isPlayground: false,
+  isReadOnly: false,
+  isCollab: false,
+  editorHeight: '40vh',
+  editorWidth: '94vw',
 };
 
 export default PlayBox;
