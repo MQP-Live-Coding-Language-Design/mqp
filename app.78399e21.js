@@ -77197,6 +77197,7 @@ var MySongs = function MySongs(_ref) {
   };
 
   var updateContent = function updateContent(song) {
+    var newContent = currentContent();
     var conf = confirm("Are you sure you want to update \"".concat(song.title.trim(), "\" with the current content?"));
 
     if (conf) {
@@ -77206,12 +77207,13 @@ var MySongs = function MySongs(_ref) {
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          songContent: currentContent,
+          songContent: newContent,
           songID: song.songid
         })
       }).then(function (res) {
-        return res.json();
+        res.json();
       }).then(function () {
+        onContentLoad(newContent);
         alert("Updated \"".concat(song.title.trim(), "\""));
       });
     }
@@ -77238,6 +77240,7 @@ var MySongs = function MySongs(_ref) {
       }).then(function (res) {
         return res.json();
       }).then(function () {
+        setNewSongTitle(newSongTitle);
         alert("Renamed \"".concat(song.title.trim(), "\" to \"").concat(newSongTitle, "\""));
       });
     }
@@ -77300,11 +77303,13 @@ var MySongs = function MySongs(_ref) {
   };
 
   var saveSong = function saveSong() {
+    var newContent = currentContent();
+
     if (newSongTitle === '') {
       alert('Please add a title for your song');
     }
 
-    if (currentContent === '') {
+    if (newContent === '') {
       alert('Please add content to your song');
     } else {
       fetch('https://mqp-server.herokuapp.com/savesong', {
@@ -77314,7 +77319,7 @@ var MySongs = function MySongs(_ref) {
         },
         body: JSON.stringify({
           songTitle: newSongTitle,
-          songContent: currentContent,
+          songContent: newContent,
           email: email
         })
       }).then(function (res) {
@@ -77344,7 +77349,7 @@ var MySongs = function MySongs(_ref) {
 };
 
 MySongs.propTypes = {
-  currentContent: _propTypes.default.string.isRequired,
+  currentContent: _propTypes.default.func.isRequired,
   onContentLoad: _propTypes.default.func.isRequired
 };
 var _default = MySongs;
@@ -78787,6 +78792,7 @@ function () {
 
       if (force) {
         // Permenantly silences instrument
+        this.memory = null;
         this.inst.disconnect();
       }
     }
@@ -84595,6 +84601,7 @@ var loaded = false;
 Tone.Buffer.on('load', function () {
   loaded = true;
 });
+Tone.context.latencyHint = 'balanced';
 var box = null;
 var allDecs;
 
@@ -84668,7 +84675,11 @@ _react2.monaco.init().then(function (monacoBox) {
 var PlayBox = function PlayBox(_ref) {
   var id = _ref.id,
       value = _ref.value,
-      isPlayground = _ref.isPlayground;
+      isPlayground = _ref.isPlayground,
+      isReadOnly = _ref.isReadOnly,
+      isCollab = _ref.isCollab,
+      editorHeight = _ref.editorHeight,
+      editorWidth = _ref.editorWidth;
 
   var _useState = (0, _react.useState)(false),
       _useState2 = _slicedToArray(_useState, 2),
@@ -84699,12 +84710,13 @@ var PlayBox = function PlayBox(_ref) {
     editor.onKeyDown(function (e) {
       startLine = editor.getSelection().startLineNumber;
       endLine = editor.getSelection().endLineNumber;
+      console.log(e);
 
-      if (e.shiftKey && e.metaKey) {
+      if (e.shiftKey && e.ctrlKey) {
         checkTone();
         stopFromClick(editor);
         startFromClick(editor);
-      } else if (e.metaKey && e._asRuntimeKeybinding.altKey) {
+      } else if (e.ctrlKey && e._asRuntimeKeybinding.altKey) {
         checkTone();
         stopFromClick(editor);
       } else if (e.metaKey) {
@@ -84715,26 +84727,55 @@ var PlayBox = function PlayBox(_ref) {
     valueGetter.current = _valueGetter;
     var time;
     editor.onDidChangeModelContent(function () {
-      clearTimeout(time); //    box.editor.setModelMarkers(editor._modelData.model, 'test', []);
-
-      /* Continuous error checking
-      time = setTimeout(() => {
-        try {
-          peg.parse(valueGetter.current());
-        } catch (error) {
-          box.editor.setModelMarkers(editor._modelData.model, 'test', [{
-            startLineNumber: error.location.start.line,
-            startColumn: error.location.start.column,
-            endLineNumber: error.location.end.line,
-            endColumn: error.location.end.column,
-            message: error.message,
-            severity: box.MarkerSeverity.Error,
-          }]);
-        }
-      }, 1500);
-      */
+      return clearTimeout(time);
     });
     setIsEditorReady(true);
+    console.log('valuegetter', valueGetter.current());
+
+    if (isCollab) {
+      var boxValue;
+      checkTone();
+
+      if (loaded && Tone.context.state === 'running') {
+        boxValue = valueGetter.current();
+        var parsedVal = peg.parse(boxValue);
+        parsedVal.forEach(function (i) {
+          i.start();
+          runningParts.push(i);
+        });
+      }
+
+      setInterval(function () {
+        checkTone();
+
+        if (loaded && Tone.context.state === 'running' && valueGetter.current() !== boxValue) {
+          console.log('updated');
+          boxValue = valueGetter.current();
+          var temp = [];
+
+          while (runningParts.length > 0) {
+            temp.push(runningParts.pop());
+          }
+
+          var _parsedVal = peg.parse(boxValue);
+
+          _parsedVal.forEach(function (i) {
+            i.start();
+            runningParts.push(i);
+
+            if (temp.length > 0) {
+              temp.pop().stop(false);
+            }
+          });
+
+          while (temp.length > 0) {
+            temp.pop().stop(false);
+          }
+
+          console.log('mounted');
+        }
+      }, 16180);
+    }
   }
 
   function getRunningDecorationID(lineNum, theEditor, secQuoteLoc) {
@@ -84743,7 +84784,7 @@ var PlayBox = function PlayBox(_ref) {
     allDecs.forEach(function (currDec) {
       var currRange = currDec.range;
 
-      if (currRange.startLineNumber === lineNum && currRange.endLineNumber === lineNum && currRange.startColumn === secQuoteLoc) {
+      if (currRange.startLineNumber === lineNum && currRange.endLineNumber === lineNum && currRange.endColumn === secQuoteLoc) {
         // Check if there's a dec at that line at the second quote
         returner = currDec.id;
       }
@@ -84760,7 +84801,7 @@ var PlayBox = function PlayBox(_ref) {
     for (i = startLine; i <= endLine; i += 1) {
       var theLine = fullText[i - 1];
       var secQuoteLoc = theLine.lastIndexOf('"');
-      var runningID = getRunningDecorationID(i, theEditor, secQuoteLoc);
+      var runningID = getRunningDecorationID(i, theEditor, secQuoteLoc + 1);
       var theParts = runningParts[runningID];
 
       if (theParts) {
@@ -84851,7 +84892,6 @@ var PlayBox = function PlayBox(_ref) {
   }
 
   function stop(force) {
-    console.log(runningParts);
     runningParts.forEach(function (part) {
       part.stop(force);
     });
@@ -84934,13 +84974,16 @@ var PlayBox = function PlayBox(_ref) {
     className: "playBox",
     id: id
   }, _react.default.createElement(_react2.default, {
-    height: "40vh",
-    width: "94vw",
+    height: editorHeight,
+    width: editorWidth,
     value: value,
     language: "sicko-mode",
     theme: "sicko-theme",
-    editorDidMount: handleEditorDidMount
-  }), _react.default.createElement(_Button.default, {
+    editorDidMount: handleEditorDidMount,
+    options: {
+      readOnly: isReadOnly
+    }
+  }), isCollab ? null : _react.default.createElement(_react.default.Fragment, null, _react.default.createElement(_Button.default, {
     className: buttonState,
     type: "button",
     onClick: forceClick,
@@ -84955,9 +84998,11 @@ var PlayBox = function PlayBox(_ref) {
     type: "button",
     onClick: update,
     disabled: !isEditorReady || buttonState === 'Start'
-  }, 'Update'), isEditorReady && isPlayground && cookies.get('email') ? _react.default.createElement(_MySongs.default, {
+  }, 'Update')), isEditorReady && isPlayground && cookies.get('email') ? _react.default.createElement(_MySongs.default, {
     disabled: !isEditorReady,
-    currentContent: valueGetter.current(),
+    currentContent: function currentContent() {
+      return valueGetter.current();
+    },
     onContentLoad: loadNewContent
   }) : null);
 };
@@ -84965,10 +85010,18 @@ var PlayBox = function PlayBox(_ref) {
 PlayBox.propTypes = {
   id: _propTypes.default.string.isRequired,
   value: _propTypes.default.string.isRequired,
-  isPlayground: _propTypes.default.bool
+  isPlayground: _propTypes.default.bool,
+  isReadOnly: _propTypes.default.bool,
+  isCollab: _propTypes.default.bool,
+  editorHeight: _propTypes.default.string,
+  editorWidth: _propTypes.default.string
 };
 PlayBox.defaultProps = {
-  isPlayground: false
+  isPlayground: false,
+  isReadOnly: false,
+  isCollab: false,
+  editorHeight: '40vh',
+  editorWidth: '94vw'
 };
 var _default = PlayBox;
 exports.default = _default;
@@ -85685,7 +85738,12 @@ var Navbar = function Navbar() {
   }, _react.default.createElement(_Button.default, {
     variant: "outlined",
     type: "button"
-  }, "Exercises")), _react.default.createElement(_OAuth.default, null));
+  }, "Exercises")), _react.default.createElement(_reactRouterDom.Link, {
+    to: "/collab"
+  }, _react.default.createElement(_Button.default, {
+    variant: "outlined",
+    type: "button"
+  }, "Collab")), _react.default.createElement(_OAuth.default, null));
 };
 
 var _default = Navbar;
@@ -85757,7 +85815,2768 @@ var Exercises = function Exercises() {
 
 var _default = Exercises;
 exports.default = _default;
-},{"react":"../node_modules/react/index.js","react-markdown":"../node_modules/react-markdown/lib/react-markdown.js","./exercises":"components/exercises/exercises.js","../common/PlayBox":"components/common/PlayBox.jsx"}],"App.jsx":[function(require,module,exports) {
+},{"react":"../node_modules/react/index.js","react-markdown":"../node_modules/react-markdown/lib/react-markdown.js","./exercises":"components/exercises/exercises.js","../common/PlayBox":"components/common/PlayBox.jsx"}],"../node_modules/react-style-proptype/src/css-properties.js":[function(require,module,exports) {
+// GENERATED DO NOT EDIT
+module.exports = [
+  "alignContent",
+  "MozAlignContent",
+  "WebkitAlignContent",
+  "MSAlignContent",
+  "OAlignContent",
+  "alignItems",
+  "MozAlignItems",
+  "WebkitAlignItems",
+  "MSAlignItems",
+  "OAlignItems",
+  "alignSelf",
+  "MozAlignSelf",
+  "WebkitAlignSelf",
+  "MSAlignSelf",
+  "OAlignSelf",
+  "all",
+  "MozAll",
+  "WebkitAll",
+  "MSAll",
+  "OAll",
+  "animation",
+  "MozAnimation",
+  "WebkitAnimation",
+  "MSAnimation",
+  "OAnimation",
+  "animationDelay",
+  "MozAnimationDelay",
+  "WebkitAnimationDelay",
+  "MSAnimationDelay",
+  "OAnimationDelay",
+  "animationDirection",
+  "MozAnimationDirection",
+  "WebkitAnimationDirection",
+  "MSAnimationDirection",
+  "OAnimationDirection",
+  "animationDuration",
+  "MozAnimationDuration",
+  "WebkitAnimationDuration",
+  "MSAnimationDuration",
+  "OAnimationDuration",
+  "animationFillMode",
+  "MozAnimationFillMode",
+  "WebkitAnimationFillMode",
+  "MSAnimationFillMode",
+  "OAnimationFillMode",
+  "animationIterationCount",
+  "MozAnimationIterationCount",
+  "WebkitAnimationIterationCount",
+  "MSAnimationIterationCount",
+  "OAnimationIterationCount",
+  "animationName",
+  "MozAnimationName",
+  "WebkitAnimationName",
+  "MSAnimationName",
+  "OAnimationName",
+  "animationPlayState",
+  "MozAnimationPlayState",
+  "WebkitAnimationPlayState",
+  "MSAnimationPlayState",
+  "OAnimationPlayState",
+  "animationTimingFunction",
+  "MozAnimationTimingFunction",
+  "WebkitAnimationTimingFunction",
+  "MSAnimationTimingFunction",
+  "OAnimationTimingFunction",
+  "backfaceVisibility",
+  "MozBackfaceVisibility",
+  "WebkitBackfaceVisibility",
+  "MSBackfaceVisibility",
+  "OBackfaceVisibility",
+  "background",
+  "MozBackground",
+  "WebkitBackground",
+  "MSBackground",
+  "OBackground",
+  "backgroundAttachment",
+  "MozBackgroundAttachment",
+  "WebkitBackgroundAttachment",
+  "MSBackgroundAttachment",
+  "OBackgroundAttachment",
+  "backgroundBlendMode",
+  "MozBackgroundBlendMode",
+  "WebkitBackgroundBlendMode",
+  "MSBackgroundBlendMode",
+  "OBackgroundBlendMode",
+  "backgroundClip",
+  "MozBackgroundClip",
+  "WebkitBackgroundClip",
+  "MSBackgroundClip",
+  "OBackgroundClip",
+  "backgroundColor",
+  "MozBackgroundColor",
+  "WebkitBackgroundColor",
+  "MSBackgroundColor",
+  "OBackgroundColor",
+  "backgroundImage",
+  "MozBackgroundImage",
+  "WebkitBackgroundImage",
+  "MSBackgroundImage",
+  "OBackgroundImage",
+  "backgroundOrigin",
+  "MozBackgroundOrigin",
+  "WebkitBackgroundOrigin",
+  "MSBackgroundOrigin",
+  "OBackgroundOrigin",
+  "backgroundPosition",
+  "MozBackgroundPosition",
+  "WebkitBackgroundPosition",
+  "MSBackgroundPosition",
+  "OBackgroundPosition",
+  "backgroundRepeat",
+  "MozBackgroundRepeat",
+  "WebkitBackgroundRepeat",
+  "MSBackgroundRepeat",
+  "OBackgroundRepeat",
+  "backgroundSize",
+  "MozBackgroundSize",
+  "WebkitBackgroundSize",
+  "MSBackgroundSize",
+  "OBackgroundSize",
+  "blockSize",
+  "MozBlockSize",
+  "WebkitBlockSize",
+  "MSBlockSize",
+  "OBlockSize",
+  "border",
+  "MozBorder",
+  "WebkitBorder",
+  "MSBorder",
+  "OBorder",
+  "borderBlockEnd",
+  "MozBorderBlockEnd",
+  "WebkitBorderBlockEnd",
+  "MSBorderBlockEnd",
+  "OBorderBlockEnd",
+  "borderBlockEndColor",
+  "MozBorderBlockEndColor",
+  "WebkitBorderBlockEndColor",
+  "MSBorderBlockEndColor",
+  "OBorderBlockEndColor",
+  "borderBlockEndStyle",
+  "MozBorderBlockEndStyle",
+  "WebkitBorderBlockEndStyle",
+  "MSBorderBlockEndStyle",
+  "OBorderBlockEndStyle",
+  "borderBlockEndWidth",
+  "MozBorderBlockEndWidth",
+  "WebkitBorderBlockEndWidth",
+  "MSBorderBlockEndWidth",
+  "OBorderBlockEndWidth",
+  "borderBlockStart",
+  "MozBorderBlockStart",
+  "WebkitBorderBlockStart",
+  "MSBorderBlockStart",
+  "OBorderBlockStart",
+  "borderBlockStartColor",
+  "MozBorderBlockStartColor",
+  "WebkitBorderBlockStartColor",
+  "MSBorderBlockStartColor",
+  "OBorderBlockStartColor",
+  "borderBlockStartStyle",
+  "MozBorderBlockStartStyle",
+  "WebkitBorderBlockStartStyle",
+  "MSBorderBlockStartStyle",
+  "OBorderBlockStartStyle",
+  "borderBlockStartWidth",
+  "MozBorderBlockStartWidth",
+  "WebkitBorderBlockStartWidth",
+  "MSBorderBlockStartWidth",
+  "OBorderBlockStartWidth",
+  "borderBottom",
+  "MozBorderBottom",
+  "WebkitBorderBottom",
+  "MSBorderBottom",
+  "OBorderBottom",
+  "borderBottomColor",
+  "MozBorderBottomColor",
+  "WebkitBorderBottomColor",
+  "MSBorderBottomColor",
+  "OBorderBottomColor",
+  "borderBottomLeftRadius",
+  "MozBorderBottomLeftRadius",
+  "WebkitBorderBottomLeftRadius",
+  "MSBorderBottomLeftRadius",
+  "OBorderBottomLeftRadius",
+  "borderBottomRightRadius",
+  "MozBorderBottomRightRadius",
+  "WebkitBorderBottomRightRadius",
+  "MSBorderBottomRightRadius",
+  "OBorderBottomRightRadius",
+  "borderBottomStyle",
+  "MozBorderBottomStyle",
+  "WebkitBorderBottomStyle",
+  "MSBorderBottomStyle",
+  "OBorderBottomStyle",
+  "borderBottomWidth",
+  "MozBorderBottomWidth",
+  "WebkitBorderBottomWidth",
+  "MSBorderBottomWidth",
+  "OBorderBottomWidth",
+  "borderCollapse",
+  "MozBorderCollapse",
+  "WebkitBorderCollapse",
+  "MSBorderCollapse",
+  "OBorderCollapse",
+  "borderColor",
+  "MozBorderColor",
+  "WebkitBorderColor",
+  "MSBorderColor",
+  "OBorderColor",
+  "borderImage",
+  "MozBorderImage",
+  "WebkitBorderImage",
+  "MSBorderImage",
+  "OBorderImage",
+  "borderImageOutset",
+  "MozBorderImageOutset",
+  "WebkitBorderImageOutset",
+  "MSBorderImageOutset",
+  "OBorderImageOutset",
+  "borderImageRepeat",
+  "MozBorderImageRepeat",
+  "WebkitBorderImageRepeat",
+  "MSBorderImageRepeat",
+  "OBorderImageRepeat",
+  "borderImageSlice",
+  "MozBorderImageSlice",
+  "WebkitBorderImageSlice",
+  "MSBorderImageSlice",
+  "OBorderImageSlice",
+  "borderImageSource",
+  "MozBorderImageSource",
+  "WebkitBorderImageSource",
+  "MSBorderImageSource",
+  "OBorderImageSource",
+  "borderImageWidth",
+  "MozBorderImageWidth",
+  "WebkitBorderImageWidth",
+  "MSBorderImageWidth",
+  "OBorderImageWidth",
+  "borderInlineEnd",
+  "MozBorderInlineEnd",
+  "WebkitBorderInlineEnd",
+  "MSBorderInlineEnd",
+  "OBorderInlineEnd",
+  "borderInlineEndColor",
+  "MozBorderInlineEndColor",
+  "WebkitBorderInlineEndColor",
+  "MSBorderInlineEndColor",
+  "OBorderInlineEndColor",
+  "borderInlineEndStyle",
+  "MozBorderInlineEndStyle",
+  "WebkitBorderInlineEndStyle",
+  "MSBorderInlineEndStyle",
+  "OBorderInlineEndStyle",
+  "borderInlineEndWidth",
+  "MozBorderInlineEndWidth",
+  "WebkitBorderInlineEndWidth",
+  "MSBorderInlineEndWidth",
+  "OBorderInlineEndWidth",
+  "borderInlineStart",
+  "MozBorderInlineStart",
+  "WebkitBorderInlineStart",
+  "MSBorderInlineStart",
+  "OBorderInlineStart",
+  "borderInlineStartColor",
+  "MozBorderInlineStartColor",
+  "WebkitBorderInlineStartColor",
+  "MSBorderInlineStartColor",
+  "OBorderInlineStartColor",
+  "borderInlineStartStyle",
+  "MozBorderInlineStartStyle",
+  "WebkitBorderInlineStartStyle",
+  "MSBorderInlineStartStyle",
+  "OBorderInlineStartStyle",
+  "borderInlineStartWidth",
+  "MozBorderInlineStartWidth",
+  "WebkitBorderInlineStartWidth",
+  "MSBorderInlineStartWidth",
+  "OBorderInlineStartWidth",
+  "borderLeft",
+  "MozBorderLeft",
+  "WebkitBorderLeft",
+  "MSBorderLeft",
+  "OBorderLeft",
+  "borderLeftColor",
+  "MozBorderLeftColor",
+  "WebkitBorderLeftColor",
+  "MSBorderLeftColor",
+  "OBorderLeftColor",
+  "borderLeftStyle",
+  "MozBorderLeftStyle",
+  "WebkitBorderLeftStyle",
+  "MSBorderLeftStyle",
+  "OBorderLeftStyle",
+  "borderLeftWidth",
+  "MozBorderLeftWidth",
+  "WebkitBorderLeftWidth",
+  "MSBorderLeftWidth",
+  "OBorderLeftWidth",
+  "borderRadius",
+  "MozBorderRadius",
+  "WebkitBorderRadius",
+  "MSBorderRadius",
+  "OBorderRadius",
+  "borderRight",
+  "MozBorderRight",
+  "WebkitBorderRight",
+  "MSBorderRight",
+  "OBorderRight",
+  "borderRightColor",
+  "MozBorderRightColor",
+  "WebkitBorderRightColor",
+  "MSBorderRightColor",
+  "OBorderRightColor",
+  "borderRightStyle",
+  "MozBorderRightStyle",
+  "WebkitBorderRightStyle",
+  "MSBorderRightStyle",
+  "OBorderRightStyle",
+  "borderRightWidth",
+  "MozBorderRightWidth",
+  "WebkitBorderRightWidth",
+  "MSBorderRightWidth",
+  "OBorderRightWidth",
+  "borderSpacing",
+  "MozBorderSpacing",
+  "WebkitBorderSpacing",
+  "MSBorderSpacing",
+  "OBorderSpacing",
+  "borderStyle",
+  "MozBorderStyle",
+  "WebkitBorderStyle",
+  "MSBorderStyle",
+  "OBorderStyle",
+  "borderTop",
+  "MozBorderTop",
+  "WebkitBorderTop",
+  "MSBorderTop",
+  "OBorderTop",
+  "borderTopColor",
+  "MozBorderTopColor",
+  "WebkitBorderTopColor",
+  "MSBorderTopColor",
+  "OBorderTopColor",
+  "borderTopLeftRadius",
+  "MozBorderTopLeftRadius",
+  "WebkitBorderTopLeftRadius",
+  "MSBorderTopLeftRadius",
+  "OBorderTopLeftRadius",
+  "borderTopRightRadius",
+  "MozBorderTopRightRadius",
+  "WebkitBorderTopRightRadius",
+  "MSBorderTopRightRadius",
+  "OBorderTopRightRadius",
+  "borderTopStyle",
+  "MozBorderTopStyle",
+  "WebkitBorderTopStyle",
+  "MSBorderTopStyle",
+  "OBorderTopStyle",
+  "borderTopWidth",
+  "MozBorderTopWidth",
+  "WebkitBorderTopWidth",
+  "MSBorderTopWidth",
+  "OBorderTopWidth",
+  "borderWidth",
+  "MozBorderWidth",
+  "WebkitBorderWidth",
+  "MSBorderWidth",
+  "OBorderWidth",
+  "bottom",
+  "MozBottom",
+  "WebkitBottom",
+  "MSBottom",
+  "OBottom",
+  "boxDecorationBreak",
+  "MozBoxDecorationBreak",
+  "WebkitBoxDecorationBreak",
+  "MSBoxDecorationBreak",
+  "OBoxDecorationBreak",
+  "boxShadow",
+  "MozBoxShadow",
+  "WebkitBoxShadow",
+  "MSBoxShadow",
+  "OBoxShadow",
+  "boxSizing",
+  "MozBoxSizing",
+  "WebkitBoxSizing",
+  "MSBoxSizing",
+  "OBoxSizing",
+  "breakAfter",
+  "MozBreakAfter",
+  "WebkitBreakAfter",
+  "MSBreakAfter",
+  "OBreakAfter",
+  "breakBefore",
+  "MozBreakBefore",
+  "WebkitBreakBefore",
+  "MSBreakBefore",
+  "OBreakBefore",
+  "breakInside",
+  "MozBreakInside",
+  "WebkitBreakInside",
+  "MSBreakInside",
+  "OBreakInside",
+  "captionSide",
+  "MozCaptionSide",
+  "WebkitCaptionSide",
+  "MSCaptionSide",
+  "OCaptionSide",
+  "caretColor",
+  "MozCaretColor",
+  "WebkitCaretColor",
+  "MSCaretColor",
+  "OCaretColor",
+  "ch",
+  "MozCh",
+  "WebkitCh",
+  "MSCh",
+  "OCh",
+  "clear",
+  "MozClear",
+  "WebkitClear",
+  "MSClear",
+  "OClear",
+  "clip",
+  "MozClip",
+  "WebkitClip",
+  "MSClip",
+  "OClip",
+  "clipPath",
+  "MozClipPath",
+  "WebkitClipPath",
+  "MSClipPath",
+  "OClipPath",
+  "cm",
+  "MozCm",
+  "WebkitCm",
+  "MSCm",
+  "OCm",
+  "color",
+  "MozColor",
+  "WebkitColor",
+  "MSColor",
+  "OColor",
+  "columnCount",
+  "MozColumnCount",
+  "WebkitColumnCount",
+  "MSColumnCount",
+  "OColumnCount",
+  "columnFill",
+  "MozColumnFill",
+  "WebkitColumnFill",
+  "MSColumnFill",
+  "OColumnFill",
+  "columnGap",
+  "MozColumnGap",
+  "WebkitColumnGap",
+  "MSColumnGap",
+  "OColumnGap",
+  "columnRule",
+  "MozColumnRule",
+  "WebkitColumnRule",
+  "MSColumnRule",
+  "OColumnRule",
+  "columnRuleColor",
+  "MozColumnRuleColor",
+  "WebkitColumnRuleColor",
+  "MSColumnRuleColor",
+  "OColumnRuleColor",
+  "columnRuleStyle",
+  "MozColumnRuleStyle",
+  "WebkitColumnRuleStyle",
+  "MSColumnRuleStyle",
+  "OColumnRuleStyle",
+  "columnRuleWidth",
+  "MozColumnRuleWidth",
+  "WebkitColumnRuleWidth",
+  "MSColumnRuleWidth",
+  "OColumnRuleWidth",
+  "columnSpan",
+  "MozColumnSpan",
+  "WebkitColumnSpan",
+  "MSColumnSpan",
+  "OColumnSpan",
+  "columnWidth",
+  "MozColumnWidth",
+  "WebkitColumnWidth",
+  "MSColumnWidth",
+  "OColumnWidth",
+  "columns",
+  "MozColumns",
+  "WebkitColumns",
+  "MSColumns",
+  "OColumns",
+  "content",
+  "MozContent",
+  "WebkitContent",
+  "MSContent",
+  "OContent",
+  "counterIncrement",
+  "MozCounterIncrement",
+  "WebkitCounterIncrement",
+  "MSCounterIncrement",
+  "OCounterIncrement",
+  "counterReset",
+  "MozCounterReset",
+  "WebkitCounterReset",
+  "MSCounterReset",
+  "OCounterReset",
+  "cursor",
+  "MozCursor",
+  "WebkitCursor",
+  "MSCursor",
+  "OCursor",
+  "deg",
+  "MozDeg",
+  "WebkitDeg",
+  "MSDeg",
+  "ODeg",
+  "direction",
+  "MozDirection",
+  "WebkitDirection",
+  "MSDirection",
+  "ODirection",
+  "display",
+  "MozDisplay",
+  "WebkitDisplay",
+  "MSDisplay",
+  "ODisplay",
+  "dpcm",
+  "MozDpcm",
+  "WebkitDpcm",
+  "MSDpcm",
+  "ODpcm",
+  "dpi",
+  "MozDpi",
+  "WebkitDpi",
+  "MSDpi",
+  "ODpi",
+  "dppx",
+  "MozDppx",
+  "WebkitDppx",
+  "MSDppx",
+  "ODppx",
+  "em",
+  "MozEm",
+  "WebkitEm",
+  "MSEm",
+  "OEm",
+  "emptyCells",
+  "MozEmptyCells",
+  "WebkitEmptyCells",
+  "MSEmptyCells",
+  "OEmptyCells",
+  "ex",
+  "MozEx",
+  "WebkitEx",
+  "MSEx",
+  "OEx",
+  "filter",
+  "MozFilter",
+  "WebkitFilter",
+  "MSFilter",
+  "OFilter",
+  "flexBasis",
+  "MozFlexBasis",
+  "WebkitFlexBasis",
+  "MSFlexBasis",
+  "OFlexBasis",
+  "flexDirection",
+  "MozFlexDirection",
+  "WebkitFlexDirection",
+  "MSFlexDirection",
+  "OFlexDirection",
+  "flexFlow",
+  "MozFlexFlow",
+  "WebkitFlexFlow",
+  "MSFlexFlow",
+  "OFlexFlow",
+  "flexGrow",
+  "MozFlexGrow",
+  "WebkitFlexGrow",
+  "MSFlexGrow",
+  "OFlexGrow",
+  "flexShrink",
+  "MozFlexShrink",
+  "WebkitFlexShrink",
+  "MSFlexShrink",
+  "OFlexShrink",
+  "flexWrap",
+  "MozFlexWrap",
+  "WebkitFlexWrap",
+  "MSFlexWrap",
+  "OFlexWrap",
+  "float",
+  "MozFloat",
+  "WebkitFloat",
+  "MSFloat",
+  "OFloat",
+  "font",
+  "MozFont",
+  "WebkitFont",
+  "MSFont",
+  "OFont",
+  "fontFamily",
+  "MozFontFamily",
+  "WebkitFontFamily",
+  "MSFontFamily",
+  "OFontFamily",
+  "fontFeatureSettings",
+  "MozFontFeatureSettings",
+  "WebkitFontFeatureSettings",
+  "MSFontFeatureSettings",
+  "OFontFeatureSettings",
+  "fontKerning",
+  "MozFontKerning",
+  "WebkitFontKerning",
+  "MSFontKerning",
+  "OFontKerning",
+  "fontLanguageOverride",
+  "MozFontLanguageOverride",
+  "WebkitFontLanguageOverride",
+  "MSFontLanguageOverride",
+  "OFontLanguageOverride",
+  "fontSize",
+  "MozFontSize",
+  "WebkitFontSize",
+  "MSFontSize",
+  "OFontSize",
+  "fontSizeAdjust",
+  "MozFontSizeAdjust",
+  "WebkitFontSizeAdjust",
+  "MSFontSizeAdjust",
+  "OFontSizeAdjust",
+  "fontStretch",
+  "MozFontStretch",
+  "WebkitFontStretch",
+  "MSFontStretch",
+  "OFontStretch",
+  "fontStyle",
+  "MozFontStyle",
+  "WebkitFontStyle",
+  "MSFontStyle",
+  "OFontStyle",
+  "fontSynthesis",
+  "MozFontSynthesis",
+  "WebkitFontSynthesis",
+  "MSFontSynthesis",
+  "OFontSynthesis",
+  "fontVariant",
+  "MozFontVariant",
+  "WebkitFontVariant",
+  "MSFontVariant",
+  "OFontVariant",
+  "fontVariantAlternates",
+  "MozFontVariantAlternates",
+  "WebkitFontVariantAlternates",
+  "MSFontVariantAlternates",
+  "OFontVariantAlternates",
+  "fontVariantCaps",
+  "MozFontVariantCaps",
+  "WebkitFontVariantCaps",
+  "MSFontVariantCaps",
+  "OFontVariantCaps",
+  "fontVariantEastAsian",
+  "MozFontVariantEastAsian",
+  "WebkitFontVariantEastAsian",
+  "MSFontVariantEastAsian",
+  "OFontVariantEastAsian",
+  "fontVariantLigatures",
+  "MozFontVariantLigatures",
+  "WebkitFontVariantLigatures",
+  "MSFontVariantLigatures",
+  "OFontVariantLigatures",
+  "fontVariantNumeric",
+  "MozFontVariantNumeric",
+  "WebkitFontVariantNumeric",
+  "MSFontVariantNumeric",
+  "OFontVariantNumeric",
+  "fontVariantPosition",
+  "MozFontVariantPosition",
+  "WebkitFontVariantPosition",
+  "MSFontVariantPosition",
+  "OFontVariantPosition",
+  "fontWeight",
+  "MozFontWeight",
+  "WebkitFontWeight",
+  "MSFontWeight",
+  "OFontWeight",
+  "fr",
+  "MozFr",
+  "WebkitFr",
+  "MSFr",
+  "OFr",
+  "grad",
+  "MozGrad",
+  "WebkitGrad",
+  "MSGrad",
+  "OGrad",
+  "grid",
+  "MozGrid",
+  "WebkitGrid",
+  "MSGrid",
+  "OGrid",
+  "gridArea",
+  "MozGridArea",
+  "WebkitGridArea",
+  "MSGridArea",
+  "OGridArea",
+  "gridAutoColumns",
+  "MozGridAutoColumns",
+  "WebkitGridAutoColumns",
+  "MSGridAutoColumns",
+  "OGridAutoColumns",
+  "gridAutoFlow",
+  "MozGridAutoFlow",
+  "WebkitGridAutoFlow",
+  "MSGridAutoFlow",
+  "OGridAutoFlow",
+  "gridAutoRows",
+  "MozGridAutoRows",
+  "WebkitGridAutoRows",
+  "MSGridAutoRows",
+  "OGridAutoRows",
+  "gridColumn",
+  "MozGridColumn",
+  "WebkitGridColumn",
+  "MSGridColumn",
+  "OGridColumn",
+  "gridColumnEnd",
+  "MozGridColumnEnd",
+  "WebkitGridColumnEnd",
+  "MSGridColumnEnd",
+  "OGridColumnEnd",
+  "gridColumnGap",
+  "MozGridColumnGap",
+  "WebkitGridColumnGap",
+  "MSGridColumnGap",
+  "OGridColumnGap",
+  "gridColumnStart",
+  "MozGridColumnStart",
+  "WebkitGridColumnStart",
+  "MSGridColumnStart",
+  "OGridColumnStart",
+  "gridGap",
+  "MozGridGap",
+  "WebkitGridGap",
+  "MSGridGap",
+  "OGridGap",
+  "gridRow",
+  "MozGridRow",
+  "WebkitGridRow",
+  "MSGridRow",
+  "OGridRow",
+  "gridRowEnd",
+  "MozGridRowEnd",
+  "WebkitGridRowEnd",
+  "MSGridRowEnd",
+  "OGridRowEnd",
+  "gridRowGap",
+  "MozGridRowGap",
+  "WebkitGridRowGap",
+  "MSGridRowGap",
+  "OGridRowGap",
+  "gridRowStart",
+  "MozGridRowStart",
+  "WebkitGridRowStart",
+  "MSGridRowStart",
+  "OGridRowStart",
+  "gridTemplate",
+  "MozGridTemplate",
+  "WebkitGridTemplate",
+  "MSGridTemplate",
+  "OGridTemplate",
+  "gridTemplateAreas",
+  "MozGridTemplateAreas",
+  "WebkitGridTemplateAreas",
+  "MSGridTemplateAreas",
+  "OGridTemplateAreas",
+  "gridTemplateColumns",
+  "MozGridTemplateColumns",
+  "WebkitGridTemplateColumns",
+  "MSGridTemplateColumns",
+  "OGridTemplateColumns",
+  "gridTemplateRows",
+  "MozGridTemplateRows",
+  "WebkitGridTemplateRows",
+  "MSGridTemplateRows",
+  "OGridTemplateRows",
+  "height",
+  "MozHeight",
+  "WebkitHeight",
+  "MSHeight",
+  "OHeight",
+  "hyphens",
+  "MozHyphens",
+  "WebkitHyphens",
+  "MSHyphens",
+  "OHyphens",
+  "hz",
+  "MozHz",
+  "WebkitHz",
+  "MSHz",
+  "OHz",
+  "imageOrientation",
+  "MozImageOrientation",
+  "WebkitImageOrientation",
+  "MSImageOrientation",
+  "OImageOrientation",
+  "imageRendering",
+  "MozImageRendering",
+  "WebkitImageRendering",
+  "MSImageRendering",
+  "OImageRendering",
+  "imageResolution",
+  "MozImageResolution",
+  "WebkitImageResolution",
+  "MSImageResolution",
+  "OImageResolution",
+  "imeMode",
+  "MozImeMode",
+  "WebkitImeMode",
+  "MSImeMode",
+  "OImeMode",
+  "in",
+  "MozIn",
+  "WebkitIn",
+  "MSIn",
+  "OIn",
+  "inherit",
+  "MozInherit",
+  "WebkitInherit",
+  "MSInherit",
+  "OInherit",
+  "initial",
+  "MozInitial",
+  "WebkitInitial",
+  "MSInitial",
+  "OInitial",
+  "inlineSize",
+  "MozInlineSize",
+  "WebkitInlineSize",
+  "MSInlineSize",
+  "OInlineSize",
+  "isolation",
+  "MozIsolation",
+  "WebkitIsolation",
+  "MSIsolation",
+  "OIsolation",
+  "justifyContent",
+  "MozJustifyContent",
+  "WebkitJustifyContent",
+  "MSJustifyContent",
+  "OJustifyContent",
+  "khz",
+  "MozKhz",
+  "WebkitKhz",
+  "MSKhz",
+  "OKhz",
+  "left",
+  "MozLeft",
+  "WebkitLeft",
+  "MSLeft",
+  "OLeft",
+  "letterSpacing",
+  "MozLetterSpacing",
+  "WebkitLetterSpacing",
+  "MSLetterSpacing",
+  "OLetterSpacing",
+  "lineBreak",
+  "MozLineBreak",
+  "WebkitLineBreak",
+  "MSLineBreak",
+  "OLineBreak",
+  "lineHeight",
+  "MozLineHeight",
+  "WebkitLineHeight",
+  "MSLineHeight",
+  "OLineHeight",
+  "listStyle",
+  "MozListStyle",
+  "WebkitListStyle",
+  "MSListStyle",
+  "OListStyle",
+  "listStyleImage",
+  "MozListStyleImage",
+  "WebkitListStyleImage",
+  "MSListStyleImage",
+  "OListStyleImage",
+  "listStylePosition",
+  "MozListStylePosition",
+  "WebkitListStylePosition",
+  "MSListStylePosition",
+  "OListStylePosition",
+  "listStyleType",
+  "MozListStyleType",
+  "WebkitListStyleType",
+  "MSListStyleType",
+  "OListStyleType",
+  "margin",
+  "MozMargin",
+  "WebkitMargin",
+  "MSMargin",
+  "OMargin",
+  "marginBlockEnd",
+  "MozMarginBlockEnd",
+  "WebkitMarginBlockEnd",
+  "MSMarginBlockEnd",
+  "OMarginBlockEnd",
+  "marginBlockStart",
+  "MozMarginBlockStart",
+  "WebkitMarginBlockStart",
+  "MSMarginBlockStart",
+  "OMarginBlockStart",
+  "marginBottom",
+  "MozMarginBottom",
+  "WebkitMarginBottom",
+  "MSMarginBottom",
+  "OMarginBottom",
+  "marginInlineEnd",
+  "MozMarginInlineEnd",
+  "WebkitMarginInlineEnd",
+  "MSMarginInlineEnd",
+  "OMarginInlineEnd",
+  "marginInlineStart",
+  "MozMarginInlineStart",
+  "WebkitMarginInlineStart",
+  "MSMarginInlineStart",
+  "OMarginInlineStart",
+  "marginLeft",
+  "MozMarginLeft",
+  "WebkitMarginLeft",
+  "MSMarginLeft",
+  "OMarginLeft",
+  "marginRight",
+  "MozMarginRight",
+  "WebkitMarginRight",
+  "MSMarginRight",
+  "OMarginRight",
+  "marginTop",
+  "MozMarginTop",
+  "WebkitMarginTop",
+  "MSMarginTop",
+  "OMarginTop",
+  "mask",
+  "MozMask",
+  "WebkitMask",
+  "MSMask",
+  "OMask",
+  "maskClip",
+  "MozMaskClip",
+  "WebkitMaskClip",
+  "MSMaskClip",
+  "OMaskClip",
+  "maskComposite",
+  "MozMaskComposite",
+  "WebkitMaskComposite",
+  "MSMaskComposite",
+  "OMaskComposite",
+  "maskImage",
+  "MozMaskImage",
+  "WebkitMaskImage",
+  "MSMaskImage",
+  "OMaskImage",
+  "maskMode",
+  "MozMaskMode",
+  "WebkitMaskMode",
+  "MSMaskMode",
+  "OMaskMode",
+  "maskOrigin",
+  "MozMaskOrigin",
+  "WebkitMaskOrigin",
+  "MSMaskOrigin",
+  "OMaskOrigin",
+  "maskPosition",
+  "MozMaskPosition",
+  "WebkitMaskPosition",
+  "MSMaskPosition",
+  "OMaskPosition",
+  "maskRepeat",
+  "MozMaskRepeat",
+  "WebkitMaskRepeat",
+  "MSMaskRepeat",
+  "OMaskRepeat",
+  "maskSize",
+  "MozMaskSize",
+  "WebkitMaskSize",
+  "MSMaskSize",
+  "OMaskSize",
+  "maskType",
+  "MozMaskType",
+  "WebkitMaskType",
+  "MSMaskType",
+  "OMaskType",
+  "maxHeight",
+  "MozMaxHeight",
+  "WebkitMaxHeight",
+  "MSMaxHeight",
+  "OMaxHeight",
+  "maxWidth",
+  "MozMaxWidth",
+  "WebkitMaxWidth",
+  "MSMaxWidth",
+  "OMaxWidth",
+  "minBlockSize",
+  "MozMinBlockSize",
+  "WebkitMinBlockSize",
+  "MSMinBlockSize",
+  "OMinBlockSize",
+  "minHeight",
+  "MozMinHeight",
+  "WebkitMinHeight",
+  "MSMinHeight",
+  "OMinHeight",
+  "minInlineSize",
+  "MozMinInlineSize",
+  "WebkitMinInlineSize",
+  "MSMinInlineSize",
+  "OMinInlineSize",
+  "minWidth",
+  "MozMinWidth",
+  "WebkitMinWidth",
+  "MSMinWidth",
+  "OMinWidth",
+  "mixBlendMode",
+  "MozMixBlendMode",
+  "WebkitMixBlendMode",
+  "MSMixBlendMode",
+  "OMixBlendMode",
+  "mm",
+  "MozMm",
+  "WebkitMm",
+  "MSMm",
+  "OMm",
+  "ms",
+  "MozMs",
+  "WebkitMs",
+  "MSMs",
+  "OMs",
+  "objectFit",
+  "MozObjectFit",
+  "WebkitObjectFit",
+  "MSObjectFit",
+  "OObjectFit",
+  "objectPosition",
+  "MozObjectPosition",
+  "WebkitObjectPosition",
+  "MSObjectPosition",
+  "OObjectPosition",
+  "offsetBlockEnd",
+  "MozOffsetBlockEnd",
+  "WebkitOffsetBlockEnd",
+  "MSOffsetBlockEnd",
+  "OOffsetBlockEnd",
+  "offsetBlockStart",
+  "MozOffsetBlockStart",
+  "WebkitOffsetBlockStart",
+  "MSOffsetBlockStart",
+  "OOffsetBlockStart",
+  "offsetInlineEnd",
+  "MozOffsetInlineEnd",
+  "WebkitOffsetInlineEnd",
+  "MSOffsetInlineEnd",
+  "OOffsetInlineEnd",
+  "offsetInlineStart",
+  "MozOffsetInlineStart",
+  "WebkitOffsetInlineStart",
+  "MSOffsetInlineStart",
+  "OOffsetInlineStart",
+  "opacity",
+  "MozOpacity",
+  "WebkitOpacity",
+  "MSOpacity",
+  "OOpacity",
+  "order",
+  "MozOrder",
+  "WebkitOrder",
+  "MSOrder",
+  "OOrder",
+  "orphans",
+  "MozOrphans",
+  "WebkitOrphans",
+  "MSOrphans",
+  "OOrphans",
+  "outline",
+  "MozOutline",
+  "WebkitOutline",
+  "MSOutline",
+  "OOutline",
+  "outlineColor",
+  "MozOutlineColor",
+  "WebkitOutlineColor",
+  "MSOutlineColor",
+  "OOutlineColor",
+  "outlineOffset",
+  "MozOutlineOffset",
+  "WebkitOutlineOffset",
+  "MSOutlineOffset",
+  "OOutlineOffset",
+  "outlineStyle",
+  "MozOutlineStyle",
+  "WebkitOutlineStyle",
+  "MSOutlineStyle",
+  "OOutlineStyle",
+  "outlineWidth",
+  "MozOutlineWidth",
+  "WebkitOutlineWidth",
+  "MSOutlineWidth",
+  "OOutlineWidth",
+  "overflow",
+  "MozOverflow",
+  "WebkitOverflow",
+  "MSOverflow",
+  "OOverflow",
+  "overflowWrap",
+  "MozOverflowWrap",
+  "WebkitOverflowWrap",
+  "MSOverflowWrap",
+  "OOverflowWrap",
+  "overflowX",
+  "MozOverflowX",
+  "WebkitOverflowX",
+  "MSOverflowX",
+  "OOverflowX",
+  "overflowY",
+  "MozOverflowY",
+  "WebkitOverflowY",
+  "MSOverflowY",
+  "OOverflowY",
+  "padding",
+  "MozPadding",
+  "WebkitPadding",
+  "MSPadding",
+  "OPadding",
+  "paddingBlockEnd",
+  "MozPaddingBlockEnd",
+  "WebkitPaddingBlockEnd",
+  "MSPaddingBlockEnd",
+  "OPaddingBlockEnd",
+  "paddingBlockStart",
+  "MozPaddingBlockStart",
+  "WebkitPaddingBlockStart",
+  "MSPaddingBlockStart",
+  "OPaddingBlockStart",
+  "paddingBottom",
+  "MozPaddingBottom",
+  "WebkitPaddingBottom",
+  "MSPaddingBottom",
+  "OPaddingBottom",
+  "paddingInlineEnd",
+  "MozPaddingInlineEnd",
+  "WebkitPaddingInlineEnd",
+  "MSPaddingInlineEnd",
+  "OPaddingInlineEnd",
+  "paddingInlineStart",
+  "MozPaddingInlineStart",
+  "WebkitPaddingInlineStart",
+  "MSPaddingInlineStart",
+  "OPaddingInlineStart",
+  "paddingLeft",
+  "MozPaddingLeft",
+  "WebkitPaddingLeft",
+  "MSPaddingLeft",
+  "OPaddingLeft",
+  "paddingRight",
+  "MozPaddingRight",
+  "WebkitPaddingRight",
+  "MSPaddingRight",
+  "OPaddingRight",
+  "paddingTop",
+  "MozPaddingTop",
+  "WebkitPaddingTop",
+  "MSPaddingTop",
+  "OPaddingTop",
+  "pageBreakAfter",
+  "MozPageBreakAfter",
+  "WebkitPageBreakAfter",
+  "MSPageBreakAfter",
+  "OPageBreakAfter",
+  "pageBreakBefore",
+  "MozPageBreakBefore",
+  "WebkitPageBreakBefore",
+  "MSPageBreakBefore",
+  "OPageBreakBefore",
+  "pageBreakInside",
+  "MozPageBreakInside",
+  "WebkitPageBreakInside",
+  "MSPageBreakInside",
+  "OPageBreakInside",
+  "pc",
+  "MozPc",
+  "WebkitPc",
+  "MSPc",
+  "OPc",
+  "perspective",
+  "MozPerspective",
+  "WebkitPerspective",
+  "MSPerspective",
+  "OPerspective",
+  "perspectiveOrigin",
+  "MozPerspectiveOrigin",
+  "WebkitPerspectiveOrigin",
+  "MSPerspectiveOrigin",
+  "OPerspectiveOrigin",
+  "pointerEvents",
+  "MozPointerEvents",
+  "WebkitPointerEvents",
+  "MSPointerEvents",
+  "OPointerEvents",
+  "position",
+  "MozPosition",
+  "WebkitPosition",
+  "MSPosition",
+  "OPosition",
+  "pt",
+  "MozPt",
+  "WebkitPt",
+  "MSPt",
+  "OPt",
+  "px",
+  "MozPx",
+  "WebkitPx",
+  "MSPx",
+  "OPx",
+  "q",
+  "MozQ",
+  "WebkitQ",
+  "MSQ",
+  "OQ",
+  "quotes",
+  "MozQuotes",
+  "WebkitQuotes",
+  "MSQuotes",
+  "OQuotes",
+  "rad",
+  "MozRad",
+  "WebkitRad",
+  "MSRad",
+  "ORad",
+  "rem",
+  "MozRem",
+  "WebkitRem",
+  "MSRem",
+  "ORem",
+  "resize",
+  "MozResize",
+  "WebkitResize",
+  "MSResize",
+  "OResize",
+  "revert",
+  "MozRevert",
+  "WebkitRevert",
+  "MSRevert",
+  "ORevert",
+  "right",
+  "MozRight",
+  "WebkitRight",
+  "MSRight",
+  "ORight",
+  "rubyAlign",
+  "MozRubyAlign",
+  "WebkitRubyAlign",
+  "MSRubyAlign",
+  "ORubyAlign",
+  "rubyMerge",
+  "MozRubyMerge",
+  "WebkitRubyMerge",
+  "MSRubyMerge",
+  "ORubyMerge",
+  "rubyPosition",
+  "MozRubyPosition",
+  "WebkitRubyPosition",
+  "MSRubyPosition",
+  "ORubyPosition",
+  "s",
+  "MozS",
+  "WebkitS",
+  "MSS",
+  "OS",
+  "scrollBehavior",
+  "MozScrollBehavior",
+  "WebkitScrollBehavior",
+  "MSScrollBehavior",
+  "OScrollBehavior",
+  "scrollSnapCoordinate",
+  "MozScrollSnapCoordinate",
+  "WebkitScrollSnapCoordinate",
+  "MSScrollSnapCoordinate",
+  "OScrollSnapCoordinate",
+  "scrollSnapDestination",
+  "MozScrollSnapDestination",
+  "WebkitScrollSnapDestination",
+  "MSScrollSnapDestination",
+  "OScrollSnapDestination",
+  "scrollSnapType",
+  "MozScrollSnapType",
+  "WebkitScrollSnapType",
+  "MSScrollSnapType",
+  "OScrollSnapType",
+  "shapeImageThreshold",
+  "MozShapeImageThreshold",
+  "WebkitShapeImageThreshold",
+  "MSShapeImageThreshold",
+  "OShapeImageThreshold",
+  "shapeMargin",
+  "MozShapeMargin",
+  "WebkitShapeMargin",
+  "MSShapeMargin",
+  "OShapeMargin",
+  "shapeOutside",
+  "MozShapeOutside",
+  "WebkitShapeOutside",
+  "MSShapeOutside",
+  "OShapeOutside",
+  "tabSize",
+  "MozTabSize",
+  "WebkitTabSize",
+  "MSTabSize",
+  "OTabSize",
+  "tableLayout",
+  "MozTableLayout",
+  "WebkitTableLayout",
+  "MSTableLayout",
+  "OTableLayout",
+  "textAlign",
+  "MozTextAlign",
+  "WebkitTextAlign",
+  "MSTextAlign",
+  "OTextAlign",
+  "textAlignLast",
+  "MozTextAlignLast",
+  "WebkitTextAlignLast",
+  "MSTextAlignLast",
+  "OTextAlignLast",
+  "textCombineUpright",
+  "MozTextCombineUpright",
+  "WebkitTextCombineUpright",
+  "MSTextCombineUpright",
+  "OTextCombineUpright",
+  "textDecoration",
+  "MozTextDecoration",
+  "WebkitTextDecoration",
+  "MSTextDecoration",
+  "OTextDecoration",
+  "textDecorationColor",
+  "MozTextDecorationColor",
+  "WebkitTextDecorationColor",
+  "MSTextDecorationColor",
+  "OTextDecorationColor",
+  "textDecorationLine",
+  "MozTextDecorationLine",
+  "WebkitTextDecorationLine",
+  "MSTextDecorationLine",
+  "OTextDecorationLine",
+  "textDecorationStyle",
+  "MozTextDecorationStyle",
+  "WebkitTextDecorationStyle",
+  "MSTextDecorationStyle",
+  "OTextDecorationStyle",
+  "textEmphasis",
+  "MozTextEmphasis",
+  "WebkitTextEmphasis",
+  "MSTextEmphasis",
+  "OTextEmphasis",
+  "textEmphasisColor",
+  "MozTextEmphasisColor",
+  "WebkitTextEmphasisColor",
+  "MSTextEmphasisColor",
+  "OTextEmphasisColor",
+  "textEmphasisPosition",
+  "MozTextEmphasisPosition",
+  "WebkitTextEmphasisPosition",
+  "MSTextEmphasisPosition",
+  "OTextEmphasisPosition",
+  "textEmphasisStyle",
+  "MozTextEmphasisStyle",
+  "WebkitTextEmphasisStyle",
+  "MSTextEmphasisStyle",
+  "OTextEmphasisStyle",
+  "textIndent",
+  "MozTextIndent",
+  "WebkitTextIndent",
+  "MSTextIndent",
+  "OTextIndent",
+  "textOrientation",
+  "MozTextOrientation",
+  "WebkitTextOrientation",
+  "MSTextOrientation",
+  "OTextOrientation",
+  "textOverflow",
+  "MozTextOverflow",
+  "WebkitTextOverflow",
+  "MSTextOverflow",
+  "OTextOverflow",
+  "textRendering",
+  "MozTextRendering",
+  "WebkitTextRendering",
+  "MSTextRendering",
+  "OTextRendering",
+  "textShadow",
+  "MozTextShadow",
+  "WebkitTextShadow",
+  "MSTextShadow",
+  "OTextShadow",
+  "textTransform",
+  "MozTextTransform",
+  "WebkitTextTransform",
+  "MSTextTransform",
+  "OTextTransform",
+  "textUnderlinePosition",
+  "MozTextUnderlinePosition",
+  "WebkitTextUnderlinePosition",
+  "MSTextUnderlinePosition",
+  "OTextUnderlinePosition",
+  "top",
+  "MozTop",
+  "WebkitTop",
+  "MSTop",
+  "OTop",
+  "touchAction",
+  "MozTouchAction",
+  "WebkitTouchAction",
+  "MSTouchAction",
+  "OTouchAction",
+  "transform",
+  "MozTransform",
+  "WebkitTransform",
+  "msTransform",
+  "OTransform",
+  "transformBox",
+  "MozTransformBox",
+  "WebkitTransformBox",
+  "MSTransformBox",
+  "OTransformBox",
+  "transformOrigin",
+  "MozTransformOrigin",
+  "WebkitTransformOrigin",
+  "MSTransformOrigin",
+  "OTransformOrigin",
+  "transformStyle",
+  "MozTransformStyle",
+  "WebkitTransformStyle",
+  "MSTransformStyle",
+  "OTransformStyle",
+  "transition",
+  "MozTransition",
+  "WebkitTransition",
+  "MSTransition",
+  "OTransition",
+  "transitionDelay",
+  "MozTransitionDelay",
+  "WebkitTransitionDelay",
+  "MSTransitionDelay",
+  "OTransitionDelay",
+  "transitionDuration",
+  "MozTransitionDuration",
+  "WebkitTransitionDuration",
+  "MSTransitionDuration",
+  "OTransitionDuration",
+  "transitionProperty",
+  "MozTransitionProperty",
+  "WebkitTransitionProperty",
+  "MSTransitionProperty",
+  "OTransitionProperty",
+  "transitionTimingFunction",
+  "MozTransitionTimingFunction",
+  "WebkitTransitionTimingFunction",
+  "MSTransitionTimingFunction",
+  "OTransitionTimingFunction",
+  "turn",
+  "MozTurn",
+  "WebkitTurn",
+  "MSTurn",
+  "OTurn",
+  "unicodeBidi",
+  "MozUnicodeBidi",
+  "WebkitUnicodeBidi",
+  "MSUnicodeBidi",
+  "OUnicodeBidi",
+  "unset",
+  "MozUnset",
+  "WebkitUnset",
+  "MSUnset",
+  "OUnset",
+  "verticalAlign",
+  "MozVerticalAlign",
+  "WebkitVerticalAlign",
+  "MSVerticalAlign",
+  "OVerticalAlign",
+  "vh",
+  "MozVh",
+  "WebkitVh",
+  "MSVh",
+  "OVh",
+  "visibility",
+  "MozVisibility",
+  "WebkitVisibility",
+  "MSVisibility",
+  "OVisibility",
+  "vmax",
+  "MozVmax",
+  "WebkitVmax",
+  "MSVmax",
+  "OVmax",
+  "vmin",
+  "MozVmin",
+  "WebkitVmin",
+  "MSVmin",
+  "OVmin",
+  "vw",
+  "MozVw",
+  "WebkitVw",
+  "MSVw",
+  "OVw",
+  "whiteSpace",
+  "MozWhiteSpace",
+  "WebkitWhiteSpace",
+  "MSWhiteSpace",
+  "OWhiteSpace",
+  "widows",
+  "MozWidows",
+  "WebkitWidows",
+  "MSWidows",
+  "OWidows",
+  "width",
+  "MozWidth",
+  "WebkitWidth",
+  "MSWidth",
+  "OWidth",
+  "willChange",
+  "MozWillChange",
+  "WebkitWillChange",
+  "MSWillChange",
+  "OWillChange",
+  "wordBreak",
+  "MozWordBreak",
+  "WebkitWordBreak",
+  "MSWordBreak",
+  "OWordBreak",
+  "wordSpacing",
+  "MozWordSpacing",
+  "WebkitWordSpacing",
+  "MSWordSpacing",
+  "OWordSpacing",
+  "wordWrap",
+  "MozWordWrap",
+  "WebkitWordWrap",
+  "MSWordWrap",
+  "OWordWrap",
+  "writingMode",
+  "MozWritingMode",
+  "WebkitWritingMode",
+  "MSWritingMode",
+  "OWritingMode",
+  "zIndex",
+  "MozZIndex",
+  "WebkitZIndex",
+  "MSZIndex",
+  "OZIndex",
+  "fontSize",
+  "MozFontSize",
+  "WebkitFontSize",
+  "MSFontSize",
+  "OFontSize",
+  "flex",
+  "MozFlex",
+  "WebkitFlex",
+  "MSFlex",
+  "OFlex",
+  "fr",
+  "MozFr",
+  "WebkitFr",
+  "MSFr",
+  "OFr",
+  "overflowScrolling",
+  "MozOverflowScrolling",
+  "WebkitOverflowScrolling",
+  "MSOverflowScrolling",
+  "OOverflowScrolling",
+  "userSelect",
+  "MozUserSelect",
+  "WebkitUserSelect",
+  "MSUserSelect",
+  "OUserSelect"
+]
+
+},{}],"../node_modules/react-style-proptype/src/index.js":[function(require,module,exports) {
+var properties = require('./css-properties.js');
+var PropTypes = require('prop-types');
+
+module.exports = function(props, propName, componentName) {
+  var styles = props[propName];
+  if (!styles) {
+    return;
+  }
+
+  var failures = [];
+  Object.keys(styles).forEach(function(styleKey){
+    if (properties.indexOf(styleKey) === -1) {
+      failures.push(styleKey);
+    }
+  });
+  if (failures.length) {
+    throw new Error('Prop ' + propName + ' passed to ' + componentName + '. Has invalid keys ' + failures.join(', '));
+  }
+};
+
+module.exports.isRequired = function(props, propName, componentName) {
+  if (!props[propName]) {
+    throw new Error('Prop ' + propName + ' passed to ' + componentName + ' is required');
+  }
+  return module.exports(props, propName, componentName);
+};
+
+module.exports.supportingArrays = PropTypes.oneOfType([
+  PropTypes.arrayOf(module.exports),
+  module.exports
+]);
+
+},{"./css-properties.js":"../node_modules/react-style-proptype/src/css-properties.js","prop-types":"../node_modules/prop-types/index.js"}],"../node_modules/react-lifecycles-compat/react-lifecycles-compat.es.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.polyfill = polyfill;
+
+/**
+ * Copyright (c) 2013-present, Facebook, Inc.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
+function componentWillMount() {
+  // Call this.constructor.gDSFP to support sub-classes.
+  var state = this.constructor.getDerivedStateFromProps(this.props, this.state);
+
+  if (state !== null && state !== undefined) {
+    this.setState(state);
+  }
+}
+
+function componentWillReceiveProps(nextProps) {
+  // Call this.constructor.gDSFP to support sub-classes.
+  // Use the setState() updater to ensure state isn't stale in certain edge cases.
+  function updater(prevState) {
+    var state = this.constructor.getDerivedStateFromProps(nextProps, prevState);
+    return state !== null && state !== undefined ? state : null;
+  } // Binding "this" is important for shallow renderer support.
+
+
+  this.setState(updater.bind(this));
+}
+
+function componentWillUpdate(nextProps, nextState) {
+  try {
+    var prevProps = this.props;
+    var prevState = this.state;
+    this.props = nextProps;
+    this.state = nextState;
+    this.__reactInternalSnapshotFlag = true;
+    this.__reactInternalSnapshot = this.getSnapshotBeforeUpdate(prevProps, prevState);
+  } finally {
+    this.props = prevProps;
+    this.state = prevState;
+  }
+} // React may warn about cWM/cWRP/cWU methods being deprecated.
+// Add a flag to suppress these warnings for this special case.
+
+
+componentWillMount.__suppressDeprecationWarning = true;
+componentWillReceiveProps.__suppressDeprecationWarning = true;
+componentWillUpdate.__suppressDeprecationWarning = true;
+
+function polyfill(Component) {
+  var prototype = Component.prototype;
+
+  if (!prototype || !prototype.isReactComponent) {
+    throw new Error('Can only polyfill class components');
+  }
+
+  if (typeof Component.getDerivedStateFromProps !== 'function' && typeof prototype.getSnapshotBeforeUpdate !== 'function') {
+    return Component;
+  } // If new component APIs are defined, "unsafe" lifecycles won't be called.
+  // Error if any of these lifecycles are present,
+  // Because they would work differently between older and newer (16.3+) versions of React.
+
+
+  var foundWillMountName = null;
+  var foundWillReceivePropsName = null;
+  var foundWillUpdateName = null;
+
+  if (typeof prototype.componentWillMount === 'function') {
+    foundWillMountName = 'componentWillMount';
+  } else if (typeof prototype.UNSAFE_componentWillMount === 'function') {
+    foundWillMountName = 'UNSAFE_componentWillMount';
+  }
+
+  if (typeof prototype.componentWillReceiveProps === 'function') {
+    foundWillReceivePropsName = 'componentWillReceiveProps';
+  } else if (typeof prototype.UNSAFE_componentWillReceiveProps === 'function') {
+    foundWillReceivePropsName = 'UNSAFE_componentWillReceiveProps';
+  }
+
+  if (typeof prototype.componentWillUpdate === 'function') {
+    foundWillUpdateName = 'componentWillUpdate';
+  } else if (typeof prototype.UNSAFE_componentWillUpdate === 'function') {
+    foundWillUpdateName = 'UNSAFE_componentWillUpdate';
+  }
+
+  if (foundWillMountName !== null || foundWillReceivePropsName !== null || foundWillUpdateName !== null) {
+    var componentName = Component.displayName || Component.name;
+    var newApiName = typeof Component.getDerivedStateFromProps === 'function' ? 'getDerivedStateFromProps()' : 'getSnapshotBeforeUpdate()';
+    throw Error('Unsafe legacy lifecycles will not be called for components using new component APIs.\n\n' + componentName + ' uses ' + newApiName + ' but also contains the following legacy lifecycles:' + (foundWillMountName !== null ? '\n  ' + foundWillMountName : '') + (foundWillReceivePropsName !== null ? '\n  ' + foundWillReceivePropsName : '') + (foundWillUpdateName !== null ? '\n  ' + foundWillUpdateName : '') + '\n\nThe above lifecycles should be removed. Learn more about this warning here:\n' + 'https://fb.me/react-async-component-lifecycle-hooks');
+  } // React <= 16.2 does not support static getDerivedStateFromProps.
+  // As a workaround, use cWM and cWRP to invoke the new static lifecycle.
+  // Newer versions of React will ignore these lifecycles if gDSFP exists.
+
+
+  if (typeof Component.getDerivedStateFromProps === 'function') {
+    prototype.componentWillMount = componentWillMount;
+    prototype.componentWillReceiveProps = componentWillReceiveProps;
+  } // React <= 16.2 does not support getSnapshotBeforeUpdate.
+  // As a workaround, use cWU to invoke the new lifecycle.
+  // Newer versions of React will ignore that lifecycle if gSBU exists.
+
+
+  if (typeof prototype.getSnapshotBeforeUpdate === 'function') {
+    if (typeof prototype.componentDidUpdate !== 'function') {
+      throw new Error('Cannot polyfill getSnapshotBeforeUpdate() for components that do not define componentDidUpdate() on the prototype');
+    }
+
+    prototype.componentWillUpdate = componentWillUpdate;
+    var componentDidUpdate = prototype.componentDidUpdate;
+
+    prototype.componentDidUpdate = function componentDidUpdatePolyfill(prevProps, prevState, maybeSnapshot) {
+      // 16.3+ will not execute our will-update method;
+      // It will pass a snapshot value to did-update though.
+      // Older versions will require our polyfilled will-update value.
+      // We need to handle both cases, but can't just check for the presence of "maybeSnapshot",
+      // Because for <= 15.x versions this might be a "prevContext" object.
+      // We also can't just check "__reactInternalSnapshot",
+      // Because get-snapshot might return a falsy value.
+      // So check for the explicit __reactInternalSnapshotFlag flag to determine behavior.
+      var snapshot = this.__reactInternalSnapshotFlag ? this.__reactInternalSnapshot : maybeSnapshot;
+      componentDidUpdate.call(this, prevProps, prevState, snapshot);
+    };
+  }
+
+  return Component;
+}
+},{}],"../node_modules/react-split-pane/dist/index.esm.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.Pane = exports.default = void 0;
+
+var _react = _interopRequireDefault(require("react"));
+
+var _propTypes = _interopRequireDefault(require("prop-types"));
+
+var _reactStyleProptype = _interopRequireDefault(require("react-style-proptype"));
+
+var _reactLifecyclesCompat = require("react-lifecycles-compat");
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _classCallCheck(instance, Constructor) {
+  if (!(instance instanceof Constructor)) {
+    throw new TypeError("Cannot call a class as a function");
+  }
+}
+
+function _defineProperties(target, props) {
+  for (var i = 0; i < props.length; i++) {
+    var descriptor = props[i];
+    descriptor.enumerable = descriptor.enumerable || false;
+    descriptor.configurable = true;
+    if ("value" in descriptor) descriptor.writable = true;
+    Object.defineProperty(target, descriptor.key, descriptor);
+  }
+}
+
+function _createClass(Constructor, protoProps, staticProps) {
+  if (protoProps) _defineProperties(Constructor.prototype, protoProps);
+  if (staticProps) _defineProperties(Constructor, staticProps);
+  return Constructor;
+}
+
+function _defineProperty(obj, key, value) {
+  if (key in obj) {
+    Object.defineProperty(obj, key, {
+      value: value,
+      enumerable: true,
+      configurable: true,
+      writable: true
+    });
+  } else {
+    obj[key] = value;
+  }
+
+  return obj;
+}
+
+function _objectSpread(target) {
+  for (var i = 1; i < arguments.length; i++) {
+    var source = arguments[i] != null ? arguments[i] : {};
+    var ownKeys = Object.keys(source);
+
+    if (typeof Object.getOwnPropertySymbols === 'function') {
+      ownKeys = ownKeys.concat(Object.getOwnPropertySymbols(source).filter(function (sym) {
+        return Object.getOwnPropertyDescriptor(source, sym).enumerable;
+      }));
+    }
+
+    ownKeys.forEach(function (key) {
+      _defineProperty(target, key, source[key]);
+    });
+  }
+
+  return target;
+}
+
+function _inherits(subClass, superClass) {
+  if (typeof superClass !== "function" && superClass !== null) {
+    throw new TypeError("Super expression must either be null or a function");
+  }
+
+  subClass.prototype = Object.create(superClass && superClass.prototype, {
+    constructor: {
+      value: subClass,
+      writable: true,
+      configurable: true
+    }
+  });
+  if (superClass) _setPrototypeOf(subClass, superClass);
+}
+
+function _getPrototypeOf(o) {
+  _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) {
+    return o.__proto__ || Object.getPrototypeOf(o);
+  };
+  return _getPrototypeOf(o);
+}
+
+function _setPrototypeOf(o, p) {
+  _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) {
+    o.__proto__ = p;
+    return o;
+  };
+
+  return _setPrototypeOf(o, p);
+}
+
+function _assertThisInitialized(self) {
+  if (self === void 0) {
+    throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
+  }
+
+  return self;
+}
+
+function _possibleConstructorReturn(self, call) {
+  if (call && (typeof call === "object" || typeof call === "function")) {
+    return call;
+  }
+
+  return _assertThisInitialized(self);
+}
+
+var Pane =
+/*#__PURE__*/
+function (_React$PureComponent) {
+  _inherits(Pane, _React$PureComponent);
+
+  function Pane() {
+    _classCallCheck(this, Pane);
+
+    return _possibleConstructorReturn(this, _getPrototypeOf(Pane).apply(this, arguments));
+  }
+
+  _createClass(Pane, [{
+    key: "render",
+    value: function render() {
+      var _this$props = this.props,
+          children = _this$props.children,
+          className = _this$props.className,
+          split = _this$props.split,
+          styleProps = _this$props.style,
+          size = _this$props.size,
+          eleRef = _this$props.eleRef;
+      var classes = ['Pane', split, className];
+      var style = {
+        flex: 1,
+        position: 'relative',
+        outline: 'none'
+      };
+
+      if (size !== undefined) {
+        if (split === 'vertical') {
+          style.width = size;
+        } else {
+          style.height = size;
+          style.display = 'flex';
+        }
+
+        style.flex = 'none';
+      }
+
+      style = Object.assign({}, style, styleProps || {});
+      return _react.default.createElement("div", {
+        ref: eleRef,
+        className: classes.join(' '),
+        style: style
+      }, children);
+    }
+  }]);
+
+  return Pane;
+}(_react.default.PureComponent);
+
+exports.Pane = Pane;
+Pane.propTypes = {
+  className: _propTypes.default.string.isRequired,
+  children: _propTypes.default.node.isRequired,
+  size: _propTypes.default.oneOfType([_propTypes.default.string, _propTypes.default.number]),
+  split: _propTypes.default.oneOf(['vertical', 'horizontal']),
+  style: _reactStyleProptype.default,
+  eleRef: _propTypes.default.func
+};
+Pane.defaultProps = {};
+var RESIZER_DEFAULT_CLASSNAME = 'Resizer';
+
+var Resizer =
+/*#__PURE__*/
+function (_React$Component) {
+  _inherits(Resizer, _React$Component);
+
+  function Resizer() {
+    _classCallCheck(this, Resizer);
+
+    return _possibleConstructorReturn(this, _getPrototypeOf(Resizer).apply(this, arguments));
+  }
+
+  _createClass(Resizer, [{
+    key: "render",
+    value: function render() {
+      var _this$props = this.props,
+          className = _this$props.className,
+          _onClick = _this$props.onClick,
+          _onDoubleClick = _this$props.onDoubleClick,
+          _onMouseDown = _this$props.onMouseDown,
+          _onTouchEnd = _this$props.onTouchEnd,
+          _onTouchStart = _this$props.onTouchStart,
+          resizerClassName = _this$props.resizerClassName,
+          split = _this$props.split,
+          style = _this$props.style;
+      var classes = [resizerClassName, split, className];
+      return _react.default.createElement("span", {
+        role: "presentation",
+        className: classes.join(' '),
+        style: style,
+        onMouseDown: function onMouseDown(event) {
+          return _onMouseDown(event);
+        },
+        onTouchStart: function onTouchStart(event) {
+          event.preventDefault();
+
+          _onTouchStart(event);
+        },
+        onTouchEnd: function onTouchEnd(event) {
+          event.preventDefault();
+
+          _onTouchEnd(event);
+        },
+        onClick: function onClick(event) {
+          if (_onClick) {
+            event.preventDefault();
+
+            _onClick(event);
+          }
+        },
+        onDoubleClick: function onDoubleClick(event) {
+          if (_onDoubleClick) {
+            event.preventDefault();
+
+            _onDoubleClick(event);
+          }
+        }
+      });
+    }
+  }]);
+
+  return Resizer;
+}(_react.default.Component);
+
+Resizer.propTypes = {
+  className: _propTypes.default.string.isRequired,
+  onClick: _propTypes.default.func,
+  onDoubleClick: _propTypes.default.func,
+  onMouseDown: _propTypes.default.func.isRequired,
+  onTouchStart: _propTypes.default.func.isRequired,
+  onTouchEnd: _propTypes.default.func.isRequired,
+  split: _propTypes.default.oneOf(['vertical', 'horizontal']),
+  style: _reactStyleProptype.default,
+  resizerClassName: _propTypes.default.string.isRequired
+};
+Resizer.defaultProps = {
+  resizerClassName: RESIZER_DEFAULT_CLASSNAME
+};
+
+function unFocus(document, window) {
+  if (document.selection) {
+    document.selection.empty();
+  } else {
+    try {
+      window.getSelection().removeAllRanges(); // eslint-disable-next-line no-empty
+    } catch (e) {}
+  }
+}
+
+function getDefaultSize(defaultSize, minSize, maxSize, draggedSize) {
+  if (typeof draggedSize === 'number') {
+    var min = typeof minSize === 'number' ? minSize : 0;
+    var max = typeof maxSize === 'number' && maxSize >= 0 ? maxSize : Infinity;
+    return Math.max(min, Math.min(max, draggedSize));
+  }
+
+  if (defaultSize !== undefined) {
+    return defaultSize;
+  }
+
+  return minSize;
+}
+
+function removeNullChildren(children) {
+  return _react.default.Children.toArray(children).filter(function (c) {
+    return c;
+  });
+}
+
+var SplitPane =
+/*#__PURE__*/
+function (_React$Component) {
+  _inherits(SplitPane, _React$Component);
+
+  function SplitPane(props) {
+    var _this;
+
+    _classCallCheck(this, SplitPane);
+
+    _this = _possibleConstructorReturn(this, _getPrototypeOf(SplitPane).call(this, props));
+    _this.onMouseDown = _this.onMouseDown.bind(_assertThisInitialized(_assertThisInitialized(_this)));
+    _this.onTouchStart = _this.onTouchStart.bind(_assertThisInitialized(_assertThisInitialized(_this)));
+    _this.onMouseMove = _this.onMouseMove.bind(_assertThisInitialized(_assertThisInitialized(_this)));
+    _this.onTouchMove = _this.onTouchMove.bind(_assertThisInitialized(_assertThisInitialized(_this)));
+    _this.onMouseUp = _this.onMouseUp.bind(_assertThisInitialized(_assertThisInitialized(_this))); // order of setting panel sizes.
+    // 1. size
+    // 2. getDefaultSize(defaultSize, minsize, maxSize)
+
+    var size = props.size,
+        defaultSize = props.defaultSize,
+        minSize = props.minSize,
+        maxSize = props.maxSize,
+        primary = props.primary;
+    var initialSize = size !== undefined ? size : getDefaultSize(defaultSize, minSize, maxSize, null);
+    _this.state = {
+      active: false,
+      resized: false,
+      pane1Size: primary === 'first' ? initialSize : undefined,
+      pane2Size: primary === 'second' ? initialSize : undefined,
+      // these are props that are needed in static functions. ie: gDSFP
+      instanceProps: {
+        size: size
+      }
+    };
+    return _this;
+  }
+
+  _createClass(SplitPane, [{
+    key: "componentDidMount",
+    value: function componentDidMount() {
+      document.addEventListener('mouseup', this.onMouseUp);
+      document.addEventListener('mousemove', this.onMouseMove);
+      document.addEventListener('touchmove', this.onTouchMove);
+      this.setState(SplitPane.getSizeUpdate(this.props, this.state));
+    }
+  }, {
+    key: "componentWillUnmount",
+    value: function componentWillUnmount() {
+      document.removeEventListener('mouseup', this.onMouseUp);
+      document.removeEventListener('mousemove', this.onMouseMove);
+      document.removeEventListener('touchmove', this.onTouchMove);
+    }
+  }, {
+    key: "onMouseDown",
+    value: function onMouseDown(event) {
+      var eventWithTouches = Object.assign({}, event, {
+        touches: [{
+          clientX: event.clientX,
+          clientY: event.clientY
+        }]
+      });
+      this.onTouchStart(eventWithTouches);
+    }
+  }, {
+    key: "onTouchStart",
+    value: function onTouchStart(event) {
+      var _this$props = this.props,
+          allowResize = _this$props.allowResize,
+          onDragStarted = _this$props.onDragStarted,
+          split = _this$props.split;
+
+      if (allowResize) {
+        unFocus(document, window);
+        var position = split === 'vertical' ? event.touches[0].clientX : event.touches[0].clientY;
+
+        if (typeof onDragStarted === 'function') {
+          onDragStarted();
+        }
+
+        this.setState({
+          active: true,
+          position: position
+        });
+      }
+    }
+  }, {
+    key: "onMouseMove",
+    value: function onMouseMove(event) {
+      var eventWithTouches = Object.assign({}, event, {
+        touches: [{
+          clientX: event.clientX,
+          clientY: event.clientY
+        }]
+      });
+      this.onTouchMove(eventWithTouches);
+    }
+  }, {
+    key: "onTouchMove",
+    value: function onTouchMove(event) {
+      var _this$props2 = this.props,
+          allowResize = _this$props2.allowResize,
+          maxSize = _this$props2.maxSize,
+          minSize = _this$props2.minSize,
+          onChange = _this$props2.onChange,
+          split = _this$props2.split,
+          step = _this$props2.step;
+      var _this$state = this.state,
+          active = _this$state.active,
+          position = _this$state.position;
+
+      if (allowResize && active) {
+        unFocus(document, window);
+        var isPrimaryFirst = this.props.primary === 'first';
+        var ref = isPrimaryFirst ? this.pane1 : this.pane2;
+        var ref2 = isPrimaryFirst ? this.pane2 : this.pane1;
+
+        if (ref) {
+          var node = ref;
+          var node2 = ref2;
+
+          if (node.getBoundingClientRect) {
+            var width = node.getBoundingClientRect().width;
+            var height = node.getBoundingClientRect().height;
+            var current = split === 'vertical' ? event.touches[0].clientX : event.touches[0].clientY;
+            var size = split === 'vertical' ? width : height;
+            var positionDelta = position - current;
+
+            if (step) {
+              if (Math.abs(positionDelta) < step) {
+                return;
+              } // Integer division
+              // eslint-disable-next-line no-bitwise
+
+
+              positionDelta = ~~(positionDelta / step) * step;
+            }
+
+            var sizeDelta = isPrimaryFirst ? positionDelta : -positionDelta;
+            var pane1Order = parseInt(window.getComputedStyle(node).order);
+            var pane2Order = parseInt(window.getComputedStyle(node2).order);
+
+            if (pane1Order > pane2Order) {
+              sizeDelta = -sizeDelta;
+            }
+
+            var newMaxSize = maxSize;
+
+            if (maxSize !== undefined && maxSize <= 0) {
+              var splitPane = this.splitPane;
+
+              if (split === 'vertical') {
+                newMaxSize = splitPane.getBoundingClientRect().width + maxSize;
+              } else {
+                newMaxSize = splitPane.getBoundingClientRect().height + maxSize;
+              }
+            }
+
+            var newSize = size - sizeDelta;
+            var newPosition = position - positionDelta;
+
+            if (newSize < minSize) {
+              newSize = minSize;
+            } else if (maxSize !== undefined && newSize > newMaxSize) {
+              newSize = newMaxSize;
+            } else {
+              this.setState({
+                position: newPosition,
+                resized: true
+              });
+            }
+
+            if (onChange) onChange(newSize);
+            this.setState(_defineProperty({
+              draggedSize: newSize
+            }, isPrimaryFirst ? 'pane1Size' : 'pane2Size', newSize));
+          }
+        }
+      }
+    }
+  }, {
+    key: "onMouseUp",
+    value: function onMouseUp() {
+      var _this$props3 = this.props,
+          allowResize = _this$props3.allowResize,
+          onDragFinished = _this$props3.onDragFinished;
+      var _this$state2 = this.state,
+          active = _this$state2.active,
+          draggedSize = _this$state2.draggedSize;
+
+      if (allowResize && active) {
+        if (typeof onDragFinished === 'function') {
+          onDragFinished(draggedSize);
+        }
+
+        this.setState({
+          active: false
+        });
+      }
+    } // we have to check values since gDSFP is called on every render and more in StrictMode
+
+  }, {
+    key: "render",
+    value: function render() {
+      var _this2 = this;
+
+      var _this$props4 = this.props,
+          allowResize = _this$props4.allowResize,
+          children = _this$props4.children,
+          className = _this$props4.className,
+          onResizerClick = _this$props4.onResizerClick,
+          onResizerDoubleClick = _this$props4.onResizerDoubleClick,
+          paneClassName = _this$props4.paneClassName,
+          pane1ClassName = _this$props4.pane1ClassName,
+          pane2ClassName = _this$props4.pane2ClassName,
+          paneStyle = _this$props4.paneStyle,
+          pane1StyleProps = _this$props4.pane1Style,
+          pane2StyleProps = _this$props4.pane2Style,
+          resizerClassName = _this$props4.resizerClassName,
+          resizerStyle = _this$props4.resizerStyle,
+          split = _this$props4.split,
+          styleProps = _this$props4.style;
+      var _this$state3 = this.state,
+          pane1Size = _this$state3.pane1Size,
+          pane2Size = _this$state3.pane2Size;
+      var disabledClass = allowResize ? '' : 'disabled';
+      var resizerClassNamesIncludingDefault = resizerClassName ? "".concat(resizerClassName, " ").concat(RESIZER_DEFAULT_CLASSNAME) : resizerClassName;
+      var notNullChildren = removeNullChildren(children);
+
+      var style = _objectSpread({
+        display: 'flex',
+        flex: 1,
+        height: '100%',
+        position: 'absolute',
+        outline: 'none',
+        overflow: 'hidden',
+        MozUserSelect: 'text',
+        WebkitUserSelect: 'text',
+        msUserSelect: 'text',
+        userSelect: 'text'
+      }, styleProps);
+
+      if (split === 'vertical') {
+        Object.assign(style, {
+          flexDirection: 'row',
+          left: 0,
+          right: 0
+        });
+      } else {
+        Object.assign(style, {
+          bottom: 0,
+          flexDirection: 'column',
+          minHeight: '100%',
+          top: 0,
+          width: '100%'
+        });
+      }
+
+      var classes = ['SplitPane', className, split, disabledClass];
+
+      var pane1Style = _objectSpread({}, paneStyle, pane1StyleProps);
+
+      var pane2Style = _objectSpread({}, paneStyle, pane2StyleProps);
+
+      var pane1Classes = ['Pane1', paneClassName, pane1ClassName].join(' ');
+      var pane2Classes = ['Pane2', paneClassName, pane2ClassName].join(' ');
+      return _react.default.createElement("div", {
+        className: classes.join(' '),
+        ref: function ref(node) {
+          _this2.splitPane = node;
+        },
+        style: style
+      }, _react.default.createElement(Pane, {
+        className: pane1Classes,
+        key: "pane1",
+        eleRef: function eleRef(node) {
+          _this2.pane1 = node;
+        },
+        size: pane1Size,
+        split: split,
+        style: pane1Style
+      }, notNullChildren[0]), _react.default.createElement(Resizer, {
+        className: disabledClass,
+        onClick: onResizerClick,
+        onDoubleClick: onResizerDoubleClick,
+        onMouseDown: this.onMouseDown,
+        onTouchStart: this.onTouchStart,
+        onTouchEnd: this.onMouseUp,
+        key: "resizer",
+        resizerClassName: resizerClassNamesIncludingDefault,
+        split: split,
+        style: resizerStyle || {}
+      }), _react.default.createElement(Pane, {
+        className: pane2Classes,
+        key: "pane2",
+        eleRef: function eleRef(node) {
+          _this2.pane2 = node;
+        },
+        size: pane2Size,
+        split: split,
+        style: pane2Style
+      }, notNullChildren[1]));
+    }
+  }], [{
+    key: "getDerivedStateFromProps",
+    value: function getDerivedStateFromProps(nextProps, prevState) {
+      return SplitPane.getSizeUpdate(nextProps, prevState);
+    }
+  }, {
+    key: "getSizeUpdate",
+    value: function getSizeUpdate(props, state) {
+      var newState = {};
+      var instanceProps = state.instanceProps;
+
+      if (instanceProps.size === props.size && props.size !== undefined) {
+        return {};
+      }
+
+      var newSize = props.size !== undefined ? props.size : getDefaultSize(props.defaultSize, props.minSize, props.maxSize, state.draggedSize);
+
+      if (props.size !== undefined) {
+        newState.draggedSize = newSize;
+      }
+
+      var isPanel1Primary = props.primary === 'first';
+      newState[isPanel1Primary ? 'pane1Size' : 'pane2Size'] = newSize;
+      newState[isPanel1Primary ? 'pane2Size' : 'pane1Size'] = undefined;
+      newState.instanceProps = {
+        size: props.size
+      };
+      return newState;
+    }
+  }]);
+
+  return SplitPane;
+}(_react.default.Component);
+
+SplitPane.propTypes = {
+  allowResize: _propTypes.default.bool,
+  children: _propTypes.default.arrayOf(_propTypes.default.node).isRequired,
+  className: _propTypes.default.string,
+  primary: _propTypes.default.oneOf(['first', 'second']),
+  minSize: _propTypes.default.oneOfType([_propTypes.default.string, _propTypes.default.number]),
+  maxSize: _propTypes.default.oneOfType([_propTypes.default.string, _propTypes.default.number]),
+  // eslint-disable-next-line react/no-unused-prop-types
+  defaultSize: _propTypes.default.oneOfType([_propTypes.default.string, _propTypes.default.number]),
+  size: _propTypes.default.oneOfType([_propTypes.default.string, _propTypes.default.number]),
+  split: _propTypes.default.oneOf(['vertical', 'horizontal']),
+  onDragStarted: _propTypes.default.func,
+  onDragFinished: _propTypes.default.func,
+  onChange: _propTypes.default.func,
+  onResizerClick: _propTypes.default.func,
+  onResizerDoubleClick: _propTypes.default.func,
+  style: _reactStyleProptype.default,
+  resizerStyle: _reactStyleProptype.default,
+  paneClassName: _propTypes.default.string,
+  pane1ClassName: _propTypes.default.string,
+  pane2ClassName: _propTypes.default.string,
+  paneStyle: _reactStyleProptype.default,
+  pane1Style: _reactStyleProptype.default,
+  pane2Style: _reactStyleProptype.default,
+  resizerClassName: _propTypes.default.string,
+  step: _propTypes.default.number
+};
+SplitPane.defaultProps = {
+  allowResize: true,
+  minSize: 50,
+  primary: 'first',
+  split: 'vertical',
+  paneClassName: '',
+  pane1ClassName: '',
+  pane2ClassName: ''
+};
+(0, _reactLifecyclesCompat.polyfill)(SplitPane);
+var _default = SplitPane;
+exports.default = _default;
+},{"react":"../node_modules/react/index.js","prop-types":"../node_modules/prop-types/index.js","react-style-proptype":"../node_modules/react-style-proptype/src/index.js","react-lifecycles-compat":"../node_modules/react-lifecycles-compat/react-lifecycles-compat.es.js"}],"components/collab/Visualizer.jsx":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var _react = _interopRequireWildcard(require("react"));
+
+var _Button = _interopRequireDefault(require("@material-ui/core/Button"));
+
+var _SwipeableDrawer = _interopRequireDefault(require("@material-ui/core/SwipeableDrawer"));
+
+var _List = _interopRequireDefault(require("@material-ui/core/List"));
+
+var _ListItem = _interopRequireDefault(require("@material-ui/core/ListItem"));
+
+var _ListItemText = _interopRequireDefault(require("@material-ui/core/ListItemText"));
+
+var _styledComponents = _interopRequireDefault(require("styled-components"));
+
+var _propTypes = _interopRequireDefault(require("prop-types"));
+
+var _Delete = _interopRequireDefault(require("@material-ui/icons/Delete"));
+
+var _Tooltip = _interopRequireDefault(require("@material-ui/core/Tooltip"));
+
+var _PlayBox = _interopRequireDefault(require("../common/PlayBox"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _getRequireWildcardCache() { if (typeof WeakMap !== "function") return null; var cache = new WeakMap(); _getRequireWildcardCache = function () { return cache; }; return cache; }
+
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } if (obj === null || typeof obj !== "object" && typeof obj !== "function") { return { default: obj }; } var cache = _getRequireWildcardCache(); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj.default = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
+
+function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); keys.push.apply(keys, symbols); } return keys; }
+
+function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys(source, true).forEach(function (key) { _defineProperty(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)); } else { ownKeys(source).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } } return target; }
+
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
+function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _nonIterableRest(); }
+
+function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance"); }
+
+function _iterableToArrayLimit(arr, i) { if (!(Symbol.iterator in Object(arr) || Object.prototype.toString.call(arr) === "[object Arguments]")) { return; } var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"] != null) _i["return"](); } finally { if (_d) throw _e; } } return _arr; }
+
+function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
+
+function _templateObject() {
+  var data = _taggedTemplateLiteral(["\n  display: flex;\n  flex-wrap: wrap;\n"]);
+
+  _templateObject = function _templateObject() {
+    return data;
+  };
+
+  return data;
+}
+
+function _taggedTemplateLiteral(strings, raw) { if (!raw) { raw = strings.slice(0); } return Object.freeze(Object.defineProperties(strings, { raw: { value: Object.freeze(raw) } })); }
+
+var EditorWrapper = _styledComponents.default.div(_templateObject());
+
+var Visualizer = function Visualizer(_ref) {
+  var editorWidth = _ref.editorWidth;
+
+  var _useState = (0, _react.useState)({
+    bottomDrawer: false
+  }),
+      _useState2 = _slicedToArray(_useState, 2),
+      state = _useState2[0],
+      setState = _useState2[1];
+
+  var _useState3 = (0, _react.useState)([]),
+      _useState4 = _slicedToArray(_useState3, 2),
+      mySongs = _useState4[0],
+      setMySongs = _useState4[1];
+
+  var _useState5 = (0, _react.useState)([]),
+      _useState6 = _slicedToArray(_useState5, 2),
+      visualizedSongs = _useState6[0],
+      setVisualizedSongs = _useState6[1];
+
+  var getTotalSongs = function getTotalSongs() {
+    fetch('https://mqp-server.herokuapp.com/gettotalsongs', {
+      // fetch('http://localhost:3000/gettotalsongs', {
+      method: 'post',
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    }).then(function (res) {
+      return res.json();
+    }).then(function (data) {
+      setMySongs(data);
+    });
+  };
+
+  (0, _react.useEffect)(function () {
+    var interval = setInterval(function () {
+      getTotalSongs();
+      console.log('fetching');
+    }, 6000);
+    return function () {
+      return clearInterval(interval);
+    };
+  }, []);
+
+  var deleteVisualizedSong = function deleteVisualizedSong(song) {
+    var newList = visualizedSongs;
+    newList.splice(newList.indexOf(song), 1);
+    setVisualizedSongs(newList);
+  };
+
+  var loadSong = function loadSong(songToVisualize) {
+    if (visualizedSongs.includes(songToVisualize.songid)) {
+      alert('Song is already there');
+      return;
+    }
+
+    if (visualizedSongs.length >= 4) {
+      alert('You can only play a maximum of 4 songs at the same time');
+    } else {
+      var newList = visualizedSongs;
+
+      for (var i = 0; i < visualizedSongs.length; i += 1) {
+        if (newList[i].songid === songToVisualize.songid) {
+          newList.splice(i, 1);
+          break;
+        }
+      }
+
+      setVisualizedSongs(newList.concat(songToVisualize.songid));
+    }
+  };
+
+  var toggleDrawer = function toggleDrawer(side, open) {
+    return function (event) {
+      if (event && event.type === 'keydown' && (event.key === 'Tab' || event.key === 'Shift')) {
+        return;
+      }
+
+      setState(_objectSpread({}, state, _defineProperty({}, side, open)));
+    };
+  };
+
+  var fullList = function fullList(side) {
+    return _react.default.createElement("div", {
+      role: "presentation",
+      onClick: toggleDrawer(side, false),
+      onKeyDown: toggleDrawer(side, false)
+    }, _react.default.createElement(_List.default, null, mySongs.map(function (song) {
+      return _react.default.createElement(_ListItem.default, {
+        button: true,
+        key: song.songid,
+        onClick: function onClick() {
+          return loadSong(song);
+        }
+      }, _react.default.createElement(_ListItemText.default, {
+        primary: song.title
+      }));
+    })));
+  };
+
+  return _react.default.createElement("div", null, _react.default.createElement(_Button.default, {
+    onClick: toggleDrawer('bottom', true)
+  }, "All Songs"), _react.default.createElement(EditorWrapper, null, mySongs.map(function (song) {
+    if (visualizedSongs.includes(song.songid)) {
+      return _react.default.createElement(_react.default.Fragment, null, _react.default.createElement(_Tooltip.default, {
+        title: "Delete \"".concat(song.title, "\" song")
+      }, _react.default.createElement(_Delete.default, {
+        onClick: function onClick() {
+          return deleteVisualizedSong(song.songid);
+        }
+      })), _react.default.createElement(_PlayBox.default, {
+        id: song.songid,
+        value: song.content,
+        isReadOnly: true,
+        isCollab: true,
+        editorWidth: editorWidth,
+        editorHeight: "50vh"
+      }));
+    }
+
+    return null;
+  })), _react.default.createElement(_SwipeableDrawer.default, {
+    anchor: "bottom",
+    open: state.bottom,
+    onClose: toggleDrawer('bottom', false),
+    onOpen: toggleDrawer('bottom', true)
+  }, fullList('bottom')));
+};
+
+Visualizer.propTypes = {
+  editorWidth: _propTypes.default.string.isRequired
+};
+var _default = Visualizer;
+exports.default = _default;
+},{"react":"../node_modules/react/index.js","@material-ui/core/Button":"../node_modules/@material-ui/core/esm/Button/index.js","@material-ui/core/SwipeableDrawer":"../node_modules/@material-ui/core/esm/SwipeableDrawer/index.js","@material-ui/core/List":"../node_modules/@material-ui/core/esm/List/index.js","@material-ui/core/ListItem":"../node_modules/@material-ui/core/esm/ListItem/index.js","@material-ui/core/ListItemText":"../node_modules/@material-ui/core/esm/ListItemText/index.js","styled-components":"../node_modules/styled-components/dist/styled-components.browser.esm.js","prop-types":"../node_modules/prop-types/index.js","@material-ui/icons/Delete":"../node_modules/@material-ui/icons/Delete.js","@material-ui/core/Tooltip":"../node_modules/@material-ui/core/esm/Tooltip/index.js","../common/PlayBox":"components/common/PlayBox.jsx"}],"../node_modules/parcel/src/builtins/bundle-url.js":[function(require,module,exports) {
+var bundleURL = null;
+
+function getBundleURLCached() {
+  if (!bundleURL) {
+    bundleURL = getBundleURL();
+  }
+
+  return bundleURL;
+}
+
+function getBundleURL() {
+  // Attempt to find the URL of the current script and use that as the base URL
+  try {
+    throw new Error();
+  } catch (err) {
+    var matches = ('' + err.stack).match(/(https?|file|ftp|chrome-extension|moz-extension):\/\/[^)\n]+/g);
+
+    if (matches) {
+      return getBaseURL(matches[0]);
+    }
+  }
+
+  return '/';
+}
+
+function getBaseURL(url) {
+  return ('' + url).replace(/^((?:https?|file|ftp|chrome-extension|moz-extension):\/\/.+)\/[^/]+$/, '$1') + '/';
+}
+
+exports.getBundleURL = getBundleURLCached;
+exports.getBaseURL = getBaseURL;
+},{}],"../node_modules/parcel/src/builtins/css-loader.js":[function(require,module,exports) {
+var bundle = require('./bundle-url');
+
+function updateLink(link) {
+  var newLink = link.cloneNode();
+
+  newLink.onload = function () {
+    link.remove();
+  };
+
+  newLink.href = link.href.split('?')[0] + '?' + Date.now();
+  link.parentNode.insertBefore(newLink, link.nextSibling);
+}
+
+var cssTimeout = null;
+
+function reloadCSS() {
+  if (cssTimeout) {
+    return;
+  }
+
+  cssTimeout = setTimeout(function () {
+    var links = document.querySelectorAll('link[rel="stylesheet"]');
+
+    for (var i = 0; i < links.length; i++) {
+      if (bundle.getBaseURL(links[i].href) === bundle.getBundleURL()) {
+        updateLink(links[i]);
+      }
+    }
+
+    cssTimeout = null;
+  }, 50);
+}
+
+module.exports = reloadCSS;
+},{"./bundle-url":"../node_modules/parcel/src/builtins/bundle-url.js"}],"components/collab/styles.css":[function(require,module,exports) {
+var reloadCSS = require('_css_loader');
+
+module.hot.dispose(reloadCSS);
+module.hot.accept(reloadCSS);
+},{"_css_loader":"../node_modules/parcel/src/builtins/css-loader.js"}],"components/collab/Collab.jsx":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var _react = _interopRequireWildcard(require("react"));
+
+var _reactSplitPane = _interopRequireDefault(require("react-split-pane"));
+
+var _PlayBox = _interopRequireDefault(require("../common/PlayBox"));
+
+var _Visualizer = _interopRequireDefault(require("./Visualizer"));
+
+require("./styles.css");
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _getRequireWildcardCache() { if (typeof WeakMap !== "function") return null; var cache = new WeakMap(); _getRequireWildcardCache = function () { return cache; }; return cache; }
+
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } if (obj === null || typeof obj !== "object" && typeof obj !== "function") { return { default: obj }; } var cache = _getRequireWildcardCache(); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj.default = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
+
+function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _nonIterableRest(); }
+
+function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance"); }
+
+function _iterableToArrayLimit(arr, i) { if (!(Symbol.iterator in Object(arr) || Object.prototype.toString.call(arr) === "[object Arguments]")) { return; } var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"] != null) _i["return"](); } finally { if (_d) throw _e; } } return _arr; }
+
+function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
+
+var Collab = function Collab() {
+  var _useState = (0, _react.useState)('50vw'),
+      _useState2 = _slicedToArray(_useState, 2),
+      boxWidth = _useState2[0],
+      setBoxWidth = _useState2[1];
+
+  var _useState3 = (0, _react.useState)('23vw'),
+      _useState4 = _slicedToArray(_useState3, 2),
+      halfBoxWidth = _useState4[0],
+      setHalfBoxWidth = _useState4[1];
+
+  var calculateVW = function calculateVW(sizeInPx) {
+    var newLeftWidth = sizeInPx / 19.2;
+    var newRightWidth = (1850 - sizeInPx) / 19.2;
+    setBoxWidth("".concat(newLeftWidth, "vw"));
+    setHalfBoxWidth("".concat(newRightWidth / 2, "vw"));
+  };
+
+  return _react.default.createElement(_reactSplitPane.default, {
+    split: "vertical",
+    defaultSize: 960,
+    onChange: function onChange(size) {
+      return calculateVW(size);
+    }
+  }, _react.default.createElement(_PlayBox.default, {
+    id: "collabBox",
+    value: "// Start making noise",
+    editorWidth: boxWidth,
+    isPlayground: true
+  }), _react.default.createElement(_Visualizer.default, {
+    editorWidth: halfBoxWidth
+  }));
+};
+
+var _default = Collab;
+exports.default = _default;
+},{"react":"../node_modules/react/index.js","react-split-pane":"../node_modules/react-split-pane/dist/index.esm.js","../common/PlayBox":"components/common/PlayBox.jsx","./Visualizer":"components/collab/Visualizer.jsx","./styles.css":"components/collab/styles.css"}],"App.jsx":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -85783,6 +88602,8 @@ var _Navbar = _interopRequireDefault(require("./components/common/Navbar"));
 
 var _Exercises = _interopRequireDefault(require("./components/exercises/Exercises"));
 
+var _Collab = _interopRequireDefault(require("./components/collab/Collab"));
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 var App = function App() {
@@ -85805,12 +88626,15 @@ var App = function App() {
   }), _react.default.createElement(_reactRouterDom.Route, {
     path: "/documentation",
     component: _UserDocumentation.default
+  }), _react.default.createElement(_reactRouterDom.Route, {
+    path: "/collab",
+    component: _Collab.default
   })));
 };
 
 var _default = App;
 exports.default = _default;
-},{"react":"../node_modules/react/index.js","react-router-dom":"../node_modules/react-router-dom/esm/react-router-dom.js","./components/usertesting/UTHomepage":"components/usertesting/UTHomepage.jsx","./components/playground/Playground":"components/playground/Playground.jsx","./components/LandingPage/LandingPage":"components/LandingPage/LandingPage.jsx","./components/tutorial/Tutorial":"components/tutorial/Tutorial.jsx","./components/documentation/UserDocumentation":"components/documentation/UserDocumentation.jsx","./components/common/Navbar":"components/common/Navbar.jsx","./components/exercises/Exercises":"components/exercises/Exercises.jsx"}],"index.jsx":[function(require,module,exports) {
+},{"react":"../node_modules/react/index.js","react-router-dom":"../node_modules/react-router-dom/esm/react-router-dom.js","./components/usertesting/UTHomepage":"components/usertesting/UTHomepage.jsx","./components/playground/Playground":"components/playground/Playground.jsx","./components/LandingPage/LandingPage":"components/LandingPage/LandingPage.jsx","./components/tutorial/Tutorial":"components/tutorial/Tutorial.jsx","./components/documentation/UserDocumentation":"components/documentation/UserDocumentation.jsx","./components/common/Navbar":"components/common/Navbar.jsx","./components/exercises/Exercises":"components/exercises/Exercises.jsx","./components/collab/Collab":"components/collab/Collab.jsx"}],"index.jsx":[function(require,module,exports) {
 "use strict";
 
 var _react = _interopRequireDefault(require("react"));
@@ -85850,7 +88674,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "38209" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "39491" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};
