@@ -84981,7 +84981,8 @@ var PlayBox = function PlayBox(_ref) {
     theme: "sicko-theme",
     editorDidMount: handleEditorDidMount,
     options: {
-      readOnly: isReadOnly
+      readOnly: isReadOnly,
+      fontSize: 25
     }
   }), isCollab ? null : _react.default.createElement(_react.default.Fragment, null, _react.default.createElement(_Button.default, {
     className: buttonState,
@@ -88674,7 +88675,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "39491" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "42001" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};
