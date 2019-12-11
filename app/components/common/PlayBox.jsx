@@ -333,7 +333,7 @@ const PlayBox = ({
         language="sicko-mode"
         theme="sicko-theme"
         editorDidMount={handleEditorDidMount}
-        options={{ readOnly: isReadOnly }}
+        options={{ readOnly: isReadOnly, fontSize: 22 }}
       />
       {
         isCollab
