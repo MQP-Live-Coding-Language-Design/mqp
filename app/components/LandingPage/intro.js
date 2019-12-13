@@ -1,1 +1,1 @@
-export const intro = 'Welcome to *Language*! We are excited for you to explore your musical abilities with our simple syntax and interface. This project is still in development, and we hope that you can help us in the process!';
+export const intro = 'Welcome to PHAD! We are excited for you to explore your musical abilities with our simple syntax and interface. This project is still in development, and we hope that you can help us in the process!';
